@@ -40,7 +40,7 @@ rbnode *rbSearch(rbnode *, void *);
 void transplant(rbnode **, rbnode *, rbnode *);
 int rbDelete(rbnode **, void *);
 void rbScan(rbnode *, void **);
-int rbUnion(rbnode *, rbnode *);
+long rbUnion(rbnode *, rbnode *);
 rbnode *createRbTree();
 void deleteRbTree(rbnode **);
 static void deleteEachRBNode(rbnode *);

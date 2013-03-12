@@ -33,7 +33,7 @@ graph *newGraph() {
 /*
  * delete a graph
  */
-void deleteGraph(graph g) {
+void deleteGraph(graph *g) {
 	deleteSet(g->nodes);
 	deleteSet(g->edges);
 	free(g);
