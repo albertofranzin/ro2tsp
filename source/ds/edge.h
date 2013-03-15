@@ -14,29 +14,10 @@
 typedef struct _edge {
 	node *u;
 	node *v;
-	size_t weight;
+	double weight;
 } edge;
 
-/*
- * create an edge, given two nodes and a cost
- */
-edge *newEdge(node *u, node *v, size_t w) {
-	edge *ne = malloc(sizeof(node));
-	memset(ne, 0, sizeof(node));
-	ne->u = u;
-	ne->v = v;
-	ne->weight = w;
-	return ne;
-}
-
-/*
- * delete an edge
- * just a free
- */
-void deleteEdge(edge *e) {
-	deleteNode(e->u);
-	deleteNode(e->v);
-	free(e);
-}
+edge *newEdge(node *u, node *v, double w);
+void deleteEdge(edge *e);
 
 #endif
