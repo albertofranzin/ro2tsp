@@ -28,4 +28,6 @@ int main(int argc, char **argv) {
 							  el[i]->v->data,
 							  el[i]->weight);
 	}
+
+	return 0;
 }

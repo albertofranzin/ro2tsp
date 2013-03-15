@@ -174,21 +174,6 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 				pred[j] = h;
 			}
 		}
-		// Corresponding edge (h,j) SHOULD BE in position (binom(h-1, 2) + j)
-		// in the list of edges - look for triangular numbers.
-		// Note that since we start counting from 0, the formula
-		// for triangular numbers should be adjusted accordingly.
-		// A swap is needed if j > h, but it's fine since graph is directed;
-		// note that j=h cannot happen, because we don't have self-loops.
-		if (h < j) {
-			int tmp = h;
-			h = j;
-			j = tmp;
-		}
-		//anyway, I'm not sure at all that tree is being filled the right way
-		//printf("ev'rything ran fine so far...\n");
-		tree[i] = (edge *)(graph->edgeList[(h*(h-1))/2 + j]);
-		//printf("ev'rything ran fine so far...\n");
 	}
 
 	// partially (bubble-)sorting the edges insisting on the first node,
@@ -212,14 +197,29 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 	}
 
 	tree[0] = deltaOf1st[0];
-	tree[graph->no_of_nodes-1] = deltaOf1st[1];
+	tree[1] = deltaOf1st[1];
+	total_cost += deltaOf1st[0]->weight + deltaOf1st[1]->weight;
 
-	// compute final cost of the 1-tree
-	for (i = 2; i < graph->no_of_nodes; ++i) {
+	for (i = 2; i < graph->no_of_nodes ; ++i) {
+		// Corresponding edge (h,j) SHOULD BE in position (binom(h-1, 2) + j)
+		// in the list of edges - look for triangular numbers.
+		// Note that since we start counting from 0, the formula
+		// for triangular numbers should be adjusted accordingly.
+		// A swap is needed if j > h, but it's fine since graph is directed;
+		// note that j=h cannot happen, because we don't have self-loops.
+		j = i;
+		h = pred[j];
+		if (h < j) {
+			int tmp = h;
+			h = j;
+			j = tmp;
+		}
+		tree[i] = (edge *)(graph->edgeList[(h*(h-1))/2 + j]);
+
+		// at the same time, spare a loop by computing the total cost of the 1-tree
 		total_cost += L[i];
 	}
-	total_cost += deltaOf1st[0]->weight + deltaOf1st[1]->weight;
-	//printf("weights : %f %f\n", deltaOf1st[0]->weight, deltaOf1st[1]->weight);
+
 	free(deltaOf1st);
 
 	return total_cost;
