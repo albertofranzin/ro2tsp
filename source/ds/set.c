@@ -196,3 +196,13 @@ set *buildSetFromStreamString(char *stream, int k) {
 	free(app);
 	return s;
 }
+
+void *getMinimum(set *s) {
+	return (minimum(s->root))->key;
+}
+
+void *getMinimumAndDelete(set *s) {
+	void *key = (minimum(s->root))->key;
+	int deleted = rbDelete((rbnode **)&(s->root), key);
+	return key;
+}

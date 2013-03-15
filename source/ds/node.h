@@ -11,36 +11,20 @@
  * define a generic node of a graph
  * contains:
  * - pointer to data
+ * - pointer to parent (if needed)
+ * - pointer to list of adjacent nodes (or children - if any)
+ * - x-coord [0,1]
+ * - y-coord [0,1]
  */
 typedef struct _node {
 	int data;
+	//struct _node *parent;
+	//struct _node **adj;
+	double x;
+	double y;
 } node;
 
-/*
- * newNode
- * data [int] : the number associated to the node
- * 
- * create a new node
- *
- * return : the data
- */
-node *newNode(int data) {
-	node *nn = malloc(sizeof(int));
-	memset(nn, 0, sizeof(nn));
-	nn->data = data;
-
-	return nn;
-}
-
-/*
- * delete a node
- * first, delete all the edges connected to that node
- * then, finally, delete the node
- * 
- */
-void deleteNode(node *n) {
-	// edges *es = getEdgesConnectedToNode()
-	return;
-}
+node *newNode(int data);
+void deleteNode(node *n);
 
 #endif

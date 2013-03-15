@@ -31,5 +31,7 @@ void itemSupportMinsupOk(set *, int, int);
 char *buildStreamStringFromSet(set *);
 int *buildStreamIntFromSet(set *);
 set *buildSetFromStreamString(char *, int);
+void *getMinimum(set *);
+void *getMinimumAndDelete(set *);
 
 #endif
