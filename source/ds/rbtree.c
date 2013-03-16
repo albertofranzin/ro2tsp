@@ -235,7 +235,7 @@ int rbInsert(rbnode **root, void *key) {
 	return 1;
 }
 
-int rbInsertItemset(rbnode **root, void *key) {
+/*int rbInsertItemset(rbnode **root, void *key) {
 
 	if(rbSearchItemset(*root,key) != NULL)
 		return 0;
@@ -267,7 +267,7 @@ int rbInsertItemset(rbnode **root, void *key) {
 
 	z->color=RED;
 
-	/* rb-insert-fixup */
+	/* rb-insert-fixup * /
 	while(z->parent->color == RED) {
 		if(z->parent == z->parent->parent->left) {
 			y = z->parent->parent->right;
@@ -310,7 +310,7 @@ int rbInsertItemset(rbnode **root, void *key) {
 	(*root)->color = BLACK;
 
 	return 1;
-}
+}*/
 
 /* rbnode *rbSearch
  * parametri:
@@ -333,7 +333,7 @@ rbnode *rbSearch(rbnode *root, void *key) {
 	return x;
 }
 
-void *rbSearchItemset(rbnode *root, void *key) {
+/*void *rbSearchItemset(rbnode *root, void *key) {
 	
 	int r;
 	rbnode *x = root;
@@ -373,7 +373,7 @@ rbnode *rbSearchItemsetReturnRBNode(rbnode *root, void *key) {
 			x = x->right;
 	}
 	return NULL;
-}
+}*/
 
 /* eliminazione */
 
@@ -577,7 +577,7 @@ void deleteRbTree(rbnode **root) {
 }
 
 
-void printRbTree(rbnode *root) {
+/*void printRbTree(rbnode *root) {
 	rbnode *node = root;
 
 	if (node==NULL || node->key==NULL)
@@ -591,4 +591,4 @@ void printRbTree(rbnode *root) {
 				((itemset *)node->key)->count);
 		node = successor(node);
 	}
-}
+}*/

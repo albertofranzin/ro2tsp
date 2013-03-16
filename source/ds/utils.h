@@ -10,6 +10,16 @@
 
 /* constants and variables */
 
+typedef struct _parameters {
+	unsigned int no_of_nodes;
+	unsigned int seed;
+	unsigned short plot;
+	unsigned short plotOnlyTree;
+} parameters;
+
+// config file
+#define FILE_CONFIG "config"
+
 // define infinity for double
 #define DOUBLE_INFINITY DBL_MAX
 
@@ -22,7 +32,12 @@ extern double incumbent;
 #define distance(x1, y1, x2, y2) \
 	sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
 
+void init();
+
 void initializeRandom(long seed);
 void initializeRandomWithTime();
+
+short parHash(char *);
+parameters *getParameters();
 
 #endif

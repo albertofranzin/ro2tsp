@@ -7,13 +7,11 @@
 
 int main(int argc, char **argv) {
 
-	int seed = 56420;
-	if (seed != 0)
-		initializeRandom(seed);
-	else
-		initializeRandomWithTime();
+	parameters *pars = getParameters();
 
-	int no_of_nodes = 10;
+	initializeRandom(pars->seed);
+
+	int no_of_nodes = pars->no_of_nodes;
 	matrixGraph *graph = newMatrixGraph(no_of_nodes);
 	printf("matrixGraph created\n");
 
@@ -37,7 +35,8 @@ int main(int argc, char **argv) {
 							  el[i]->weight);
 	}
 
-	plotGraph(graph, el);
+	if (pars->plot)
+		plotGraph(graph, el, pars->plotOnlyTree);
 
 	return 0;
 }

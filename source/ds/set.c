@@ -29,7 +29,7 @@ void setAdd(set *s, void *el) {
 	s->cardinality += rbInsert((rbnode **)&(s->root), el);
 }
 
-void setAddItemset(set *s, void *el) {
+/*void setAddItemset(set *s, void *el) {
 
 	int r = rbInsertItemset((rbnode **)&(s->root), el);
 
@@ -40,7 +40,7 @@ void setAddItemset(set *s, void *el) {
 	} else {
 		s->cardinality += r;
 	}
-}
+}*/
 
 /* void setUnion
  * parametri:
@@ -106,16 +106,16 @@ void *searchInSet(set *s, void *i) {
 	return (void *)rbSearch(s->root, i);
 }
 
-void *searchItemsetInSet(set *s, itemset *i) {
+/*void *searchItemsetInSet(set *s, itemset *i) {
 	if(s->cardinality == 0) return NULL;
 	return (void *)rbSearchItemset(s->root, i);
-}
+}*/
 
 void printSet(set *s) {
 	printRbTree(s->root);
 }
 
-void itemSupportMinsupOk(set *s, int minsup, int dbLength) {
+/*void itemSupportMinsupOk(set *s, int minsup, int dbLength) {
 	itemset **scan = (itemset **)setScan(s);
 	int i=0;
 	
@@ -128,9 +128,9 @@ void itemSupportMinsupOk(set *s, int minsup, int dbLength) {
 	}
 	s->cardinality -= numberofel;
 	free(scan);
-}
+}*/
 
-char *buildStreamStringFromSet(set *s) {
+/*char *buildStreamStringFromSet(set *s) {
 
 	if (s==NULL)
 		return;
@@ -142,7 +142,7 @@ char *buildStreamStringFromSet(set *s) {
 
 	int k=strlen(scan[0]->name);
 	int i=0;
-	/* +1 per il carattere di fine stringa */
+	/* +1 per il carattere di fine stringa * /
 	char *stream = malloc(sizeof(char)*((s->cardinality)*k+1));
 	memset(stream, 0, sizeof(char)*((s->cardinality)*k+1));
 	char *p = stream;
@@ -153,9 +153,9 @@ char *buildStreamStringFromSet(set *s) {
 	}
 	free(scan);
 	return stream;
-}
+}*/
 
-int *buildStreamIntFromSet(set *s) {
+/*int *buildStreamIntFromSet(set *s) {
 
 	if (s==NULL)
 		return;
@@ -174,15 +174,15 @@ int *buildStreamIntFromSet(set *s) {
 
 	free(scan);
 	return stream;
-}
+}*/
 
-set *buildSetFromStreamString(char *stream, int k) {
+/*set *buildSetFromStreamString(char *stream, int k) {
 	set *s = newSet();
 
 	int i=0;
 	int lenStream = strlen(stream);
 	
-	/* +1 per il carattere di fine stringa */
+	/* +1 per il carattere di fine stringa * /
 	char *app = malloc(sizeof(char)*(k+1));
 	memset(app, 0, sizeof(char)*(k+1));
 	char *itStr = stream;
@@ -195,7 +195,7 @@ set *buildSetFromStreamString(char *stream, int k) {
 	}
 	free(app);
 	return s;
-}
+}*/
 
 void *getMinimum(set *s) {
 	return (minimum(s->root))->key;
