@@ -10,9 +10,8 @@
  * return : reference of the graph
  */
 matrixGraph *newMatrixGraph(size_t number_of_nodes) {
-	// allocate lists for nodes and edges
-	// it compiles - but I'm not sure it will run without segfaulting
 
+	// allocate lists for nodes and edges
 	matrixGraph *mg = (matrixGraph *)malloc(sizeof(matrixGraph));//(sizeof(long) + sizeof(void *) * 3);
 	memset(mg, 0, sizeof(matrixGraph));//sizeof(long) + sizeof(void *) * 3);
 	node **nodeList = (node **)malloc(sizeof(node) * number_of_nodes);
@@ -32,23 +31,31 @@ matrixGraph *newMatrixGraph(size_t number_of_nodes) {
 	//memory allocated
 	printf("matrixGraph.c :: newMatrixGraph :: memory allocated\n");
 
-	randomInitializeGraph(&mg, 0, 100);
-	printf("matrixGraph.c :: newMatrixGraph :: matrixGraph populated\n");
+	//randomInitializeGraph(&mg, 100);
+	//printf("matrixGraph.c :: newMatrixGraph :: matrixGraph populated\n");
 
 	//now, populate the lists of nodes and edges
 	int i, j;
 	for (i = 0; i < number_of_nodes; ++i) {
 		node *nn = newNode(i);
-		nn->x = (rand() % MAX_WEIGHT) / MAX_WEIGHT;
-		nn->y = (rand() % MAX_WEIGHT) / MAX_WEIGHT;
+		nn->x = rand() / 1.0 / RAND_MAX;
+		nn->y = rand() / 1.0 / RAND_MAX;
 		mg->nodeList[i] = nn;
 	}
 
-	/*for (i = 0; i < number_of_nodes; ++i) {
-		printf("%d\n", mg->nodeList[i]->data);
-	}*/
-
 	printf("matrixGraph.c :: newMatrixGraph :: list of nodes now populated\n");
+
+	// compute cost of edges using euclidean distance between nodes
+	for (i = 0; i < mg->no_of_nodes; ++i) {
+		for (j = 0; j < i; ++j) {
+			//printf("%d %d", i, j);fflush(stdout);
+			//printf("%f\n", graph->c[i][j]);
+			node *n1 = mg->nodeList[i];
+			node *n2 = mg->nodeList[j];
+			mg->c[i*mg->no_of_nodes + j] = distance(n1->x, n1->y, n2->x, n2->y);
+			mg->c[j*mg->no_of_nodes + i] = mg->c[i*mg->no_of_nodes + j];
+		}
+	}
 
 	int counter = 0;
 	for (i = 0; i < number_of_nodes; ++i) {
@@ -88,11 +95,7 @@ void deleteMatrixGraph(matrixGraph *mg) {
  *
  * initialize the cost matrix with random values
  */
-void randomInitializeGraph(matrixGraph **ggraph, size_t seed, size_t maxWeight) {
-	if (seed)
-		initializeRandom(seed);
-	else
-		initializeRandomWithTime();
+void randomInitializeGraph(matrixGraph **ggraph, size_t maxWeight) {
 
 	matrixGraph *graph = (matrixGraph *)(*ggraph);
 	printf("matrixGraph.c :: randomInitializeGraph :: graph retrieved\n");
@@ -118,8 +121,6 @@ void randomInitializeGraph(matrixGraph **ggraph, size_t seed, size_t maxWeight) 
  * builds a 1-tree
  *
  * return: the cost of the 1-tree
- *
- * TODO : CORRECTLY FILL IN THAT EFFIN' TREE DATA STRUCTURE
  */
 double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 	double cost = 0;
@@ -178,6 +179,7 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 
 	// partially (bubble-)sorting the edges insisting on the first node,
 	// in order to "close the circle".
+
 	// First, malloc and brutal memory copy
 	edge **deltaOf1st = malloc(sizeof(edge)*(graph->no_of_nodes-1));
 	memset(deltaOf1st, 0, sizeof(edge)*(graph->no_of_nodes-1));
@@ -200,9 +202,10 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 	tree[1] = deltaOf1st[1];
 	total_cost += deltaOf1st[0]->weight + deltaOf1st[1]->weight;
 
+	// finally, fill in the tree with the right edges
 	for (i = 2; i < graph->no_of_nodes ; ++i) {
-		// Corresponding edge (h,j) SHOULD BE in position (binom(h-1, 2) + j)
-		// in the list of edges - look for triangular numbers.
+		// Corresponding edge (h,j) is in position (binom(h-1, 2) + j)
+		// in the list of edges - look for 'triangular numbers'.
 		// Note that since we start counting from 0, the formula
 		// for triangular numbers should be adjusted accordingly.
 		// A swap is needed if j > h, but it's fine since graph is directed;

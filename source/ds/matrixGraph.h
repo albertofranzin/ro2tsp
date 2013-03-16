@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
+#include <math.h>
 #include "edge.h"
 #include "set.h"
 #include "utils.h"
@@ -30,7 +31,7 @@ typedef struct _matrixGraph {
 
 matrixGraph *newMatrixGraph(size_t);
 void deleteMatrixGraph(matrixGraph *);
-void randomInitializeGraph(matrixGraph **, size_t, size_t);
+void randomInitializeGraph(matrixGraph **, size_t);
 double matrixGraphOneTree(matrixGraph *, edge ***);
 
 #endif

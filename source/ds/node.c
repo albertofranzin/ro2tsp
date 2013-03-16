@@ -14,8 +14,8 @@ node *newNode(int data) {
 	nn->data = data;
 	//nn->parent = NULL;
 	//nn->adj = NULL;
-	nn->x = 0;
-	nn->y = 0;
+	nn->x = 0.;
+	nn->y = 0.;
 
 	return nn;
 }

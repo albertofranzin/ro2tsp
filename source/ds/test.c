@@ -1,22 +1,30 @@
 #include <stdio.h>
 #include "matrixGraph.h"
 #include "set.h"
+#include "plot.h"
 #include "utils.h"
 
 
 int main(int argc, char **argv) {
+
+	int seed = 56420;
+	if (seed != 0)
+		initializeRandom(seed);
+	else
+		initializeRandomWithTime();
+
 	int no_of_nodes = 10;
 	matrixGraph *graph = newMatrixGraph(no_of_nodes);
 	printf("matrixGraph created\n");
 
 	int i, j;
 
-	for (i = 0; i < no_of_nodes; ++i) {
+	/*for (i = 0; i < no_of_nodes; ++i) {
 		for (j = 0; j < no_of_nodes; ++j) {
 			printf("%f ", graph->c[i*no_of_nodes + j]);fflush(stdout);
 		}
 		printf("\n");
-	}
+	}*/
 
 	printf("\n\n---\n\nComputing the 1-tree : \n\n");
 	edge **el = malloc(sizeof(edge) * no_of_nodes);
@@ -28,6 +36,8 @@ int main(int argc, char **argv) {
 							  el[i]->v->data,
 							  el[i]->weight);
 	}
+
+	plotGraph(graph, el);
 
 	return 0;
 }
