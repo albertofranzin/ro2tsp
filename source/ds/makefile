@@ -1,11 +1,11 @@
 NOMEFILE = test.c
-PAR = -lm -g -O3 -g
+PAR = -g -O3 -lm
 
 test: clean buildLib $(NOMEFILE)
-	gcc $(PAR) -o $@ $(NOMEFILE) -L. -ltest
+	gcc $(NOMEFILE) -o $@ -L. -lro2ds $(PAR)
 
-buildLib: itemset.o set.o rbtree.o node.o edge.o matrixGraph.o utils.o
-	ar r libtest.a *.o
+buildLib: itemset.o set.o rbtree.o node.o edge.o matrixGraph.o utils.o plot.o
+	ar r libro2ds.a *.o
 #	rm *.o
 
 itemset.o: itemset.h itemset.c
@@ -28,6 +28,9 @@ utils.o: utils.h utils.c
 
 matrixGraph.o: matrixGraph.h matrixGraph.c
 	gcc -c matrixGraph.c
+
+plot.o: plot.h plot.c
+	gcc -c plot.c
 
 clean:
 	clear
