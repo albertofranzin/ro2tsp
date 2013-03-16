@@ -1,20 +1,18 @@
 #include "utils.h"
 
 void initializeRandom(long seed) {
-	srand(seed);
+	unsigned int sd = seed;
+	if (sd == 0) {
+		time_t now = time ( 0 ); 
+		unsigned char *p = (unsigned char *)&now;
+		sd = 0;
+		size_t i;
+
+		for ( i = 0; i < sizeof now; i++ ) 
+			sd = sd * ( UCHAR_MAX + 2U ) + p[i];
+	}
+	srand(sd);
 	printf("utils.c :: initializeRandom :: srand done\n");
-}
-
-void initializeRandomWithTime() {
-	time_t now = time ( 0 ); 
-	unsigned char *p = (unsigned char *)&now;
-	unsigned seed = 0;
-	size_t i;
-
-	for ( i = 0; i < sizeof now; i++ ) 
-		seed = seed * ( UCHAR_MAX + 2U ) + p[i];
-
-	initializeRandom(seed);
 }
 
 /*
@@ -40,7 +38,7 @@ short parHash(char *parName) {
 }
 
 // read parameters from config file
-// default value for parameters is set here
+// default values for parameters are set here
 parameters *getParameters() {
 	parameters *pars = malloc(sizeof(parameters));
 	memset(pars, 0, sizeof(parameters));
@@ -67,8 +65,9 @@ parameters *getParameters() {
 			// skip comments
 			if(line[0] == '#') continue;
 
-			p1 = strtok(line, "="); /* split */
-			p2 = strtok(NULL, "=");
+			// split and stri away the spaces
+			p1 = strtok(line, "= ");
+			p2 = strtok(NULL, "= ");
 
 			if(p2 != NULL) {
 				// treat correctly each parameter
@@ -77,8 +76,7 @@ parameters *getParameters() {
 							 break;
 					case 1 : pars->seed = atoi(p2);
 							 break;
-					case 2 :
-							 if (p2[0] == 'y' || p2[0] == 'Y')
+					case 2 : if (p2[0] == 'y' || p2[0] == 'Y')
 							 	pars->plot = 1;
 							 else
 							 	pars->plot = 0;
@@ -98,6 +96,9 @@ parameters *getParameters() {
 		/* errore nell'apertura del file */
 		perror( FILE_CONFIG );
 	}
+
+	printf("%d %d %d %d\n", pars->no_of_nodes, pars->seed,
+			pars->plot, pars->plotOnlyTree);
 
 	return pars;
 }
