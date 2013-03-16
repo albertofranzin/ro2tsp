@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
-#include "itemset.h"
+//#include "itemset.h"
 
 /* definizione della struttura rbnode
  * contiene:
@@ -35,7 +35,7 @@ rbnode *predecessor(rbnode *);
 void leftRotate(rbnode **, rbnode *);
 void rightRotate(rbnode **, rbnode *);
 int rbInsert(rbnode **, void *);
-int rbInsertItemset(rbnode **, void *);
+//int rbInsertItemset(rbnode **, void *);
 rbnode *rbSearch(rbnode *, void *);
 void transplant(rbnode **, rbnode *, rbnode *);
 int rbDelete(rbnode **, void *);
@@ -44,8 +44,8 @@ long rbUnion(rbnode *, rbnode *);
 rbnode *createRbTree();
 void deleteRbTree(rbnode **);
 static void deleteEachRBNode(rbnode *);
-void *rbSearchItemset(rbnode *, void *);
-rbnode *rbSearchItemsetReturnRBNode(rbnode *, void *);
-void printRbTree(rbnode *);
+//void *rbSearchItemset(rbnode *, void *);
+//rbnode *rbSearchItemsetReturnRBNode(rbnode *, void *);
+//void printRbTree(rbnode *);
 
 #endif

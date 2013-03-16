@@ -19,18 +19,18 @@ typedef struct _set {
 /* definizione */
 set *newSet();
 void setAdd(set *, void *);
-void setAddItemset(set *, void *);
+//void setAddItemset(set *, void *);
 set *setUnion(set *, set *);
 void **setScan(set *);
 void deleteSet(set *);
 void emptySet(set *);
 void *searchInSet(set *, void *);
-void *searchItemsetInSet(set *, itemset *);
+//void *searchItemsetInSet(set *, itemset *);
 void printSet(set *);
-void itemSupportMinsupOk(set *, int, int);
-char *buildStreamStringFromSet(set *);
-int *buildStreamIntFromSet(set *);
-set *buildSetFromStreamString(char *, int);
+//void itemSupportMinsupOk(set *, int, int);
+//char *buildStreamStringFromSet(set *);
+//int *buildStreamIntFromSet(set *);
+//set *buildSetFromStreamString(char *, int);
 void *getMinimum(set *);
 void *getMinimumAndDelete(set *);
 

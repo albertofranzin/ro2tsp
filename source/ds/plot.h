@@ -4,6 +4,6 @@
 #include <stdio.h>
 #include "matrixGraph.h"
 
-void plotGraph(matrixGraph *, edge **);
+void plotGraph(matrixGraph *, edge **, short);
 
 #endif

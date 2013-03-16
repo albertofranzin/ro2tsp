@@ -1,0 +1,19 @@
+# config file
+# available parameters are listed below, one per line
+#
+# you can comment the parameters you don't want to set
+# default values will be used
+
+# select desidered numer of nodes in the graph [int]
+NUMBER_OF_NODES = 10
+
+# seed for random [int]
+# 0   : use time
+# n>0 : use n as seed - allow to replicate tests
+SEED = 11235
+
+# plot graphs at the end? [y/n]
+PLOT = y
+
+# print only the 1-tree (if PLOT == y) [y/n]
+PLOT_ONLY_1TREE = n
