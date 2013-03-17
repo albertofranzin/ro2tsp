@@ -398,7 +398,7 @@ void transplant(rbnode **root, rbnode *u, rbnode *v) {
  */
 int rbDelete(rbnode **root, void *key) {
 	rbnode *z;
-	z = rbSearchItemsetReturnRBNode(*root,key);
+	z = rbSearch(*root,key); //rbSearchItemsetReturnRBNode
 
 	if(z == NULL) {
 		/* printf("not found\n"); */

@@ -29,11 +29,11 @@ int main(int argc, char **argv) {
 	memset(el, 0, sizeof(edge)*no_of_nodes);
 	double tc = matrixGraphOneTree(graph, &el);
 	printf("total cost of the 1-tree : %f\n", tc);
-	for (i = 0; i < no_of_nodes ; i++) {
+	/*for (i = 0; i < no_of_nodes ; i++) {
 		printf("%d %d, %f\n", el[i]->u->data,
 							  el[i]->v->data,
 							  el[i]->weight);
-	}
+	}*/
 
 	if (pars->plot)
 		plotGraph(graph, el, pars->plotOnlyTree);

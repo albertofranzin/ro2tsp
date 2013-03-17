@@ -24,15 +24,16 @@ typedef struct _parameters {
 #define DOUBLE_INFINITY DBL_MAX
 
 // global declaration for incumbent solution
-extern double incumbent;
+extern double zincumbent;
+extern void *incumbent;
 
 /* methods */
 
-// this was just too long to stay in that line with all the names there
+// this was just too long to stay in that line with all the names used there
 #define distance(x1, y1, x2, y2) \
 	sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
 
-void initializeRandom(long seed);
+void initializeRandom(unsigned int seed);
 
 short parHash(char *);
 parameters *getParameters();

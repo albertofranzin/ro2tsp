@@ -2,6 +2,10 @@
 #include "ds/matrixGraph.h"
 #include "ds/utils.h"
 
+short isTSP() {
+	return 0;
+}
+
 edge **solveTSP(matrixGraph *graph) {
 	printf("\n\n---\n\nComputing the 1-tree : \n\n");
 	edge **el = malloc(sizeof(edge) * graph->no_of_nodes);
@@ -11,21 +15,26 @@ edge **solveTSP(matrixGraph *graph) {
 
 	printf("total cost of the 1-tree : %f\n", lowerBound);
 
-	if (lowerBound < incumbent) {
-		incumbent = lowerBound;
+	if (zincumbent < lowerBound) {
+		zincumbent = lowerBound;
+		incumbent = (void *)el;
 	}
 
-	if(isTSP) {
+	if(isTSP()) {
 		return el;
 	}
 
 	return NULL;
 }
 
-double incumbent = DOUBLE_INFINITY;
+double zincumbent = DOUBLE_INFINITY;
+void *incumbent;
 
 int main(int argc, char const *argv[]) {
-	int no_of_nodes = 10;
+	parameters *pars = getParameters();
+	initializeRandom(pars->seed);
+
+	int no_of_nodes = pars->no_of_nodes;
 	matrixGraph *graph = newMatrixGraph(no_of_nodes);
 	printf("matrixGraph created\n");
 
