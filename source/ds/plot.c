@@ -4,8 +4,8 @@ void plotGraph(matrixGraph *graph, edge **el, short onlyTree) {
 	int i, j;
 
 	FILE *pipe = popen("gnuplot -persist","w");
-	fprintf(pipe, "set xrange [0.000:1.000]\n");
-	fprintf(pipe, "set yrange [0.000:1.250]\n");
+	fprintf(pipe, "set xrange [-0.010:1.010]\n");
+	fprintf(pipe, "set yrange [-0.010:1.250]\n");
 	fprintf(pipe, "set title '1-tree for the given graph'\n");
 	fprintf(pipe, "set xlabel 'X'\n");
 	fprintf(pipe, "set ylabel 'Y'\n");
@@ -13,6 +13,9 @@ void plotGraph(matrixGraph *graph, edge **el, short onlyTree) {
 	fprintf(pipe, "unset xtics\n");
 	fprintf(pipe, "set style line 1 lt 1 lc rgb \"red\" lw 1\n");
 	fprintf(pipe, "set style line 2 lt 1 lc rgb \"grey\" lw 1\n");
+
+	//fprintf(pipe, "set terminal png\n");
+	//fprintf(pipe, "set output 'graph.png'\n");
 
 	if (onlyTree == 0) {
 		// print all the graph

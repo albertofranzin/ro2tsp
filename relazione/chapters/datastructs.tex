@@ -1,0 +1,23 @@
+\chapter{Data Structures}
+In this chapter we will briefly introduce the data structure used in the projects.
+
+\section{Graphs}
+\subsection{Graphs as matrix of costs}
+One way to represent a graph is as a matrix of the costs associated to each edge. node to any other one. This is a generalization of the simpler adjacency matrix, where each cell $a_{ij}$ of the matrix is set to $1$ if there is an edge connecting nodes $i$ and $j$, and $0$ if no edge connects nodes $i$ and $j$. Instead, the cost matrix contains in every cell $c_{i,j}$ the cost associated to the edge connecting nodes $i$ and $j$. If no such edge exists, then the value can be set to $\infty$, or some other conventional value. Such matrix is of course a square one.
+
+If we do not allow the graph to contain self-loops, then the major diagonal will contain the conventional value $0$.
+
+If the graph is undirected, then we do not distinguish from going from node $i$ to node $j$ or the other way around, and therefore $c_{i,j} = c_{j,i}$. Instead, if the graph is directed, those two values may differ.
+
+Representing a graph as a matrix allows a very easy manipulation, since we can accedd directly to every element, by knowing its indexes, but at the cost of a large occupation of memory. Given that we have $|V|$ nodes, we need to store $|V|^2$ values. If we have a complete graph, or a near-complete one, then the matrix of costs is a reasonable choice, since no space will be wasted. If, instead, we are dealing with a sparse graph, another representation may save a lot of space.
+
+\subsubsection{Notes on C implementation}
+We provide the \codeline{matrixGraph.h} interface to represent cost matrices. It contains a \codeline{struct} containing:
+\begin{itemize}[noitemsep]
+  \item the cost matrix;
+  \item the number of nodes;
+  \item a list of all the nodes;
+  \item a list of all the edges.
+\end{itemize}
+
+The lists of nodes and edge are redundant, but allow an easier and faster managing of the graph. Due to efficiency reasons, the cost matrix is stored as a single array, rather than as array of arrays, at the cost of a less immediate computation of the position of the elements.

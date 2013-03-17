@@ -1,6 +1,6 @@
 #include "utils.h"
 
-void initializeRandom(long seed) {
+void initializeRandom(unsigned int seed) {
 	unsigned int sd = seed;
 	if (sd == 0) {
 		time_t now = time ( 0 ); 
@@ -65,12 +65,14 @@ parameters *getParameters() {
 			// skip comments
 			if(line[0] == '#') continue;
 
-			// split and stri away the spaces
+			// split and strip away the spaces
+			// removing the spaces is necessary in order to use
+			// the parHash() method above
 			p1 = strtok(line, "= ");
 			p2 = strtok(NULL, "= ");
 
 			if(p2 != NULL) {
-				// treat correctly each parameter
+				// manage correctly each parameter
 				switch(parHash(p1)) {
 					case 0 : pars->no_of_nodes = atoi(p2);
 							 break;
@@ -96,9 +98,6 @@ parameters *getParameters() {
 		/* errore nell'apertura del file */
 		perror( FILE_CONFIG );
 	}
-
-	printf("%d %d %d %d\n", pars->no_of_nodes, pars->seed,
-			pars->plot, pars->plotOnlyTree);
 
 	return pars;
 }
