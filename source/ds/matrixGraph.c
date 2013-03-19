@@ -154,7 +154,9 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 	for (i = 2; i < graph->no_of_nodes; ++i) {
 		flag[i] = 0;
 		pred[i] = 1;
+		///printf("aaa\n");
 		L[i] = graph->c[graph->no_of_nodes + i];
+		///printf("bbb\n");
 	}
 
 	// select the n-1 edges of the tree
@@ -198,6 +200,11 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 		}
 	}
 
+	/*for (i = 0; i < 45; ++i)
+	{
+		printf("%f\n", graph->edgeList[i]->weight);
+	}*/
+
 	tree[0] = deltaOf1st[0];
 	tree[1] = deltaOf1st[1];
 	total_cost += deltaOf1st[0]->weight + deltaOf1st[1]->weight;
@@ -221,10 +228,60 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 
 		// at the same time, spare a loop by computing the total cost of the 1-tree
 		total_cost += L[i];
+
 	}
 
 	free(deltaOf1st);
 
 	return total_cost;
 
+}
+
+int getNumberOfAdjacentNodesInOneTree(matrixGraph *graph, edge **el, node *n) {
+	int i, adjn = 0;
+	for (i = 0; i < graph->no_of_nodes; ++i) {
+		if (el[i]->u->data == n->data || el[i]->v->data == n->data) {
+			adjn++;
+		}
+	}
+	return adjn;
+}
+
+/*
+ * getAdjacentNodesInOneTree
+ * get adjacent nodes of a node in the 1-tree sugbraph
+ *
+ * graph : the complete graph
+ * el : the 1-tree
+ * n : the node
+ * al : the adjacent list (to be modified)
+ *
+ * return : the number of adjacent nodes
+ */
+void getAdjacentNodesInOneTree(matrixGraph *graph, edge **el, node *n, node ***aal, int adjn) {
+	int i, j = 0;
+	// don't want to scan all the 1-tree once before,
+	// so, initially malloc enough space for all
+	//node **tmpal = malloc(sizeof(node) * graph->no_of_nodes);
+	//memset(tmpal, 0, sizeof(node) * graph->no_of_nodes);
+
+	// scan
+	node **al = (node **)(*aal);
+	for (i = 0; i < graph->no_of_nodes; ++i) {
+		if (el[i]->u->data == n->data) {
+			al[j++] = el[i]->v;
+		} else if (el[i]->v->data == n->data) {
+			al[j++] = el[i]->u;
+		}
+	}
+
+	// now transfer the list
+	
+	/*al = malloc(sizeof(node) * adjn);
+	memset(al, 0, sizeof(node) * adjn);
+	memcpy(&al, &tmpal, sizeof(node) * adjn);
+
+	free(tmpal);*/
+	//printf("hey\n");
+	//return adjn;
 }

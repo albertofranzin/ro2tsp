@@ -11,20 +11,19 @@
  * define a generic node of a graph
  * contains:
  * - pointer to data
- * - pointer to parent (if needed)
- * - pointer to list of adjacent nodes (or children - if any)
+ * - degree of the node
  * - x-coord [0,1]
  * - y-coord [0,1]
  */
 typedef struct _node {
 	int data;
-	//struct _node *parent;
-	//struct _node **adj;
+	int deg;
 	double x;
 	double y;
 } node;
 
 node *newNode(int data);
 void deleteNode(node *n);
+void appendNode(node ***n, node *, int);
 
 #endif
