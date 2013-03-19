@@ -17,12 +17,15 @@ int main(int argc, char **argv) {
 
 	int i, j;
 
-	/*for (i = 0; i < no_of_nodes; ++i) {
+	for (i = 0; i < no_of_nodes; ++i) {
 		for (j = 0; j < no_of_nodes; ++j) {
 			printf("%f ", graph->c[i*no_of_nodes + j]);fflush(stdout);
 		}
 		printf("\n");
-	}*/
+	}
+
+	//printf("\n****\n%f\n******\n", graph->edgeList[atPosition(4,0)]->weight);
+
 
 	printf("\n\n---\n\nComputing the 1-tree : \n\n");
 	edge **el = malloc(sizeof(edge) * no_of_nodes);
@@ -35,8 +38,51 @@ int main(int argc, char **argv) {
 							  el[i]->weight);
 	}*/
 
+	//printf("%f\n", graph->edgeList[atPosition(4,0)]->weight);
+
+
 	if (pars->plot)
 		plotGraph(graph, el, pars->plotOnlyTree);
+
+	//printf("%f\n", graph->edgeList[atPosition(4,0)]->weight);
+
+	/*for (i = 0; i < no_of_nodes; ++i) {
+		for (j = 0; j < no_of_nodes; ++j) {
+			printf("%f ", graph->c[i*no_of_nodes + j]);fflush(stdout);
+		}
+		printf("\n");
+	}
+
+	for (i = 0; i < 45; ++i) {
+		printf("%f\n", graph->edgeList[i]->weight);
+	}*/
+
+
+	/*node **nl = malloc(sizeof(node)*(graph->no_of_nodes));
+	memset(nl, 0, sizeof(node)*(graph->no_of_nodes));
+	memcpy(&nl, &(graph->nodeList), sizeof(nl));
+	int no_of_edges = no_of_nodes * (no_of_nodes - 1) / 2;
+	printf("before iteration\n");
+	for (i = 0; i < no_of_nodes; ++i) {
+		//printf("%d\n", i);
+		//printf("%d\n", el[i]->u->data);
+		nl[el[i]->u->data]->deg++;
+		nl[el[i]->v->data]->deg++;
+	}
+
+	printf("\n---\n");
+
+	for (i = 0; i < no_of_nodes; ++i) {
+		printf("deg(%d) = %d\n", i, nl[i]->deg);
+	}
+
+	sortNodesByDegree(&nl, 0, no_of_nodes);
+
+	printf("\n");
+
+	for (i = 0; i < no_of_nodes; ++i) {
+		printf("deg(%d) = %d\n", i, nl[i]->deg);
+	}*/
 
 	return 0;
 }

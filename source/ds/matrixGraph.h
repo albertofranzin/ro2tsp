@@ -33,5 +33,7 @@ matrixGraph *newMatrixGraph(size_t);
 void deleteMatrixGraph(matrixGraph *);
 void randomInitializeGraph(matrixGraph **, size_t);
 double matrixGraphOneTree(matrixGraph *, edge ***);
+int getNumberOfAdjacentNodesInOneTree(matrixGraph *, edge **, node *);
+void getAdjacentNodesInOneTree(matrixGraph *, edge **, node *, node ***, int);
 
 #endif

@@ -1,5 +1,14 @@
 #include "utils.h"
 
+int atPosition(int i, int j) {
+	if (i < j) {
+		int k = i;
+		i = j;
+		j = k;
+	}
+	return (i * (i-1)) / 2 + j;
+}
+
 void initializeRandom(unsigned int seed) {
 	unsigned int sd = seed;
 	if (sd == 0) {
@@ -101,3 +110,25 @@ parameters *getParameters() {
 
 	return pars;
 }
+
+void sortNodesByDegree(node ***nnl, int start, int end) {
+	if (end - start < 2) {
+		return;
+	}
+}
+
+void appendDouble(double **nnl, double n, int pos) {
+	double *nl = (double *)(*nnl);
+
+	double *tmp = realloc(nl, sizeof(nl) + sizeof(double)); 
+	if (tmp != NULL) {
+		memcpy(&(tmp), &(nl), sizeof(nl));
+		// beware : 'pos' correctness is not checked!
+		tmp[pos] = n;
+		nl = tmp;
+	} else {
+		fprintf(stderr, "memory allocation failed - smthg very close to a segfault [evil laugh] \n");
+		exit(1);
+	}
+}
+

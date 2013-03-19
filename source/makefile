@@ -4,7 +4,7 @@ PAR = -lm -g -O3
 branchAndBound1: clean buildLib $(NOMEFILE)
 	gcc $(NOMEFILE) -o $@ -L. -lro2ds $(PAR)
 
-buildLib: set.o rbtree.o node.o edge.o matrixGraph.o utils.o plot.o
+buildLib: set.o rbtree.o node.o edge.o matrixGraph.o utils.o plot.o branchBoundUtils.o
 	ar r libro2ds.a *.o
 	rm *.o
 
@@ -28,6 +28,9 @@ matrixGraph.o: ds/matrixGraph.h ds/matrixGraph.c
 
 plot.o: ds/plot.h ds/plot.c
 	gcc -c ds/plot.c
+
+branchBoundUtils.o: ds/branchBoundUtils.h ds/branchBoundUtils.c
+	gcc -c ds/branchBoundUtils.c
 
 clean:
 	clear
