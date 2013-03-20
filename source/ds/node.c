@@ -9,7 +9,7 @@
  * return : the data
  */
 node *newNode(int data) {
-	node *nn = malloc(sizeof(int));
+	node *nn = malloc(sizeof(node));
 	memset(nn, 0, sizeof(nn));
 	nn->data = data;
 	nn->deg = 0;

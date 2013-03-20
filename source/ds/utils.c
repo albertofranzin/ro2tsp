@@ -49,7 +49,7 @@ short parHash(char *parName) {
 // read parameters from config file
 // default values for parameters are set here
 parameters *getParameters() {
-	parameters *pars = malloc(sizeof(parameters *));
+	parameters *pars = malloc(sizeof(parameters));
 	//memset(pars, 0, sizeof(parameters));
 
 	pars->no_of_nodes = 10;
@@ -111,15 +111,17 @@ parameters *getParameters() {
 	return pars;
 }
 
+/*
+ * snbdComp
+ *const void * a,b : the two elements to be compared
+ *
+ * comparison function to be passed to qsort()
+ *
+ * return: -1,0,1 depending on the comparison of the two elements
+ */
 int snbdComp(const void *aa, const void *bb) {
 	node **a = (node **)aa,
 		 **b = (node **)bb;
-
-	/*printf("sorting : %d %d - %d %d -- %d\n", (*a)->data,
-										(*a)->deg,
-										(*b)->data,
-										(*b)->deg,
-										(*a)->deg - (*b)->deg);*/
 
 	if ((*a)->deg < (*b)->deg) { return -1; }
 	if ((*a)->deg > (*b)->deg) { return 1; }

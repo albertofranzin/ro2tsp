@@ -12,21 +12,12 @@
 matrixGraph *newMatrixGraph(size_t number_of_nodes) {
 
 	// allocate lists for nodes and edges
-	matrixGraph *mg = (matrixGraph *)malloc(sizeof(matrixGraph *));//(sizeof(long) + sizeof(void *) * 3);
-	//memset(mg, 0, sizeof(matrixGraph));//sizeof(long) + sizeof(void *) * 3);
-	node **nodeList = (node **)malloc(sizeof(node *) * number_of_nodes);
-	//memset(nodeList, 0, sizeof(node) * number_of_nodes);
-	edge **edgeList = (edge **)malloc(sizeof(node *) * (number_of_nodes * (number_of_nodes - 1))/2);
-	//memset(edgeList, 0, sizeof(node) * (number_of_nodes * (number_of_nodes - 1)) / 2 );
-
 	//note to self : it's useless to search how to access a list which has not been allocated...
-	double *c = malloc(sizeof(double)*number_of_nodes*number_of_nodes);
-	//memset(c, 0, sizeof(double)*number_of_nodes*number_of_nodes);
-
+	matrixGraph *mg = malloc(sizeof(matrixGraph));
 	mg->no_of_nodes = number_of_nodes;
-	mg->nodeList = nodeList;
-	mg->edgeList = edgeList;
-	mg->c = c;
+	mg->nodeList = malloc(sizeof(node *) * number_of_nodes);
+	mg->edgeList = malloc(sizeof(edge *) * (number_of_nodes * (number_of_nodes - 1))/2);
+	mg->c = malloc(sizeof(double)*number_of_nodes*number_of_nodes);;
 
 	//memory allocated
 	printf("matrixGraph.c :: newMatrixGraph :: memory allocated\n");
@@ -131,9 +122,7 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 	i = 0;
 	j = 0;
 
-	// find spanning tree of nodes in edgesWithout1st
-	// using Prim-Dijkstra
-	//short isInTree[graph->no_of_nodes - 1];// = {0};
+	// find spanning tree of nodes using Prim-Dijkstra
 
 	// here, now, I ignore the fact that the 1st node has been "removed"
 	// thus, code will use the same index as pseudocode
@@ -141,7 +130,7 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 	int pred[graph->no_of_nodes], h;
 	double L[graph->no_of_nodes], min, total_cost = 0.;
 
-	// just...
+	// just\dots
 	flag[0] = 0;
 	pred[0] = 0;
 	L[0] = 0;
@@ -231,7 +220,7 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 
 	}
 
-	free(deltaOf1st);
+	//free(deltaOf1st);
 
 	return total_cost;
 

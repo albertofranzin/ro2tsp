@@ -53,11 +53,16 @@ void solveTSP(matrixGraph *graph, double cost_delta) {
 		nl[el[i]->v->data]->deg++;
 	}
 
-	for (i = 0; i < graph->no_of_nodes; ++i) {
+	/*for (i = 0; i < graph->no_of_nodes; ++i) {
 		printf("deg : %d\n", nl[i]->deg);
-	}
+	}*/
 
+	//printf("sorting nodes\n");
 	qsort(nl, graph->no_of_nodes, sizeof(node *), snbdComp);
+
+	for (i = 0; i < graph->no_of_nodes; ++i) {
+		printf("%d : deg : %d\n", i, nl[i]->deg);
+	}/**/
 
 	// choose branching node:
 	// for now, take the first node in the list with degree = 3
@@ -66,13 +71,18 @@ void solveTSP(matrixGraph *graph, double cost_delta) {
 	while(nl[i++]->deg < 3) over++;
 	i--;
 
+	printf("branch on node %d : %d : %d\n", i, nl[i]->data, nl[i]->deg);
+
 	// get adjacent nodes if node i in the 1-tree
 	// I have to get the number first, and then malloc and fill in the list
 	// so 2 scans, which sucks, but I can't do better now
 	int adjn = getNumberOfAdjacentNodesInOneTree(graph, el, nl[i]);
-	node **adjl = malloc(sizeof(node) * adjn);
+	node **adjl = malloc(sizeof(node *) * adjn);
 
 	getAdjacentNodesInOneTree(graph, el, nl[i], &adjl, adjn);
+	for (i = 0; i < adjn; ++i) {
+		printf("adjacent : %d\n", adjl[i]->data);
+	}
 
 	// branch: for now, just consider edges in the bovine way
 	// (1 out, 1 in-2 out, 1,2 in, others out)
