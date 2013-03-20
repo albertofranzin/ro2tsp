@@ -52,7 +52,8 @@ void initializeRandom(unsigned int seed);
 short parHash(char *);
 parameters *getParameters();
 
-void sortNodesByDegree(node ***, int , int );
+int snbdComp(const void *, const void *);
+void sortNodesByDegree(node ***, int);
 
 void appendDouble(double **n, double, int);
 

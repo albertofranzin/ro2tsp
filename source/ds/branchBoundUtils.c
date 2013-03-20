@@ -2,8 +2,8 @@
 
 branchingInfo *createBranchingInfo(node *branchNode, node **editedNodes,
 		double *deltas, int numEditedNodes){
-	branchingInfo *bi = malloc(sizeof(branchingInfo));
-	memset(bi, 0, sizeof(branchingInfo));
+	branchingInfo *bi = malloc(sizeof(branchingInfo *));
+	//memset(bi, 0, sizeof(branchingInfo));
 
 	bi->numEditedNodes = numEditedNodes;
 	bi->branchNode = branchNode;

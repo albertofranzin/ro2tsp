@@ -12,16 +12,16 @@
 matrixGraph *newMatrixGraph(size_t number_of_nodes) {
 
 	// allocate lists for nodes and edges
-	matrixGraph *mg = (matrixGraph *)malloc(sizeof(matrixGraph));//(sizeof(long) + sizeof(void *) * 3);
-	memset(mg, 0, sizeof(matrixGraph));//sizeof(long) + sizeof(void *) * 3);
-	node **nodeList = (node **)malloc(sizeof(node) * number_of_nodes);
-	memset(nodeList, 0, sizeof(node) * number_of_nodes);
-	edge **edgeList = (edge **)malloc(sizeof(node) * (number_of_nodes * (number_of_nodes - 1))/2);
-	memset(edgeList, 0, sizeof(node) * (number_of_nodes * (number_of_nodes - 1)) / 2 );
+	matrixGraph *mg = (matrixGraph *)malloc(sizeof(matrixGraph *));//(sizeof(long) + sizeof(void *) * 3);
+	//memset(mg, 0, sizeof(matrixGraph));//sizeof(long) + sizeof(void *) * 3);
+	node **nodeList = (node **)malloc(sizeof(node *) * number_of_nodes);
+	//memset(nodeList, 0, sizeof(node) * number_of_nodes);
+	edge **edgeList = (edge **)malloc(sizeof(node *) * (number_of_nodes * (number_of_nodes - 1))/2);
+	//memset(edgeList, 0, sizeof(node) * (number_of_nodes * (number_of_nodes - 1)) / 2 );
 
 	//note to self : it's useless to search how to access a list which has not been allocated...
 	double *c = malloc(sizeof(double)*number_of_nodes*number_of_nodes);
-	memset(c, 0, sizeof(double)*number_of_nodes*number_of_nodes);
+	//memset(c, 0, sizeof(double)*number_of_nodes*number_of_nodes);
 
 	mg->no_of_nodes = number_of_nodes;
 	mg->nodeList = nodeList;
@@ -183,8 +183,8 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 	// in order to "close the circle".
 
 	// First, malloc and brutal memory copy
-	edge **deltaOf1st = malloc(sizeof(edge)*(graph->no_of_nodes-1));
-	memset(deltaOf1st, 0, sizeof(edge)*(graph->no_of_nodes-1));
+	edge **deltaOf1st = malloc(sizeof(edge *)*(graph->no_of_nodes-1));
+	//memset(deltaOf1st, 0, sizeof(edge)*(graph->no_of_nodes-1));
 	// fill in deltaOf1st with the first positions of graph->edgeList
 	memcpy(&deltaOf1st, &(graph->edgeList), sizeof(deltaOf1st));
 

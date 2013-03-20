@@ -29,14 +29,23 @@ void solveTSP(matrixGraph *graph, double cost_delta) {
 		return el;
 	}*/
 
+	int i = 0;
+
+
 	// copy nodes to order them in degree order
-	node **nl = malloc(sizeof(node)*(graph->no_of_nodes));
-	memset(nl, 0, sizeof(node)*(graph->no_of_nodes));
-	memcpy(&nl, &(graph->nodeList), sizeof(nl));
+	node **nl = malloc(sizeof(node *)*(graph->no_of_nodes));
+	for (i = 0; i < graph->no_of_nodes; ++i) {
+		nl[i] = malloc(sizeof(node));
+		nl[i]->data = graph->nodeList[i]->data;
+		nl[i]->deg = graph->nodeList[i]->deg;
+		nl[i]->x = graph->nodeList[i]->x;
+		nl[i]->y = graph->nodeList[i]->y;
+	}
+
 	int no_of_nodes = graph->no_of_nodes,
 		no_of_edges = no_of_nodes * (no_of_nodes - 1) / 2;
 	//printf("before iteration\n");
-	int i = 0;
+
 	for (i = 0; i < no_of_nodes; ++i) {
 		//printf("%d\n", i);
 		//printf("%d\n", el[i]->u->data);
@@ -48,7 +57,7 @@ void solveTSP(matrixGraph *graph, double cost_delta) {
 		printf("deg : %d\n", nl[i]->deg);
 	}
 
-	//sortNodesByDegree(&nl, 0, no_of_nodes);
+	qsort(nl, graph->no_of_nodes, sizeof(node *), snbdComp);
 
 	// choose branching node:
 	// for now, take the first node in the list with degree = 3
