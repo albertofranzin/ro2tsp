@@ -53,7 +53,7 @@ short parHash(char *);
 parameters *getParameters();
 
 int snbdComp(const void *, const void *);
-void sortNodesByDegree(node ***, int);
+//void sortNodesByDegree(node ***, int);
 
 void appendDouble(double **n, double, int);
 
