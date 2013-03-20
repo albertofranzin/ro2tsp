@@ -49,8 +49,8 @@ short parHash(char *parName) {
 // read parameters from config file
 // default values for parameters are set here
 parameters *getParameters() {
-	parameters *pars = malloc(sizeof(parameters));
-	memset(pars, 0, sizeof(parameters));
+	parameters *pars = malloc(sizeof(parameters *));
+	//memset(pars, 0, sizeof(parameters));
 
 	pars->no_of_nodes = 10;
 	pars->seed = 0;
@@ -111,11 +111,26 @@ parameters *getParameters() {
 	return pars;
 }
 
-void sortNodesByDegree(node ***nnl, int start, int end) {
-	if (end - start < 2) {
-		return;
-	}
+int snbdComp(const void *aa, const void *bb) {
+	node **a = (node **)aa,
+		 **b = (node **)bb;
+
+	/*printf("sorting : %d %d - %d %d -- %d\n", (*a)->data,
+										(*a)->deg,
+										(*b)->data,
+										(*b)->deg,
+										(*a)->deg - (*b)->deg);*/
+
+	if ((*a)->deg < (*b)->deg) { return -1; }
+	if ((*a)->deg > (*b)->deg) { return 1; }
+	return 0;
 }
+
+/*void sortNodesByDegree(node ***nnl, int no_of_nodes) {
+	//node **nl = (node **)(*nnl);
+	//printf("### %d\n", nl[4]->data);
+	qsort((void *) &nnl, no_of_nodes, sizeof(node), snbdComp);
+}*/
 
 void appendDouble(double **nnl, double n, int pos) {
 	double *nl = (double *)(*nnl);

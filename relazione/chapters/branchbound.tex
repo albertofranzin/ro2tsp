@@ -3,7 +3,7 @@ In this chapter we analyze the first technique studied, the \textit{Branch and B
 
 \section{Heuristics for Lower Bounds}
 \subsection{1-tree}
-The first heuristic for computing a lower bound is the one based on a \textit{1-tree}. A 1-tree is a subgraph obtained from an another graph by removing a node, and all the edges connected to it. We can compute the \textit{minimum spanning tree} (\textsc{mst}) of the residual subgraph, and then connect the remaining node inserting its two lowest-cost edges in the \textsc{mst}, in order to have $|V|$ edges, which is the number of edges in an hamiltonian cycle in a graph. The \textsc{mst} can be computed in quadratic time with the Prim-Dijkstra algorithm.
+The first heuristic for computing a lower bound is the one based on a \textit{1-tree}. A 1-tree is a subgraph obtained from an another graph by removing a node, and all the edges connected to it. We can compute the \textit{minimum spanning tree} (\textsc{mst}) of the residual subgraph, and then connect the remaining node inserting its two lowest-cost edges in the \textsc{mst}, in order to have $|V|$ edges, which is the number of edges in an hamiltonian cycle in a graph. The \textsc{mst} can be computed in quadratic time with the Prim-Dijkstra algorithm. For sparse graphs, using Fibonacci Heaps one can achieve a $O(|V|\log|E|)$ time complexity.
 
 In figure \ref{fig:1trees} two examples of 1-trees in complete graphs of various size: red edges are the ones in the 1-tree, while grey ones are the edges left out.
 
