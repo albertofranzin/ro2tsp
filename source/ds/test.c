@@ -18,8 +18,8 @@ int main(int argc, char **argv) {
 	int i, j;
 
 	/*for (i = 0; i < no_of_nodes; ++i) {
-		for (j = 0; j < no_of_nodes; ++j) {
-			printf("%f ", graph->c[i*no_of_nodes + j]);fflush(stdout);
+		for (j = 0; j < i; ++j) {
+			printf("%f ", graph->edgeList[atPosition(i,j)]->weight);fflush(stdout);
 		}
 		printf("\n");
 	}*/

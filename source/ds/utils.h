@@ -34,10 +34,6 @@ extern void *incumbent;
 
 /* methods */
 
-// this was just too long to stay in that line with all the names used there
-#define distance(x1, y1, x2, y2) \
-	sqrt((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
-
 // position in the list of costs (matrixGraph->edgeList):
 // Corresponding edge (i,j) is in position (binom(i-1, 2) + j)
 // in the list of edges - look for 'triangular numbers'.
@@ -45,7 +41,7 @@ extern void *incumbent;
 // for triangular numbers should be adjusted accordingly.
 // A swap is needed if j > i, but it's fine since graph is directed;
 // note that j=i cannot happen, because we don't have self-loops.
-int atPosition(int, int);
+inline int atPosition(int, int);
 
 void initializeRandom(unsigned int seed);
 

@@ -23,7 +23,7 @@
  * edgeList [edge**] : list of edges
  */
 typedef struct _matrixGraph {
-	double *c;
+	//double *c;
 	int no_of_nodes;
 	node **nodeList;
 	edge **edgeList;
