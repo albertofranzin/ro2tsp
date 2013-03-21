@@ -102,21 +102,21 @@ int main(int argc, char **argv) {
 	}/**/
 
 	// freeing some space because it's nice to look at Valgrind results after these
-	for (i = 0; i < (graph->no_of_nodes)*(graph->no_of_nodes-1)/2 ; ++i){
-		//memset(graph->edgeList[i], 0, sizeof(edge *));
-		free(graph->edgeList[i]);
-	}
-	free(graph->edgeList);
-	for (i = 0; i < graph->no_of_nodes; ++i){
-		free(graph->nodeList[i]);
-		free(el[i]);
-		free(nl[i]);
+	/*for (i = 0; i < graph->no_of_nodes; ++i){
+		deleteEdge(el[i]);
+		//deleteNode(graph->nodeList[i]);
+		//deleteNode(nl[i]);
 	}
 	free(el);
-	free(nl);
+	deleteNodeList(nl, graph->no_of_nodes);
 	free(graph->nodeList);
+	for (i = 0; i < (graph->no_of_nodes)*(graph->no_of_nodes-1)/2 ; ++i){
+		//memset(graph->edgeList[i], 0, sizeof(edge *));
+		deleteEdge(graph->edgeList[i]);
+	}
+	free(graph->edgeList);
 	free(graph->c);
-	free(graph);
+	free(graph);*/
 
 	return 0;
 }

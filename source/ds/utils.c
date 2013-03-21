@@ -1,12 +1,8 @@
 #include "utils.h"
 
 int atPosition(int i, int j) {
-	if (i < j) {
-		int k = i;
-		i = j;
-		j = k;
-	}
-	return (i * (i-1)) / 2 + j;
+	if (i > j) { return (i * (i-1)) / 2 + j; }
+	return (j * (j-1)) / 2 + i;
 }
 
 void initializeRandom(unsigned int seed) {

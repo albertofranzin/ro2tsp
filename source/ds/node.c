@@ -30,6 +30,14 @@ void deleteNode(node *n) {
 	return;
 }
 
+void deleteNodeList(node **l, size_t count) {
+	int i;
+	for (i = 0; i < count; ++i) {
+		deleteNode(l[i]);
+	}
+	free(l);
+}
+
 void appendNode(node ***nnl, node *n, int pos) {
 	node **nl = (node **)(*nnl);
 

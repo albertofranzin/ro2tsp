@@ -6,7 +6,7 @@
 edge *newEdge(node *u, node *v, double w) {
 	//printf("edge.c :: newEdge :: allocating memory for edge\n");fflush(stdout);
 	edge *ne = malloc(sizeof(edge));
-	memset(ne, 0, sizeof(edge));
+	//memset(ne, 0, sizeof(edge));
 	//printf("edge.c :: newEdge :: memory allocated\n");
 	ne->u = u;
 	ne->v = v;
@@ -19,7 +19,7 @@ edge *newEdge(node *u, node *v, double w) {
  * just some frees
  */
 void deleteEdge(edge *e) {
-	deleteNode(e->u);
-	deleteNode(e->v);
+	//deleteNode(e->u);
+	//deleteNode(e->v);
 	free(e);
 }
