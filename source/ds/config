@@ -16,4 +16,4 @@ SEED = 112358
 PLOT = y
 
 # print only the 1-tree instead of the complete graph (if PLOT == y) [y/n]
-PLOT_ONLY_1TREE = n
+PLOT_ONLY_1TREE = y

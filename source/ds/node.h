@@ -22,8 +22,9 @@ typedef struct _node {
 	double y;
 } node;
 
-node *newNode(int data);
-void deleteNode(node *n);
+node *newNode(int);
+void deleteNode(node *);
+void deleteNodeList(node **, size_t);
 void appendNode(node ***n, node *, int);
 
 #endif

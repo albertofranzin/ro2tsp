@@ -3,14 +3,26 @@
 
 #include "matrixGraph.h"
 
+
+
 typedef struct _branchingInfo {
 	node *branchNode;
-	node **editedNodes;
+	edge **editedEdges;
 	double *deltas;
-	int numEditedNodes;
+	int numEditedEdges;
 } branchingInfo;
 
-branchingInfo *createBranchingInfo(node *, node **, double *, int);
+//const double BB_COST_DELTA = 100.0;
+
+
+branchingInfo *createBranchingInfo(node *, edge **, double *, int);
 void deleteBranchingInfo(branchingInfo *);
+branchingInfo *cloneBranchingInfo(branchingInfo *);
+
+node *chooseBranchingNode(matrixGraph *, edge **);
+
+short isHamilton(matrixGraph *, edge **);
+
+short stoppingCriteria(matrixGraph *, edge **, branchingInfo *, double, double *);
 
 #endif
