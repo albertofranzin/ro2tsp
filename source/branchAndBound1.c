@@ -97,31 +97,33 @@ void solveTSP(matrixGraph *graph, double cost_delta, branchingInfo *bbi) {
 	memcpy(&cmBackUp, &(graph->c), sizeof(cmBackUp));*/
 
 	double delta = 100.0 * 2;
-	graph->c[branchingNode->data * no_of_nodes + adjl[0]->data] += delta;
-	graph->c[adjl[0]->data * no_of_nodes + branchingNode->data] += delta;
+
+	graph->edgeList[atPosition(0, branchingNode->data)]->weight += delta;
 
 	// deny first neighbour
-
-	//branchingInfo *bi1 = cloneBranchingInfo(bi);
-	//bi1->delta = -2*delta
-	printf("branchAndBound1.c :: solveTSP :: start branch\n");
+	/*branchingInfo *bi1 = createBranchingInfo(branchingNode,
+				NULL, NULL, bi->numEditedEdges + 1);
+	bi1->editedEdges = malloc(sizeof(edge *) * bi1->numEditedEdges);
+	bi1->deltas = malloc(sizeof(double) * bi1->numEditedEdges);
+	for (i = 0; i < bi1->numEditedEdges - 1; ++i) {
+		bi1->editedEdges[i] = bi->editedEdges[i];
+		bi1->deltas[i] = bi->deltas[i];
+	}
+	bi1->editedEdges[i] = graph->edgeList[atPosition(0, branchingNode->data)];
+	printf("branchAndBound1.c :: solveTSP :: start branch\n");*/
 	solveTSP(graph, -2*delta, bi);
 
-	graph->c[branchingNode->data * no_of_nodes + adjl[0]->data] -= 2*delta;
-	graph->c[adjl[0]->data * no_of_nodes + branchingNode->data] -= 2*delta;
-	graph->c[branchingNode->data * no_of_nodes + adjl[1]->data] += delta;
-	graph->c[adjl[1]->data * no_of_nodes + branchingNode->data] += delta;
+	graph->edgeList[atPosition(0, branchingNode->data)]->weight -= 2*delta;
+	graph->edgeList[atPosition(1, branchingNode->data)]->weight += delta;
 
 	//branchingInfo *bi2 = cloneBranchingInfo(bi);
 	//bi2->delta = 0
 	solveTSP(graph, 0, bi);
 
-	graph->c[branchingNode->data * no_of_nodes + adjl[1]->data] -= 2*delta;
-	graph->c[adjl[1]->data * no_of_nodes + branchingNode->data] -= 2*delta;
+	graph->edgeList[atPosition(1, branchingNode->data)]->weight -= 2*delta;
 
 	for (j = 2; j < adjn; ++j) {
-		graph->c[branchingNode->data * no_of_nodes + adjl[j]->data] += delta;
-		graph->c[adjl[j]->data * no_of_nodes + branchingNode->data] += delta;
+		graph->edgeList[atPosition(j, branchingNode->data)]->weight += delta;
 	}
 
 	delta = delta * (adjn - 2);

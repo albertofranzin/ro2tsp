@@ -17,7 +17,6 @@ matrixGraph *newMatrixGraph(size_t number_of_nodes) {
 	mg->no_of_nodes = number_of_nodes;
 	mg->nodeList = malloc(sizeof(node *) * number_of_nodes);
 	mg->edgeList = malloc(sizeof(edge *) * (number_of_nodes * (number_of_nodes - 1))/2);
-	mg->c = malloc(sizeof(double)*number_of_nodes*number_of_nodes);;
 
 	//memory allocated
 	printf("matrixGraph.c :: newMatrixGraph :: memory allocated\n");
@@ -36,6 +35,7 @@ matrixGraph *newMatrixGraph(size_t number_of_nodes) {
 
 	printf("matrixGraph.c :: newMatrixGraph :: list of nodes now populated\n");
 
+	int counter = 0;
 	// compute cost of edges using euclidean distance between nodes
 	for (i = 0; i < mg->no_of_nodes; ++i) {
 		for (j = 0; j < i; ++j) {
@@ -43,27 +43,12 @@ matrixGraph *newMatrixGraph(size_t number_of_nodes) {
 			//printf("%f\n", graph->c[i][j]);
 			node *n1 = mg->nodeList[i];
 			node *n2 = mg->nodeList[j];
-			mg->c[i*mg->no_of_nodes + j] = distance(n1->x, n1->y, n2->x, n2->y);
-			mg->c[j*mg->no_of_nodes + i] = mg->c[i*mg->no_of_nodes + j];
+			mg->edgeList[counter++] = newEdge(n1, n2,
+						sqrt((n1->x - n2->x)*(n1->x - n2->x) +
+							 (n1->y - n2->y)*(n1->y - n2->y))
+					);
 		}
 	}
-
-	int counter = 0;
-	for (i = 0; i < number_of_nodes; ++i) {
-		for (j = 0; j < i; ++j) {
-			//printf(" -- %d\n", counter);
-			//printf("%d\n", mg->nodeList[i]);
-			//printf("%f\n", mg->c[i][j]);
-			edge *ne = newEdge( mg->nodeList[i],
-								mg->nodeList[j],
-								mg->c[i * mg->no_of_nodes + j]);
-			//printf(" -- \n");
-			mg->edgeList[counter++] = ne;
-		}
-	}
-
-	printf("matrixGraph.c :: newMatrixGraph :: list of edges now populated :: %d\n",
-		counter);
 
 	return mg;
 }
@@ -75,7 +60,7 @@ matrixGraph *newMatrixGraph(size_t number_of_nodes) {
  * delete the whole graph
  */
 void deleteMatrixGraph(matrixGraph *mg) {
-	free(mg->c);
+	//free(mg->c);
 	free(mg);
 }
 
@@ -88,7 +73,7 @@ void deleteMatrixGraph(matrixGraph *mg) {
  */
 void randomInitializeGraph(matrixGraph **ggraph, size_t maxWeight) {
 
-	matrixGraph *graph = (matrixGraph *)(*ggraph);
+	/*matrixGraph *graph = (matrixGraph *)(*ggraph);
 	printf("matrixGraph.c :: randomInitializeGraph :: graph retrieved\n");
 	//printf("%d\n", graph->no_of_nodes);
 	int i, j;
@@ -101,7 +86,7 @@ void randomInitializeGraph(matrixGraph **ggraph, size_t maxWeight) {
 			graph->c[i*graph->no_of_nodes + j] = (double)(rand() % maxWeight) + 1.;
 			graph->c[j*graph->no_of_nodes + i] = graph->c[i*graph->no_of_nodes + j];
 		}
-	}
+	}*/
 }
 
 /*
@@ -143,9 +128,7 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 	for (i = 2; i < graph->no_of_nodes; ++i) {
 		flag[i] = 0;
 		pred[i] = 1;
-		///printf("aaa\n");
-		L[i] = graph->c[graph->no_of_nodes + i];
-		///printf("bbb\n");
+		L[i] = graph->edgeList[atPosition(0,i)]->weight;
 	}
 
 	// select the n-1 edges of the tree
@@ -161,8 +144,8 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 		flag[h] = 1; // node h is added to the connected component
 		// update cost and predecessor for every node not yet in the connected component
 		for (j = 2; j < graph->no_of_nodes; ++j) {
-			if (flag[j] == 0 && graph->c[h * graph->no_of_nodes + j] < L[j]) {
-				L[j] = graph->c[h * graph->no_of_nodes + j];
+			if (flag[j] == 0 && graph->edgeList[atPosition(h,j)]->weight < L[j]) {
+				L[j] = graph->edgeList[atPosition(h,j)]->weight;
 				pred[j] = h;
 			}
 		}
@@ -173,7 +156,6 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 
 	// First, malloc and brutal memory copy
 	edge **deltaOf1st = malloc(sizeof(edge *)*(graph->no_of_nodes-1));
-	//memset(deltaOf1st, 0, sizeof(edge)*(graph->no_of_nodes-1));
 	// fill in deltaOf1st with the first positions of graph->edgeList
 	memcpy(&deltaOf1st, &(graph->edgeList), sizeof(deltaOf1st));
 
@@ -208,12 +190,13 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 		// note that j=h cannot happen, because we don't have self-loops.
 		j = i;
 		h = pred[j];
-		if (h < j) {
+		/*if (h < j) {
 			int tmp = h;
 			h = j;
 			j = tmp;
 		}
-		tree[i] = (edge *)(graph->edgeList[(h*(h-1))/2 + j]);
+		tree[i] = (edge *)(graph->edgeList[(h*(h-1))/2 + j]);*/
+		tree[i] = (edge *)(graph->edgeList[atPosition(h,j)]);
 
 		// at the same time, spare a loop by computing the total cost of the 1-tree
 		total_cost += L[i];
