@@ -5,7 +5,7 @@
 # default values will be used
 
 # select desidered numer of nodes in the graph [int]
-NUMBER_OF_NODES = 10
+NUMBER_OF_NODES = 20
 
 # seed for random [int]
 # 0   : use time
@@ -16,4 +16,4 @@ SEED = 0
 PLOT = y
 
 # print only the 1-tree instead of the complete graph (if PLOT == y) [y/n]
-PLOT_ONLY_1TREE = n
+PLOT_ONLY_1TREE = y

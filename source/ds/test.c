@@ -17,12 +17,12 @@ int main(int argc, char **argv) {
 
 	int i, j;
 
-	/*for (i = 0; i < no_of_nodes; ++i) {
+	for (i = 0; i < no_of_nodes; ++i) {
 		for (j = 0; j < i; ++j) {
 			printf("%f ", graph->edgeList[atPosition(i,j)]->weight);fflush(stdout);
 		}
 		printf("\n");
-	}*/
+	}
 
 	//printf("\n****\n%f\n******\n", graph->edgeList[atPosition(4,0)]->weight);
 

@@ -1,80 +1,49 @@
 #include <stdio.h>
 #include "ds/branchBoundUtils.h"
-#include "ds/matrixGraph.h"
-#include "ds/utils.h"
+//#include "ds/matrixGraph.h"
+//#include "ds/utils.h"
 
 //edge **
-void solveTSP(matrixGraph *graph, double cost_delta, branchingInfo *bbi) {
+short solveTSP(matrixGraph *graph, matrixGraph *original) {
 
-	printf("\n\nbeginning solveTSP\n\n");
+	printf("\n\nbeginning solveTSP\n");
 	printf("branchAndBound1.c :: solveTSP :: ");
 	printf("Computing the 1-tree\n");
 	edge **el = malloc(sizeof(edge) * graph->no_of_nodes);
 	memset(el, 0, sizeof(edge)*graph->no_of_nodes);
 
-	int i;
+	int i, j;
 	double lowerBound = matrixGraphOneTree(graph, &el);
-	//lowerBound += cost_delta;
 
-	printf("branchAndBound1.c :: solveTSP :: ");
-	printf("total cost of the 1-tree : %f (incumbent is %f)\n", lowerBound, zincumbent);
-
-	/*if (zincumbent <= lowerBound) {
-		printf("discarding current branch\n");
-		return;
-	}
-
-	if (zincumbent > lowerBound || isHamilton(graph, el)) {
-		for (i = 0; i < graph->no_of_nodes; ++i) {
-			printf("%d %d - %f\n", el[i]->u->data, el[i]->v->data, el[i]->weight);
-		}
-		zincumbent = lowerBound;
-		incumbent = (void *)el;
-		//return;
-	}
-
-	if(isHamilton(graph, el)) {
-		/*for (i = 0; i < graph->no_of_nodes; ++i) {
-			printf("%d %d - %f\n", el[i]->u->data, el[i]->v->data, el[i]->weight);
-		}* /
-		printf("HAMILTON\n\n\n");
-		char ch; scanf("%c\n",&ch);
-		return ;//el;
-	}*/
-
-	branchingInfo *bi;
-	printf("branchAndBound1.c :: solveTSP :: checking branchingInfo :: ");fflush(stdout);
-	if (bbi == NULL) {
-		printf("create new one\n");
-		bi = createBranchingInfo(NULL, NULL, NULL, 0);
-	} else {
-		printf("clone old one\n");
-		bi = cloneBranchingInfo(bbi);
-	}
-
-	i = 0;
-	int no_of_nodes = graph->no_of_nodes;
+	//printf("branchAndBound1.c :: solveTSP :: ");
+	//printf("total cost of the 1-tree : %f (incumbent is %f)\n", lowerBound, zincumbent);
 
 	printf("branchAndBound1.c :: solveTSP :: looking for stopping criteria\n");
-	switch(stoppingCriteria(graph, el, bi, lowerBound, &zincumbent)) {
-		case -1 : printf("male\n");
-				  return;
+	switch(stoppingCriteria(original, el, &zopt, &zincumbent)) {
 		case  1 : printf("bene\n");
-				  return;
+				  return 1;
+		case -1 : printf("male\n");
+				  //return -1;
+				  break;
 		default : printf("nay\n");
 				  break;
 	}
 
+	matrixGraph *g1 = cloneGraph(graph),
+				*g2 = cloneGraph(graph),
+				*g3 = cloneGraph(graph);
+
 	// choose branching node:
 	// best policy to choose branching node is not a problem addressed now
-	// anyway, the correct place to (try to) solve is inside this
+	// anyway, the correct place to (try to) solve is inside the
 	// chooseBranchingNode() method.
 
 	node *branchingNode = (node *)chooseBranchingNode(graph, el);
-	bi->branchNode = branchingNode;
-	bi->numEditedEdges++;
 
-	printf("branch on node %d : %d : %d\n", i, branchingNode->data, branchingNode->deg);
+	if (branchingNode == NULL) {
+		printf("branchAndBound1.c :: solveTSP :: no nodes to branch on\n");
+		return 0;
+	}
 
 	// get adjacent nodes if node i in the 1-tree
 	// I have to get the number first, and then malloc and fill in the list
@@ -87,54 +56,50 @@ void solveTSP(matrixGraph *graph, double cost_delta, branchingInfo *bbi) {
 		printf("adjacent : %d\n", adjl[i]->data);
 	}
 
+	printf("branch on node %d , with deg %d\n", branchingNode->data, branchingNode->deg);
+
 	// branch: for now, just consider edges in the bovine way
 	// (1 out, 1 in-2 out, 1,2 in, others out)
-	int j;
 
-	// memcopy cost matrix, to not fuck up costs
-	/*double **cmBackUp = malloc(sizeof(double)*graph->no_of_nodes*graph->no_of_nodes);
-	memset(cmBackUp, 0, sizeof(double)*graph->no_of_nodes*graph->no_of_nodes);
-	memcpy(&cmBackUp, &(graph->c), sizeof(cmBackUp));*/
+	double delta = 2;
 
-	double delta = 100.0 * 2;
+	// let e1, e2, ... en the n edged to the n neighours
+	// deny e1
+	printf("branchAndBound1.c :: solveTSP :: denying edge (%d,%d)\n",
+			adjl[0]->data, branchingNode->data);
+	g1->edgeList[atPosition(adjl[0]->data, branchingNode->data)]->weight += delta;
 
-	graph->edgeList[atPosition(0, branchingNode->data)]->weight += delta;
+	printf("branchAndBound1.c :: solveTSP :: start first branch\n");
+	if(solveTSP(g1, original) == 1) return 1;
 
-	// deny first neighbour
-	/*branchingInfo *bi1 = createBranchingInfo(branchingNode,
-				NULL, NULL, bi->numEditedEdges + 1);
-	bi1->editedEdges = malloc(sizeof(edge *) * bi1->numEditedEdges);
-	bi1->deltas = malloc(sizeof(double) * bi1->numEditedEdges);
-	for (i = 0; i < bi1->numEditedEdges - 1; ++i) {
-		bi1->editedEdges[i] = bi->editedEdges[i];
-		bi1->deltas[i] = bi->deltas[i];
-	}
-	bi1->editedEdges[i] = graph->edgeList[atPosition(0, branchingNode->data)];
-	printf("branchAndBound1.c :: solveTSP :: start branch\n");*/
-	solveTSP(graph, -2*delta, bi);
+	// impose e1, deny e2
+	g2->edgeList[atPosition(adjl[0]->data, branchingNode->data)]->weight -= delta;
+	g2->edgeList[atPosition(adjl[1]->data, branchingNode->data)]->weight += delta;
 
-	graph->edgeList[atPosition(0, branchingNode->data)]->weight -= 2*delta;
-	graph->edgeList[atPosition(1, branchingNode->data)]->weight += delta;
+	printf("branchAndBound1.c :: solveTSP :: imposing edge (%d,%d), denying edge (%d,%d)\n\n",
+		adjl[0]->data, branchingNode->data, adjl[1]->data, branchingNode->data);
+	printf("branchAndBound1.c :: solveTSP :: start second branch\n");
+	if (solveTSP(g2, original) == 1) return 1;
 
-	//branchingInfo *bi2 = cloneBranchingInfo(bi);
-	//bi2->delta = 0
-	solveTSP(graph, 0, bi);
+	// impose e1, e2, deny all the others
+	g3->edgeList[atPosition(adjl[0]->data, branchingNode->data)]->weight -= delta;
+	g3->edgeList[atPosition(adjl[1]->data, branchingNode->data)]->weight -= delta;
+	printf("branchAndBound1.c :: solveTSP :: imposing edges (%d,%d), (%d,%d)\n",
+		adjl[0]->data, branchingNode->data, adjl[1]->data, branchingNode->data);
 
-	graph->edgeList[atPosition(1, branchingNode->data)]->weight -= 2*delta;
-
-	for (j = 2; j < adjn; ++j) {
-		graph->edgeList[atPosition(j, branchingNode->data)]->weight += delta;
+	int k;
+	for (k = 2; k < adjn; ++k) {
+		g3->edgeList[atPosition(adjl[k]->data, branchingNode->data)]->weight += delta;
 	}
 
-	delta = delta * (adjn - 2);
-	//branchingInfo *bi3 = cloneBranchingInfo(bi);
-	//bi3->delta = -2*delta
-	solveTSP(graph, -delta, bi);
+	printf("branchAndBound1.c :: solveTSP :: start third branch\n");
+	if (solveTSP(g3, original) == 1) return 1;
 
-	//return NULL;
+	return -1;
 }
 
 double zincumbent = DOUBLE_INFINITY;
+double zopt = 0;
 void *incumbent;
 
 int main(int argc, char const *argv[]) {
@@ -143,12 +108,20 @@ int main(int argc, char const *argv[]) {
 
 	int no_of_nodes = pars->no_of_nodes;
 	matrixGraph *graph = newMatrixGraph(no_of_nodes);
-	printf("matrixGraph created\n");
+	printf("matrixGraph created with seed %d\n", pars->seed);
 
-	//edge **opt = 
-	solveTSP(graph, 0.0, NULL);
+	int i, j;
 
-	printf("%f\n", zincumbent);
+	for (i = 0; i < no_of_nodes; ++i) {
+		for (j = 0; j < i; ++j) {
+			printf("%f ", graph->edgeList[atPosition(i,j)]->weight);fflush(stdout);
+		}
+		printf("\n");
+	}
+
+	int result = solveTSP(graph, /*NULL,*/ graph);
+
+	//printf("%f\n", zincumbent);
 	//plotGraph(graph, (edge **)incumbent, pars->plotOnlyTree);
 
 	return 0;

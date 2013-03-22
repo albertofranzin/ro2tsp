@@ -5,7 +5,9 @@ void plotGraph(matrixGraph *graph, edge **el, short onlyTree) {
 
 	FILE *pipe = popen("gnuplot -persist","w");
 	fprintf(pipe, "set xrange [-0.010:1.010]\n");
-	fprintf(pipe, "set yrange [-0.010:1.250]\n");
+	fprintf(pipe, "set yrange [-0.010:1.010]\n");
+	fprintf(pipe, "set size square\n");
+	fprintf(pipe, "set terminal wxt size 500,500\n");
 	fprintf(pipe, "set title '1-tree for the given graph'\n");
 	fprintf(pipe, "set xlabel 'X'\n");
 	fprintf(pipe, "set ylabel 'Y'\n");

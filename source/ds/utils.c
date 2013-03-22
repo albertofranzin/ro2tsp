@@ -1,8 +1,11 @@
 #include "utils.h"
 
 inline int atPosition(int i, int j) {
-	if (i > j) { return (i * (i-1)) / 2 + j; }
-	return (j * (j-1)) / 2 + i;
+	if (i > j) {
+		return (i * (i-1)) / 2 + j;
+	} else {
+		return (j * (j-1)) / 2 + i;
+	}
 }
 
 void initializeRandom(unsigned int seed) {
@@ -124,11 +127,15 @@ int snbdComp(const void *aa, const void *bb) {
 	return 0;
 }
 
-/*void sortNodesByDegree(node ***nnl, int no_of_nodes) {
-	//node **nl = (node **)(*nnl);
-	//printf("### %d\n", nl[4]->data);
-	qsort((void *) &nnl, no_of_nodes, sizeof(node), snbdComp);
-}*/
+// sort edges by weight
+int sebwComp(const void *aa, const void *bb) {
+	edge **a = (edge **)aa,
+		 **b = (edge **)bb;
+
+	if ((*a)->weight < (*b)->weight) { return -1; }
+	if ((*a)->weight > (*b)->weight) { return 1; }
+	return 0;
+}
 
 void appendDouble(double **nnl, double n, int pos) {
 	double *nl = (double *)(*nnl);
