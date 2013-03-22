@@ -31,6 +31,7 @@ typedef struct _parameters {
 // global declaration for incumbent solution
 extern double zincumbent;
 extern void *incumbent;
+extern double zopt;
 
 /* methods */
 
@@ -49,7 +50,7 @@ short parHash(char *);
 parameters *getParameters();
 
 int snbdComp(const void *, const void *);
-//void sortNodesByDegree(node ***, int);
+int sebwComp(const void *, const void *);
 
 void appendDouble(double **n, double, int);
 

@@ -23,6 +23,8 @@ node *chooseBranchingNode(matrixGraph *, edge **);
 
 short isHamilton(matrixGraph *, edge **);
 
-short stoppingCriteria(matrixGraph *, edge **, branchingInfo *, double, double *);
+double sumDeltas(branchingInfo *);
+
+short stoppingCriteria(matrixGraph *, edge **, double *, double *);
 
 #endif

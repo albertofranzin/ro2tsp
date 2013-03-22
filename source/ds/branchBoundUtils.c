@@ -60,18 +60,26 @@ node *chooseBranchingNode(matrixGraph *graph, edge **el) {
 	i = 0;
 	while(nl[i++]->deg < 3);
 	i--;
-	chosenData = nl[i]->data;
+	// have we gone too far away?
+	// probably redundant, but...
+	if (i < graph->no_of_nodes) {
+		chosenData = nl[i]->data;
 
-	printf("BranchBoundUtils.c :: chooseBranchingNode :: ");
-	printf("branch on node %d : %d\n", nl[i]->data, nl[i]->deg);
+		printf("BranchBoundUtils.c :: chooseBranchingNode :: ");
+		printf("branch on node %d : %d\n", nl[i]->data, nl[i]->deg);
 
-	deleteNodeList(nl, graph->no_of_nodes);
+		deleteNodeList(nl, graph->no_of_nodes);
 
-	return graph->nodeList[chosenData];
+		return graph->nodeList[chosenData];
+	} else {
+		deleteNodeList(nl, graph->no_of_nodes);
+		return NULL;
+	}
 }
 
 short isHamilton(matrixGraph *graph, edge **el) {
-	// no need to check for subtours - I hope, Prim-Dijkstra should shelter us against this
+	// no need to check for subtours
+	// I hope, Prim-Dijkstra should shelter us against this
 
 	int i;
 	short visited[graph->no_of_nodes];
@@ -91,31 +99,57 @@ short isHamilton(matrixGraph *graph, edge **el) {
 	return 1;
 }
 
-short stoppingCriteria(matrixGraph *graph, edge **el,
-		branchingInfo *bi, double lb, double *z) {
+double sumDeltas(branchingInfo *bi) {
+	int i;
+	double sum = 0.;
+	printf("branchBoundUtils.c :: sumDeltas :: # of edited edges : %d\n", bi->numEditedEdges);
+	for (i = 0; i < bi->numEditedEdges; ++i) {
+		printf("\t %d %d has delta :: %f\n", bi->editedEdges[i]->u->data,
+											bi->editedEdges[i]->v->data,
+											bi->deltas[i]);
+		sum += bi->deltas[i];
+	}
+	return sum;
+}
 
-	printf("branchBoundUtils.c :: stoppingCriteria :: ");
-	// current branch cannot improve the bound
-	if (*z <= lb) {
-		printf("current branch cannot improve the bound\n");
-		return -1;
-	} else {
-		*z = lb;
+short stoppingCriteria(matrixGraph *graph, edge **el, double *opt, double *z) {
+
+	printf("branchBoundUtils.c :: stoppingCriteria :: entering method\n");
+
+	int i;
+	double cost = 0.0;
+	for (i = 0; i < graph->no_of_nodes; ++i) {
+		if (graph->edgeList[atPosition(el[i]->u->data, el[i]->v->data)]->weight >= 2) {
+			return -1;
+		}
+		cost += graph->edgeList[atPosition(el[i]->u->data, el[i]->v->data)]->weight;
 	}
 
-	// too many nodes have been processed:
-	// no feasible solution available in current branch
-	if (bi->numEditedEdges >= graph->no_of_nodes - 1) {
-		printf("too many nodes have been processed\n");
-		return -1;
-	}
+	printf("branchBoundUtils.c :: stoppingCriteria :: lower bound computed :: %f\n", cost);
+
+	printf("branchBoundUtils.c :: stoppingCriteria :: ");fflush(stdout);
 
 	// current branch contains a hamiltonian path
 	if (isHamilton(graph, el) == 1) {
 		printf("OK!!\n");
+		plotGraph(graph, el, 1);
+		char c = getchar();
+		*opt = cost;
 		return 1;
 	}
 
+	// current branch cannot improve the bound
+	if (cost >= *z) {
+		printf("current branch cannot improve the bound\n");
+		return -1;
+	} else {
+		printf("found a better bound\n");
+		*z = cost;
+		plotGraph(graph, el, 1);
+		char c = getchar();
+	}
+
 	// no reasons to stop
+	printf("continuing\n");
 	return 0;
 }

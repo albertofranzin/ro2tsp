@@ -43,7 +43,7 @@ matrixGraph *newMatrixGraph(size_t number_of_nodes) {
 			//printf("%f\n", graph->c[i][j]);
 			node *n1 = mg->nodeList[i];
 			node *n2 = mg->nodeList[j];
-			mg->edgeList[counter++] = newEdge(n1, n2,
+			mg->edgeList[atPosition(n1->data,n2->data)] = newEdge(n1, n2,
 						sqrt((n1->x - n2->x)*(n1->x - n2->x) +
 							 (n1->y - n2->y)*(n1->y - n2->y))
 					);
@@ -128,7 +128,7 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 	for (i = 2; i < graph->no_of_nodes; ++i) {
 		flag[i] = 0;
 		pred[i] = 1;
-		L[i] = graph->edgeList[atPosition(0,i)]->weight;
+		L[i] = graph->edgeList[atPosition(1,i)]->weight;
 	}
 
 	// select the n-1 edges of the tree
@@ -154,15 +154,20 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 	// partially (bubble-)sorting the edges insisting on the first node,
 	// in order to "close the circle".
 
-	// First, malloc and brutal memory copy
-	edge **deltaOf1st = malloc(sizeof(edge *)*(graph->no_of_nodes-1));
+	edge **deltaOf1st = malloc(sizeof(edge *)*(graph->no_of_nodes -1));
 	// fill in deltaOf1st with the first positions of graph->edgeList
-	memcpy(&deltaOf1st, &(graph->edgeList), sizeof(deltaOf1st));
+	for (i = 0; i < graph->no_of_nodes - 1; ++i) {
+		deltaOf1st[i] = graph->edgeList[atPosition(i+1,0)];
+	}
+
+	/*for (i = 0; i < graph->no_of_nodes - 1; ++i) {
+		printf("--- (%d, %d), %f\n", deltaOf1st[i]->u->data, deltaOf1st[i]->v->data, deltaOf1st[i]->weight);
+	}*/
 
 	// then scan the list twice
 	// remember that we need the tho cheapest edges
 	for (i = 0; i < 2; ++i) {
-		for (j = i+1; j < graph->no_of_nodes; ++j) {
+		for (j = i+1; j < graph->no_of_nodes - 1; ++j) {
 			if (deltaOf1st[i]->weight > deltaOf1st[j]->weight) {
 				edge *tmp = deltaOf1st[i];
 				deltaOf1st[i] = deltaOf1st[j];
@@ -170,11 +175,8 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 			}
 		}
 	}
-
-	/*for (i = 0; i < 45; ++i)
-	{
-		printf("%f\n", graph->edgeList[i]->weight);
-	}*/
+	printf("two lowest-cost edges : %f %f \n", deltaOf1st[0]->weight, deltaOf1st[1]->weight);
+	//qsort(deltaOf1st, graph->no_of_nodes - 1, sizeof(edge *), sebwComp);
 
 	tree[0] = deltaOf1st[0];
 	tree[1] = deltaOf1st[1];
@@ -182,28 +184,16 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 
 	// finally, fill in the tree with the right edges
 	for (i = 2; i < graph->no_of_nodes ; ++i) {
-		// Corresponding edge (h,j) is in position (binom(h-1, 2) + j)
-		// in the list of edges - look for 'triangular numbers'.
-		// Note that since we start counting from 0, the formula
-		// for triangular numbers should be adjusted accordingly.
-		// A swap is needed if j > h, but it's fine since graph is directed;
-		// note that j=h cannot happen, because we don't have self-loops.
-		j = i;
-		h = pred[j];
-		/*if (h < j) {
-			int tmp = h;
-			h = j;
-			j = tmp;
-		}
-		tree[i] = (edge *)(graph->edgeList[(h*(h-1))/2 + j]);*/
-		tree[i] = (edge *)(graph->edgeList[atPosition(h,j)]);
+		//j = i;
+		h = pred[i];
+		tree[i] = (edge *)(graph->edgeList[atPosition(h,i)]);
 
 		// at the same time, spare a loop by computing the total cost of the 1-tree
 		total_cost += L[i];
 
 	}
 
-	//free(deltaOf1st);
+	free(deltaOf1st);
 
 	return total_cost;
 
@@ -256,4 +246,40 @@ void getAdjacentNodesInOneTree(matrixGraph *graph, edge **el, node *n, node ***a
 	free(tmpal);*/
 	//printf("hey\n");
 	//return adjn;
+}
+
+/*
+ * cloneGraph
+ * original : the original matrixGraph to be cloned
+ *
+ * duplicate an entire graph
+ *
+ * return : a copy of the original graph
+ */
+matrixGraph *cloneGraph(matrixGraph *original) {
+	// have to malloc instead of calling the proper function, because here
+	// I don't need the graph to be initialized
+	matrixGraph *copy = malloc(sizeof(matrixGraph));
+	copy->no_of_nodes = original->no_of_nodes;
+	copy->nodeList = malloc(sizeof(node *) * copy->no_of_nodes);
+	copy->edgeList = malloc(sizeof(edge *) * (copy->no_of_nodes * (copy->no_of_nodes - 1))/2);
+
+	int i;
+
+	for (i = 0; i < copy->no_of_nodes; ++i) {
+		copy->nodeList[i] = newNode(original->nodeList[i]->data);
+		copy->nodeList[i]->deg = original->nodeList[i]->deg;
+		copy->nodeList[i]->x = original->nodeList[i]->x;
+		copy->nodeList[i]->y = original->nodeList[i]->y;
+	}
+
+	for (i = 0; i < (copy->no_of_nodes * (copy->no_of_nodes - 1))/2; ++i) {
+		copy->edgeList[i] = newEdge(
+					copy->nodeList[original->edgeList[i]->u->data],
+					copy->nodeList[original->edgeList[i]->v->data],
+					original->edgeList[i]->weight
+				);
+	}
+
+	return copy;
 }
