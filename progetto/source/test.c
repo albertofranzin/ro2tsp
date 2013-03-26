@@ -1,3 +1,6 @@
+#define BIG 1000
+#define SMALL -1000
+
 #include "node.h"
 #include "edge.h"
 #include "graph.h"
@@ -5,23 +8,20 @@
 #include "compute_mst.h"
 #include "compute_ot.h"
 #include "solve_tsp.h"
-#include "utils.h"
 
-#define BIG 1000
-#define SMALL -1000
+#include "graph.c"
+#include "compute_path.c"
+#include "compute_mst.c"
+#include "compute_ot.c"
+#include "solve_tsp.c"
 
 void main() {
-
-  parameters *pars = getParameters();
-  printf("seed used : %d\n", initializeRandom(pars->seed));
-
   int i, j;
   graph G, F, H;
-  clock_t c1, c2;
-  initGraph(&G, pars->no_of_nodes);
+  initGraph(&G, 19);
   initGraph(&F, 1);
   initGraph(&H, 1);
-  randomGraph(&G);
+  randomGraph(&G, 321);
 
   double incumbent = BIG;
   copyGraph(&G, &F);

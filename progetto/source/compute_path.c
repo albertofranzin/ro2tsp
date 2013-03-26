@@ -1,3 +1,4 @@
+#include "graph.h"
 #include "compute_path.h"
 
 int compute_path(graph* G, graph* P, int from, int to, int flag) {
