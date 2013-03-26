@@ -1,11 +1,8 @@
-#ifndef GRAPH_H_
-#define GRAPH_H_
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
 #include "node.h"
 #include "edge.h"
+
+#ifndef GRAPH_H_
+#define GRAPH_H_
 
 struct graph {
   int n;
@@ -17,7 +14,7 @@ typedef struct graph graph;
 
 void initGraph(graph* G, int n);
 void deleteGraph(graph* G);
-void randomGraph(graph* G);
+void randomGraph(graph* G, int seed);
 void plotGraph(graph* G1, graph* G2, char* opt1, char* opt2);
 void copyGraph(graph* FROM, graph* TO);
 
