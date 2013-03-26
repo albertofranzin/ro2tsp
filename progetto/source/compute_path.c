@@ -11,7 +11,6 @@ int compute_path(graph* G, graph* P, int from, int to, int flag) {
     for (i = 1; i <= n; i++) {
       set_node_x(P, i, get_node_x(G, i));
       set_node_y(P, i, get_node_y(G, i));
-      //set_node_deg(P, i, get_node_deg(G, i));
     }
     flag = 1;
   }
