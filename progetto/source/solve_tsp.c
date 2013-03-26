@@ -1,3 +1,4 @@
+#include "graph.h"
 #include "solve_tsp.h"
 
 graph INITIAL_GRAPH;
@@ -7,7 +8,8 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
   double z;
   graph ONE_TREE;
   int n = (*G).n;
-  double* previous_cost = (double*)malloc(sizeof(double) * n);
+  double* previous_cost;;
+  double cost_wv, cost_wu;
 
   if (flag == 0) {
     initGraph(&INITIAL_GRAPH, 1);
@@ -34,6 +36,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
   }
 
   if (is_cycle(&ONE_TREE)) {
+    printf("incumbent = %f\n", *incumbent);
     if (z < *incumbent) {
       *incumbent = z;
       copyGraph(&ONE_TREE, H);
@@ -61,23 +64,24 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
   if ((v >= 1 && v <= n) && (u >= 1 && u <= n)) {
     /* BRANCH 1
      */
-    previous_cost[v-1] = get_edge_cost(G, w, v);
+    cost_wv = get_edge_cost(G, w, v);
     set_edge_cost(G, w, v, BIG);
     solve_tsp(G, H, incumbent, flag);
-    set_edge_cost(G, w, v, previous_cost[v-1]);
+    set_edge_cost(G, w, v, cost_wv);
 
     /* BRANCH 2
      */
-    previous_cost[v-1] = get_edge_cost(G, w, v);
-    previous_cost[u-1] = get_edge_cost(G, w, u);
+    cost_wv = get_edge_cost(G, w, v);
+    cost_wu = get_edge_cost(G, w, u);
     set_edge_cost(G, w, v, SMALL);
     set_edge_cost(G, w, u, BIG);
     solve_tsp(G, H, incumbent, flag);
-    set_edge_cost(G, w, v, previous_cost[v-1]);
-    set_edge_cost(G, w, u, previous_cost[u-1]);
+    set_edge_cost(G, w, v, cost_wv);
+    set_edge_cost(G, w, u, cost_wu);
 
     /* BRANCH 3
      */
+    previous_cost = (double*)malloc(sizeof(double) * n);
     for (i = 1; i <= n; i++) {
       if (i != w) 
 	previous_cost[i-1] = get_edge_cost(G, w, i);
@@ -93,23 +97,24 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
       if (i != w)
 	set_edge_cost(G, w, i, previous_cost[i-1]);
     }
+    free(previous_cost);
   } 
 
   // 1.2 esiste un solo lato che non è mai stato selezionato
   else if (((v >= 1 && v <= n) && (u < 1 || u > n)) || ((v < 1 || v > n) && (u >= 1 && u <= n))) {
     /* BRANCH 1
      */
-    previous_cost[v-1] = get_edge_cost(G, w, v);
+    cost_wv = get_edge_cost(G, w, v);
     set_edge_cost(G, w, v, BIG);
     solve_tsp(G, H, incumbent, flag);
-    set_edge_cost(G, w, v, previous_cost[v-1]);
+    set_edge_cost(G, w, v, cost_wv);
 
     /* BRANCH 2
      */
-    previous_cost[v-1] = get_edge_cost(G, w, v);
+    cost_wv = get_edge_cost(G, w, v);
     set_edge_cost(G, w, v, SMALL);
     solve_tsp(G, H, incumbent, flag);
-    set_edge_cost(G, w, v, previous_cost[v-1]);
+    set_edge_cost(G, w, v, cost_wv);
   }
 
   // 1.3 tutti i lati sono già stati selezionati
