@@ -10,7 +10,6 @@ void compute_ot(graph* G, graph* T) {
   for (i = 1; i <= n; i++) {
     set_node_x(T, i, get_node_x(G, i));
     set_node_y(T, i, get_node_y(G, i));
-    //set_node_deg(T, i, get_node_deg(G, i));
   }
 
   u = 2;
