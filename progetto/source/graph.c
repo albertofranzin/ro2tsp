@@ -69,6 +69,7 @@ void remove_edge(graph* G, int u, int v) {
   if (!adjacent(G, u, v))
     return;
   (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].flag = 0 ) : ( (*G).E[ v*(v-1)/2 + u-1].flag = 0 );
+  (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].cost = 0 ) : ( (*G).E[ v*(v-1)/2 + u-1].cost = 0 );
   (*G).V[u-1].deg--;
   (*G).V[v-1].deg--;
 }
