@@ -1,5 +1,3 @@
-#include "graph.h"
-#include "compute_mst.h"
 #include "compute_ot.h"
 
 void compute_ot(graph* G, graph* T) {

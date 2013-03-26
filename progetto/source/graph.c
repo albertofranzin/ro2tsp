@@ -1,8 +1,3 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include "node.h"
-#include "edge.h"
 #include "graph.h"
 
 void initGraph(graph* G, int n) {
@@ -25,14 +20,13 @@ void deleteGraph(graph* G) {
   (*G).E = NULL;
 }
 
-void randomGraph(graph* G, int seed) {
+void randomGraph(graph* G) {
   int i, j;
   int n = (*G).n;
 
   deleteGraph(G);
   initGraph(G, n);
 
-  srand(seed);
   for (i = 0; i < n; i++) {
     (*G).V[i].deg = n-1;
     (*G).V[i].x = (double)(rand()) / ((double)RAND_MAX + 1.0);
@@ -160,6 +154,7 @@ void plotGraph(graph* G1, graph* G2, char* opt1, char* opt2) {
   FILE* pipe = popen("gnuplot -persist", "w");
 
   fprintf(pipe, "set multiplot\n");
+  fprintf(pipe, "set size square\n");
   fprintf(pipe, "set xrange [-0.010:1.010]\n");
   fprintf(pipe, "set yrange [-0.010:1.010]\n");
   fprintf(pipe, "set xlabel 'X'\n");
@@ -168,10 +163,10 @@ void plotGraph(graph* G1, graph* G2, char* opt1, char* opt2) {
   fprintf(pipe, "unset ytics\n");
 
   if (strcmp(opt1, "default") == 0) {
-    fprintf(pipe, "set style line 1 linetype 1 linecolor rgb \"black\" pointtype 7\n");
-    fprintf(pipe, "set style line 2 linetype 1 linecolor rgb \"black\" linewidth 1\n");
-    fprintf(pipe, "set style line 3 linetype 1 linecolor rgb \"green\" pointtype 7\n");
-    fprintf(pipe, "set style line 4 linetype 1 linecolor rgb \"green\" linewidth 1\n");
+    fprintf(pipe, "set style line 1 linetype 1 linecolor rgb \"grey\" pointtype 7\n");
+    fprintf(pipe, "set style line 2 linetype 1 linecolor rgb \"grey\" linewidth 1\n");
+    fprintf(pipe, "set style line 3 linetype 1 linecolor rgb \"red\" pointtype 7\n");
+    fprintf(pipe, "set style line 4 linetype 1 linecolor rgb \"red\" linewidth 1\n");
   }
   if (strcmp(opt1, "mstree") == 0) {
     fprintf(pipe, "set style line 1 linetype 1 linecolor rgb \"grey\" pointtype 7\n");

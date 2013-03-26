@@ -1,4 +1,3 @@
-#include "graph.h"
 #include "solve_tsp.h"
 
 graph INITIAL_GRAPH;
