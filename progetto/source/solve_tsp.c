@@ -32,15 +32,17 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
 
 
   if (z >= *incumbent) {
+    deleteGraph(&ONE_TREE);
     return;
   }
 
   if (is_cycle(&ONE_TREE)) {
-    printf("incumbent = %f\n", *incumbent);
+    printf("updated incumbent = %f\n", *incumbent);
     if (z < *incumbent) {
       *incumbent = z;
       copyGraph(&ONE_TREE, H);
     }
+    deleteGraph(&ONE_TREE);
     return;
   }
 
