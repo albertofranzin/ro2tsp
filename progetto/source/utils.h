@@ -7,7 +7,7 @@
 #include <limits.h>
 #include <float.h>
 #include <math.h>
-//#include "edge.h"
+#include "graph.h"
 
 /* constants and variables */
 
@@ -53,5 +53,13 @@ int snbdComp(const void *, const void *);
 int sebwComp(const void *, const void *);
 
 //void appendDouble(double **n, double, int);
+
+/*
+ * matching
+ * - G : the graph on which computing the matching
+ *
+ * compute maximal matching using the Hungarian algorithm
+ */
+double matching(graph *G);
 
 #endif

@@ -56,9 +56,9 @@ double nearestNeighbour(graph *G, graph *H) {
 	min = get_edge_cost(G, current, 1);
 	set_edge_cost(H, current, 1, min);
 	cost += min;
-	printf("%d %d, %f | %f\n", current, 1, min, cost);
+	//printf("%d %d, %f | %f\n", current, 1, min, cost);
 
-	printf("cost of the NN tour : %f\n", cost);
+	printf("cost of the NN tour : %f. Will be the initial lower bound for b&b.\n\n", cost);
 	return cost;
 
 }

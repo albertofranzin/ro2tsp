@@ -6,10 +6,12 @@ void initGraph(graph* G, int n) {
   (*G).n = n;
   (*G).V = (node*)malloc(sizeof(node) * n);
   (*G).E = (edge*)malloc(sizeof(edge) * n * (n + 1) / 2);
-  for (i = 0; i < n; i++)
+  /*for (i = 0; i < n; i++)
     (*G).V[i].x = (*G).V[i].y = (*G).V[i].deg = 0;
   for (i = 0; i < n * (n + 1) / 2; i++)
-    (*G).E[i].flag = (*G).E[i].cost = 0;
+    (*G).E[i].flag = (*G).E[i].cost = 0;/**/
+  memset((*G).V, 0, sizeof(node) * n);
+  memset((*G).E, 0, sizeof(edge) * n * (n + 1) / 2);/**/
 }
 
 void deleteGraph(graph* G) {
@@ -74,35 +76,42 @@ void remove_edge(graph* G, int u, int v) {
   (*G).V[v-1].deg--;
 }
 
+inline
 void set_node_x(graph* G, int v, double x) {
   (*G).V[v-1].x = x;
 }
 
+inline
 void set_node_y(graph* G, int v, double y) {
   (*G).V[v-1].y = y;
 }
 
+inline
 double get_node_x(graph* G, int v) {
   return (*G).V[v-1].x;
 }
 
+inline
 double get_node_y(graph* G, int v) {
   return (*G).V[v-1].y;
 }
 
-
+inline
 int get_node_deg(graph* G, int v) {
   return (*G).V[v-1].deg;
 }
 
+inline
 void set_edge_cost(graph* G, int u, int v, double cost) {
   (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*G).E[ v*(v-1)/2 + u-1 ].cost = cost );
 }
 
+inline
 double get_edge_cost(graph* G, int u, int v) {
   return (u > v) ? (*G).E[ u*(u-1)/2 + v-1 ].cost : (*G).E[ v*(v-1)/2 + u-1 ].cost;
 }
 
+inline
 int adjacent(graph* G, int u, int v) {
   return (u > v) ? (*G).E[ u*(u-1)/2 + v-1 ].flag : (*G).E[ v*(v-1)/2 + u-1 ].flag;
 }

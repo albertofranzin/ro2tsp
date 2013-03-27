@@ -83,7 +83,7 @@ void remove_edge(graph* G, int u, int v);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v <= G.n;
  */
-void set_node_x(graph* G, int v, double x);
+inline void set_node_x(graph* G, int v, double x);
 
 
 
@@ -91,14 +91,14 @@ void set_node_x(graph* G, int v, double x);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v <= G.n;
  */
-void set_node_y(graph* G, int v, double y);
+inline void set_node_y(graph* G, int v, double y);
 
 
 
 /* ritorna la coordinata x del nodo v di G;
  * - si assume G grafo inizializzato;
  */
-double get_node_x(graph* G, int v);
+inline double get_node_x(graph* G, int v);
 
 
 
@@ -106,7 +106,7 @@ double get_node_x(graph* G, int v);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v <= G.n;
  */
-double get_node_y(graph* G, int v);
+inline double get_node_y(graph* G, int v);
 
 
 
@@ -114,7 +114,7 @@ double get_node_y(graph* G, int v);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v <= G.n;
  */
-int get_node_deg(graph* G, int v);
+inline int get_node_deg(graph* G, int v);
 
 
 
@@ -122,7 +122,7 @@ int get_node_deg(graph* G, int v);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v, u <= G.n;
  */
-void set_edge_cost(graph* G, int u, int v, double cost);
+inline void set_edge_cost(graph* G, int u, int v, double cost);
 
 
 
@@ -130,7 +130,7 @@ void set_edge_cost(graph* G, int u, int v, double cost);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v, u <= G.n;
  */
-double get_edge_cost(graph* G, int u, int v);
+inline double get_edge_cost(graph* G, int u, int v);
 
 
 
@@ -138,7 +138,7 @@ double get_edge_cost(graph* G, int u, int v);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v, u <= G.n;
  */
-int adjacent(graph* G, int u, int v);
+inline int adjacent(graph* G, int u, int v);
 
 
 
