@@ -22,7 +22,7 @@ typedef struct _parameters {
 #define FILE_CONFIG "config"
 
 // define infinity for double
-//#define INF 1000
+#define INF 1000
 
 // cost increment/decrement to deny/impose an edge in the solution
 // since we operate in [0,1]^2, 2 should be enough.
