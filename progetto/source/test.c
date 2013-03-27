@@ -26,7 +26,7 @@ void main() {
   randomGraph(&G);
 
   copyGraph(&G, &F);
-  double incumbent = BIG;//nearestNeighbour(&G, &NN);
+  double incumbent = nearestNeighbour(&G, &NN);
   //printf("should be %f\n", get_graph_cost(&NN));
   //print_graph(&G);
   //print_graph(&NN);
