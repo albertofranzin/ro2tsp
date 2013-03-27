@@ -152,3 +152,13 @@ int sebwComp(const void *aa, const void *bb) {
 		exit(1);
 	}
 }*/
+
+/*
+ * matching
+ * - G : the graph on which computing the matching
+ *
+ * compute maximal matching using the Hungarian algorithm
+ */
+double matching(graph *G) {
+	
+}

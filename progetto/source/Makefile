@@ -38,7 +38,6 @@ heuristics.o: heuristics.h heuristics.c
 clean:
 	clear
 	-rm test
-	-rm makefile~
 	-rm test.a
 	-rm *.o
 	-rm *.gch

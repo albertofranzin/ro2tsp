@@ -2,12 +2,14 @@
 
 void compute_mst(graph* G, graph* T, int root) {
   int i, j, v;
-  double min, tree_cost = 0.;
+  double min;
 
   int n = (*G).n;
-  int* flag = (int*)malloc(sizeof(int) * n);
-  int* pred = (int*)malloc(sizeof(int) * n);
-  double* cost = (double*)malloc(sizeof(double) * n);
+  // stessa cosa, ma così facendo si arrangia da solo a deallocare la memoria degli array
+  // senza bisogno delle tre free in fondo al metodo
+  short flag[n];// = (int*)malloc(sizeof(int) * n);
+  int pred[n];// = (int*)malloc(sizeof(int) * n);
+  double cost[n];// = (double*)malloc(sizeof(double) * n);
 
 
   deleteGraph(T);
@@ -22,7 +24,8 @@ void compute_mst(graph* G, graph* T, int root) {
 
   /* inizializzazione delle principali strutture;
    * - pongo a root il predecessore dei nodi direttamente connessi alla radice;
-   * - pongo a 0 il predecessore dei nodi non direttamente connessi alla radice; si tratta di nodi di cui al momento non si conosce la raggiungibilità (da root);
+   * - pongo a 0 il predecessore dei nodi non direttamente connessi alla radice;
+   *   si tratta di nodi di cui al momento non si conosce la raggiungibilità (da root);
    */
   for (j = 1; j <= n; j++) {
     if (j == root) {
@@ -43,7 +46,8 @@ void compute_mst(graph* G, graph* T, int root) {
 
   /* loop principale di n-1 cicli;
    * - se G è connesso, allora ad ogni ciclo viene aggiunto un nuovo lato;
-   * - se G non è connesso, è possibile che negli ultimi n-k-1 cicli non venga aggiunto alcun lato; k è il numero di nodi del sottografo connesso al quale appartiene root;
+   * - se G non è connesso, è possibile che negli ultimi n-k-1 cicli non venga aggiunto
+   *   alcun lato; k è il numero di nodi del sottografo connesso al quale appartiene root;
    */ 
   for (i = 1; i <= n-1; i++) {
 
@@ -79,7 +83,7 @@ void compute_mst(graph* G, graph* T, int root) {
     }
   }
 
-  free(flag);
+  /*free(flag);
   free(pred);
-  free(cost);
+  free(cost);*/
 }

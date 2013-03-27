@@ -26,7 +26,7 @@ void main() {
   randomGraph(&G);
 
   copyGraph(&G, &F);
-  double incumbent = nearestNeighbour(&G, &NN);
+  double incumbent = BIG;//nearestNeighbour(&G, &NN);
   //printf("should be %f\n", get_graph_cost(&NN));
   //print_graph(&G);
   //print_graph(&NN);
@@ -35,6 +35,7 @@ void main() {
   solve_tsp(&G, &H, &incumbent, 0);
   plotGraph(&G, &H, "default", NULL); 
 
+  free(pars);
   deleteGraph(&G);
   deleteGraph(&F);
   deleteGraph(&H);
