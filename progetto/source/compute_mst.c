@@ -2,7 +2,7 @@
 
 void compute_mst(graph* G, graph* T, int root) {
   int i, j, v;
-  double min;
+  double min, tree_cost = 0.;
 
   int n = (*G).n;
   int* flag = (int*)malloc(sizeof(int) * n);
@@ -32,11 +32,11 @@ void compute_mst(graph* G, graph* T, int root) {
     else {
       flag[j-1] = 0;
       if (adjacent(G, root, j)) {
-	pred[j-1] = root;
-	cost[j-1] = get_edge_cost(G, root, j);
+        pred[j-1] = root;
+        cost[j-1] = get_edge_cost(G, root, j);
       }
       else {
-	pred[j-1] = 0;
+        pred[j-1] = 0;
       }
     }
   }
@@ -50,17 +50,17 @@ void compute_mst(graph* G, graph* T, int root) {
     // ricerca un primo nodo candidato per estendere la regione dei nodi già ricoperti dall'albero;
     for (j = 1; j <= n; j++) {
       if (pred[j-1] > 0 && flag[j-1] == 0) {
-	min = cost[j-1];
-	v = j;
-	break;
+        min = cost[j-1];
+        v = j;
+        break;
       }
     }
 
     // a partire dal candidato, cerca il miglior candidato per estendere la regione dei nodi già ricoperti dall'albero;
     for (j = 1; j <= n; j++) {
       if (pred[j-1] > 0 && flag[j-1] == 0 && cost[j-1] < min) {
-	min = cost[j-1];
-	v = j;
+        min = cost[j-1];
+        v = j;
       }
     }
 
@@ -73,8 +73,8 @@ void compute_mst(graph* G, graph* T, int root) {
     // aggiorna i costi di raggiungibilità dei nodi non ancora ricoperti e raggiungibili direttamente dal nodo appena ricoperto;
     for (j = 1; j <= n; j++) {
       if (adjacent(G, v, j) && (pred[j-1] == 0 || (pred[j-1] > 0 && flag[j-1] == 0 && get_edge_cost(G, v, j) < cost[j-1]))) {
-	pred[j-1] = v;
-	cost[j-1] = get_edge_cost(G, v, j);
+        pred[j-1] = v;
+        cost[j-1] = get_edge_cost(G, v, j);
       }
     }
   }

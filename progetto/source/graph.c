@@ -114,9 +114,10 @@ double get_graph_cost(graph* G) {
   int n = (*G).n;
   c = 0;
   for (i = 1; i <= n; i++) {
-    for (j = 1; j <= n; j++) {
-      if (adjacent(G, i, j))
-	c += get_edge_cost(G, i, j);
+    for (j = 1; j < i; j++) {
+      if (adjacent(G, i, j)) {
+        c += get_edge_cost(G, i, j);
+      }
     }
   }
   return c;
@@ -308,4 +309,15 @@ void plotGraph(graph* G1, graph* G2, char* opt1, char* opt2) {
   }
 
   fflush(pipe);
+}
+
+void print_graph(graph *G) {
+  int i, j, n = G->n;
+
+  for (i = 1; i <= n; ++i) {
+    for (j = 1; j < i; ++j) {
+      printf("%f ", get_edge_cost(G, i, j));
+    }
+    printf("\n");
+  }
 }

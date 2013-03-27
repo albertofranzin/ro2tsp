@@ -47,7 +47,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
    * aggiorna incumbent e soluzione ottima corrente;
    */
   if (is_cycle(&ONE_TREE)) {
-    printf("updated incumbent = %f\n", *incumbent);
+    printf("updating incumbent : from %f to %f\n", *incumbent, z);
     if (z < *incumbent) {
       *incumbent = z;
       copyGraph(&ONE_TREE, H);

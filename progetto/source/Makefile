@@ -4,7 +4,7 @@ PAR = -g -O3 -lm
 test: clean buildLib $(NOMEFILE)
 	gcc $(NOMEFILE) -o $@ -L. -lro2ds $(PAR)
 
-buildLib: node.o edge.o compute_ot.o utils.o solve_tsp.o compute_path.o compute_mst.o graph.o
+buildLib: node.o edge.o compute_ot.o utils.o solve_tsp.o compute_path.o compute_mst.o graph.o heuristics.o
 	ar r libro2ds.a *.o
 #	rm *.o
 
@@ -31,6 +31,9 @@ compute_path.o: compute_path.h compute_path.c
 
 compute_mst.o: compute_mst.h compute_mst.c
 	gcc -c compute_mst.c
+
+heuristics.o: heuristics.h heuristics.c
+	gcc -c heuristics.c
 
 clean:
 	clear

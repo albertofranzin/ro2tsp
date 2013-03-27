@@ -147,4 +147,9 @@ int adjacent(graph* G, int u, int v);
  */
 double get_graph_cost(graph* G);
 
+/*
+ * print graph as matrix of costs
+ */
+void print_graph(graph *G);
+
 #endif
