@@ -1,6 +1,10 @@
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
+#if defined __GNUC__ && !defined __GNUC_STDC_INLINE__ && !defined __GNUC_GNU_INLINE__
+#define __GNUC_GNU_INLINE__ 1
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -79,7 +83,10 @@ void insert_edge(graph* G, int u, int v);
  */
 void remove_edge(graph* G, int u, int v);
 
-
+/*
+ * inline methods should yield better performance, since the calls
+ * are replaced with corresponding method code
+ */
 
 /* poni al valore x la coordinata x del nodo v di G;
  * - si assume G grafo inizializzato;
