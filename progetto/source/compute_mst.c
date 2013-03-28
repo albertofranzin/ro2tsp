@@ -7,7 +7,7 @@ void compute_mst(graph* G, graph* T, int root) {
   int n = (*G).n;
   // stessa cosa, ma così facendo si arrangia da solo a deallocare la memoria degli array
   // senza bisogno delle tre free in fondo al metodo
-  short flag[n];// = (int*)malloc(sizeof(int) * n);
+  short flag[n];// = (short*)malloc(sizeof(short) * n);
   int pred[n];// = (int*)malloc(sizeof(int) * n);
   double cost[n];// = (double*)malloc(sizeof(double) * n);
 

@@ -10,6 +10,7 @@ void initGraph(graph* G, int n) {
     (*G).V[i].x = (*G).V[i].y = (*G).V[i].deg = 0;
   for (i = 0; i < n * (n + 1) / 2; i++)
     (*G).E[i].flag = (*G).E[i].cost = 0;/**/
+  // since all the fields are set to 0, a badass malloc should be faster
   memset((*G).V, 0, sizeof(node) * n);
   memset((*G).E, 0, sizeof(edge) * n * (n + 1) / 2);/**/
 }

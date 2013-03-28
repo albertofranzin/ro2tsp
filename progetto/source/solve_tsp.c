@@ -3,6 +3,8 @@
 
 graph INITIAL_GRAPH;
 
+int calls = 0;
+
 void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
   int i, j, u, v, w;
   double z;
@@ -10,6 +12,8 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
   int n = (*G).n;
   double* previous_cost;;
   double cost_wv, cost_wu;
+
+  calls += 1;
 
   /* effettua una copia del grafo iniziale G, passato in ingresso alla prima chiamata della funzione;
    */
@@ -48,6 +52,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
    */
   if (is_cycle(&ONE_TREE)) {
     printf("updating incumbent : from %f to %f\n", *incumbent, z);
+    printf("calls so far: %d\n", calls);
     if (z < *incumbent) {
       *incumbent = z;
       copyGraph(&ONE_TREE, H);
