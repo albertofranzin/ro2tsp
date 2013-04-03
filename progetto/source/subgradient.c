@@ -26,10 +26,13 @@ double *subgradient(graph *G, lagrangian *l) {
 		/* calcola z = costo dell'1-albero;
 		*/
 		for (i = 1; i <= n; i++) {
-			for (j = i+1; j <= n; j++)
-			  set_edge_cost(&ONE_TREE, i, j, get_edge_cost(G, i, j));
+			for (j = 1; j < i; j++) {
+				set_edge_cost(&ONE_TREE, i, j, get_edge_cost(G, i, j));
 			}
-		values[k] = getLagrangeGraphCost(&ONE_TREE, G, &l, cost, get_graph_cost(&ONE_TREE));
+		}
+		printf("poiuytre\n");
+		values[k] = getLagrangeGraphCost(&ONE_TREE, &G, &l, cost, 0.);
+		printf("23489732984\n");
 		printf(".. %f\n", values[k]);
 		deleteGraph(&ONE_TREE);
 		printf("kjdshjdkjshf\n");
