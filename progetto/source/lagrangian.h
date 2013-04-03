@@ -20,6 +20,7 @@ typedef struct _lagrangian {
 	int decreased_ago;
 	int wait_for;
 	double alpha;
+	double lastbest;
 } lagrangian;
 
 /*

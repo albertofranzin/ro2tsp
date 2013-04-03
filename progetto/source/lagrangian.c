@@ -25,6 +25,8 @@ lagrangian* initLagrange(int n) {
 	// alpha spans from 0 to 2, according to suggestions
 	l->alpha = 0.9;
 
+	l->lastbest = 1000000000.0; // conventional value, just to try
+
 	return l;
 }
 
@@ -90,7 +92,7 @@ double getLagrangeGraphCost(graph *ONE_TREE, graph *G, lagrangian **ll, double u
 	// graph H;
 	// initGraph(&H, 1);
 
-	// rs = cost;
+	rs = oldcost;
 	//ub = heuristicBound(G, &H, 10);
 	/*printf("%d\n", G->n);
 	char ch = getchar();*/
@@ -127,14 +129,18 @@ double getLagrangeGraphCost(graph *ONE_TREE, graph *G, lagrangian **ll, double u
 	cost = get_graph_cost(ONE_TREE);
 	//printf("cost with lg : %f \t | \t", cost);fflush(stdout);
 	// subtract the lagrangian contribution from computed graph cost
-	if (cost >= oldcost) {
-		l->decreased_ago += 1;
-		if (l->decreased_ago == 100) {
+	if (cost >= l->lastbest) {
+		printf("to mare\n");
+		l->decreased_ago = l->decreased_ago + 1;
+		printf("to sorea\n");
+		if (l->decreased_ago == l->wait_for) {
 			l->alpha = l->alpha / 2.0;
 			printf("halving alpha\n");
+			l->decreased_ago = 0;
 		}
 	} else {
 		l->decreased_ago = 0;
+		l->lastbest = cost;
 	}
 	//printf("cost w/o lg : %f \t | \t ", oldcost);fflush(stdout);
 
