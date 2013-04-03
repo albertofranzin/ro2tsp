@@ -5,8 +5,10 @@
 #include "compute_mst.h"
 #include "compute_ot.h"
 #include "heuristics.h"
+#include "lagrangian.h"
 #include "solve_tsp.h"
 #include "utils.h"
+#include "subgradient.h"
 
 #define BIG 1000
 #define SMALL -1000
@@ -26,17 +28,24 @@ void main() {
   randomGraph(&G);
 
   copyGraph(&G, &F);
-  double incumbent = nearestNeighbour(&G, &NN);
+  double incumbent = heuristicBound(&G, &NN, pars->heuristic_trials);
+  printf("starting incumbent is %f\n", incumbent);
   //printf("should be %f\n", get_graph_cost(&NN));
   //print_graph(&G);
   //print_graph(&NN);
   deleteGraph(&NN);
 
-  solve_tsp(&G, &H, &incumbent, 0);
-  plotGraph(&G, &H, "default", NULL); 
+  lagrangian *lag = initLagrange(pars->no_of_nodes);
 
-  free(pars);
+  //solve_tsp(&G, &H, &lag, &incumbent, 0);
+  //solve_tsp(&G, &H, &incumbent, 0);
+  //plotGraph(&G, &H, "default", NULL);
+
+  double *vals = subgradient(&G, lag);
+  printf("exited\n");
+
+  /*free(pars);
   deleteGraph(&G);
   deleteGraph(&F);
-  deleteGraph(&H);
+  deleteGraph(&H);*/
 }
