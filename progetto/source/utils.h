@@ -16,6 +16,7 @@ typedef struct _parameters {
 	unsigned int seed;
 	unsigned short plot;
 	unsigned short plotOnlyTree;
+	unsigned int heuristic_trials;
 } parameters;
 
 // config file
@@ -23,15 +24,6 @@ typedef struct _parameters {
 
 // define infinity for double
 #define INF 1000
-
-// cost increment/decrement to deny/impose an edge in the solution
-// since we operate in [0,1]^2, 2 should be enough.
-//#define BB_COST_DELTA 2.0;
-
-// global declaration for incumbent solution
-/*extern double zincumbent;
-extern void *incumbent;
-extern double zopt;*/
 
 /* methods */
 
@@ -42,7 +34,7 @@ extern double zopt;*/
 // for triangular numbers should be adjusted accordingly.
 // A swap is needed if j > i, but it's fine since graph is directed;
 // note that j=i cannot happen, because we don't have self-loops.
-inline int atPosition(int, int);
+// inline int atPosition(int, int);
 
 unsigned long initializeRandom(unsigned int seed);
 

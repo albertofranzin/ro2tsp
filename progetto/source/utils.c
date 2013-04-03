@@ -1,12 +1,12 @@
 #include "utils.h"
 
-inline int atPosition(int i, int j) {
+/*inline int atPosition(int i, int j) {
 	if (i > j) {
 		return (i * (i-1)) / 2 + j;
 	} else {
 		return (j * (j-1)) / 2 + i;
 	}
-}
+}*/
 
 unsigned long initializeRandom(unsigned int seed) {
 	unsigned long sd = seed;
@@ -43,6 +43,8 @@ short parHash(char *parName) {
 		return 2;
 	if (strcmp(parName, "PLOT_ONLY_1TREE") == 0)
 		return 3;
+	if (strcmp(parName, "HEURISTIC_TRIALS") == 0)
+		return 4;
 	return -1;
 }
 
@@ -56,6 +58,7 @@ parameters *getParameters() {
 	pars->seed = 0;
 	pars->plot = 1;
 	pars->plotOnlyTree = 0;
+	pars->heuristic_trials = 1;
 
 	FILE *parFile = fopen(FILE_CONFIG, "r");
 	long i = 0, j;
@@ -96,6 +99,8 @@ parameters *getParameters() {
 							 	pars->plotOnlyTree = 1;
 							 else
 							 	pars->plotOnlyTree = 0;
+							 break;
+					case 4 : pars->heuristic_trials = atoi(p2);
 							 break;
 
 					default: break;
