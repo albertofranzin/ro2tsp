@@ -10,12 +10,14 @@ typedef struct _branchingInfo {
 	edge **editedEdges;
 	double *deltas;
 	int numEditedEdges;
+	int deniedEdges;
+	int imposedEdges;
 } branchingInfo;
 
 //const double BB_COST_DELTA = 100.0;
 
 
-branchingInfo *createBranchingInfo(node *, edge **, double *, int);
+branchingInfo *createBranchingInfo();
 void deleteBranchingInfo(branchingInfo *);
 branchingInfo *cloneBranchingInfo(branchingInfo *);
 

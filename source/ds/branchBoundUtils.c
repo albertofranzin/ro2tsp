@@ -1,13 +1,14 @@
 #include "branchBoundUtils.h"
 
-branchingInfo *createBranchingInfo(node *branchNode, edge **editedEdges,
-		double *deltas, int numEditedEdges){
+branchingInfo *createBranchingInfo(){
 	branchingInfo *bi = malloc(sizeof(branchingInfo));
 
-	bi->numEditedEdges = numEditedEdges;
-	bi->branchNode = branchNode;
-	bi->editedEdges = editedEdges;
-	bi->deltas = deltas;
+	bi->numEditedEdges = 0;
+	bi->deniedEdges = 0;
+	bi->imposedEdges = 0;
+	bi->branchNode = NULL;
+	bi->editedEdges = NULL;
+	bi->deltas = NULL;
 
 	return bi;
 }
@@ -58,15 +59,15 @@ node *chooseBranchingNode(matrixGraph *graph, edge **el) {
 	}/**/
 
 	i = 0;
-	while(nl[i++]->deg < 3);
-	i--;
+	while(i < graph->no_of_nodes && nl[i]->deg < 3) i++;
+
 	// have we gone too far away?
 	// probably redundant, but...
 	if (i < graph->no_of_nodes) {
 		chosenData = nl[i]->data;
 
-		printf("BranchBoundUtils.c :: chooseBranchingNode :: ");
-		printf("branch on node %d : %d\n", nl[i]->data, nl[i]->deg);
+		/*printf("BranchBoundUtils.c :: chooseBranchingNode :: ");
+		printf("branch on node %d : %d\n", nl[i]->data, nl[i]->deg);*/
 
 		deleteNodeList(nl, graph->no_of_nodes);
 
@@ -82,7 +83,7 @@ short isHamilton(matrixGraph *graph, edge **el) {
 	// I hope, Prim-Dijkstra should shelter us against this
 
 	int i;
-	short visited[graph->no_of_nodes];
+	int visited[graph->no_of_nodes];
 	memset(visited, 0, sizeof(visited));
 
 	for (i = 0; i < graph->no_of_nodes; ++i) {
@@ -112,14 +113,15 @@ double sumDeltas(branchingInfo *bi) {
 	return sum;
 }
 
-short stoppingCriteria(matrixGraph *graph, edge **el, double *opt, double *z) {
+short stoppingCriteria(matrixGraph *graph, edge **el, double *opt, double *incumbent) {
 
 	printf("branchBoundUtils.c :: stoppingCriteria :: entering method\n");
 
 	int i;
 	double cost = 0.0;
 	for (i = 0; i < graph->no_of_nodes; ++i) {
-		if (graph->edgeList[atPosition(el[i]->u->data, el[i]->v->data)]->weight >= 2) {
+		if (el[i]->weight >= 2.0) {
+			printf("branchBoundUtils.c :: stoppingCriteria :: solution has a forbidden edge\n");
 			return -1;
 		}
 		cost += graph->edgeList[atPosition(el[i]->u->data, el[i]->v->data)]->weight;
@@ -129,24 +131,29 @@ short stoppingCriteria(matrixGraph *graph, edge **el, double *opt, double *z) {
 
 	printf("branchBoundUtils.c :: stoppingCriteria :: ");fflush(stdout);
 
-	// current branch contains a hamiltonian path
-	if (isHamilton(graph, el) == 1) {
-		printf("OK!!\n");
-		plotGraph(graph, el, 1);
-		char c = getchar();
-		*opt = cost;
-		return 1;
-	}
-
 	// current branch cannot improve the bound
-	if (cost >= *z) {
+	if (cost >= *incumbent) {
 		printf("current branch cannot improve the bound\n");
 		return -1;
-	} else {
+	} /*else {
 		printf("found a better bound\n");
+//		if (cost < *opt) {
 		*z = cost;
+		//plotGraph(graph, el, 1);
+		//char c = getchar();
+//		}
+	}*/
+
+	// current branch contains a hamiltonian path
+	if (isHamilton(graph, el) == 1) {
+		printf("Hamiltonian path found!!\nExiting successfully\n");
+		//*opt = cost;
+		//if (cost < *z) {
+		*incumbent = cost;
 		plotGraph(graph, el, 1);
 		char c = getchar();
+		return 1;
+		//}
 	}
 
 	// no reasons to stop

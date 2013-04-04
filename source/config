@@ -5,7 +5,7 @@
 # default values will be used
 
 # select desidered numer of nodes in the graph [int]
-NUMBER_OF_NODES = 20
+NUMBER_OF_NODES = 10
 
 # seed for random [int]
 # 0   : use time

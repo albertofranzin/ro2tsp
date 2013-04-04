@@ -3,6 +3,7 @@
 #include "set.h"
 #include "plot.h"
 #include "utils.h"
+#include "tspHeuristics.h"
 
 
 int main(int argc, char **argv) {
@@ -27,11 +28,11 @@ int main(int argc, char **argv) {
 	//printf("\n****\n%f\n******\n", graph->edgeList[atPosition(4,0)]->weight);
 
 
-	printf("\n\n---\n\nComputing the 1-tree : \n\n");
+	/*printf("\n\n---\n\nComputing the 1-tree : \n\n");
 	edge **el = malloc(sizeof(edge *) * no_of_nodes);
 	//memset(el, 0, sizeof(edge)*no_of_nodes);
 	double tc = matrixGraphOneTree(graph, &el);
-	printf("total cost of the 1-tree : %f\n", tc);
+	printf("total cost of the 1-tree : %f\n", tc);*/
 	/*for (i = 0; i < no_of_nodes ; i++) {
 		printf("%d %d, %f\n", el[i]->u->data,
 							  el[i]->v->data,
@@ -41,8 +42,8 @@ int main(int argc, char **argv) {
 	//printf("%f\n", graph->edgeList[atPosition(4,0)]->weight);
 
 
-	if (pars->plot)
-		plotGraph(graph, el, pars->plotOnlyTree);
+	/*if (pars->plot)
+		plotGraph(graph, el, pars->plotOnlyTree);*/
 
 	//printf("%f\n", graph->edgeList[atPosition(4,0)]->weight);
 
@@ -58,7 +59,7 @@ int main(int argc, char **argv) {
 	}*/
 
 
-	node **nl = malloc(sizeof(node *)*(graph->no_of_nodes));
+	/*node **nl = malloc(sizeof(node *)*(graph->no_of_nodes));
 	//memset(nl, 0, sizeof(nl));
 	//memcpy(&nl, &(graph->nodeList), sizeof(nl));
 	int no_of_edges = no_of_nodes * (no_of_nodes - 1) / 2;
@@ -69,18 +70,18 @@ int main(int argc, char **argv) {
 		nl[i]->deg = 0;
 		nl[i]->x = graph->nodeList[i]->x;
 		nl[i]->y = graph->nodeList[i]->y;
-	}
+	}*/
 
 	/*for (i = 0; i < no_of_nodes; ++i) {
 		printf("deg(%d) = %d, %d (%f,%f)\n", i, nl[i]->data, nl[i]->deg, nl[i]->x, nl[i]->y);
 	}/**/
 
-	for (i = 0; i < no_of_nodes; ++i) {
+	/*for (i = 0; i < no_of_nodes; ++i) {
 		//printf("%d\n", i);
 		//printf("%d\n", el[i]->u->data);
 		(nl[el[i]->u->data]->deg)++;
 		(nl[el[i]->v->data]->deg)++;
-	}
+	}*/
 
 	//printf("\n---\n");
 
@@ -90,7 +91,7 @@ int main(int argc, char **argv) {
 
 	//printf("\n---\n");
 
-	qsort(nl, no_of_nodes, sizeof(node *), snbdComp);
+	//qsort(nl, no_of_nodes, sizeof(node *), snbdComp);
 
 	//sortNodesByDegree(&nl, no_of_nodes);
 	//printf("\n---\n");
@@ -117,6 +118,8 @@ int main(int argc, char **argv) {
 	free(graph->edgeList);
 	free(graph->c);
 	free(graph);*/
+
+	double chr = christofides(graph);
 
 	return 0;
 }

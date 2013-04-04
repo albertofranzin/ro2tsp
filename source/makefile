@@ -1,8 +1,12 @@
-NOMEFILE = branchAndBound1.c
+NOMEFILE1 = branchAndBound1.c
+NOMEFILE2 = branchAndBound2.c
 PAR = -lm -g -O3
 
-branchAndBound1: clean buildLib $(NOMEFILE)
-	gcc $(NOMEFILE) -o $@ -L. -lro2ds $(PAR)
+branchAndBound1: clean buildLib $(NOMEFILE1)
+	gcc $(NOMEFILE1) -o $@ -L. -lro2ds $(PAR)
+
+#branchAndBound2: clean buildLib $(NOMEFILE2)
+#	gcc $(NOMEFILE2) -o $@ -L. -lro2ds $(PAR)
 
 buildLib: set.o rbtree.o node.o edge.o matrixGraph.o utils.o plot.o branchBoundUtils.o
 	ar r libro2ds.a *.o
@@ -36,6 +40,8 @@ clean:
 	clear
 	-rm branchAndBound1
 	-rm branchAndBound1.a
+	-rm branchAndBound2
+	-rm branchAndBound2.a
 	-rm libro2ds.a
 	-rm *.o
 	-rm *.gch

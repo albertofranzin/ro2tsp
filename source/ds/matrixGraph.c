@@ -89,6 +89,52 @@ void randomInitializeGraph(matrixGraph **ggraph, size_t maxWeight) {
 	}*/
 }
 
+double matrixGraphMST(matrixGraph *graph, edge ***ttree) {
+	edge **tree = (edge **)(*ttree);
+
+	short flag[graph->no_of_nodes - 1];
+	int pred[graph->no_of_nodes - 1];
+	double L[graph->no_of_nodes - 1], min, total_cost = 0.;
+	int i, j, h;
+
+	// vertices not in the connected component (delta of 1 - node 0 is not considered)
+	for (i = 0; i < graph->no_of_nodes ; ++i) {
+		flag[i] = 0;
+		pred[i] = 1;
+		L[i] = graph->edgeList[atPosition(0,i)]->weight;
+	}
+
+	// select the n-1 edges of the tree
+	for (i = 0; i < graph->no_of_nodes - 1; ++i) {
+		min = MAX_WEIGHT + 1;
+		// choose the lowest-cost edge in delta(connected component)
+		for (j = 1; j < graph->no_of_nodes; ++j) {
+			if (flag[j] == 0 && L[j] < min) {
+				min = L[j];
+				h = j;
+			}
+		}
+		flag[h] = 1; // node h is added to the connected component
+		// update cost and predecessor for every node not yet in the connected component
+		for (j = 1; j < graph->no_of_nodes; ++j) {
+			if (flag[j] == 0 && graph->edgeList[atPosition(h,j)]->weight < L[j]) {
+				L[j] = graph->edgeList[atPosition(h,j)]->weight;
+				pred[j] = h;
+			}
+		}
+	}
+
+	for (i = 0; i < graph->no_of_nodes - 1; ++i) {
+		h = pred[i];
+		tree[i] = (edge *)(graph->edgeList[atPosition(h,i)]);
+
+		// at the same time, spare a loop by computing the total cost of the 1-tree
+		total_cost += L[i];
+	}
+
+	return total_cost;
+}
+
 /*
  * matrixGraphOneTree
  * graph [matrixGraph] : the graph
@@ -175,7 +221,7 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 			}
 		}
 	}
-	printf("two lowest-cost edges : %f %f \n", deltaOf1st[0]->weight, deltaOf1st[1]->weight);
+	//printf("two lowest-cost edges : %f %f \n", deltaOf1st[0]->weight, deltaOf1st[1]->weight);
 	//qsort(deltaOf1st, graph->no_of_nodes - 1, sizeof(edge *), sebwComp);
 
 	tree[0] = deltaOf1st[0];
@@ -190,6 +236,9 @@ double matrixGraphOneTree(matrixGraph *graph, edge ***ttree) {
 
 		// at the same time, spare a loop by computing the total cost of the 1-tree
 		total_cost += L[i];
+		// and node degree in the 1-tree
+		/*tree[i]->u->deg++;
+		tree[i]->v->deg++;*/
 
 	}
 
