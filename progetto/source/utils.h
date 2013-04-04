@@ -17,6 +17,7 @@ typedef struct _parameters {
 	unsigned short plot;
 	unsigned short plotOnlyTree;
 	unsigned int heuristic_trials;
+	char *tsp_file;
 } parameters;
 
 // config file
@@ -41,17 +42,42 @@ unsigned long initializeRandom(unsigned int seed);
 short parHash(char *);
 parameters *getParameters();
 
-int snbdComp(const void *, const void *);
-int sebwComp(const void *, const void *);
-
-//void appendDouble(double **n, double, int);
+/*
+ * tspHash
+ * - parameter name
+ * - parameter value
+ *
+ * recognizes parameters.
+ *
+ * returns:
+ *  0 : parName = 'name'
+ *  1 : (parName, parValue) = ('type', 'tsp')
+ *  2 : parName = 'comment'
+ *  3 : parName = 'dimension'
+ * 41 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EUD_2D')
+ * 42 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'MAN_2D')
+ * 43 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'CEIL_2D')
+ * 44 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'GEO')
+ * 51 : (parName, parValue) = ('DISPLAY_DATA_TYPE', 'COORD_DISPLAY')
+ *  6 : parName = 'NODE_COORD_SECTION'
+ * -1 : all the other combinations/values
+ */
+short tspHash(char*, char*);
 
 /*
- * matching
- * - G : the graph on which computing the matching
+ * read_tsp_from_file
+ * - G : graph to be filled in
+ * - pars : parameters (some may be overridden)
  *
- * compute maximal matching using the Hungarian algorithm
+ * will override parameters, if needed
+ *
+ * Assumes file is formatted in the right way.
+ * Does not guarantee correct working if this is not true.
+ * Flexibility = 0!
  */
-double matching(graph *G);
+void read_tsp_from_file(graph *G, parameters *ppars);
+
+// int snbdComp(const void *, const void *);
+// int sebwComp(const void *, const void *);
 
 #endif

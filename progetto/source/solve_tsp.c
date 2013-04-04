@@ -39,6 +39,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
       set_edge_cost(&ONE_TREE, i, j, get_edge_cost(&INITIAL_GRAPH, i, j));
   }
   z = get_graph_cost(&ONE_TREE);
+  // printf("current z = %f\n", z);
 
   /* verifica se possibile potare il ramo corrente
    */

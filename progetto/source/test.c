@@ -16,6 +16,8 @@
 void main() {
 
   parameters *pars = getParameters();
+  printf("## %d\n", pars->no_of_nodes);
+  printf("## %s\n", pars->tsp_file);
   printf("seed used : %lu\n", initializeRandom(pars->seed));
 
   int i, j;
@@ -25,24 +27,32 @@ void main() {
   initGraph(&F, 1);
   initGraph(&H, 1);
   initGraph(&NN, 1);
-  randomGraph(&G);
+  //randomGraph(&G);
+  if (pars->tsp_file != NULL) {
+    printf("and now... |%s|\n", pars->tsp_file);
+    read_tsp_from_file(&G, pars);
+    printf("kjashdjhsad\n");
+  } else {
+    randomGraph(&G);
+  }
+  print_graph(&G);
 
-  copyGraph(&G, &F);
+  //copyGraph(&G, &F);
   double incumbent = heuristicBound(&G, &NN, pars->heuristic_trials);
   printf("starting incumbent is %f\n", incumbent);
   //printf("should be %f\n", get_graph_cost(&NN));
   //print_graph(&G);
   //print_graph(&NN);
-  deleteGraph(&NN);
+  //deleteGraph(&NN);
 
-  lagrangian *lag = initLagrange(pars->no_of_nodes);
+  //lagrangian *lag = initLagrange(pars->no_of_nodes);
 
   //solve_tsp(&G, &H, &lag, &incumbent, 0);
-  //solve_tsp(&G, &H, &incumbent, 0);
-  //plotGraph(&G, &H, "default", NULL);
+  solve_tsp(&G, &H, &incumbent, 0);
+  plotGraph(&G, &H, "default", NULL);
 
-  double *vals = subgradient(&G, lag);
-  printf("exited\n");
+  //double *vals = subgradient(&G, lag);
+  //printf("exited\n");
 
   /*free(pars);
   deleteGraph(&G);
