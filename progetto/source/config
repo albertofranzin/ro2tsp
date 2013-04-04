@@ -20,3 +20,8 @@ PLOT_ONLY_1TREE = n
 
 # number of heuristic trials to compute a better initial bound [int]
 HEURISTIC_TRIALS = 3
+
+# location of TSP-formatted file (from TSPLIB)
+# NUMBER_OF_NODES may be overridden by the value found in the file
+# Set to NULL if no file is requested to be used. A random graph will be generated.
+TSP_FILE = ulysses16.tsp
