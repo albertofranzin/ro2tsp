@@ -29,14 +29,14 @@ void main() {
   deleteGraph(&NN);
 
   copyGraph(&G, &F);
-  //double ub = incumbent;
-  double ub = 13;
-  double alpha = 0.9;
-  double K = 1000;
+  double ub = incumbent;
+  //double ub = 12;
+  double alpha = 1;
+  double K = 100;
   double L;
 
   //L = lagrange(&F, &H, K, ub, alpha); 
-  L = plot_lagrange(&F, &H, K, ub, alpha); 
+  L = plot_lagrange(&F, &H, K, ub, alpha, 20); 
 
   printf("best tsp lower bound (lagrange): %f\n", L);
   //plotGraph(&G, &H, "onetree", NULL);

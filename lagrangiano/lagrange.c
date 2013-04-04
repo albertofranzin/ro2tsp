@@ -5,10 +5,11 @@
 // manca da inserire parametro alpha
 // manca da gestire distruzione grafo originale G (va copiato d qualche altra parte o il lavoro va fatto su una copia)
 // cambia nome subgradient o solve subgradient al posto di lagrange
-double lagrange(graph* G, graph* H, int K, double ub, double alpha) {
-  int i, j, counter, tot_cnt = 0;
+double lagrange(graph* G, graph* H, int K, double ub, double alpha, int alpha_decading) {
+  int i, j, counter;
   int n = (*G).n;
   graph T;
+  graph GTEMP;
   double* mult = (double*)malloc(sizeof(double) * (n+1)); // cambiare -> mult[n]; nota: basterebbe n-1 anzichè n+1
   double* subgrad = (double*)malloc(sizeof(double) * (n+1)); // cambiare -> subgrad[n]; nota: basterebbe n-1 anzichè n+1
   double square_norm;
@@ -17,6 +18,7 @@ double lagrange(graph* G, graph* H, int K, double ub, double alpha) {
   double best_L;
 
   initGraph(&T, 1);
+  initGraph(&GTEMP, 1);
   deleteGraph(H);
   initGraph(H, n);
 
@@ -27,9 +29,13 @@ double lagrange(graph* G, graph* H, int K, double ub, double alpha) {
 
   best_L = 0;
 
+  int alpha_counter = 0;
+
+  copyGraph(G, &GTEMP);
+
   while (1) {
     // calcolo 1-albero con costi attuali (costi originari più moltiplicatori attuali).
-    compute_ot(G, &T);
+    compute_ot(&GTEMP, &T);
 
     // calcolo il costo dell'1-albero, che è il costo della funzione L(lambda) con i moltiplicatori (mult ovvero i lambda) attuali
     L = get_graph_cost(&T);
@@ -40,21 +46,20 @@ double lagrange(graph* G, graph* H, int K, double ub, double alpha) {
     if (L > best_L) {
       best_L = L;
       counter = 1;
+      alpha_counter = 1;
       copyGraph(&T, H);
     }
     else {
       counter++;
+      alpha_counter++;
     }
 
-	if (counter > K) {
-		alpha = alpha / 2;
-		counter = 1;
-	}
-
     // condizione di STOP: se L non è migliorato nelle ultime K iterazioni
-    if (tot_cnt > 6*K) {
+    if (counter > K)
       break;
-	}
+
+    if (alpha_counter > alpha_decading)
+      alpha /= 2;
 
     // calcolo vettore subgradiente: s
     for (i = 2; i <= n; i++)
@@ -71,7 +76,7 @@ double lagrange(graph* G, graph* H, int K, double ub, double alpha) {
       break;
 
     // calcolo il passo
-    step = alpha * (ub - L) / square_norm;
+    step = (ub - L) / square_norm;
   
     // calcolo i nuovi moltiplicatori lagrangiani
     for (i = 2; i <= n; i++)
@@ -89,19 +94,21 @@ double lagrange(graph* G, graph* H, int K, double ub, double alpha) {
     printf("\n");
     */
 
+    copyGraph(G, &GTEMP);
     // aggiorno i costi dei lati tenendo conto dei nuovi moltiplicatori
     for (i = 2; i <= n; i ++) {
       for (j = i+1; j <= n; j++)
-	set_edge_cost(G, i, j, get_edge_cost(G, i, j) - mult[i] - mult[j]);
+	set_edge_cost(&GTEMP, i, j, get_edge_cost(G, i, j) - mult[i] - mult[j]);
     }
     // aggiorno costo lati incidenti in 1 a parte
     for (j = 2; j <= n; j++)
-      set_edge_cost(G, 1, j, get_edge_cost(G, 1, j) - mult[j]);
+      set_edge_cost(&GTEMP, 1, j, get_edge_cost(G, 1, j) - mult[j]);
 
 
   } 
 
   deleteGraph(&T);
+  deleteGraph(&GTEMP);
   free(mult);
   free(subgrad);
 
@@ -109,10 +116,11 @@ double lagrange(graph* G, graph* H, int K, double ub, double alpha) {
 
 }
 
-double plot_lagrange(graph* G, graph* H, int K, double ub, double alpha) {
-  int i, j, counter, tot_cnt = 0;
+double plot_lagrange(graph* G, graph* H, int K, double ub, double alpha, int alpha_decading) {
+  int i, j, counter;
   int n = (*G).n;
   graph T;
+  graph GTEMP;
   double* mult = (double*)malloc(sizeof(double) * (n+1)); // cambiare -> mult[n]; nota: basterebbe n-1 anzichè n+1
   double* subgrad = (double*)malloc(sizeof(double) * (n+1)); // cambiare -> subgrad[n]; nota: basterebbe n-1 anzichè n+1
   double square_norm;
@@ -142,6 +150,7 @@ double plot_lagrange(graph* G, graph* H, int K, double ub, double alpha) {
   double x_axis_pos = 0;
 
   initGraph(&T, 1);
+  initGraph(&GTEMP, 1);
   deleteGraph(H);
   initGraph(H, n);
 
@@ -154,9 +163,12 @@ double plot_lagrange(graph* G, graph* H, int K, double ub, double alpha) {
 
   fprintf(pipe, "plot '-' using 1:2 with points linestyle 1 notitle, '' using 1:2 with lines linestyle 2 notitle, '' using 1:2 with lines linestyle 3 notitle\n");
 
+  int alpha_counter = 1;
+  copyGraph(G, &GTEMP);
+
   while (1) {
     // calcolo 1-albero con costi attuali (costi originari più moltiplicatori attuali).
-    compute_ot(G, &T);
+    compute_ot(&GTEMP, &T);
 
     // calcolo il costo dell'1-albero, che è il costo della funzione L(lambda) con i moltiplicatori (mult ovvero i lambda) attuali
     L = get_graph_cost(&T);
@@ -168,23 +180,20 @@ double plot_lagrange(graph* G, graph* H, int K, double ub, double alpha) {
     if (L > best_L) {
       best_L = L;
       counter = 1;
+      alpha_counter = 1;
       copyGraph(&T, H);
     }
     else {
       counter++;
+      alpha_counter++;
     }
-
-	tot_cnt++;
 
     // condizione di STOP: se L non è migliorato nelle ultime K iterazioni
-    if (counter > K) {
-		alpha = alpha / 2.0;
-		counter = 1;
-    }
+    if (counter > K)
+      break;
 
-	if (tot_cnt > 6*K) {
-		break;
-	}
+    if (alpha_counter > alpha_decading)
+      alpha /= 2;
 
     // calcolo vettore subgradiente: s
     for (i = 2; i <= n; i++)
@@ -201,7 +210,7 @@ double plot_lagrange(graph* G, graph* H, int K, double ub, double alpha) {
       break;
 
     // calcolo il passo
-    step = alpha * (ub - L) / square_norm;
+    step = (ub - L) / square_norm;
   
     // calcolo i nuovi moltiplicatori lagrangiani
     for (i = 2; i <= n; i++)
@@ -219,14 +228,15 @@ double plot_lagrange(graph* G, graph* H, int K, double ub, double alpha) {
     printf("\n");
     */
 
+    copyGraph(G, &GTEMP);
     // aggiorno i costi dei lati tenendo conto dei nuovi moltiplicatori
     for (i = 2; i <= n; i ++) {
       for (j = i+1; j <= n; j++)
-	set_edge_cost(G, i, j, get_edge_cost(G, i, j) - mult[i] - mult[j]);
+	set_edge_cost(&GTEMP, i, j, get_edge_cost(G, i, j) - mult[i] - mult[j]);
     }
     // aggiorno costo lati incidenti in 1 a parte
     for (j = 2; j <= n; j++)
-      set_edge_cost(G, 1, j, get_edge_cost(G, 1, j) - mult[j]);
+      set_edge_cost(&GTEMP, 1, j, get_edge_cost(G, 1, j) - mult[j]);
 
 
   }
