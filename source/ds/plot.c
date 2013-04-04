@@ -46,6 +46,7 @@ void plotGraph(matrixGraph *graph, edge **el, short onlyTree) {
 	}
 	fprintf(pipe, "e\n");
 	fflush(pipe);
+	close(pipe);
 
 	/*fprintf(pipe, "set samples 40\n");
 	fprintf(pipe, "set isosamples 40\n");

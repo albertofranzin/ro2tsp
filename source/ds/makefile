@@ -4,7 +4,7 @@ PAR = -g -O3 -lm
 test: clean buildLib $(NOMEFILE)
 	gcc $(NOMEFILE) -o $@ -L. -lro2ds $(PAR)
 
-buildLib: set.o rbtree.o node.o edge.o matrixGraph.o utils.o plot.o branchBoundUtils.o
+buildLib: set.o rbtree.o node.o edge.o matrixGraph.o utils.o plot.o branchBoundUtils.o tspHeuristics.o
 	ar r libro2ds.a *.o
 #	rm *.o
 
@@ -31,6 +31,9 @@ plot.o: plot.h plot.c
 
 branchBoundUtils.o: branchBoundUtils.h branchBoundUtils.c
 	gcc -c branchBoundUtils.c
+
+tspHeuristics.o: tspHeuristics.h tspHeuristics.c
+	gcc -c tspHeuristics.c
 
 clean:
 	clear
