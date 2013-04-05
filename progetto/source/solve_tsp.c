@@ -5,7 +5,7 @@ graph INITIAL_GRAPH;
 
 int calls = 0;
 
-void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
+void solve_tsp(graph* G, graph* F, graph* H, double* incumbent, int flag) {
     int i, j, u, v, w;
     double z;
     graph ONE_TREE;
@@ -14,23 +14,32 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
     double cost_wv, cost_wu;
 
     calls += 1;
+    initGraph(&ONE_TREE, 1);
 
     /* effettua una copia del grafo iniziale G, passato in ingresso alla prima chiamata della funzione;
      */
     if (flag == 0) {
         initGraph(&INITIAL_GRAPH, 1);
         copyGraph(G, &INITIAL_GRAPH);
+
+        // avoid initial computation of the 1-tree, by using the one
+        // computed by the subgradient algorithm
+        copyGraph(F, &ONE_TREE);
+
         flag = 1;
     }
     else {
         flag = 2;
+        /* calcola 1-albero;
+         */
+        //compute_ot(G, &ONE_TREE);
+
+        // avoid initial computation of the 1-tree, by using the one
+        // computed by caller
+        copyGraph(F, &ONE_TREE);
     }
 
-    initGraph(&ONE_TREE, 1);
 
-    /* calcola 1-albero;
-     */
-    compute_ot(G, &ONE_TREE);
 
     /* calcola z = costo dell'1-albero;
      */
@@ -39,7 +48,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
             set_edge_cost(&ONE_TREE, i, j, get_edge_cost(&INITIAL_GRAPH, i, j));
     }
     z = get_graph_cost(&ONE_TREE);
-    // printf("current z = %f\n", z);
+    //printf("current z = %f\n", z);
 
     /* verifica se possibile potare il ramo corrente
      */
@@ -93,8 +102,15 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
          * forward checking of the best branch on the node
          */
 
-        graph FC_ONE_TREE;
-        initGraph(&FC_ONE_TREE, 1);
+        graph //FC_ONE_TREE,
+              FC_ONE_TREE1,
+              FC_ONE_TREE2,
+              FC_ONE_TREE3;
+        //initGraph(&FC_ONE_TREE, 1);
+        initGraph(&FC_ONE_TREE1, 1);
+        initGraph(&FC_ONE_TREE2, 1);
+        initGraph(&FC_ONE_TREE3, 1);
+
 
         double z1, z2, z3;
 
@@ -102,13 +118,13 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
         cost_wv = get_edge_cost(G, w, v);
         set_edge_cost(G, w, v, BIG);
 
-        compute_ot(G, &FC_ONE_TREE);
+        compute_ot(G, &FC_ONE_TREE1);
 
         // restore original cost, in both graphs
-        set_edge_cost(&FC_ONE_TREE, w, v, cost_wv);
+        set_edge_cost(&FC_ONE_TREE1, w, v, cost_wv);
         set_edge_cost(G, w, v, cost_wv);
 
-        z1 = get_graph_cost(&FC_ONE_TREE);
+        z1 = get_graph_cost(&FC_ONE_TREE1);
 
         // 2 : impose wv, deny wu
         cost_wv = get_edge_cost(G, w, v);
@@ -116,15 +132,15 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
         set_edge_cost(G, w, v, SMALL);
         set_edge_cost(G, w, u, BIG);
 
-        compute_ot(G, &FC_ONE_TREE);
+        compute_ot(G, &FC_ONE_TREE2);
 
         // restore original costs, in both graphs
-        set_edge_cost(&FC_ONE_TREE, w, v, cost_wv);
-        set_edge_cost(&FC_ONE_TREE, w, u, cost_wu);
+        set_edge_cost(&FC_ONE_TREE2, w, v, cost_wv);
+        set_edge_cost(&FC_ONE_TREE2, w, u, cost_wu);
         set_edge_cost(G, w, v, cost_wv);
         set_edge_cost(G, w, u, cost_wu);
 
-        z2 = get_graph_cost(&FC_ONE_TREE);
+        z2 = get_graph_cost(&FC_ONE_TREE2);
 
         // 3 impose wu, wv, deny all the others
         previous_cost = malloc(sizeof(double) * n);
@@ -139,24 +155,22 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 set_edge_cost(G, w, i, BIG);
         }
 
-        compute_ot(G, &FC_ONE_TREE);
+        compute_ot(G, &FC_ONE_TREE3);
 
         // restore original costs, in both graphs
         for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
             if (i != w)
-                set_edge_cost(&FC_ONE_TREE, w, i, previous_cost[i-1]);
+                set_edge_cost(&FC_ONE_TREE3, w, i, previous_cost[i-1]);
         }
-        set_edge_cost(&FC_ONE_TREE, w, v, SMALL);
-        set_edge_cost(&FC_ONE_TREE, w, u, SMALL);
+        set_edge_cost(&FC_ONE_TREE3, w, v, SMALL);
+        set_edge_cost(&FC_ONE_TREE3, w, u, SMALL);
         for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
             if (i != w)
                 set_edge_cost(G, w, i, previous_cost[i-1]);
         }
         free(previous_cost);
 
-        z3 = get_graph_cost(&FC_ONE_TREE);
-
-        deleteGraph(&FC_ONE_TREE);
+        z3 = get_graph_cost(&FC_ONE_TREE3);
 
         // branch on best result
         // fa un po' cagare perché non riuso niente di quanto ho calcolato prima,
@@ -177,7 +191,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 // vieta il lato {w, v};
                 cost_wv = get_edge_cost(G, w, v);
                 set_edge_cost(G, w, v, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE1, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
             }
 
@@ -187,7 +201,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 cost_wu = get_edge_cost(G, w, u);
                 set_edge_cost(G, w, v, SMALL);
                 set_edge_cost(G, w, u, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE2, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
                 set_edge_cost(G, w, u, cost_wu);
             }
@@ -205,7 +219,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                     if (i != w && i != v && i != u)
                         set_edge_cost(G, w, i, BIG);
                 }
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE3, H, incumbent, flag);
                 for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
                     if (i != w)
                         set_edge_cost(G, w, i, previous_cost[i-1]);
@@ -239,7 +253,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                     if (i != w && i != v && i != u)
                         set_edge_cost(G, w, i, BIG);
                 }
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE3, H, incumbent, flag);
                 for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
                     if (i != w)
                         set_edge_cost(G, w, i, previous_cost[i-1]);
@@ -253,7 +267,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 cost_wu = get_edge_cost(G, w, u);
                 set_edge_cost(G, w, v, SMALL);
                 set_edge_cost(G, w, u, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE2, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
                 set_edge_cost(G, w, u, cost_wu);
             }
@@ -262,7 +276,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 // vieta il lato {w, v};
                 cost_wv = get_edge_cost(G, w, v);
                 set_edge_cost(G, w, v, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE1, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
             }
 
@@ -290,7 +304,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                     if (i != w && i != v && i != u)
                         set_edge_cost(G, w, i, BIG);
                 }
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE3, H, incumbent, flag);
                 for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
                     if (i != w)
                         set_edge_cost(G, w, i, previous_cost[i-1]);
@@ -302,7 +316,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 // vieta il lato {w, v};
                 cost_wv = get_edge_cost(G, w, v);
                 set_edge_cost(G, w, v, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE1, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
             }
 
@@ -312,7 +326,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 cost_wu = get_edge_cost(G, w, u);
                 set_edge_cost(G, w, v, SMALL);
                 set_edge_cost(G, w, u, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE2, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
                 set_edge_cost(G, w, u, cost_wu);
             }
@@ -332,7 +346,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 // vieta il lato {w, v};
                 cost_wv = get_edge_cost(G, w, v);
                 set_edge_cost(G, w, v, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE1, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
             }
 
@@ -349,7 +363,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                     if (i != w && i != v && i != u)
                         set_edge_cost(G, w, i, BIG);
                 }
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE3, H, incumbent, flag);
                 for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
                     if (i != w)
                         set_edge_cost(G, w, i, previous_cost[i-1]);
@@ -363,7 +377,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 cost_wu = get_edge_cost(G, w, u);
                 set_edge_cost(G, w, v, SMALL);
                 set_edge_cost(G, w, u, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE2, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
                 set_edge_cost(G, w, u, cost_wu);
             }
@@ -376,7 +390,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 cost_wu = get_edge_cost(G, w, u);
                 set_edge_cost(G, w, v, SMALL);
                 set_edge_cost(G, w, u, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE2, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
                 set_edge_cost(G, w, u, cost_wu);
             }
@@ -394,7 +408,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                     if (i != w && i != v && i != u)
                         set_edge_cost(G, w, i, BIG);
                 }
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE3, H, incumbent, flag);
                 for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
                     if (i != w)
                         set_edge_cost(G, w, i, previous_cost[i-1]);
@@ -406,7 +420,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 // vieta il lato {w, v};
                 cost_wv = get_edge_cost(G, w, v);
                 set_edge_cost(G, w, v, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE1, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
             }
 
@@ -418,7 +432,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 cost_wu = get_edge_cost(G, w, u);
                 set_edge_cost(G, w, v, SMALL);
                 set_edge_cost(G, w, u, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE2, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
                 set_edge_cost(G, w, u, cost_wu);
             }
@@ -427,7 +441,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 // vieta il lato {w, v};
                 cost_wv = get_edge_cost(G, w, v);
                 set_edge_cost(G, w, v, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE1, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
             }
 
@@ -444,7 +458,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                     if (i != w && i != v && i != u)
                         set_edge_cost(G, w, i, BIG);
                 }
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE3, H, incumbent, flag);
                 for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
                     if (i != w)
                         set_edge_cost(G, w, i, previous_cost[i-1]);
@@ -454,72 +468,42 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
 
         }
 
-        
-        // vieta il lato {w, v};
-        /*cost_wv = get_edge_cost(G, w, v);
-        set_edge_cost(G, w, v, BIG);
-        solve_tsp(G, H, incumbent, flag);
-        set_edge_cost(G, w, v, cost_wv);*/
+        deleteGraph(&FC_ONE_TREE1);
+        deleteGraph(&FC_ONE_TREE2);
+        deleteGraph(&FC_ONE_TREE3);
 
-        // forza il lato {w, v} e vieta il lato {w, u};
-        /*cost_wv = get_edge_cost(G, w, v);
-        cost_wu = get_edge_cost(G, w, u);
-        set_edge_cost(G, w, v, SMALL);
-        set_edge_cost(G, w, u, BIG);
-        solve_tsp(G, H, incumbent, flag);
-        set_edge_cost(G, w, v, cost_wv);
-        set_edge_cost(G, w, u, cost_wu);*/
-
-        // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
-        /*previous_cost = (double*)malloc(sizeof(double) * n);
-        for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
-            if (i != w) 
-                previous_cost[i-1] = get_edge_cost(G, w, i);
-        }
-        set_edge_cost(G, w, v, SMALL);
-        set_edge_cost(G, w, u, SMALL);
-        for (i = 1; i <= n; i++) {
-            if (i != w && i != v && i != u)
-                set_edge_cost(G, w, i, BIG);
-        }
-        solve_tsp(G, H, incumbent, flag);
-        for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
-            if (i != w)
-                set_edge_cost(G, w, i, previous_cost[i-1]);
-        }
-        free(previous_cost);*/
-    } 
+    }
 
     /* esiste un solo lato che non è mai stato nè forzato nè vietato;
      */
     else if (((v >= 1 && v <= n) && (u < 1 || u > n)) || ((v < 1 || v > n) && (u >= 1 && u <= n))) {
 
-        graph FC_ONE_TREE;
-        initGraph(&FC_ONE_TREE, 1);
+        graph FC_ONE_TREE1,
+              FC_ONE_TREE2;
+        initGraph(&FC_ONE_TREE1, 1);
+        initGraph(&FC_ONE_TREE2, 1);
 
         double z1, z2;
 
         // vieta il lato {w, v};
         cost_wv = get_edge_cost(G, w, v);
         set_edge_cost(G, w, v, BIG);
-        compute_ot(G, &FC_ONE_TREE);
+        compute_ot(G, &FC_ONE_TREE1);
         set_edge_cost(G, w, v, cost_wv);
-        set_edge_cost(&FC_ONE_TREE, w, v, cost_wv);
+        set_edge_cost(&FC_ONE_TREE1, w, v, cost_wv);
 
-        z1 = get_graph_cost(&FC_ONE_TREE);
+        z1 = get_graph_cost(&FC_ONE_TREE1);
 
         // solve_tsp(G, H, incumbent, flag);
 
         // forza il lato {w, v};
         cost_wv = get_edge_cost(G, w, v);
         set_edge_cost(G, w, v, SMALL);
-        compute_ot(G, &FC_ONE_TREE);
+        compute_ot(G, &FC_ONE_TREE2);
         set_edge_cost(G, w, v, cost_wv);
-        set_edge_cost(&FC_ONE_TREE, w, v, cost_wv);
+        set_edge_cost(&FC_ONE_TREE2, w, v, cost_wv);
 
-        z2 = get_graph_cost(&FC_ONE_TREE);
-
-        deleteGraph(&FC_ONE_TREE);
+        z2 = get_graph_cost(&FC_ONE_TREE2);
 
         if (z1 >= z2) {
 
@@ -532,7 +516,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 // vieta il lato {w, v};
                 cost_wv = get_edge_cost(G, w, v);
                 set_edge_cost(G, w, v, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE1, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
             }
 
@@ -540,7 +524,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 // forza il lato {w, u};
                 cost_wv = get_edge_cost(G, w, v);
                 set_edge_cost(G, w, v, SMALL);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE2, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
             }
 
@@ -555,7 +539,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 // forza il lato {w, u};
                 cost_wv = get_edge_cost(G, w, v);
                 set_edge_cost(G, w, v, SMALL);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE2, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
             }
 
@@ -563,11 +547,14 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
                 // vieta il lato {w, v};
                 cost_wv = get_edge_cost(G, w, v);
                 set_edge_cost(G, w, v, BIG);
-                solve_tsp(G, H, incumbent, flag);
+                solve_tsp(G, &FC_ONE_TREE1, H, incumbent, flag);
                 set_edge_cost(G, w, v, cost_wv);
             }
 
         }
+
+        deleteGraph(&FC_ONE_TREE1);
+        deleteGraph(&FC_ONE_TREE2);
 
     }
 

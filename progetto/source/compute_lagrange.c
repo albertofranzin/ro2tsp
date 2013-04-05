@@ -4,6 +4,7 @@
 #include "compute_lagrange.h"
 
 double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max_iter) {
+  graph BEST_ONE_TREE;
   graph ONE_TREE;
   graph G_TEMP;
 
@@ -19,6 +20,7 @@ double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max
 
   initGraph(&ONE_TREE, 1);
   initGraph(&G_TEMP, 1);
+  initGraph(&BEST_ONE_TREE, 1);
 
 
   L_best = 0;
@@ -44,6 +46,7 @@ double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max
     if (L > L_best) {
       L_best = L;
       counter = 1;
+      copyGraph(&ONE_TREE, &BEST_ONE_TREE);
     }
     else {
       counter++;
@@ -101,6 +104,8 @@ double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max
 
   deleteGraph(&ONE_TREE);
   deleteGraph(&G_TEMP);
+  copyGraph(&BEST_ONE_TREE, G);
+  deleteGraph(&BEST_ONE_TREE);
 
   return L_best;
 
@@ -238,6 +243,7 @@ double compute_and_plot_lagrange(graph* G, double ub, int k, double alpha, int h
   fflush(pipe);
 
   deleteGraph(&ONE_TREE);
+  copyGraph(&BEST_ONE_TREE, G);
   deleteGraph(&BEST_ONE_TREE);
   deleteGraph(&G_TEMP);
 
