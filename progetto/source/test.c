@@ -1,11 +1,11 @@
 #include "node.h"
 #include "edge.h"
 #include "graph.h"
+#include "compute_lagrange.h"
 #include "compute_path.h"
 #include "compute_mst.h"
 #include "compute_ot.h"
 #include "heuristics.h"
-#include "lagrangian.h"
 #include "solve_tsp.h"
 #include "utils.h"
 #include "subgradient.h"
@@ -29,23 +29,32 @@ void main() {
   initGraph(&NN, 1);
   //randomGraph(&G);
   if (pars->tsp_file != NULL) {
-    printf("and now... |%s|\n", pars->tsp_file);
+    printf("using tsplib file %s\n", pars->tsp_file);
     read_tsp_from_file(&G, pars);
-    printf("kjashdjhsad\n");
   } else {
     randomGraph(&G);
   }
-  print_graph(&G);
+  // print_graph(&G);
 
-  //copyGraph(&G, &F);
+  copyGraph(&G, &F);
   double incumbent = heuristicBound(&G, &NN, pars->heuristic_trials);
   printf("starting incumbent is %f\n", incumbent);
   //printf("should be %f\n", get_graph_cost(&NN));
   //print_graph(&G);
   //print_graph(&NN);
-  //deleteGraph(&NN);
+  deleteGraph(&NN);
 
-  //lagrangian *lag = initLagrange(pars->no_of_nodes);
+  double ub = incumbent;
+  double alpha = 2.0;
+  double max_iter = 22000;
+  double ub_max_iter = 22000;
+  double alpha_max_iter = 200;
+  double L_best;
+
+  //L_best = compute_and_plot_lagrange(&G, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
+  L_best = compute_and_plot_lagrange(&G, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
+ 
+  printf("lower bound : %f\n", L_best);
 
   //solve_tsp(&G, &H, &lag, &incumbent, 0);
   solve_tsp(&G, &H, &incumbent, 0);

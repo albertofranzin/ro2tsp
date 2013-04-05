@@ -10,7 +10,7 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
     double z;
     graph ONE_TREE;
     int n = (*G).n;
-    double* previous_cost;;
+    double* previous_cost;
     double cost_wv, cost_wu;
 
     calls += 1;
@@ -56,6 +56,9 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
         printf("calls so far: %d\n", calls);
         *incumbent = z;
         copyGraph(&ONE_TREE, H);
+
+        // plotGraph(&ONE_TREE, H, "default", NULL);
+
         deleteGraph(&ONE_TREE);
         return;
     }
@@ -78,6 +81,8 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
             break;
     }
 
+    //printf("%d - %d %d | %d\n", w, v,u,n);
+
     deleteGraph(&ONE_TREE);
 
     /* se esistono due lati mai selezionati allora procedi con BRANCHING A 3 VIE;
@@ -90,8 +95,6 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
 
         graph FC_ONE_TREE;
         initGraph(&FC_ONE_TREE, 1);
-
-
 
         double z1, z2, z3;
 
@@ -158,222 +161,297 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
         // branch on best result
         // fa un po' cagare perché non riuso niente di quanto ho calcolato prima,
         // ma per ora proviamo così
+
         if (z1 >= z2 && z2 >= z3) {
-            // vieta il lato {w, v};
-            cost_wv = get_edge_cost(G, w, v);
-            set_edge_cost(G, w, v, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
 
-            // forza il lato {w, v} e vieta il lato {w, u};
-            cost_wv = get_edge_cost(G, w, v);
-            cost_wu = get_edge_cost(G, w, u);
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
-            set_edge_cost(G, w, u, cost_wu);
+            /*
+             * The three forward checks rank this way:
+             * - denying edge {w,v} is the most promising branch
+             *       (the one with the immediate higher bound)
+             * - impose edge {w,v}, deny {w,u}
+             * - impose {w,v}, {w,u}, deny the rest
+             *       is the route that gives the worst (immediate) bound improve
+             */
 
-            // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
-            previous_cost = (double*)malloc(sizeof(double) * n);
-            for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
-                if (i != w) 
-                    previous_cost[i-1] = get_edge_cost(G, w, i);
+            if (z1 < *incumbent) {
+                // vieta il lato {w, v};
+                cost_wv = get_edge_cost(G, w, v);
+                set_edge_cost(G, w, v, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
             }
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, SMALL);
-            for (i = 1; i <= n; i++) {
-                if (i != w && i != v && i != u)
-                    set_edge_cost(G, w, i, BIG);
+
+            if (z2 < *incumbent) {
+                // forza il lato {w, v} e vieta il lato {w, u};
+                cost_wv = get_edge_cost(G, w, v);
+                cost_wu = get_edge_cost(G, w, u);
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+                set_edge_cost(G, w, u, cost_wu);
             }
-            solve_tsp(G, H, incumbent, flag);
-            for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
-                if (i != w)
-                    set_edge_cost(G, w, i, previous_cost[i-1]);
+
+            if (z3 < *incumbent) {
+                // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
+                previous_cost = (double*)malloc(sizeof(double) * n);
+                for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
+                    if (i != w) 
+                        previous_cost[i-1] = get_edge_cost(G, w, i);
+                }
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, SMALL);
+                for (i = 1; i <= n; i++) {
+                    if (i != w && i != v && i != u)
+                        set_edge_cost(G, w, i, BIG);
+                }
+                solve_tsp(G, H, incumbent, flag);
+                for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
+                    if (i != w)
+                        set_edge_cost(G, w, i, previous_cost[i-1]);
+                }
+                free(previous_cost);
             }
-            free(previous_cost);
 
             // endif z1 >= z2 && z2 >= z3
 
         } else if (z3 >= z2 && z2 >= z1) {
 
-            // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
-            previous_cost = (double*)malloc(sizeof(double) * n);
-            for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
-                if (i != w) 
-                    previous_cost[i-1] = get_edge_cost(G, w, i);
-            }
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, SMALL);
-            for (i = 1; i <= n; i++) {
-                if (i != w && i != v && i != u)
-                    set_edge_cost(G, w, i, BIG);
-            }
-            solve_tsp(G, H, incumbent, flag);
-            for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
-                if (i != w)
-                    set_edge_cost(G, w, i, previous_cost[i-1]);
-            }
-            free(previous_cost);
+            /*
+             * The three forward checks rank this way:
+             * - impose {w,v}, {w,u}, deny the rest
+             *       gives the immediate higher bound
+             * - impose edge {w,v}, deny {w,u}
+             * - denying edge {w,v} is the least promising branch
+             *       is the route that gives the worst (immediate) bound improve
+             */
 
-            // forza il lato {w, v} e vieta il lato {w, u};
-            cost_wv = get_edge_cost(G, w, v);
-            cost_wu = get_edge_cost(G, w, u);
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
-            set_edge_cost(G, w, u, cost_wu);
+            if (z3 < *incumbent) {
+                // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
+                previous_cost = (double*)malloc(sizeof(double) * n);
+                for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
+                    if (i != w) 
+                        previous_cost[i-1] = get_edge_cost(G, w, i);
+                }
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, SMALL);
+                for (i = 1; i <= n; i++) {
+                    if (i != w && i != v && i != u)
+                        set_edge_cost(G, w, i, BIG);
+                }
+                solve_tsp(G, H, incumbent, flag);
+                for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
+                    if (i != w)
+                        set_edge_cost(G, w, i, previous_cost[i-1]);
+                }
+                free(previous_cost);
+            }
 
-            // vieta il lato {w, v};
-            cost_wv = get_edge_cost(G, w, v);
-            set_edge_cost(G, w, v, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
+            if (z2 < *incumbent) {
+                // forza il lato {w, v} e vieta il lato {w, u};
+                cost_wv = get_edge_cost(G, w, v);
+                cost_wu = get_edge_cost(G, w, u);
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+                set_edge_cost(G, w, u, cost_wu);
+            }
+
+            if (z1 < *incumbent) {
+                // vieta il lato {w, v};
+                cost_wv = get_edge_cost(G, w, v);
+                set_edge_cost(G, w, v, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+            }
 
         } else if (z3 >= z1 && z1 >= z2) {
 
-            // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
-            previous_cost = (double*)malloc(sizeof(double) * n);
-            for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
-                if (i != w) 
-                    previous_cost[i-1] = get_edge_cost(G, w, i);
-            }
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, SMALL);
-            for (i = 1; i <= n; i++) {
-                if (i != w && i != v && i != u)
-                    set_edge_cost(G, w, i, BIG);
-            }
-            solve_tsp(G, H, incumbent, flag);
-            for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
-                if (i != w)
-                    set_edge_cost(G, w, i, previous_cost[i-1]);
-            }
-            free(previous_cost);
+            /*
+             * The three forward checks rank this way:
+             * - denying edge {w,v} is the most promising branch
+             *       (the one with the immediate higher bound)
+             * - impose {w,v}, {w,u}, deny the rest
+             * - impose edge {w,v}, deny {w,u}
+             *       is the route that diges the worst (immediate) bound improve
+             */
 
-            // vieta il lato {w, v};
-            cost_wv = get_edge_cost(G, w, v);
-            set_edge_cost(G, w, v, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
+            if (z3 < *incumbent) {
+                // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
+                previous_cost = (double*)malloc(sizeof(double) * n);
+                for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
+                    if (i != w) 
+                        previous_cost[i-1] = get_edge_cost(G, w, i);
+                }
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, SMALL);
+                for (i = 1; i <= n; i++) {
+                    if (i != w && i != v && i != u)
+                        set_edge_cost(G, w, i, BIG);
+                }
+                solve_tsp(G, H, incumbent, flag);
+                for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
+                    if (i != w)
+                        set_edge_cost(G, w, i, previous_cost[i-1]);
+                }
+                free(previous_cost);
+            }
 
-            // forza il lato {w, v} e vieta il lato {w, u};
-            cost_wv = get_edge_cost(G, w, v);
-            cost_wu = get_edge_cost(G, w, u);
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
-            set_edge_cost(G, w, u, cost_wu);
+            if (z1 < *incumbent) {
+                // vieta il lato {w, v};
+                cost_wv = get_edge_cost(G, w, v);
+                set_edge_cost(G, w, v, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+            }
+
+            if (z2 < *incumbent) {
+                // forza il lato {w, v} e vieta il lato {w, u};
+                cost_wv = get_edge_cost(G, w, v);
+                cost_wu = get_edge_cost(G, w, u);
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+                set_edge_cost(G, w, u, cost_wu);
+            }
 
         } else if (z1 >= z3 && z3 >= z2) {
 
-            // vieta il lato {w, v};
-            cost_wv = get_edge_cost(G, w, v);
-            set_edge_cost(G, w, v, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
+            /*
+             * The three forward checks rank this way:
+             * - denying edge {w,v} is the most promising branch
+             *       (the one with the immediate higher bound)
+             * - impose {w,v}, {w,u}, deny the rest
+             * - impose edge {w,v}, deny {w,u}
+             *       is the route that diges the worst (immediate) bound improve
+             */
 
-            // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
-            previous_cost = (double*)malloc(sizeof(double) * n);
-            for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
-                if (i != w) 
-                    previous_cost[i-1] = get_edge_cost(G, w, i);
+            if (z1 < *incumbent) {
+                // vieta il lato {w, v};
+                cost_wv = get_edge_cost(G, w, v);
+                set_edge_cost(G, w, v, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
             }
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, SMALL);
-            for (i = 1; i <= n; i++) {
-                if (i != w && i != v && i != u)
-                    set_edge_cost(G, w, i, BIG);
-            }
-            solve_tsp(G, H, incumbent, flag);
-            for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
-                if (i != w)
-                    set_edge_cost(G, w, i, previous_cost[i-1]);
-            }
-            free(previous_cost);
 
-            // forza il lato {w, v} e vieta il lato {w, u};
-            cost_wv = get_edge_cost(G, w, v);
-            cost_wu = get_edge_cost(G, w, u);
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
-            set_edge_cost(G, w, u, cost_wu);
+            if (z3 < *incumbent) {
+                // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
+                previous_cost = (double*)malloc(sizeof(double) * n);
+                for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
+                    if (i != w) 
+                        previous_cost[i-1] = get_edge_cost(G, w, i);
+                }
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, SMALL);
+                for (i = 1; i <= n; i++) {
+                    if (i != w && i != v && i != u)
+                        set_edge_cost(G, w, i, BIG);
+                }
+                solve_tsp(G, H, incumbent, flag);
+                for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
+                    if (i != w)
+                        set_edge_cost(G, w, i, previous_cost[i-1]);
+                }
+                free(previous_cost);
+            }
+
+            if (z2 < *incumbent) {
+                // forza il lato {w, v} e vieta il lato {w, u};
+                cost_wv = get_edge_cost(G, w, v);
+                cost_wu = get_edge_cost(G, w, u);
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+                set_edge_cost(G, w, u, cost_wu);
+            }
 
         } else if (z2 >= z3 && z3 >= z1) {
 
-            // forza il lato {w, v} e vieta il lato {w, u};
-            cost_wv = get_edge_cost(G, w, v);
-            cost_wu = get_edge_cost(G, w, u);
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
-            set_edge_cost(G, w, u, cost_wu);
+            if (z2 < *incumbent) {
+                // forza il lato {w, v} e vieta il lato {w, u};
+                cost_wv = get_edge_cost(G, w, v);
+                cost_wu = get_edge_cost(G, w, u);
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+                set_edge_cost(G, w, u, cost_wu);
+            }
 
-            // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
-            previous_cost = (double*)malloc(sizeof(double) * n);
-            for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
-                if (i != w) 
-                    previous_cost[i-1] = get_edge_cost(G, w, i);
+            if (z3 < *incumbent) {
+                // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
+                previous_cost = (double*)malloc(sizeof(double) * n);
+                for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
+                    if (i != w) 
+                        previous_cost[i-1] = get_edge_cost(G, w, i);
+                }
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, SMALL);
+                for (i = 1; i <= n; i++) {
+                    if (i != w && i != v && i != u)
+                        set_edge_cost(G, w, i, BIG);
+                }
+                solve_tsp(G, H, incumbent, flag);
+                for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
+                    if (i != w)
+                        set_edge_cost(G, w, i, previous_cost[i-1]);
+                }
+                free(previous_cost);
             }
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, SMALL);
-            for (i = 1; i <= n; i++) {
-                if (i != w && i != v && i != u)
-                    set_edge_cost(G, w, i, BIG);
-            }
-            solve_tsp(G, H, incumbent, flag);
-            for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
-                if (i != w)
-                    set_edge_cost(G, w, i, previous_cost[i-1]);
-            }
-            free(previous_cost);
 
-            // vieta il lato {w, v};
-            cost_wv = get_edge_cost(G, w, v);
-            set_edge_cost(G, w, v, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
+            if (z1 < *incumbent) {
+                // vieta il lato {w, v};
+                cost_wv = get_edge_cost(G, w, v);
+                set_edge_cost(G, w, v, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+            }
 
         } else {
 
-            // forza il lato {w, v} e vieta il lato {w, u};
-            cost_wv = get_edge_cost(G, w, v);
-            cost_wu = get_edge_cost(G, w, u);
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
-            set_edge_cost(G, w, u, cost_wu);
+            if (z2 < *incumbent) {
+                // forza il lato {w, v} e vieta il lato {w, u};
+                cost_wv = get_edge_cost(G, w, v);
+                cost_wu = get_edge_cost(G, w, u);
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+                set_edge_cost(G, w, u, cost_wu);
+            }
 
-            // vieta il lato {w, v};
-            cost_wv = get_edge_cost(G, w, v);
-            set_edge_cost(G, w, v, BIG);
-            solve_tsp(G, H, incumbent, flag);
-            set_edge_cost(G, w, v, cost_wv);
+            if (z1 < *incumbent) {
+                // vieta il lato {w, v};
+                cost_wv = get_edge_cost(G, w, v);
+                set_edge_cost(G, w, v, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+            }
 
-            // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
-            previous_cost = (double*)malloc(sizeof(double) * n);
-            for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
-                if (i != w) 
-                    previous_cost[i-1] = get_edge_cost(G, w, i);
+            if (z3 < *incumbent) {
+                // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
+                previous_cost = (double*)malloc(sizeof(double) * n);
+                for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
+                    if (i != w) 
+                        previous_cost[i-1] = get_edge_cost(G, w, i);
+                }
+                set_edge_cost(G, w, v, SMALL);
+                set_edge_cost(G, w, u, SMALL);
+                for (i = 1; i <= n; i++) {
+                    if (i != w && i != v && i != u)
+                        set_edge_cost(G, w, i, BIG);
+                }
+                solve_tsp(G, H, incumbent, flag);
+                for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
+                    if (i != w)
+                        set_edge_cost(G, w, i, previous_cost[i-1]);
+                }
+                free(previous_cost);
             }
-            set_edge_cost(G, w, v, SMALL);
-            set_edge_cost(G, w, u, SMALL);
-            for (i = 1; i <= n; i++) {
-                if (i != w && i != v && i != u)
-                    set_edge_cost(G, w, i, BIG);
-            }
-            solve_tsp(G, H, incumbent, flag);
-            for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
-                if (i != w)
-                    set_edge_cost(G, w, i, previous_cost[i-1]);
-            }
-            free(previous_cost);
+
         }
 
         
@@ -415,18 +493,82 @@ void solve_tsp(graph* G, graph* H, double* incumbent, int flag) {
     /* esiste un solo lato che non è mai stato nè forzato nè vietato;
      */
     else if (((v >= 1 && v <= n) && (u < 1 || u > n)) || ((v < 1 || v > n) && (u >= 1 && u <= n))) {
-        
+
+        graph FC_ONE_TREE;
+        initGraph(&FC_ONE_TREE, 1);
+
+        double z1, z2;
+
         // vieta il lato {w, v};
         cost_wv = get_edge_cost(G, w, v);
         set_edge_cost(G, w, v, BIG);
-        solve_tsp(G, H, incumbent, flag);
+        compute_ot(G, &FC_ONE_TREE);
         set_edge_cost(G, w, v, cost_wv);
+        set_edge_cost(&FC_ONE_TREE, w, v, cost_wv);
 
-        // forza il lato {w, u};
+        z1 = get_graph_cost(&FC_ONE_TREE);
+
+        // solve_tsp(G, H, incumbent, flag);
+
+        // forza il lato {w, v};
         cost_wv = get_edge_cost(G, w, v);
         set_edge_cost(G, w, v, SMALL);
-        solve_tsp(G, H, incumbent, flag);
+        compute_ot(G, &FC_ONE_TREE);
         set_edge_cost(G, w, v, cost_wv);
+        set_edge_cost(&FC_ONE_TREE, w, v, cost_wv);
+
+        z2 = get_graph_cost(&FC_ONE_TREE);
+
+        deleteGraph(&FC_ONE_TREE);
+
+        if (z1 >= z2) {
+
+            /*
+             * to deny edge {w,v} gives an (immediate) better bound
+             * than imposing it : let's try this way first
+             */
+
+            if (z1 < *incumbent) {
+                // vieta il lato {w, v};
+                cost_wv = get_edge_cost(G, w, v);
+                set_edge_cost(G, w, v, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+            }
+
+            if (z2 < *incumbent) {
+                // forza il lato {w, u};
+                cost_wv = get_edge_cost(G, w, v);
+                set_edge_cost(G, w, v, SMALL);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+            }
+
+        } else {
+
+            /*
+             * to impose edge {w,v} gives an (immediate) better bound
+             * than denying it : let's try this way first
+             */
+
+            if (z2 < *incumbent) {
+                // forza il lato {w, u};
+                cost_wv = get_edge_cost(G, w, v);
+                set_edge_cost(G, w, v, SMALL);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+            }
+
+            if (z1 < *incumbent) {
+                // vieta il lato {w, v};
+                cost_wv = get_edge_cost(G, w, v);
+                set_edge_cost(G, w, v, BIG);
+                solve_tsp(G, H, incumbent, flag);
+                set_edge_cost(G, w, v, cost_wv);
+            }
+
+        }
+
     }
 
     /* tutti i lati sono già stati forzati o vietati;

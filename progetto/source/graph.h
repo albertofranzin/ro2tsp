@@ -92,7 +92,9 @@ void remove_edge(graph* G, int u, int v);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v <= G.n;
  */
-inline void set_node_x(graph* G, int v, double x);
+static inline void set_node_x(graph* G, int v, double x) {
+  (*G).V[v-1].x = x;
+}
 
 
 
@@ -100,14 +102,18 @@ inline void set_node_x(graph* G, int v, double x);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v <= G.n;
  */
-inline void set_node_y(graph* G, int v, double y);
+static inline void set_node_y(graph* G, int v, double y) {
+  (*G).V[v-1].y = y;
+}
 
 
 
 /* ritorna la coordinata x del nodo v di G;
  * - si assume G grafo inizializzato;
  */
-inline double get_node_x(graph* G, int v);
+static inline double get_node_x(graph* G, int v) {
+  return (*G).V[v-1].x;
+}
 
 
 
@@ -115,7 +121,9 @@ inline double get_node_x(graph* G, int v);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v <= G.n;
  */
-inline double get_node_y(graph* G, int v);
+static inline double get_node_y(graph* G, int v) {
+  return (*G).V[v-1].y;
+}
 
 
 
@@ -123,7 +131,9 @@ inline double get_node_y(graph* G, int v);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v <= G.n;
  */
-inline int get_node_deg(graph* G, int v);
+static inline int get_node_deg(graph* G, int v) {
+  return (*G).V[v-1].deg;
+}
 
 
 
@@ -131,7 +141,9 @@ inline int get_node_deg(graph* G, int v);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v, u <= G.n;
  */
-inline void set_edge_cost(graph* G, int u, int v, double cost);
+static inline void set_edge_cost(graph* G, int u, int v, double cost) {
+  (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*G).E[ v*(v-1)/2 + u-1 ].cost = cost );
+}
 
 
 
@@ -139,7 +151,9 @@ inline void set_edge_cost(graph* G, int u, int v, double cost);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v, u <= G.n;
  */
-inline double get_edge_cost(graph* G, int u, int v);
+static inline double get_edge_cost(graph* G, int u, int v) {
+  return (u > v) ? (*G).E[ u*(u-1)/2 + v-1 ].cost : (*G).E[ v*(v-1)/2 + u-1 ].cost;
+}
 
 
 
@@ -147,7 +161,9 @@ inline double get_edge_cost(graph* G, int u, int v);
  * - si assume G grafo inizializzato;
  * - si assume 1 <= v, u <= G.n;
  */
-inline int adjacent(graph* G, int u, int v);
+static inline int adjacent(graph* G, int u, int v) {
+  return (u > v) ? (*G).E[ u*(u-1)/2 + v-1 ].flag : (*G).E[ v*(v-1)/2 + u-1 ].flag;
+}
 
 
 
