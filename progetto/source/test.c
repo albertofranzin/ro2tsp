@@ -54,8 +54,8 @@ void main() {
   //double *vals = subgradient(&G, lag);
   //printf("exited\n");
 
-  /*free(pars);
+  free(pars);
   deleteGraph(&G);
   deleteGraph(&F);
-  deleteGraph(&H);*/
+  deleteGraph(&H);
 }
