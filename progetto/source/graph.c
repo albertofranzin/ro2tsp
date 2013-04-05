@@ -77,45 +77,9 @@ void remove_edge(graph* G, int u, int v) {
   (*G).V[v-1].deg--;
 }
 
-inline
-void set_node_x(graph* G, int v, double x) {
-  (*G).V[v-1].x = x;
-}
 
-inline
-void set_node_y(graph* G, int v, double y) {
-  (*G).V[v-1].y = y;
-}
+/* methods that were here have been inlined and moved to header file graph.h */
 
-inline
-double get_node_x(graph* G, int v) {
-  return (*G).V[v-1].x;
-}
-
-inline
-double get_node_y(graph* G, int v) {
-  return (*G).V[v-1].y;
-}
-
-inline
-int get_node_deg(graph* G, int v) {
-  return (*G).V[v-1].deg;
-}
-
-inline
-void set_edge_cost(graph* G, int u, int v, double cost) {
-  (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*G).E[ v*(v-1)/2 + u-1 ].cost = cost );
-}
-
-inline
-double get_edge_cost(graph* G, int u, int v) {
-  return (u > v) ? (*G).E[ u*(u-1)/2 + v-1 ].cost : (*G).E[ v*(v-1)/2 + u-1 ].cost;
-}
-
-inline
-int adjacent(graph* G, int u, int v) {
-  return (u > v) ? (*G).E[ u*(u-1)/2 + v-1 ].flag : (*G).E[ v*(v-1)/2 + u-1 ].flag;
-}
 
 double get_graph_cost(graph* G) {
   int i, j;
@@ -169,6 +133,8 @@ void plotGraph(graph* G1, graph* G2, char* opt1, char* opt2) {
   fprintf(pipe, "set size square\n");
   fprintf(pipe, "set xrange [-0.010:1.010]\n");
   fprintf(pipe, "set yrange [-0.010:1.010]\n");
+  /*fprintf(pipe, "set xrange [30.010:42.010]\n");
+  fprintf(pipe, "set yrange [-6.010:26.010]\n");*/
   fprintf(pipe, "set xlabel 'X'\n");
   fprintf(pipe, "set ylabel 'Y'\n");
   fprintf(pipe, "unset xtics\n");

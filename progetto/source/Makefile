@@ -16,7 +16,7 @@ test: clean buildLib $(NOMEFILE)
 
 # link libraries
 buildLib: node.o edge.o compute_ot.o utils.o solve_tsp.o compute_path.o \
-		  compute_mst.o graph.o heuristics.o lagrangian.o tree.o subgradient.o
+		  compute_mst.o graph.o heuristics.o lagrangian.o tree.o compute_lagrange.o
 	ar r libro2ds.a *.o
 #	rm *.o
 
@@ -53,8 +53,11 @@ lagrangian.o: lagrangian.h lagrangian.c
 tree.o: tree.h tree.c
 	gcc -g -c tree.c
 
-subgradient.o : subgradient.h subgradient.c
-	gcc -g -c subgradient.c
+#subgradient.o: subgradient.h subgradient.c
+#	gcc -g -c subgradient.c
+
+compute_lagrange.o: compute_lagrange.h compute_lagrange.c
+	gcc -g -c compute_lagrange.c
 
 clean:
 	clear
