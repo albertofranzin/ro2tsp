@@ -130,11 +130,14 @@ void plotGraph(graph* G1, graph* G2, char* opt1, char* opt2) {
   FILE* pipe = popen("gnuplot -persist", "w");
 
   fprintf(pipe, "set multiplot\n");
-  fprintf(pipe, "set size square\n");
+  /**/fprintf(pipe, "set size square\n");
   fprintf(pipe, "set xrange [-0.010:1.010]\n");
-  fprintf(pipe, "set yrange [-0.010:1.010]\n");
+  fprintf(pipe, "set yrange [-0.010:1.010]\n");/**/
+
+  /* values good for ulysses16.tsp */
   /*fprintf(pipe, "set xrange [30.010:42.010]\n");
-  fprintf(pipe, "set yrange [-6.010:26.010]\n");*/
+  fprintf(pipe, "set yrange [-6.010:28.010]\n");*/
+
   fprintf(pipe, "set xlabel 'X'\n");
   fprintf(pipe, "set ylabel 'Y'\n");
   fprintf(pipe, "unset xtics\n");

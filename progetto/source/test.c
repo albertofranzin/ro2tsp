@@ -46,19 +46,24 @@ void main() {
 
   double ub = incumbent;
   double alpha = 2.0;
-  double max_iter = 22000;
-  double ub_max_iter = 22000;
+  double max_iter = 30000;
+  double ub_max_iter = 20000;
   double alpha_max_iter = 200;
   double L_best;
 
   //L_best = compute_and_plot_lagrange(&G, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-  L_best = compute_and_plot_lagrange(&G, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
+  L_best = compute_and_plot_lagrange(&F, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
  
   printf("lower bound : %f\n", L_best);
 
-  //solve_tsp(&G, &H, &lag, &incumbent, 0);
-  solve_tsp(&G, &H, &incumbent, 0);
-  plotGraph(&G, &H, "default", NULL);
+  if (!is_cycle(&F)) {
+    solve_tsp(&G, &F, &H, &incumbent, 0);
+    plotGraph(&G, &H, "default", NULL);
+  } else {
+    printf("COOL! Lagrangean relaxation solved the problem alone!\n");
+    plotGraph(&G, &F, "default", NULL);
+
+  }
 
   //double *vals = subgradient(&G, lag);
   //printf("exited\n");
