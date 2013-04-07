@@ -170,7 +170,10 @@ short tspHash(char *parName, char *parValue) {
 	}
 
 	if (strcmp(parName, "NODE_COORD_SECTION") == 0)
-		return 6;
+		return 61;
+
+	if (strcmp(parName, "DISPLAY_DATA_SECTION") == 0)
+		return 62;
 
 	return -1;
 }
@@ -201,6 +204,8 @@ void read_tsp_from_file(graph *G, parameters *pars) {
 
 	deleteGraph(G);
 
+	printf("oooh shit\n");
+
 	if (tspFile != NULL) {
 		while( fgets(line, sizeof line, tspFile) != NULL ) {
 			lineLen = strlen(line)-1;
@@ -224,7 +229,7 @@ void read_tsp_from_file(graph *G, parameters *pars) {
 				case 1 : break;
 				case 2 : break;
 				case 3 : pars->no_of_nodes = atoi(p2);
-						 printf("updated no_of_nodes\n");
+						 printf("updated no_of_nodes : %d\n", pars->no_of_nodes);
 						 break;
 
 				case 41: // ?
@@ -234,10 +239,12 @@ void read_tsp_from_file(graph *G, parameters *pars) {
 
 				case 51: break;
 
-				case 6 : initGraph(G, pars->no_of_nodes);
+				case 61:
+				case 62: initGraph(G, pars->no_of_nodes);
 						 //i = 0;
 						 printf("graph initialized\n");
 						 while( fgets(line, sizeof line, tspFile) != NULL ) {
+						 	printf("doin' anything?\n");
 							lineLen = strlen(line)-1;
 
 							// skip empty lines
@@ -249,6 +256,7 @@ void read_tsp_from_file(graph *G, parameters *pars) {
 
 							if (strcmp(line, "EOF") == 0 ||
 								strcmp(line, " EOF") == 0) {
+								printf("get out!\n");
 								break;
 							}
 
@@ -265,13 +273,14 @@ void read_tsp_from_file(graph *G, parameters *pars) {
 							//printf("ghghghgh\n");
 							token3 = strtok(NULL, delimiters);
 
-							//printf("%s %s %s\n", token1, token2, token3);
+							printf("%s %s %s\n", token1, token2, token3);
 
 							j = atoi(token1) - 1;
 							G->V[j].x = atof(token2);
 							G->V[j].y = atof(token3);
 
 						 }
+						 printf("here?\n");
 						 break;
 
 				default: break;
@@ -300,17 +309,18 @@ void read_tsp_from_file(graph *G, parameters *pars) {
  *
  * return: -1,0,1 depending on the comparison of the two elements
  */
-/*int snbdComp(const void *aa, const void *bb) {
-	node **a = (node **)aa,
-		 **b = (node **)bb;
+//int snbdComp(const void *aa, const void *bb) {
+int snbdComp(node *a, node *b) {
+	/*node a = aa,
+		 b = bb;*/
 
-	if ((*a)->deg < (*b)->deg) { return -1; }
-	if ((*a)->deg > (*b)->deg) { return 1; }
+	if (a->deg < b->deg) { return -1; }
+	if (a->deg > b->deg) { return 1; }
 	return 0;
 }
 
 // sort edges by weight
-int sebwComp(const void *aa, const void *bb) {
+/*int sebwComp(const void *aa, const void *bb) {
 	edge **a = (edge **)aa,
 		 **b = (edge **)bb;
 

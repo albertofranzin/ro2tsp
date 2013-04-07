@@ -39,7 +39,9 @@ void solve_tsp(graph* G, graph* F, graph* H, double* incumbent, int flag) {
         copyGraph(F, &ONE_TREE);
     }
 
-
+    /*if (is_cycle(&ONE_TREE)) {
+        plotGraph(F, &ONE_TREE, "onetree", NULL);
+    }*/
 
     /* calcola z = costo dell'1-albero;
      */
@@ -79,18 +81,76 @@ void solve_tsp(graph* G, graph* F, graph* H, double* incumbent, int flag) {
             break;
     }
 
+    /*node nl[n];
+    memcpy(nl, (ONE_TREE.V), sizeof(node) * n);*/
+
+    /*for (i = 1; i < ONE_TREE.n; ++i) {
+        printf("%d %d %d || %d %d\n", i, nl[i].name, nl[i].deg,
+                G->V[i].name, G->V[i].deg);
+    }/**/
+
+    //qsort((void *)&nl, n, sizeof(node), (compfn)snbdComp);
+
+    /*for (i = 1; i < ONE_TREE.n; ++i) {
+        printf("%d %d %d\n", i, nl[i].name, nl[i].deg);
+    }/**/
+
+    //char ch = getchar();
+
+    // since we don't have a cycle, there is a node with deg = 1
+    /*i = 1;
+    u = v = 0;
+    int tmpn1 = 0, tmpn2 = 0;*/
+    //double tmpc1, tmpc2;
+    //while(i < n && nl[i].deg < 3) i++;
+    //tmpn2 = i;
+    //tmpc1 = get_edge_cost(&ONE_TREE, tmpn1+1, tmpn2+1);
+    //double tmpc[nl[i].deg];
+
+    /*printf("%d\n", i);
+    /*while(i < n && nl[i].deg == 3) {
+        i++;
+        if (adjacent(&ONE_TREE, tmpn1+1, tmpn2+1)) {
+            continue;
+        }
+        // choose the farthest node
+        tmpc2 = get_edge_cost(&ONE_TREE, tmpn1+1, tmpn2+1);
+        if (tmpc2 > tmpc1) {
+        }
+    }*/
+    /*if (i < n) {
+        // check which edge can be connected to tmpn1 instead of to tmpn2
+        j = 0;
+        while (j < n) {
+            if (j != i && nl[j].name != nl[tmpn1-1].name && adjacent(&ONE_TREE, nl[tmpn2].name, nl[j+1].name) &&
+                    get_edge_cost(&ONE_TREE, nl[tmpn1+1].name, nl[j+1].name) > SMALL &&
+                    get_edge_cost(&ONE_TREE, nl[tmpn1+1].name, nl[j+1].name) < BIG) {
+                if (get_edge_cost(&ONE_TREE, nl[tmpn1+1].name, nl[j+1].name) > tmpc1) {
+                    tmpn2 = j;
+                    tmpc1 = get_edge_cost(&ONE_TREE, nl[tmpn1+1].name, nl[j+1].name);
+                    // printf("%d %d %f\n", tmpn1+1, tmpn2+2, tmpc1);
+                }
+            }
+            j++;
+        }
+    }*/
+
+    //w = nl[tmpn2].name;
+    //w = nl[n-1].name;
+    // v = nl[tmpn1].name;
+
     /* (tentativo di) ricerca di due lati candidati mai forzati nè vietati;
      */
     for (v = 1; v <= n; v++) {
-     if (v != w && adjacent(&ONE_TREE, w, v) && get_edge_cost(G, w, v) > SMALL && get_edge_cost(G, w, v) < BIG)
+        if (v != w && adjacent(&ONE_TREE, w, v) && get_edge_cost(G, w, v) > SMALL && get_edge_cost(G, w, v) < BIG)
             break;
     }
-    for (u = 1; u <= n; u++) {
+    for (u = v+1; u <= n; u++) {
         if (u != w && u != v && adjacent(&ONE_TREE, w, u) && get_edge_cost(G, w, u) > SMALL && get_edge_cost(G, w, u) < BIG)
             break;
     }
 
-    //printf("%d - %d %d | %d\n", w, v,u,n);
+    // printf("%d - %d %d | %d\n", w, v,u,n);
 
     deleteGraph(&ONE_TREE);
 

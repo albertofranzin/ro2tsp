@@ -13,6 +13,8 @@ double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max
   double square_norm, L, L_best, step_size;
   int n = (*G).n;
 
+  short abrupt_end = 0;
+
   double mult[n+1];
   double subgrad[n+1];
 
@@ -50,12 +52,14 @@ double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max
     }
     else {
       counter++;
+      /* STOP: interrompi ciclo se L non è migliorato nelle ultime k iterazioni.
+       */
+      if (counter > k) {
+        //break;
+
+      }
     }
 
-    /* STOP: interrompi ciclo se L non è migliorato nelle ultime k iterazioni.
-     */
-    if (counter > k)
-      break;
 
     /* riduci (dimezza) alpha se L non è migliorato nelle ultime h iterazioni.
      */
@@ -73,8 +77,10 @@ double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max
 
     /* STOP: interrompi ciclo se il subgradiente è il vettore nullo.
      */
-    if (square_norm == 0)
+    if (square_norm == 0) {
+      abrupt_end = 1;
       break;
+    }
 
     /* calcolo l'ampiezza del passo di avanzamento attuale.
      */
@@ -104,7 +110,9 @@ double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max
 
   deleteGraph(&ONE_TREE);
   deleteGraph(&G_TEMP);
-  copyGraph(&BEST_ONE_TREE, G);
+  //if (!abrupt_end) {
+    copyGraph(&BEST_ONE_TREE, G);
+  //}
   deleteGraph(&BEST_ONE_TREE);
 
   return L_best;
@@ -120,6 +128,8 @@ double compute_and_plot_lagrange(graph* G, double ub, int k, double alpha, int h
   int i, j, counter, max_iter_counter;
   double square_norm, L, L_best, step_size;
   int n = (*G).n;
+
+  short abrupt_end = 0;
 
   double mult[n+1];
   double subgrad[n+1];
@@ -180,8 +190,9 @@ double compute_and_plot_lagrange(graph* G, double ub, int k, double alpha, int h
 
 
     // STOP
-    if (counter > k)
+    if (counter > k) {
       break;
+    }
 
     // aggiorno alpha
     if (counter > h)
@@ -193,11 +204,13 @@ double compute_and_plot_lagrange(graph* G, double ub, int k, double alpha, int h
     square_norm = 0;
 
     for (i = 2; i <= n; i++)
-      square_norm += pow(subgrad[i], 2);    
+      square_norm += pow(subgrad[i], 2);
 
     // STOP
-    if (square_norm == 0)
+    if (square_norm == 0) {
+      abrupt_end = 1;
       break;
+    }
 
     // aggiorno moltiplicatori
     step_size = alpha * (ub - L) / square_norm;  
@@ -243,7 +256,9 @@ double compute_and_plot_lagrange(graph* G, double ub, int k, double alpha, int h
   fflush(pipe);
 
   deleteGraph(&ONE_TREE);
-  copyGraph(&BEST_ONE_TREE, G);
+  //if (!abrupt_end) {
+    copyGraph(&BEST_ONE_TREE, G);
+  //}
   deleteGraph(&BEST_ONE_TREE);
   deleteGraph(&G_TEMP);
 

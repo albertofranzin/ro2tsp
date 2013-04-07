@@ -10,8 +10,8 @@
 #include "utils.h"
 #include "subgradient.h"
 
-#define BIG 1000
-#define SMALL -1000
+#define BIG 100000
+#define SMALL -100000
 
 void main() {
 
@@ -52,8 +52,7 @@ void main() {
   double L_best;
 
   //L_best = compute_and_plot_lagrange(&G, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-  L_best = compute_and_plot_lagrange(&F, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
- 
+  L_best = compute_lagrange(&F, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
   printf("lower bound : %f\n", L_best);
 
   if (!is_cycle(&F)) {
@@ -62,7 +61,6 @@ void main() {
   } else {
     printf("COOL! Lagrangean relaxation solved the problem alone!\n");
     plotGraph(&G, &F, "default", NULL);
-
   }
 
   //double *vals = subgradient(&G, lag);

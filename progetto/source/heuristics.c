@@ -35,7 +35,7 @@ double nearestNeighbour(graph *G, graph *H, int root) {
 	// iterate thru all the nodes, starting from node 1
 	while (count < n) {
 		// initialize minimum cost
-		min = 2000;
+		min = INF;
 		minIndex = -1;
 
 		// look for min-cost not visited neighbour

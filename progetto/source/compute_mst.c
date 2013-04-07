@@ -20,6 +20,7 @@ void compute_mst(graph* G, graph* T, int root) {
   for (i = 1; i <= n; i++) {
     set_node_x(T, i, get_node_x(G, i));
     set_node_y(T, i, get_node_y(G, i));
+    T->V[i-1].name = i;
   }
 
   /* inizializzazione delle principali strutture;

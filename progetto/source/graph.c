@@ -31,6 +31,7 @@ void randomGraph(graph* G) {
   initGraph(G, n);
 
   for (i = 0; i < n; i++) {
+    (*G).V[i].name = i+1;
     (*G).V[i].deg = n-1;
     (*G).V[i].x = (double)(rand()) / ((double)RAND_MAX + 1.0);
     (*G).V[i].y = (double)(rand()) / ((double)RAND_MAX + 1.0);
@@ -49,10 +50,12 @@ void copyGraph(graph* FROM, graph* TO) {
   int n = (*FROM).n;
   deleteGraph(TO);
   initGraph(TO, n);
+  //memcpy(TO, FROM, (sizeof(node)+sizeof(int))*n + sizeof(edge)*n*(n+1)/2);
   for (i = 0; i < n; i++) {
     (*TO).V[i].x = (*FROM).V[i].x;
     (*TO).V[i].y = (*FROM).V[i].y;
     (*TO).V[i].deg = (*FROM).V[i].deg;
+    (*TO).V[i].name = (*FROM).V[i].name;
   }
   for (i = 0; i < n * (n + 1) / 2;i++) {
     (*TO).E[i].flag = (*FROM).E[i].flag;
@@ -130,13 +133,25 @@ void plotGraph(graph* G1, graph* G2, char* opt1, char* opt2) {
   FILE* pipe = popen("gnuplot -persist", "w");
 
   fprintf(pipe, "set multiplot\n");
-  /**/fprintf(pipe, "set size square\n");
-  fprintf(pipe, "set xrange [-0.010:1.010]\n");
+  fprintf(pipe, "set size square\n");
+  /**/fprintf(pipe, "set xrange [-0.010:1.010]\n");
   fprintf(pipe, "set yrange [-0.010:1.010]\n");/**/
 
   /* values good for ulysses16.tsp */
   /*fprintf(pipe, "set xrange [30.010:42.010]\n");
   fprintf(pipe, "set yrange [-6.010:28.010]\n");*/
+
+  /* values good for eil51.tsp */
+  /*fprintf(pipe, "set xrange [-0.010:70.010]\n");
+  fprintf(pipe, "set yrange [-0.010:70.010]\n");*/
+
+    /* values good for dj38.tsp */
+  /*fprintf(pipe, "set xrange [10000.010:13000.010]\n");
+  fprintf(pipe, "set yrange [41000.010:44000.010]\n");*/
+
+  /* values good for bayg29.tsp */
+  /*fprintf(pipe, "set xrange [0:2000.010]\n");
+  fprintf(pipe, "set yrange [0:2500.010]\n");*/
 
   fprintf(pipe, "set xlabel 'X'\n");
   fprintf(pipe, "set ylabel 'Y'\n");
@@ -247,18 +262,18 @@ void plotGraph(graph* G1, graph* G2, char* opt1, char* opt2) {
     initGraph(&P, 1);
     for (v = 2; v <= n2; v++) {
       if (adjacent(G2, 1, v))
-	break;
+        break;
     }
     remove_edge(G2, 1, v);
     compute_path(G2, &P, 1, v, 0);
 
     for (i = 1; i <= n2; i++) {
       for (j = i+1; j <= n2; j++) {
-	if (adjacent(&P, i, j)) {
-	  fprintf(pipe, "%f %f\n", get_node_x(&P, i), get_node_y(&P, i));
-	  fprintf(pipe, "%f %f\n", get_node_x(&P, j), get_node_y(&P, j));
-	  fprintf(pipe, "\n");
-	}
+        if (adjacent(&P, i, j)) {
+          fprintf(pipe, "%f %f\n", get_node_x(&P, i), get_node_y(&P, i));
+          fprintf(pipe, "%f %f\n", get_node_x(&P, j), get_node_y(&P, j));
+          fprintf(pipe, "\n");
+        }
       }
     }
     fprintf(pipe, "%f %f\n", get_node_x(G2, 1), get_node_y(G2, 1));
