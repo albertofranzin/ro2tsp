@@ -5,13 +5,15 @@
 # default values will be used
 
 # select desidered numer of nodes in the graph [int]
-NUMBER_OF_NODES = 36
+NUMBER_OF_NODES = 33
 
 # seed for random [int]
 # 0   : use time
 # n>0 : use n as seed - allow to replicate tests
 SEED = 1077156643793973573
 #SEED = 285999935225386660
+# SEED = 606922979702899690
+# SEED = 799974640738384520
 
 # plot graphs at the end? [y/n]
 PLOT = y
@@ -20,10 +22,11 @@ PLOT = y
 PLOT_ONLY_1TREE = n
 
 # number of heuristic trials to compute a better initial bound [int]
-HEURISTIC_TRIALS = 33
+HEURISTIC_TRIALS = 50
 
 # location of TSP-formatted file (from TSPLIB)
 # NUMBER_OF_NODES may be overridden by the value found in the file
 # Set to NULL if no file is requested to be used. A random graph will be generated.
-# TSP_FILE = ../../../tsplib/ulysses16.tsp
+# TSP_FILE = ../../../tsplib/bays29.tsp
+# TSP_FILE = dj38.tsp <-- lo risolve!!
 TSP_FILE = NULL

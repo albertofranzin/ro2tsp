@@ -24,7 +24,7 @@ typedef struct _parameters {
 #define FILE_CONFIG "config"
 
 // define infinity for double
-#define INF 1000
+#define INF 100000000.0
 
 /* methods */
 
@@ -59,7 +59,8 @@ parameters *getParameters();
  * 43 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'CEIL_2D')
  * 44 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'GEO')
  * 51 : (parName, parValue) = ('DISPLAY_DATA_TYPE', 'COORD_DISPLAY')
- *  6 : parName = 'NODE_COORD_SECTION'
+ * 61 : parName = 'NODE_COORD_SECTION'
+ * 62 : parName = 'DISPLAY_DATA_SECTION'
  * -1 : all the other combinations/values
  */
 short tspHash(char*, char*);
@@ -77,7 +78,9 @@ short tspHash(char*, char*);
  */
 void read_tsp_from_file(graph *G, parameters *ppars);
 
-// int snbdComp(const void *, const void *);
+typedef int (*compfn)(const void*, const void*);
+//int snbdComp(const void *, const void *);
+int snbdComp(node *, node *);
 // int sebwComp(const void *, const void *);
 
 #endif
