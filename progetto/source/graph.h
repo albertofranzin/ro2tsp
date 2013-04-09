@@ -13,6 +13,7 @@
 #include "node.h"
 #include "edge.h"
 
+
 /* grafo non diretto pesato;
  * - sono permessi self-loop;
  * - i nodi 1, 2, ..., n sono memorizzati in un array .V nelle posizioni 0, 1, ..., n-1;

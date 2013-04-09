@@ -39,4 +39,17 @@ double nearestNeighbour(graph *G, graph *H, int root);
  */
 double heuristicBound(graph *G, graph *H, int howMany);
 
+/*
+ * nn2opt
+ * - G : the original graph
+ * - H : graph containing the solution given by the heuristic
+ * - root : starting node
+ *
+ * Compute an admissible solution using the Nearest Neighbour heuristic,
+ * then apply the 2-opt heuristic to swap crossing edges.
+ *
+ * return : cost of the solution
+ */
+double nn2opt(graph *G, graph *H, int root);
+
 #endif

@@ -100,3 +100,32 @@ double heuristicBound(graph *G, graph *H, int howMany) {
 	return min;
 
 }
+
+/*
+ * nn2opt
+ * - G : the original graph
+ * - H : graph containing the solution given by the heuristic
+ * - root : starting node
+ *
+ * Compute an admissible solution using the Nearest Neighbour heuristic,
+ * then apply the 2-opt heuristic to swap crossing edges.
+ *
+ * return : cost of the solution
+ */
+double nn2opt(graph *G, graph *H, int root) {
+	double cost = nearestNeighbour(G, H, root), delta;
+	int i, j, improved = 1;
+
+	while (improved) {
+		// reset flag
+		improved = 0;
+
+
+		// apply algo found at : http://en.wikipedia.org/wiki/2-opt
+		for (i = 0; i < G->n; ++i) {
+			for (j = i+1; j < G->n - 1; ++j){
+				
+			}
+		}
+	}
+}

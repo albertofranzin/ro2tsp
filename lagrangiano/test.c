@@ -57,14 +57,15 @@ void main() {
 
   double ub = incumbent;
   double alpha = 1;
-  double max_iter = 220;
-  double ub_max_iter = 10;
-  double alpha_max_iter = 20;
+  double max_iter = 2200;
+  double ub_max_iter = 2200;
+  double alpha_max_iter = 100;
   double L_best;
 
   //L_best = compute_lagrange(&G, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
   L_best = compute_and_plot_lagrange(&G, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
  
+//	solve_tsp(&G, &H, &incumbent, 0);
 
   deleteGraph(&G);;
 }

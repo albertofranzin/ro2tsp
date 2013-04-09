@@ -68,7 +68,7 @@ void solve_tsp(graph* G, graph* F, graph* H, double* incumbent, int flag) {
         *incumbent = z;
         copyGraph(&ONE_TREE, H);
 
-        // plotGraph(&ONE_TREE, H, "default", NULL);
+        plotGraph(&ONE_TREE, H, "default", NULL);
 
         deleteGraph(&ONE_TREE);
         return;
@@ -81,15 +81,15 @@ void solve_tsp(graph* G, graph* F, graph* H, double* incumbent, int flag) {
             break;
     }
 
-    /*node nl[n];
-    memcpy(nl, (ONE_TREE.V), sizeof(node) * n);*/
+    node nl[n];
+    memcpy(nl, (ONE_TREE.V), sizeof(node) * n);/**/
 
     /*for (i = 1; i < ONE_TREE.n; ++i) {
         printf("%d %d %d || %d %d\n", i, nl[i].name, nl[i].deg,
                 G->V[i].name, G->V[i].deg);
     }/**/
 
-    //qsort((void *)&nl, n, sizeof(node), (compfn)snbdComp);
+    qsort((void *)&nl, n, sizeof(node), (compfn)snbdComp);
 
     /*for (i = 1; i < ONE_TREE.n; ++i) {
         printf("%d %d %d\n", i, nl[i].name, nl[i].deg);
@@ -98,9 +98,9 @@ void solve_tsp(graph* G, graph* F, graph* H, double* incumbent, int flag) {
     //char ch = getchar();
 
     // since we don't have a cycle, there is a node with deg = 1
-    /*i = 1;
+    i = 1;
     u = v = 0;
-    int tmpn1 = 0, tmpn2 = 0;*/
+    int tmpn1 = 0, tmpn2 = 0;/**/
     //double tmpc1, tmpc2;
     //while(i < n && nl[i].deg < 3) i++;
     //tmpn2 = i;
@@ -148,9 +148,44 @@ void solve_tsp(graph* G, graph* F, graph* H, double* incumbent, int flag) {
     for (u = v+1; u <= n; u++) {
         if (u != w && u != v && adjacent(&ONE_TREE, w, u) && get_edge_cost(G, w, u) > SMALL && get_edge_cost(G, w, u) < BIG)
             break;
-    }
+    }/**/
 
-    // printf("%d - %d %d | %d\n", w, v,u,n);
+    /*int wd = ONE_TREE.V[w].deg, dest[n], mark = 0;
+    double c[n], ctmp;
+    memset(c, 0, sizeof(c));
+    for (v = 1; v <= n; ++v) {
+        ctmp = get_edge_cost(G, w, v);
+        if (v != w && ctmp > SMALL && ctmp < BIG) {
+            c[mark] = ctmp;
+            dest[mark] = v;
+            mark++;
+        }
+    }
+    u = 0; v = 0;
+    //printf("mark = %d\n", mark);
+    if (mark == 0) {
+        // no branch is possible
+        return;
+    }
+    if (mark == 1) {
+        v = dest[0];
+        u = n+1;
+    } else if (mark == 2) {
+        if (c[0] > c[1]) {
+            v = dest[0];
+            u = dest[1];
+        } else {
+            u = dest[0];
+            v = dest[1];
+        }
+    } else  {//if (mark == wd) {
+        // get max
+        // get second max
+        u = dest[0];
+        v = dest[1];
+    }*/
+
+    //printf("%d - %d %d | %d\n", w, v,u,n);/**/
 
     deleteGraph(&ONE_TREE);
 
@@ -631,6 +666,8 @@ void solve_tsp(graph* G, graph* F, graph* H, double* incumbent, int flag) {
         deleteGraph(&INITIAL_GRAPH);
         flag = 2;
     }
+
+    //printf("-- %d\n", calls);
 }
 
 /* ritorna 1 se G è un ciclo, 0 altrimenti;

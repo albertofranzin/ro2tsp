@@ -71,5 +71,6 @@ void compute_ot(graph* G, graph* T) {
   for (i = 2; i <= n; i++)
     set_edge_cost(G, 1, i, cost_vect[i-1]);
 
+  free(cost_vect);
 }
 
