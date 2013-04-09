@@ -244,7 +244,7 @@ void read_tsp_from_file(graph *G, parameters *pars) {
 						 //i = 0;
 						 printf("graph initialized\n");
 						 while( fgets(line, sizeof line, tspFile) != NULL ) {
-						 	printf("doin' anything?\n");
+						 	//printf("doin' anything?\n");
 							lineLen = strlen(line)-1;
 
 							// skip empty lines
@@ -273,14 +273,14 @@ void read_tsp_from_file(graph *G, parameters *pars) {
 							//printf("ghghghgh\n");
 							token3 = strtok(NULL, delimiters);
 
-							printf("%s %s %s\n", token1, token2, token3);
+							//printf("%s %s %s\n", token1, token2, token3);
 
 							j = atoi(token1) - 1;
 							G->V[j].x = atof(token2);
 							G->V[j].y = atof(token3);
 
 						 }
-						 printf("here?\n");
+						 //printf("here?\n");
 						 break;
 
 				default: break;

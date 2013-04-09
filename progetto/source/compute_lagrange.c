@@ -262,6 +262,8 @@ double compute_and_plot_lagrange(graph* G, double ub, int k, double alpha, int h
   deleteGraph(&BEST_ONE_TREE);
   deleteGraph(&G_TEMP);
 
+  pclose(pipe);
+
   return L_best;
 
 }
