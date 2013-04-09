@@ -1,0 +1,8 @@
+#ifndef COMPUTE_HEURISTIC_H_
+#define COMPUTE_HEURISTIC_H_
+
+#include "graph.h"
+
+double compute_heuristic(graph *G);
+
+#endif

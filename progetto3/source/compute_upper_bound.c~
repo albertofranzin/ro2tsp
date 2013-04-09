@@ -1,0 +1,19 @@
+#include <stdlib.h>
+#include "graph.h"
+#include "compute_nearest_neighbour.h"
+#include "compute_heuristic.h"
+
+double compute_heuristic(graph* G) { // da migliorare
+  int i;
+  double min, cost_of_cycle;
+  int n = (*G).n;
+
+  min = compute_nearest_neighbour(G, 1);
+  for (i = 2; i <= n; i++) {
+    cost_of_cycle = compute_nearest_neighbour(G, i);
+    if (cost_of_cycle < min)
+      min = cost_of_cycle;
+  }
+  return min;
+}
+
