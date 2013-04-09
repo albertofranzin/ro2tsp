@@ -12,8 +12,8 @@ CHECK = -Winline
 
 all: test clean
 
-test: graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o
-	gcc graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o $(NOMEFILE) -o test $(PAR)
+test: graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o compute_lagrange.o solve_tsp.o
+	gcc graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o compute_lagrange.o solve_tsp.o $(NOMEFILE) -o test $(PAR)
 
 graph.o: graph.h graph.c
 	gcc -g -c graph.c
@@ -32,6 +32,18 @@ compute_mst.o: compute_mst.h compute_mst.c
 
 compute_ot.o: compute_ot.h compute_ot.c
 	gcc -g -c compute_ot.c
+
+compute_nearest_neighbour.o: compute_nearest_neighbour.h compute_nearest_neighbour.c
+	gcc -g -c compute_nearest_neighbour.c
+
+compute_upper_bound.o: compute_upper_bound.h compute_upper_bound.c
+	gcc -g -c compute_upper_bound.c
+
+compute_lagrange.o: compute_lagrange.h compute_lagrange.c
+	gcc -g -c compute_lagrange.c
+
+solve_tsp.o: solve_tsp.h solve_tsp.c
+	gcc -g -c solve_tsp.c
 
 clean:
 	rm ./*o
