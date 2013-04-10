@@ -1,3 +1,5 @@
+#include "graph.h"
+#include "tree.h"
 #include "compute_mst.h"
 
 void compute_mst(graph* G, tree* T, int root) {
@@ -5,11 +7,9 @@ void compute_mst(graph* G, tree* T, int root) {
   double min;
 
   int n = (*G).n;
-  // stessa cosa, ma così facendo si arrangia da solo a deallocare la memoria degli array
-  // senza bisogno delle tre free in fondo al metodo
-  short flag[n];// = (short*)malloc(sizeof(short) * n);
-  int pred[n];// = (int*)malloc(sizeof(int) * n);
-  double cost[n];// = (double*)malloc(sizeof(double) * n);
+  short flag[n];
+  int pred[n];
+  double cost[n];
 
 
   tree_delete(T);

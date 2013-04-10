@@ -3,6 +3,6 @@
 
 #include "graph.h"
 
-double compute_nearest_neighbour(graph *G, int root);
+double compute_nearest_neighbour(graph *G, int start_node);
 
 #endif

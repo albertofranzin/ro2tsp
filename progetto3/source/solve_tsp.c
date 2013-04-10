@@ -1,90 +1,77 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "constants.h"
 #include "graph.h"
+#include "onetree.h"
 #include "solve_tsp.h"
-#include "compute_upper_bound.h"
 
-graph INITIAL_GRAPH;
-int nprune;
-int ncalls;
-int nblock;
+graph WORK_GRAPH; // grafo "di lavoro": inizialmente contiene una copia esatta del grafo originale; via via che l'esecuzione procede vengono modificati i costi dei lati per forzarli o vietarli.
 
-void solve_tsp(graph* G, onetree* H, double* incumbent, int flag, double ub, int ub_max_iter, double alpha, int alpha_max_iter, int max_iter) {
+int tour_found_flag; // = 1 se è stato trovato un ciclo hamiltoniano, = 0 se non è stato ancora trovato
+int calls_counter; // numero di chiamate effettuate al tempo corrente
+int level_counter; // livello corrente nell'albero di ricorsione
+int max_depth_reached; // massimo livello (profondità) raggiunto nell'albero di ricorsione
+
+void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   int i, j, u, v, w;
-  double z;
+  double z, cost_wv, cost_wu;
+
   onetree ONE_TREE;
   int n = (*G).n;
-  double* previous_cost;;
-  double cost_wv, cost_wu;
 
-  int special_case;
-  int num_selected;
-  int num_forbidden;
-  int num_forced;
-
-  onetree_init(&ONE_TREE, 1);
-
-  /* effettua una copia del grafo iniziale G, passato in ingresso alla prima chiamata della funzione;
+  /* effettua una copia del grafo iniziale G nel grafo di lavoro WORK_GRAPH;
    */
-  if (flag == 0) {
-    graph_init(&INITIAL_GRAPH, 1);
-    graph_copy(G, &INITIAL_GRAPH);
-    flag = 1;
-    nprune = 0;
-    ncalls = 0;
-    nblock = 0;
+  if (call_flag == 0) {
+    graph_init(&WORK_GRAPH, 1);
+    graph_copy(G, &WORK_GRAPH);
+    onetree_delete(H);
+    calls_counter = 1;
+    level_counter = 1;
+    max_depth_reached = 1;
+    tour_found_flag = 0;
+    call_flag = 1;
   }
   else {
-    flag = 2;
+    call_flag = 2;
   }
 
-  ncalls++;
+  max_depth_reached = (level_counter > max_depth_reached) ? level_counter : max_depth_reached;
+  onetree_init(&ONE_TREE, 1);
 
   /* calcola 1-albero;
    */
-  if (flag == 1) {
-    compute_lagrange(G, &ONE_TREE, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-  }
-  else if (flag == 2) {
-    compute_lagrange(G, &ONE_TREE, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-    //compute_ot(G, &ONE_TREE);
-  }
+  compute_ot(&WORK_GRAPH, &ONE_TREE);
 
   /* calcola z = costo dell'1-albero;
    */
-  for (i = 1; i <= n; i++) {
-    for (j = i+1; j <= n; j++)
-      onetree_set_edge_cost(&ONE_TREE, i, j, graph_get_edge_cost(&INITIAL_GRAPH, i, j));
+  onetree_set_edge_cost(&ONE_TREE, 1, onetree_get_first_node(&ONE_TREE), graph_get_edge_cost(G, 1, onetree_get_first_node(&ONE_TREE))); // setto al costo originale il costo del lato {1, x} dell'1-albero (siano {1, x} e {¡, y} i lati incidenti in 1 nell'1-albero)
+  onetree_set_edge_cost(&ONE_TREE, 1, onetree_get_second_node(&ONE_TREE), graph_get_edge_cost(G, 1, onetree_get_second_node(&ONE_TREE))); // setto al costo originale il costo del lato {1, y} dell'1-albero
+  for (i = 2; i <= n; i++) { // setto al costo originale il costo dei lati dell'1-albero non incidenti in 1
+    onetree_set_edge_cost(&ONE_TREE, onetree_get_pred(&ONE_TREE, i), i, graph_get_edge_cost(G, onetree_get_pred(&ONE_TREE, i), i));
   }
   z = onetree_get_cost(&ONE_TREE);
-  //printf("valore z = %f\n", z);
 
   /* verifica se possibile potare il ramo corrente
    */
-
-  
-  if (z >= *incumbent) {
-    nprune++;
+  if (z > *incumbent) { // il caso z = *incumbent viene trattato nell'if successivo: questo per evitare che non venga memorizzato in H alcun ciclo nel caso in cui solve_tsp sia chiamato con un upper bound (incumbent iniziale) esattamente uguale al costo del ciclo hamiltoniano ottimo (improbabile ma possibile)
     onetree_delete(&ONE_TREE);
     return;
-  }
-  
-  if (ncalls >= nblock * 1000) {
-    printf("numero prune - calls - fraction: %d - %d - %f\n", nprune, ncalls, ((double)nprune / (double)ncalls));
-    nblock++;
   }
 
   /* verifica se è stato trovato un ciclo (una soluzione ottima per il sottoproblema corrispondente al nodo corrente);
    * aggiorna incumbent e soluzione ottima corrente;
    */
   if (is_cycle(&ONE_TREE)) {
-    printf("updating incumbent : from %f to %f\n", *incumbent, z);
-    if (z < *incumbent) {
+    if (z < *incumbent || tour_found_flag == 0) {
+      printf("# updated incumbent = %f : calls up to now = %d : current depth = %d\n", z, calls_counter, level_counter);
       *incumbent = z;
       onetree_copy(&ONE_TREE, H);
+      tour_found_flag = 1;
     }
-    onetree_delete(&ONE_TREE);
-    return;
+    else { // z = *incubent AND è già stato trovato (e memorizzato in H) un candidato per il ciclo hamiltoniano ottimo 
+      onetree_delete(&ONE_TREE);
+      return;
+    }
   }
 
   /* cerca un nodo w con almeno 3 lati incidenti;
@@ -97,11 +84,11 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int flag, double ub, int
   /* (tentativo di) ricerca di due lati candidati mai forzati nè vietati;
    */
   for (v = 1; v <= n; v++) {
-   if (v != w && onetree_adjacent_nodes(&ONE_TREE, w, v) && graph_get_edge_cost(G, w, v) > SMALL && graph_get_edge_cost(G, w, v) < BIG)
+   if (v != w && onetree_adjacent_nodes(&ONE_TREE, w, v) && graph_get_edge_cost(&WORK_GRAPH, w, v) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, v) < BIG)
       break;
   }
   for (u = 1; u <= n; u++) {
-    if (u != w && u != v && onetree_adjacent_nodes(&ONE_TREE, w, u) && graph_get_edge_cost(G, w, u) > SMALL && graph_get_edge_cost(G, w, u) < BIG)
+    if (u != w && u != v && onetree_adjacent_nodes(&ONE_TREE, w, u) && graph_get_edge_cost(&WORK_GRAPH, w, u) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, u) < BIG)
       break;
   }
 
@@ -111,227 +98,71 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int flag, double ub, int
    */
   if ((v >= 1 && v <= n) && (u >= 1 && u <= n)) {
 
-    // sia E(w) insieme di lati incidenti in w
-    // caso speciale 0: default, nessun caso speciale
+    // vieta il lato {w, v};
+    cost_wv = graph_get_edge_cost(&WORK_GRAPH, w, v);
+    graph_set_edge_cost(&WORK_GRAPH, w, v, BIG);
+    calls_counter++;
+    level_counter++;
+    solve_tsp(G, H, incumbent, call_flag);
+    level_counter--;
+    graph_set_edge_cost(&WORK_GRAPH, w, v, cost_wv);
 
-    // caso speciale 1: E(w)\({w, v}, {w, u}) ha lati TUTTI selezionati, di cui TUTTI vietati => forza {w, v} e {w, u}
-    // caso speciale 2: E(w)\({w, v}, {w, u}) ha lati TUTTI selezionati, di cui = 1 forzato => vieta {w, v} e forza {w, u} oppure forza {w, v} e vieta {w, u}
-    // caso speciale 3: E(w)\({w, v}, {w, u}) ha lati TUTTI selezionati, di cui = 2 forzati => vieta {w, v} e {w, u}
-    // caso speciale 4: E(w)\({w, v}, {w, u}) ha lati > 2 forzati => ritorna
+    // forza il lato {w, v} e vieta il lato {w, u};
+    cost_wv = graph_get_edge_cost(&WORK_GRAPH, w, v);
+    cost_wu = graph_get_edge_cost(&WORK_GRAPH, w, u);
+    graph_set_edge_cost(&WORK_GRAPH, w, v, SMALL);
+    graph_set_edge_cost(&WORK_GRAPH, w, u, BIG);
+    calls_counter++;
+    level_counter++;
+    solve_tsp(G, H, incumbent, call_flag);
+    level_counter--;
+    graph_set_edge_cost(&WORK_GRAPH, w, v, cost_wv);
+    graph_set_edge_cost(&WORK_GRAPH, w, u, cost_wu);
 
-    
-    num_selected = num_forbidden = num_forced = 0;
-    for (j = 1; i <= n; j++) {
-      if (j != v && j != u && j != w) {
-	if (graph_get_edge_cost(G, w, j) >= BIG)
-	  num_forbidden++;
-	if (graph_get_edge_cost(G, w, j) <= SMALL)
-	  num_forced++;
-      }
+    // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
+    double* previous_cost = (double*)malloc(sizeof(double) * n);
+    for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
+      if (i != w) 
+	previous_cost[i-1] = graph_get_edge_cost(&WORK_GRAPH, w, i);
     }
-
-    special_case = 0;
-    
-    if (num_forced == 0 && num_forbidden + num_forced == n-3)
-      special_case = 1;
-    else if (num_forced == 1 && num_forbidden + num_forced == n-3)
-      special_case = 2;
-    else if (num_forced == 2 && num_forbidden + num_forced == n-3)
-      special_case = 3;
-    else if (num_forced > 2)
-      special_case = 4;
-    
-
-    if (special_case == 1) {
-      cost_wv = graph_get_edge_cost(G, w, v);
-      cost_wu = graph_get_edge_cost(G, w, u);
-      graph_set_edge_cost(G, w, v, SMALL);
-      graph_set_edge_cost(G, w, u, SMALL);
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-     
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      graph_set_edge_cost(G, w, v, cost_wv);
-      graph_set_edge_cost(G, w, u, cost_wu);
-      return;
+    graph_set_edge_cost(&WORK_GRAPH, w, v, SMALL);
+    graph_set_edge_cost(&WORK_GRAPH, w, u, SMALL);
+    for (i = 1; i <= n; i++) {
+      if (i != w && i != v && i != u)
+	graph_set_edge_cost(&WORK_GRAPH, w, i, BIG);
     }
-    if (special_case == 2) {
-      cost_wv = graph_get_edge_cost(G, w, v);
-      cost_wu = graph_get_edge_cost(G, w, u);
-      graph_set_edge_cost(G, w, v, SMALL);
-      graph_set_edge_cost(G, w, u, BIG);
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      graph_set_edge_cost(G, w, v, cost_wv);
-      graph_set_edge_cost(G, w, u, cost_wu);
-
-      cost_wv = graph_get_edge_cost(G, w, v);
-      cost_wu = graph_get_edge_cost(G, w, u);
-      graph_set_edge_cost(G, w, v, BIG);
-      graph_set_edge_cost(G, w, u, SMALL);
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      graph_set_edge_cost(G, w, v, cost_wv);
-      graph_set_edge_cost(G, w, u, cost_wu);
-      return;
+    calls_counter++;
+    level_counter++;
+    solve_tsp(G, H, incumbent, call_flag);
+    level_counter--;
+    for (i = 1; i <= n; i++) { // roll back costi così com'erano prima della chiamata ricorsiva
+      if (i != w)
+	graph_set_edge_cost(&WORK_GRAPH, w, i, previous_cost[i-1]);
     }
-
-
-    if (special_case == 3) {
-      cost_wv = graph_get_edge_cost(G, w, v);
-      cost_wu = graph_get_edge_cost(G, w, u);
-      graph_set_edge_cost(G, w, v, BIG);
-      graph_set_edge_cost(G, w, u, BIG);
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      graph_set_edge_cost(G, w, v, cost_wv);
-      graph_set_edge_cost(G, w, u, cost_wu);
-      return;
-    }
-
-    if (special_case == 4) {
-      return;
-    }
-
-    if (special_case == 0) {
-      // vieta il lato {w, v};
-      cost_wv = graph_get_edge_cost(G, w, v);
-      graph_set_edge_cost(G, w, v, BIG);
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      graph_set_edge_cost(G, w, v, cost_wv);
-
-      // forza il lato {w, v} e vieta il lato {w, u};
-      cost_wv = graph_get_edge_cost(G, w, v);
-      cost_wu = graph_get_edge_cost(G, w, u);
-      graph_set_edge_cost(G, w, v, SMALL);
-      graph_set_edge_cost(G, w, u, BIG);
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      graph_set_edge_cost(G, w, v, cost_wv);
-      graph_set_edge_cost(G, w, u, cost_wu);
-    
-      // forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
-      previous_cost = (double*)malloc(sizeof(double) * n);
-      for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
-	if (i != w)
-	  previous_cost[i-1] = graph_get_edge_cost(G, w, i);
-      }
-      graph_set_edge_cost(G, w, v, SMALL);
-      graph_set_edge_cost(G, w, u, SMALL);
-      for (i = 1; i <= n; i++) {
-	if (i != w && i != v && i != u)
-	  graph_set_edge_cost(G, w, i, BIG);
-      }
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      for (i = 1; i <= n; i++) { // roll back dei costi così com'erano prima della chiamata ricorsiva;
-	if (i != w)
-	  graph_set_edge_cost(G, w, i, previous_cost[i-1]);
-      }
-      free(previous_cost);
-    }
-
-  }
-
+    free(previous_cost);
+  } 
 
   /* esiste un solo lato che non è mai stato nè forzato nè vietato;
    */
-  else if (((v >= 1 && v <= n) && (u < 1 || u > n)) || ((v < 1 || v > n) && (u >= 1 && u <= n))) { // per come sono stati cercati v e u, {w, v} è l'unico lato non ancora selezionato
+  else if (((v >= 1 && v <= n) && (u < 1 || u > n)) || ((v < 1 || v > n) && (u >= 1 && u <= n))) {
 
-    // sia E(w) insieme di lati incidenti in w
-    // caso speciale 0: default, nessun caso specialevieta {w, v} oppure 
-    // caso speciale 1: E(w)\({w, v}) ha lati TUTTI vietati => ritorna
-    // caso speciale 2: E(w)\({w, v}) ha lati TUTTI selezionati, di cui = 1 forzato => forza {w, v}
-    // caso speciale 3: E(w)\({w, v}) ha lati TUTTI selezionati, di cui = 2 forzato => vieta {w, v}
-    // caso speciale 4: E(w)\({w, v}) ha lati > 2 forzati => ritorna
+    // vieta il lato {w, v};
+    cost_wv = graph_get_edge_cost(&WORK_GRAPH, w, v);
+    graph_set_edge_cost(&WORK_GRAPH, w, v, BIG);
+    calls_counter++;
+    level_counter++;
+    solve_tsp(G, H, incumbent, call_flag);
+    level_counter--;
+    graph_set_edge_cost(&WORK_GRAPH, w, v, cost_wv);
 
-     
-    num_selected = num_forbidden = num_forced = 0;
-    for (j = 1; i <= n; j++) {
-      if (j != v && j != u && j != w) {
-	if (graph_get_edge_cost(G, w, j) >= BIG)
-	  num_forbidden++;
-	if (graph_get_edge_cost(G, w, j) <= SMALL)
-	  num_forced++;
-      }
-    }
-    
-
-    special_case = 0;
-    
-    if (num_forced == 0 && num_forbidden + num_forced == n-3)
-      special_case = 1;
-    else if (num_forced == 1 && num_forbidden + num_forced == n-3)
-      special_case = 2;
-    else if (num_forced == 2 && num_forbidden + num_forced == n-3)
-      special_case = 3;
-    else if (num_forced > 2)
-      special_case = 4;
-    
-
-    if (special_case == 1) {
-      return;
-    }
-
-    if (special_case == 2) {
-      cost_wv = graph_get_edge_cost(G, w, v);
-      graph_set_edge_cost(G, w, v, SMALL);
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      graph_set_edge_cost(G, w, v, cost_wv);
-      return;
-    }
-
-    if (special_case == 3) {
-      cost_wv = graph_get_edge_cost(G, w, v);
-      graph_set_edge_cost(G, w, v, BIG);
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      graph_set_edge_cost(G, w, v, cost_wv);
-      return;
-    }
-
-    if (special_case == 4) {
-      return;
-    }
-
-    if (special_case == 0) {
-
-      // vieta il lato {w, v};
-      cost_wv = graph_get_edge_cost(G, w, v);
-      graph_set_edge_cost(G, w, v, BIG);
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      graph_set_edge_cost(G, w, v, cost_wv);
-
-      // forza il lato {w, u};
-      cost_wv = graph_get_edge_cost(G, w, v);
-      graph_set_edge_cost(G, w, v, SMALL);
-      // *** heuristic upper bound ***
-      ub = compute_upper_bound(G);
-
-      solve_tsp(G, H, incumbent, flag, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-      graph_set_edge_cost(G, w, v, cost_wv);
-    }
+    // forza il lato {w, u};
+    cost_wv = graph_get_edge_cost(&WORK_GRAPH, w, v);
+    graph_set_edge_cost(&WORK_GRAPH, w, v, SMALL);
+    calls_counter++;
+    level_counter++;
+    solve_tsp(G, H, incumbent, call_flag);
+    level_counter--;
+    graph_set_edge_cost(&WORK_GRAPH, w, v, cost_wv);
   }
 
   /* tutti i lati sono già stati forzati o vietati;
@@ -340,14 +171,13 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int flag, double ub, int
     return;
   }
 
-  /* copia il grafo iniziale nuovamente il G (la funzione in questo modo non modifica gli oggetti passati in ingresso);
-   */
-  if (flag == 1) {
-    graph_copy(&INITIAL_GRAPH, G);
-    graph_delete(&INITIAL_GRAPH);
-    flag = 2;
+  if (call_flag == 1) {
+    graph_delete(&WORK_GRAPH);
+    printf("# max depth reached = %d\n# number of calls = %d\n", max_depth_reached, calls_counter);
   }
 }
+
+
 
 /* ritorna 1 se G è un ciclo, 0 altrimenti;
  * - si assume G connesso (altrimenti non è detto che G sia un ciclo anche se la funzione ritorna 1;

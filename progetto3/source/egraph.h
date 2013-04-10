@@ -1,6 +1,10 @@
 #ifndef EGRAPH_H_
 #define EGRAPH_H_
 
+#include "graph.h"
+#include "tree.h"
+#include "onetree.h"
+
 struct egraph_node {
   double x; // coordinata asse x;
   double y; // coordinata asse y;
@@ -41,8 +45,14 @@ double egraph_get_edge_cost(egraph* EG, int u, int v);
 
 int egraph_get_node_deg(egraph* EG, int v);
 int egraph_adjacent_nodes(egraph* EG, int u, int v);
+
 double egraph_get_cost(egraph* EG);
 
 void egraph_plot(egraph* EG1, egraph* EG2);
+
+void graph_to_egraph(graph* G, egraph* EG);
+void egraph_to_graph(egraph* EG, graph* G);
+void tree_to_egraph(tree* T, egraph* EG);
+void onetree_to_egraph(onetree* OT, egraph* EG);
 
 #endif

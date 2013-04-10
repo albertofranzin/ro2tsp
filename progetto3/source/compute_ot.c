@@ -1,12 +1,14 @@
 #include "graph.h"
 #include "onetree.h"
-#include "compute_ot.h"
 #include "compute_mst.h"
+#include "compute_ot.h"
 
 void compute_ot(graph* G, onetree* OT) {
   int i, u, v;
   double min;
+
   int n = (*G).n;
+  double cost_vect[n];
 
   onetree_delete(OT);
   onetree_init(OT, n);
@@ -37,7 +39,6 @@ void compute_ot(graph* G, onetree* OT) {
 
   /* memorizza i costi dei lati incidenti in 1;
    */
-  double* cost_vect = (double*)malloc(sizeof(double) * n);
   for (i = 2; i <= n; i++)
     cost_vect[i-1] = graph_get_edge_cost(G, 1, i);
 
@@ -54,7 +55,6 @@ void compute_ot(graph* G, onetree* OT) {
    */
   onetree_insert_edge(OT, 1, u);
   onetree_insert_edge(OT, 1, v);
- 
   onetree_set_edge_cost(OT, 1, u, cost_vect[u-1]);
   onetree_set_edge_cost(OT, 1, v, cost_vect[v-1]);
 
@@ -68,8 +68,5 @@ void compute_ot(graph* G, onetree* OT) {
   for (i = 2; i <= n; i++)
     graph_set_edge_cost(G, 1, i, cost_vect[i-1]);
 
-
-
-  free(cost_vect);
 }
 
