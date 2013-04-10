@@ -2,6 +2,10 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include "constants.h"
+#include "graph.h"
+#include "tree.h"
+#include "onetree.h"
 #include "egraph.h"
 
 void egraph_init(egraph* EG, int n) {
@@ -76,7 +80,7 @@ double egraph_get_node_y(egraph* EG, int v) {
 }
 
 void egraph_insert_edge(egraph* EG, int u, int v) {
-  if (graph_adjacent_nodes(EG, u, v))
+  if (egraph_adjacent_nodes(EG, u, v))
     return;
   (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].flag = 1 ) : ( (*EG).E[ v*(v-1)/2 + u-1].flag = 1 );
   (*EG).V[u-1].deg++;
@@ -104,10 +108,6 @@ double egraph_get_edge_cost(egraph* EG, int u, int v) {
   return (u > v) ? (*EG).E[ u*(u-1)/2 + v-1 ].cost : (*EG).E[ v*(v-1)/2 + u-1 ].cost;
 }
 
-
-
-
-
 int egraph_get_node_deg(egraph* EG, int v) {
   return (*EG).V[v-1].deg;
 }
@@ -131,8 +131,6 @@ double egraph_get_cost(egraph* EG) {
   }
   return c;
 }
-
-
 
 void egraph_plot(egraph* EG1, egraph* EG2) {
   int i, j, v, n1, n2, eg1_has_some_edge, eg2_has_some_edge;
@@ -165,8 +163,8 @@ void egraph_plot(egraph* EG1, egraph* EG2) {
 
   fprintf(pipe, "set multiplot\n");
   /**/fprintf(pipe, "set size square\n");
-  fprintf(pipe, "set xrange [-0.010:1.010]\n");
-  fprintf(pipe, "set yrange [-0.010:1.010]\n");
+  fprintf(pipe, "set xrange [%.3f:%.3f]\n", X_MIN, X_MAX);
+  fprintf(pipe, "set yrange [%.3f:%.3f]\n", Y_MIN, Y_MAX);
   fprintf(pipe, "set xlabel 'X'\n");
   fprintf(pipe, "set ylabel 'Y'\n");
   fprintf(pipe, "unset xtics\n");
@@ -257,4 +255,73 @@ void egraph_plot(egraph* EG1, egraph* EG2) {
   }
 
   fflush(pipe);
+}
+
+void egraph_to_graph(egraph* EG, graph* G) {
+  int i;
+
+  int n = (*EG).n;
+  graph_delete(G);
+  graph_init(G, n);
+  for (i = 0; i < n; i++) {
+    (*G).V[i].deg = (*EG).V[i].deg;
+  }
+  for (i = 0; i < n * (n + 1) / 2; i++) {
+    (*G).E[i].flag = (*EG).E[i].flag;
+    (*G).E[i].cost = (*EG).E[i].cost;
+  }
+}
+
+void graph_to_egraph(graph* G, egraph* EG) {
+  int i;
+
+  int n = (*G).n;
+
+  for (i = 0; i < n * (n + 1) / 2; i++) {
+    (*EG).E[i].flag = 0;
+    (*EG).E[i].cost = 0;
+  }
+
+  for (i = 0; i < n; i++) {
+    (*EG).V[i].deg = (*G).V[i].deg;
+  }
+  for (i = 0; i < n * (n + 1) / 2;i++) {
+    (*EG).E[i].flag = (*G).E[i].flag;
+    (*EG).E[i].cost = (*G).E[i].cost;
+  }
+}
+
+void tree_to_egraph(tree* T, egraph* EG) {
+  int i;
+
+  int n = (*T).n;
+
+  for (i = 0; i < n * (n + 1) / 2; i++) {
+    (*EG).E[i].flag = 0;
+    (*EG).E[i].cost = 0;
+  }
+
+  for (i = 0; i < n; i++) {
+    (*EG).V[i].deg = (*T).V[i].deg;
+    if ((*T).V[i].pred > 0) {
+      egraph_insert_edge(EG, (*T).V[i].pred, i+1);
+      egraph_set_edge_cost(EG, (*T).V[i].pred, i+1, (*T).V[i].cost);
+    }
+  }
+}
+
+void onetree_to_egraph(onetree* OT, egraph* EG) {
+  int i;
+
+  tree_to_egraph(&(*OT).tree, EG);
+
+  if ((*OT).first_edge.node > 0) {
+    egraph_insert_edge(EG, 1, (*OT).first_edge.node);
+    egraph_set_edge_cost(EG, 1, (*OT).first_edge.node, (*OT).first_edge.cost);
+  }
+
+  if ((*OT).second_edge.node > 0) {
+    egraph_insert_edge(EG, 1, (*OT).second_edge.node);
+    egraph_set_edge_cost(EG, 1, (*OT).second_edge.node, (*OT).second_edge.cost);
+  }
 }

@@ -1,8 +1,6 @@
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
-#include "egraph.h"
-
 struct graph_node {
   int deg; // grado del nodo (numero di lati incidenti nel nodo);
 };
@@ -35,9 +33,7 @@ double graph_get_edge_cost(graph* G, int u, int v);
 
 int graph_get_node_deg(graph* G, int v);
 int graph_adjacent_nodes(graph* G, int u, int v);
-double graph_get_cost(graph* G);
 
-void graph_to_egraph(graph* G, egraph* EG);
-void egraph_to_graph(egraph* EG, graph* G);
+double graph_get_cost(graph* G);
 
 #endif

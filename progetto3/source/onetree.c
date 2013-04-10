@@ -2,7 +2,6 @@
 #include <string.h>
 #include "tree.h"
 #include "onetree.h"
-#include "egraph.h"
 
 void onetree_init(onetree* OT, int n) {
   int i;
@@ -44,6 +43,18 @@ int onetree_get_root(onetree* OT) {
   return tree_get_root(&(*OT).tree);
 }
 
+int onetree_get_pred(onetree* OT, int v) {
+  return tree_get_pred(&(*OT).tree, v);
+}
+
+int onetree_get_first_node(onetree* OT) {
+  return (*OT).first_edge.node;
+}
+
+int onetree_get_second_node(onetree* OT) {
+  return (*OT).second_edge.node;
+}
+
 void onetree_insert_edge(onetree* OT, int u, int v) {
   if (onetree_adjacent_nodes(OT, u, v))
     return;
@@ -68,7 +79,7 @@ void onetree_insert_edge(onetree* OT, int u, int v) {
 
   }
   else
-    tree_remove_edge(&(*OT).tree, u, v);
+    tree_insert_edge(&(*OT).tree, u, v);
 }
 
 void onetree_remove_edge(onetree* OT, int u, int v) {
@@ -174,21 +185,6 @@ double onetree_get_cost(onetree* OT) {
     c += (*OT).first_edge.cost;
   if ((*OT).second_edge.node > 0)
     c += (*OT).second_edge.cost;
+ 
   return c;
-}
-
-void onetree_to_egraph(onetree* OT, egraph* EG) {
-  int i;
-
-  tree_to_egraph(&(*OT).tree, EG);
-
-  if ((*OT).first_edge.node > 0) {
-    egraph_insert_edge(EG, 1, (*OT).first_edge.node);
-    egraph_set_edge_cost(EG, 1, (*OT).first_edge.node, (*OT).first_edge.cost);
-  }
-
-  if ((*OT).second_edge.node > 0) {
-    egraph_insert_edge(EG, 1, (*OT).second_edge.node);
-    egraph_set_edge_cost(EG, 1, (*OT).second_edge.node, (*OT).second_edge.cost);
-  }
 }

@@ -45,5 +45,6 @@ compute_lagrange.o: compute_lagrange.h compute_lagrange.c
 solve_tsp.o: solve_tsp.h solve_tsp.c
 	gcc -g -c solve_tsp.c
 
+
 clean:
 	rm ./*o
