@@ -38,7 +38,7 @@ void egraph_set_node_y(egraph* EG, int v, double y);
 double egraph_get_node_x(egraph* EG, int v);
 double egraph_get_node_y(egraph* EG, int v);
 
-void egraph_insert_edge(egraph* EG, int u, int v);
+void egraph_insert_edge(egraph* EG, int u, int v, double cost);
 void egraph_remove_edge(egraph* EG, int u, int v);
 void egraph_set_edge_cost(egraph* EG, int u, int v, double cost);
 double egraph_get_edge_cost(egraph* EG, int u, int v);

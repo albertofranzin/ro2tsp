@@ -4,8 +4,6 @@
 #include "onetree.h"
 
 void onetree_init(onetree* OT, int n) {
-  int i;
-
   (*OT).n = n;
   (*OT).first_edge.node = 0;
   (*OT).first_edge.cost = 0.0;
@@ -55,31 +53,39 @@ int onetree_get_second_node(onetree* OT) {
   return (*OT).second_edge.node;
 }
 
-void onetree_insert_edge(onetree* OT, int u, int v) {
+void onetree_insert_edge(onetree* OT, int u, int v, double cost) {
   if (onetree_adjacent_nodes(OT, u, v))
     return;
 
   if (u == 1 || v == 1) {
     if (u == 1) {
-      if ((*OT).first_edge.node == 0)
+      if ((*OT).first_edge.node == 0) {
 	(*OT).first_edge.node = v;
-      else if ((*OT).second_edge.node == 0)
+	(*OT).first_edge.cost = cost;
+      }
+      else if ((*OT).second_edge.node == 0) {
 	(*OT).second_edge.node = v;
+	(*OT).second_edge.cost = cost;
+      }
       (*OT).tree.V[u-1].deg++;
       (*OT).tree.V[v-1].deg++;
     }
     else if (v == 1) {
-      if ((*OT).first_edge.node == 0)
+      if ((*OT).first_edge.node == 0) {
 	(*OT).first_edge.node = u;
-      else if ((*OT).second_edge.node == 0)
+	(*OT).first_edge.cost = cost;
+      }
+      else if ((*OT).second_edge.node == 0) {
 	(*OT).second_edge.node = u;
+	(*OT).second_edge.cost = cost;
+      }
       (*OT).tree.V[u-1].deg++;
       (*OT).tree.V[v-1].deg++;
     }
 
   }
   else
-    tree_insert_edge(&(*OT).tree, u, v);
+    tree_insert_edge(&(*OT).tree, u, v, cost);
 }
 
 void onetree_remove_edge(onetree* OT, int u, int v) {

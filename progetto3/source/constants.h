@@ -15,4 +15,10 @@
 #define DEFAULT_NUMBER_OF_NODES 10
 #define DEFAULT_SEED 0
 
+// per tentare di eliminare effetti errori arrotondamento
+#define EPSILON 0.0000000001
+
+// parametri usati per algoritmo subgradiente - lagrange
+#define VERY_SMALL -1000000000
+#define ALPHA 2.0
 #endif

@@ -53,20 +53,13 @@ void compute_ot(graph* G, onetree* OT) {
 
   /* aggiungi i due lati di costo minimo incidenti in 1;
    */
-  onetree_insert_edge(OT, 1, u);
-  onetree_insert_edge(OT, 1, v);
-  onetree_set_edge_cost(OT, 1, u, cost_vect[u-1]);
-  onetree_set_edge_cost(OT, 1, v, cost_vect[v-1]);
+  onetree_insert_edge(OT, 1, u, cost_vect[u-1]);
+  onetree_insert_edge(OT, 1, v, cost_vect[v-1]);
 
   /* ripristina i lati di G incidenti in 1;
    */
   for (i = 2; i <= n; i++)
-    graph_insert_edge(G, 1, i);
-
-  /* ripristina i costi dei lati di G incidenti in 1;
-   */
-  for (i = 2; i <= n; i++)
-    graph_set_edge_cost(G, 1, i, cost_vect[i-1]);
+    graph_insert_edge(G, 1, i, cost_vect[i-1]);
 
 }
 

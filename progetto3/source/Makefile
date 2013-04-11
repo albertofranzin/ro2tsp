@@ -12,8 +12,11 @@ CHECK = -Winline
 
 all: test clean
 
-test: graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o compute_lagrange.o solve_tsp.o
-	gcc graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o compute_lagrange.o solve_tsp.o $(NOMEFILE) -o test $(PAR)
+test: list.o graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o compute_lagrange.o solve_tsp.o
+	gcc list.o graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o compute_lagrange.o solve_tsp.o $(NOMEFILE) -o test $(PAR)
+
+list.o: list.h list.c
+	gcc -g -c list.c
 
 graph.o: graph.h graph.c
 	gcc -g -c graph.c

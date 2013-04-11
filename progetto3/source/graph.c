@@ -4,13 +4,10 @@
 #include "graph.h"
 
 void graph_init(graph* G, int n) {
-  int i;
 
   (*G).n = n;
-  (*G).V = (graph_node*)malloc(sizeof(graph_node) * n);
-  (*G).E = (graph_edge*)malloc(sizeof(graph_edge) * n * (n + 1) / 2);
-  memset((*G).V, 0, sizeof(graph_node) * n);
-  memset((*G).E, 0, sizeof(graph_edge) * n * (n + 1) / 2);
+  (*G).V = (graph_node*)calloc(n, sizeof(graph_node));
+  (*G).E = (graph_edge*)calloc(n * (n + 1) / 2, sizeof(graph_edge));
 }
 
 void graph_delete(graph* G) {
@@ -36,10 +33,11 @@ void graph_copy(graph* FROM, graph* TO) {
   }
 }
 
-void graph_insert_edge(graph* G, int u, int v) {
+void graph_insert_edge(graph* G, int u, int v, double cost) {
   if (graph_adjacent_nodes(G, u, v))
     return;
   (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].flag = 1 ) : ( (*G).E[ v*(v-1)/2 + u-1].flag = 1 );
+  (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*G).E[ v*(v-1)/2 + u-1].cost = cost );
   (*G).V[u-1].deg++;
   (*G).V[v-1].deg++;
 }

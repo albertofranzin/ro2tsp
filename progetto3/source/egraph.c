@@ -9,13 +9,10 @@
 #include "egraph.h"
 
 void egraph_init(egraph* EG, int n) {
-  int i;
 
   (*EG).n = n;
-  (*EG).V = (egraph_node*)malloc(sizeof(egraph_node) * n);
-  (*EG).E = (egraph_edge*)malloc(sizeof(egraph_edge) * n * (n + 1) / 2);
-  memset((*EG).V, 0, sizeof(egraph_node) * n);
-  memset((*EG).E, 0, sizeof(egraph_edge) * n * (n + 1) / 2);
+  (*EG).V = (egraph_node*)calloc(n, sizeof(egraph_node) * n);
+  (*EG).E = (egraph_edge*)calloc(n * (n + 1) / 2, sizeof(egraph_edge));
 }
 
 void egraph_delete(egraph* EG) {
@@ -79,10 +76,11 @@ double egraph_get_node_y(egraph* EG, int v) {
   return (*EG).V[v-1].y;
 }
 
-void egraph_insert_edge(egraph* EG, int u, int v) {
+void egraph_insert_edge(egraph* EG, int u, int v, double cost) {
   if (egraph_adjacent_nodes(EG, u, v))
     return;
   (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].flag = 1 ) : ( (*EG).E[ v*(v-1)/2 + u-1].flag = 1 );
+  (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*EG).E[ v*(v-1)/2 + u-1].cost = cost );
   (*EG).V[u-1].deg++;
   (*EG).V[v-1].deg++;
 }
@@ -94,6 +92,7 @@ void egraph_remove_edge(egraph* EG, int u, int v) {
   (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = 0.0 ) : ( (*EG).E[ v*(v-1)/2 + u-1].cost = 0.0 );
   (*EG).V[u-1].deg--;
   (*EG).V[v-1].deg--;
+
 }
 
 void egraph_set_edge_cost(egraph* EG, int u, int v, double cost) {
@@ -303,25 +302,18 @@ void tree_to_egraph(tree* T, egraph* EG) {
 
   for (i = 0; i < n; i++) {
     (*EG).V[i].deg = (*T).V[i].deg;
-    if ((*T).V[i].pred > 0) {
-      egraph_insert_edge(EG, (*T).V[i].pred, i+1);
-      egraph_set_edge_cost(EG, (*T).V[i].pred, i+1, (*T).V[i].cost);
-    }
+    if ((*T).V[i].pred > 0)
+      egraph_insert_edge(EG, (*T).V[i].pred, i+1, (*T).V[i].cost);
   }
 }
 
 void onetree_to_egraph(onetree* OT, egraph* EG) {
-  int i;
 
   tree_to_egraph(&(*OT).tree, EG);
 
-  if ((*OT).first_edge.node > 0) {
-    egraph_insert_edge(EG, 1, (*OT).first_edge.node);
-    egraph_set_edge_cost(EG, 1, (*OT).first_edge.node, (*OT).first_edge.cost);
-  }
+  if ((*OT).first_edge.node > 0)
+    egraph_insert_edge(EG, 1, (*OT).first_edge.node, (*OT).first_edge.cost);
 
-  if ((*OT).second_edge.node > 0) {
-    egraph_insert_edge(EG, 1, (*OT).second_edge.node);
-    egraph_set_edge_cost(EG, 1, (*OT).second_edge.node, (*OT).second_edge.cost);
-  }
+  if ((*OT).second_edge.node > 0)
+    egraph_insert_edge(EG, 1, (*OT).second_edge.node, (*OT).second_edge.cost);
 }
