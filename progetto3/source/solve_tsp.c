@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "constants.h"
-#include "graph.h"
-#include "onetree.h"
 #include "solve_tsp.h"
 
 

@@ -6,10 +6,15 @@
 #define SMALL -2000.0
 
 // dimensioni grafo gnuplot
-#define X_MIN -0.010
+/*#define X_MIN -0.010
 #define X_MAX 1.010
 #define Y_MIN -0.010
-#define Y_MAX 1.010
+#define Y_MAX 1.010*/
+
+#define X_MIN 10000.0
+#define X_MAX 13000.0
+#define Y_MIN 41000.0
+#define Y_MAX 44000.0
 
 // parametri main
 #define DEFAULT_NUMBER_OF_NODES 10
@@ -25,4 +30,5 @@
 #define MAX_NUM_OF_ITERATIONS 10000
 #define SLACK_TIME 2000
 #define ALPHA_HALVING_TIME 100
+
 #endif
