@@ -26,7 +26,7 @@ void graph_init(graph* G, int n);
 void graph_delete(graph* G);
 void graph_copy(graph* FROM, graph* TO);
 
-void graph_insert_edge(graph* G, int u, int v);
+void graph_insert_edge(graph* G, int u, int v, double cost);
 void graph_remove_edge(graph* G, int u, int v);
 void graph_set_edge_cost(graph* G, int u, int v, double cost);
 double graph_get_edge_cost(graph* G, int u, int v);

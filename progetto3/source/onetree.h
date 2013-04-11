@@ -29,7 +29,7 @@ int onetree_get_pred(onetree* OT, int v);
 int onetree_get_first_node(onetree* OT);
 int onetree_get_second_node(onetree* OT);
 
-void onetree_insert_edge(onetree* OT, int u, int v);
+void onetree_insert_edge(onetree* OT, int u, int v, double cost);
 void onetree_remove_edge(onetree* OT, int u, int v);
 void onetree_set_edge_cost(onetree* OT, int u, int v, double cost);
 double onetree_get_edge_cost(onetree* OT, int u, int v);

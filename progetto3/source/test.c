@@ -12,6 +12,8 @@
 #include "compute_lagrange.h"
 #include "solve_tsp.h"
 
+#include "list.h"
+
 void main(int argc, char** argv) {
   int i;
   char* opt;
@@ -32,8 +34,6 @@ void main(int argc, char** argv) {
       s = atoi(argv[++i]);
   }
 
-
-
   egraph EG;
   egraph_init(&EG, n);
 
@@ -50,7 +50,18 @@ void main(int argc, char** argv) {
   heuristic_upper_bound = compute_upper_bound(&G);
   printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n\n", heuristic_upper_bound); 
 
-  double incumbent = heuristic_upper_bound;
+  double lagrangean_lower_bound;
+  double ub = heuristic_upper_bound;
+  int max_num_of_iterations = 1000;
+  int slack_time = 100;
+  int alpha_halving_time = 10;
+  onetree HL;
+  onetree_init(&HL, 1);
+  printf("@ Lagrangean Dual Problem - Subgradient Algorithm\n");
+  printf("# upper bound = %f\n# max number of iterations = %d\n# max number of iterations without improvements = %d\n# alpha = %f\n# alpha halving time = %d\n", ub, max_num_of_iterations, slack_time, ALPHA, alpha_halving_time);
+  lagrangean_lower_bound = compute_lagrange(&G, &HL, ub, max_num_of_iterations, slack_time, alpha_halving_time);
+
+  double incumbent = heuristic_upper_bound + EPSILON;
   onetree H;
   onetree_init(&H, 1);
   printf("@ Branch and Bound\n# initial incumbent = %f\n", incumbent);

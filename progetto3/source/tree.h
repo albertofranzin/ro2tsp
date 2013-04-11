@@ -25,7 +25,7 @@ void tree_set_root(tree* T, int r);
 int tree_get_root(tree* T);
 int tree_get_pred(tree* T, int v);
 
-void tree_insert_edge(tree* T, int u, int v);
+void tree_insert_edge(tree* T, int u, int v, double cost);
 void tree_remove_edge(tree* T, int u, int v);
 void tree_set_edge_cost(tree* T, int u, int v, double cost);
 double tree_get_edge_cost(tree* T, int u, int v);
