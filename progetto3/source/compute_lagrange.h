@@ -1,6 +1,7 @@
 #ifndef COMPUTE_LAGRANGE_H_
 #define COMPUTE_LAGRANGE_H_
 
+
 #include "graph.h"
 #include "onetree.h"
 
@@ -16,6 +17,6 @@
  * - nota1: l'algoritmo subgradiente trova il miglior (maggiore) valore della funzione lagrangiana associata al TSP su G asintoticamente: in questa implementazione la ricerca viene interrotta dopo al più un numero 'max_iter' di iterazioni, e il valore trovato potrebbe non essere il valore asintotico;
  * - nota2: il miglior (maggiore) valore della funzione lagrangiana corrisponde al valore di un ciclo hamiltoniano ottimo per G.
  */
-double compute_lagrange(graph* G, onetree* H, double ub, int max_num_of_iterations, int slack_time, int alpha_halving_time);
+double compute_lagrange(graph* G, onetree* H, double ub);
 
 #endif

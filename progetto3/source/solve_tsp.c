@@ -5,6 +5,7 @@
 #include "onetree.h"
 #include "solve_tsp.h"
 
+
 graph WORK_GRAPH;
 
 int tour_found_flag;
@@ -37,12 +38,19 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 
   num_of_levels = (current_level > num_of_levels) ? current_level : num_of_levels;
   current_call = num_of_calls;
-
   onetree_init(&ONE_TREE, 1);
+
 
   /* calcola 1-albero;
    */
-  compute_ot(&WORK_GRAPH, &ONE_TREE);
+  if (call_flag == 1) {
+    //compute_ot(&WORK_GRAPH, &ONE_TREE);
+    compute_lagrange(&WORK_GRAPH, &ONE_TREE, *incumbent);
+  }
+  else if (call_flag == 2) {
+    compute_lagrange(&WORK_GRAPH, &ONE_TREE, compute_upper_bound(&WORK_GRAPH));
+    //compute_ot(&WORK_GRAPH, &ONE_TREE);
+  }
 
   /* calcola z = costo dell'1-albero;
    */

@@ -7,7 +7,7 @@
 #include "onetree.h"
 #include "compute_lagrange.h"
 
-double compute_lagrange(graph* G, onetree* H, double ub, int max_num_of_iterations, int slack_time, int alpha_halving_time) {
+double compute_lagrange(graph* G, onetree* H, double ub) {
   int i, j, v, num_of_iterations, time_since_improvement;
   double alpha, square_norm, step_size, L, L_OPT;
 
@@ -29,7 +29,7 @@ double compute_lagrange(graph* G, onetree* H, double ub, int max_num_of_iteratio
   num_of_iterations = 0;
   time_since_improvement = 0;
 
-  while (num_of_iterations < max_num_of_iterations) {
+  while (num_of_iterations < MAX_NUM_OF_ITERATIONS) {
     num_of_iterations++;
 
     /* calcolo 1-albero usando i costi originali modificati dai moltiplicatori lagrangiani correnti.
@@ -49,7 +49,7 @@ double compute_lagrange(graph* G, onetree* H, double ub, int max_num_of_iteratio
       L_OPT = L;
       time_since_improvement = 0;
       onetree_copy(&ONE_TREE, H);
-      printf("# updated lagrangean lower bound = %f : current iteration = %d\n", L_OPT, num_of_iterations);
+      //printf("# updated lagrangean lower bound = %f : current iteration = %d\n", L_OPT, num_of_iterations);
     }
     else {
       time_since_improvement++;
@@ -57,12 +57,12 @@ double compute_lagrange(graph* G, onetree* H, double ub, int max_num_of_iteratio
 
     /* STOP: interrompi ciclo se L non è migliorato nelle ultime k iterazioni.
      */
-    if (time_since_improvement > slack_time)
+    if (time_since_improvement > SLACK_TIME)
       break;
 
     /* riduci (dimezza) alpha se L non è migliorato nelle ultime h iterazioni.
      */
-    if (time_since_improvement > alpha_halving_time)
+    if (time_since_improvement > ALPHA_HALVING_TIME)
       alpha /= 2.0;
 
     /* calcolo le componenti del vettore subgradiente,
