@@ -1,6 +1,7 @@
 #ifndef EGRAPH_H_
 #define EGRAPH_H_
 
+#include <stdio.h>
 #include "graph.h"
 #include "tree.h"
 #include "onetree.h"
