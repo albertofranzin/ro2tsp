@@ -254,7 +254,6 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
 							if (strcmp(line, "EOF") == 0 ||
 								strcmp(line, " EOF") == 0) {
-								printf("get out!\n");
 								break;
 							}
 

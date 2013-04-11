@@ -88,16 +88,20 @@ int main(int argc, char** argv) {
   egraph_plot(&EG, &EG2);
   /**/
 
-  /*double incumbent = heuristic_upper_bound + EPSILON;
+  double incumbent = heuristic_upper_bound + EPSILON;
   onetree H;
   onetree_init(&H, 1);
   printf("\n@ Branch and Bound\n# initial incumbent = %f\n", incumbent);
+  printf("Lagrangean lower bound = %f\n", lagrangean_lower_bound);
   solve_tsp(&G, &H, &incumbent, 0);
+
+  printf("@main\nsolve_tsp terminated\n");
 
   egraph EG1;
   egraph_init(&EG1, 1);
   egraph_copy(&EG, &EG1);
   onetree_to_egraph(&H, &EG1);
-  egraph_plot(&EG, &EG1);*/
+  egraph_plot(&EG, &EG1);
 
+  return 0;
 }

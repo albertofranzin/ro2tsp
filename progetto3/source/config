@@ -29,7 +29,7 @@ HEURISTIC_TRIALS = 50
 # NUMBER_OF_NODES may be overridden by the value found in the file
 # Set to NULL if no file is requested to be used. A random graph will be generated.
 # TSP_FILE = ../../../tsplib/bays29.tsp
-TSP_FILE = ../../progetto/source/dj38.tsp <-- lo risolve!!
+# TSP_FILE = ../../progetto/source/dj38.tsp <-- lo risolve!!
 # TSP_FILE = ulysses16.tsp
-# TSP_FILE = NULL
+TSP_FILE = NULL
 # TSP_FILE = ../../../tsplib/eil51.tsp

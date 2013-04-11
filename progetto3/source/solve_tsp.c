@@ -43,7 +43,10 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
     compute_lagrange(&WORK_GRAPH, &ONE_TREE, *incumbent);
   }
   else if (call_flag == 2) {
-    compute_lagrange(&WORK_GRAPH, &ONE_TREE, compute_upper_bound(&WORK_GRAPH));
+    tree WORK_TREE;
+    tree_init(&WORK_TREE, n);
+    compute_lagrange(&WORK_GRAPH, &ONE_TREE,
+            compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
     //compute_ot(&WORK_GRAPH, &ONE_TREE);
   }
 

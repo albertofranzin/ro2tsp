@@ -96,24 +96,24 @@ void onetree_remove_edge(onetree* OT, int u, int v) {
   if (u == 1 || v == 1) {
     if (u == 1) {
       if ((*OT).first_edge.node == v) {
-	(*OT).first_edge.node = 0;
-	(*OT).first_edge.cost = 0.0;
+        (*OT).first_edge.node = 0;
+        (*OT).first_edge.cost = 0.0;
       }
       else if ((*OT).second_edge.node == v) {
-	(*OT).second_edge.node = 0;
-	(*OT).second_edge.node = 0.0;
+        (*OT).second_edge.node = 0;
+        (*OT).second_edge.node = 0.0;
       }
       (*OT).tree.V[u-1].deg--;
       (*OT).tree.V[v-1].deg--;
     }
     else if (v == 1) {
       if ((*OT).first_edge.node == u) {
-	(*OT).first_edge.node = 0;
-	(*OT).first_edge.cost = 0.0;
+        (*OT).first_edge.node = 0;
+        (*OT).first_edge.cost = 0.0;
       }
       else if ((*OT).second_edge.node == u) {
-	(*OT).second_edge.node = 0;
-	(*OT).second_edge.node = 0.0;
+        (*OT).second_edge.node = 0;
+        (*OT).second_edge.node = 0.0;
       }
       (*OT).tree.V[u-1].deg--;
       (*OT).tree.V[v-1].deg--;

@@ -8,6 +8,7 @@ double compute_nearest_neighbour(graph *G, tree *OT, int start_node) {
   short visited[n];
   memset(visited, 0, sizeof(visited));
 
+
   tree_delete(OT);
   tree_init(OT, n);
   tree_set_root(OT, start_node);
