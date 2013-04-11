@@ -8,6 +8,9 @@ double compute_upper_bound(graph* G, tree *OT) { // da migliorare magari usando 
   tree BEST_OT;
   tree_init(&BEST_OT, n);
 
+  tree_delete(OT);
+  tree_init(OT, n);
+
   min = compute_nearest_neighbour(G, &BEST_OT, 1);
   best_index = 1;
   for (i = 2; i <= n; i++) {

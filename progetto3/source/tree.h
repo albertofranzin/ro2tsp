@@ -1,6 +1,8 @@
 #ifndef TREE_H_
 #define TREE_H_
 
+#include <stdio.h>
+
 struct tree_node {
   int pred; // indice nodo predecessore
   int deg; // grado del nodo (numero di lati incidenti nel nodo);
