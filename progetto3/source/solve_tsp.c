@@ -11,7 +11,7 @@ int num_of_calls;
 
 void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   int i, j, u, v, w, current_call;
-  double z, cost_wv, cost_wu;
+  double z, cost_wv, cost_wu, lagr_bound;
   onetree ONE_TREE;
   int n = (*G).n;
 
@@ -35,19 +35,27 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   current_call = num_of_calls;
   onetree_init(&ONE_TREE, 1);
 
+  printf("current_level = %d ; current_call = %d\n", current_level, current_call);
 
   /* calcola 1-albero;
    */
   if (call_flag == 1) {
     //compute_ot(&WORK_GRAPH, &ONE_TREE);
-    compute_lagrange(&WORK_GRAPH, &ONE_TREE, *incumbent);
+    lagr_bound = compute_lagrange(&WORK_GRAPH, &ONE_TREE, *incumbent);
   }
   else if (call_flag == 2) {
     tree WORK_TREE;
     tree_init(&WORK_TREE, n);
-    compute_lagrange(&WORK_GRAPH, &ONE_TREE,
-            compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+    lagr_bound = compute_lagrange(&WORK_GRAPH, &ONE_TREE,// *incumbent);
+                    compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+    tree_delete(&WORK_TREE);
     //compute_ot(&WORK_GRAPH, &ONE_TREE);
+  }
+
+  if (lagr_bound >= BIG) {
+    printf("this has happened\n");
+    char ch = getchar();
+    return;
   }
 
   /* calcola z = costo dell'1-albero;
@@ -87,6 +95,10 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   for (w = 1; w <= n; w++) {
     if (onetree_get_node_deg(&ONE_TREE, w) >= 3)
       break;
+  }
+
+  if (w > n || w < 1) {
+    return;
   }
 
   /* (tentativo di) ricerca di due lati candidati mai forzati nè vietati;
@@ -131,13 +143,13 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
     double* previous_cost = (double*)malloc(sizeof(double) * n);
     for (i = 1; i <= n; i++) { // memorizza i costi attuali dei lati per poter fare un roll back al ritorno dalla prossim chiamata ricorsiva;
       if (i != w) 
-	previous_cost[i-1] = graph_get_edge_cost(&WORK_GRAPH, w, i);
+        previous_cost[i-1] = graph_get_edge_cost(&WORK_GRAPH, w, i);
     }
     graph_set_edge_cost(&WORK_GRAPH, w, v, SMALL);
     graph_set_edge_cost(&WORK_GRAPH, w, u, SMALL);
     for (i = 1; i <= n; i++) {
       if (i != w && i != v && i != u)
-	graph_set_edge_cost(&WORK_GRAPH, w, i, BIG);
+        graph_set_edge_cost(&WORK_GRAPH, w, i, BIG);
     }
     num_of_calls++;
     current_level++;
@@ -145,7 +157,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
     current_level--;
     for (i = 1; i <= n; i++) { // roll back costi così com'erano prima della chiamata ricorsiva
       if (i != w)
-	graph_set_edge_cost(&WORK_GRAPH, w, i, previous_cost[i-1]);
+        graph_set_edge_cost(&WORK_GRAPH, w, i, previous_cost[i-1]);
     }
     free(previous_cost);
   } 

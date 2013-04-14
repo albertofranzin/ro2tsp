@@ -39,6 +39,15 @@ double compute_nearest_neighbour(graph *G, tree *OT, int start_node) {
       }
     }
 
+    if (next == -1) {
+      /*for (i = 1; i <= n; i++) {
+        tmp_cost = graph_get_edge_cost(G, current, i);
+        printf("--> current = %d ; i = %d ; cost = %f\n", current, i, tmp_cost);
+      }*/
+      //char ch = getchar();
+      return BIG;
+    }
+
     /*for (i = 1; i <= n; i++) {
       if (visited[i] == 0 && graph_get_edge_cost(G, current, i) < min) {
         min = graph_get_edge_cost(G, current, i);

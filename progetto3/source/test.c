@@ -19,12 +19,15 @@
 int main(int argc, char** argv) {
   int i;
   char* opt;
-  int n = DEFAULT_NUMBER_OF_NODES;
-  int s = DEFAULT_SEED;
+  /*int n = DEFAULT_NUMBER_OF_NODES;
+  int s = DEFAULT_SEED;*/
 
   parameters *pars = getParameters();
-  n = pars->no_of_nodes;
-  s = pars->seed;
+  /*n = pars->no_of_nodes;
+  s = pars->seed;*/
+
+  /*printf("# : %d  ; seed : %d\n", n, s);
+  char ch = getchar();*/
 
   /* ======================== */
   /* parse command line input */
@@ -33,15 +36,15 @@ int main(int argc, char** argv) {
   for (i = 1; i < argc; i++) {
     opt = argv[i];
     if (strcmp(opt, "-n") == 0)
-      n = atoi(argv[++i]);
+      pars->no_of_nodes = atoi(argv[++i]);
     if (strcmp(opt, "-s") == 0)
-      s = atoi(argv[++i]);
+      pars->seed = atoi(argv[++i]);
   }
 
-  srand(s);
+  srand(pars->seed);
 
   egraph EG;
-  egraph_init(&EG, n);
+  egraph_init(&EG, pars->no_of_nodes);
 
   if (pars->tsp_file != NULL) {
     printf("using tsplib file %s\n", pars->tsp_file);
@@ -50,25 +53,47 @@ int main(int argc, char** argv) {
     egraph_random(&EG);
   }
 
+  //n = pars->no_of_nodes;
 
+  /*printf("# : %d  ; seed : %d\n", n, s);
+  ch = getchar();*/
+
+  printf("@main\ngraph is:\n");
+  egraph_print(&EG);
 
   graph G;
   graph_init(&G, 1);
   egraph_to_graph(&EG, &G);
 
   tree T;
-  tree_init(&T, n);
+  tree_init(&T, pars->no_of_nodes);
 
-  printf("@ Euclidean TSP\n# number of nodes = %d\n# seed = %d\n\n", n, s);
+  printf("@ Euclidean TSP\n# number of nodes = %d\n# seed = %d\n\n", pars->no_of_nodes, pars->seed);
   double heuristic_upper_bound;
   heuristic_upper_bound = compute_upper_bound(&G, &T);
-  printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound); 
+  printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound);
 
-  /*egraph EG1;
+  egraph EG1;
   egraph_init(&EG1, 1);
   egraph_copy(&EG, &EG1);
   tree_to_egraph(&T, &EG1);
-  egraph_plot(&EG, &EG1);*/
+  egraph_plot(&EG, &EG1);
+
+  char ch = getchar();
+
+  heuristic_upper_bound = heur2opt(&G, &T, heuristic_upper_bound);
+
+  ch = getchar();
+
+  printf("new upper bound : %f\n", heuristic_upper_bound);
+
+  egraph_delete(&EG1);
+  egraph_init(&EG1, 1);
+  egraph_copy(&EG, &EG1);
+  tree_to_egraph(&T, &EG1);
+  egraph_plot(&EG, &EG1);
+
+  ch = getchar();
 
   /**/
   double lagrangean_lower_bound;
@@ -96,8 +121,10 @@ int main(int argc, char** argv) {
   solve_tsp(&G, &H, &incumbent, 0);
 
   printf("@main\nsolve_tsp terminated\n");
+  printf("ratio opt / lagrangean lower bound : %f\n", lagrangean_lower_bound/incumbent);
 
-  egraph EG1;
+  //egraph EG1;
+  egraph_delete(&EG1);
   egraph_init(&EG1, 1);
   egraph_copy(&EG, &EG1);
   onetree_to_egraph(&H, &EG1);

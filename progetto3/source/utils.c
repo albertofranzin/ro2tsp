@@ -193,7 +193,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
 	//parameters *pars = (parameters *)ppars;
 
-	printf("--> %s\n", pars->tsp_file);
+	printf("reading tsp file %s\n", pars->tsp_file);
 
 	FILE *tspFile = fopen(pars->tsp_file, "r");
 	long i = 0, j;
@@ -270,11 +270,14 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 							//printf("ghghghgh\n");
 							token3 = strtok(NULL, delimiters);
 
-							//printf("%s %s %s\n", token1, token2, token3);
+							/*printf("%s %s %s | ", token1, token2, token3);
+							printf("%d %f %f\n", atoi(token1), atof(token2), atof(token3));*/
 
 							j = atoi(token1) - 1;
-							G->V[j].x = atof(token2);
-							G->V[j].y = atof(token3);
+							//G->V[j].x = atof(token2);
+							//G->V[j].y = atof(token3);
+							egraph_set_node_x(G, j, atof(token2));
+							egraph_set_node_y(G, j, atof(token3));
 
 						 }
 						 //printf("here?\n");
@@ -288,14 +291,48 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 		perror(pars->tsp_file);
 	}
 
+	/*for (i = 0; i < G->n; ++i) {
+		printf("%f %f", egraph_get_node_x(G, i), egraph_get_node_y(G, i));
+	}
+	char cc = getchar();*/
+
 	printf("graph filled, exiting\n");
 
-	for (i = 0; i < pars->no_of_nodes; i++) {
-		for (j = i+1; j < pars->no_of_nodes; j++) {
-			(*G).E[ j*(j+1) / 2 + i].flag = 1;
-			(*G).E[ j*(j+1) / 2 + i].cost = sqrt(pow( (*G).V[i].x - (*G).V[j].x, 2 ) + pow( (*G).V[i].y - (*G).V[j].y, 2 ));
+	for (i = 1; i <= pars->no_of_nodes; i++) {
+		for (j = i+1; j <= pars->no_of_nodes; j++) {
+			/*printf("vainmona\n");
+			char ch = getchar();*/
+			/*(*G).E[ j*(j+1) / 2 + i].flag = 1;
+			(*G).E[ j*(j+1) / 2 + i].cost = sqrt(pow( (*G).V[i].x - (*G).V[j].x, 2 ) + pow( (*G).V[i].y - (*G).V[j].y, 2 ));*/
+			/*egraph_set_edge_cost(G, i, j,
+				sqrt(
+					pow(
+						egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
+					) + pow(
+						egraph_get_node_y(G, i) - egraph_get_node_x(G, j), 2
+					)
+				)
+			);*/
+			egraph_insert_edge(G, i, j, sqrt(
+											pow(
+												egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
+											) + pow(
+												egraph_get_node_y(G, i) - egraph_get_node_x(G, j), 2
+											)
+										)
+			);
+			/*printf("%f %f\n", egraph_get_edge_cost(G, i, j), sqrt(
+					pow(
+						egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
+					) + pow(
+						egraph_get_node_y(G, i) - egraph_get_node_x(G, j), 2
+					)
+				)
+			);*/
 		}
 	}
+
+
 }
 
 /*

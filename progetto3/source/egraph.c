@@ -49,7 +49,7 @@ void egraph_copy(egraph* FROM, egraph* TO) {
   int n = (*FROM).n;
   egraph_delete(TO);
   egraph_init(TO, n);
-  for (i = 0; i < n; i++) {
+  /*for (i = 0; i < n; i++) {
     (*TO).V[i].x = (*FROM).V[i].x;
     (*TO).V[i].y = (*FROM).V[i].y;
     (*TO).V[i].deg = (*FROM).V[i].deg;
@@ -57,7 +57,9 @@ void egraph_copy(egraph* FROM, egraph* TO) {
   for (i = 0; i < n * (n + 1) / 2;i++) {
     (*TO).E[i].flag = (*FROM).E[i].flag;
     (*TO).E[i].cost = (*FROM).E[i].cost;
-  }
+  }*/
+  memcpy(TO->V, FROM->V, sizeof(TO->V[0])*n);
+  memcpy(TO->E, FROM->E, sizeof(TO->E[0])*n*(n+1)/2);
 }
 
 void egraph_set_node_x(egraph* EG, int v, double x) {
@@ -96,9 +98,14 @@ void egraph_remove_edge(egraph* EG, int u, int v) {
 }
 
 void egraph_set_edge_cost(egraph* EG, int u, int v, double cost) {
-  if (!egraph_adjacent_nodes(EG, u, v))
+  //printf("%d %d %f : ", u, v, cost);fflush(stdout);
+  if (!egraph_adjacent_nodes(EG, u, v)) {
+    //printf("not adjacent : exit\n");
     return;
+  }
+  //(u > v) ? ((*EG).E[ u*(u-1)/2 + v-1 ].flag = 1) : ((*EG).E[ v*(v-1)/2 + u-1 ].flag = 1);
   (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*EG).E[ v*(v-1)/2 + u-1 ].cost = cost );
+  //printf("%f\n", egraph_get_edge_cost(EG, u, v));
 }
 
 double egraph_get_edge_cost(egraph* EG, int u, int v) {
@@ -316,4 +323,18 @@ void onetree_to_egraph(onetree* OT, egraph* EG) {
 
   if ((*OT).second_edge.node > 0)
     egraph_insert_edge(EG, 1, (*OT).second_edge.node, (*OT).second_edge.cost);
+}
+
+void egraph_print(egraph *EG) {
+  int i, j;
+
+  for (i = 1; i <= EG->n; ++i) {
+    printf("%d  || ", i);
+    for (j = 1; j <= i; ++j) {
+      printf("%f ", egraph_get_edge_cost(EG, i, j));
+    }
+    printf("\n");
+  }
+
+  //char ch = getchar();
 }
