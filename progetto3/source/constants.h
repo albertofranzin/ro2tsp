@@ -2,19 +2,19 @@
 #define CONSTANTS_H_
 
 // valori convenzionali per i costi +infinito e -infinito dei lati 
-#define BIG 2000.0
-#define SMALL -2000.0
+#define BIG 200000.0
+#define SMALL -200000.0
 
 // dimensioni grafo gnuplot
-#define X_MIN -0.010
+/*#define X_MIN -0.010
 #define X_MAX 1.010
 #define Y_MIN -0.010
-#define Y_MAX 1.010
+#define Y_MAX 1.010*/
 
-/*#define X_MIN 10000.0
-#define X_MAX 13000.0
-#define Y_MIN 41000.0
-#define Y_MAX 44000.0*/
+#define X_MIN 0.0
+#define X_MAX 200.0
+#define Y_MIN 0.0
+#define Y_MAX 200.0
 
 // parametri main
 #define DEFAULT_NUMBER_OF_NODES 10

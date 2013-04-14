@@ -1,6 +1,3 @@
-#include "graph.h"
-#include "list.h"
-#include "tree.h"
 #include "compute_mst.h"
 
 void compute_mst(graph* G, tree* T, int root) {
@@ -10,6 +7,10 @@ void compute_mst(graph* G, tree* T, int root) {
   int n = (*G).n;
   int pred[n];
   double cost[n];
+
+  memset(pred, 0, sizeof(pred));
+  memset(cost, 0., sizeof(cost));
+
   list not_visited;
   list_node* current_node;
   list_node* chosen_node;
@@ -60,9 +61,9 @@ void compute_mst(graph* G, tree* T, int root) {
       current_node = list_get_next(&not_visited, current_node);
       u = (*current_node).data;
       if (pred[u-1] > 0 && cost[u-1] < min) {
-	chosen_node = current_node;
-	v = u;
-	min = cost[v-1];
+        chosen_node = current_node;
+        v = u;
+        min = cost[v-1];
       }
     }
 
@@ -78,16 +79,16 @@ void compute_mst(graph* G, tree* T, int root) {
       current_node = list_get_first(&not_visited);
       u = (*current_node).data;
       if (graph_adjacent_nodes(G, v, u) && (pred[u-1] == 0 || (pred[u-1] > 0 && graph_get_edge_cost(G, v, u) < cost[u-1]))) {
-	pred[u-1] = v;
-	cost[u-1] = graph_get_edge_cost(G, v, u);
+        pred[u-1] = v;
+        cost[u-1] = graph_get_edge_cost(G, v, u);
       }
       for (j = 0; j < m-1; j++) {
-	current_node = list_get_next(&not_visited, current_node);
-	u = (*current_node).data;
-	if (graph_adjacent_nodes(G, v, u) && (pred[u-1] == 0 || (pred[u-1] > 0 && graph_get_edge_cost(G, v, u) < cost[u-1]))) {
-	  pred[u-1] = v;
-	  cost[u-1] = graph_get_edge_cost(G, v, u);
-	}
+        current_node = list_get_next(&not_visited, current_node);
+        u = (*current_node).data;
+        if (graph_adjacent_nodes(G, v, u) && (pred[u-1] == 0 || (pred[u-1] > 0 && graph_get_edge_cost(G, v, u) < cost[u-1]))) {
+          pred[u-1] = v;
+          cost[u-1] = graph_get_edge_cost(G, v, u);
+        }
       }
     }
   }

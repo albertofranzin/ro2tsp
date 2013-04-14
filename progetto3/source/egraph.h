@@ -56,4 +56,6 @@ void egraph_to_graph(egraph* EG, graph* G);
 void tree_to_egraph(tree* T, egraph* EG);
 void onetree_to_egraph(onetree* OT, egraph* EG);
 
+void egraph_print(egraph *EG);
+
 #endif

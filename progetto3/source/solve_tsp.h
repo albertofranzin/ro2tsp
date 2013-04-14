@@ -3,6 +3,7 @@
 
 #include "constants.h"
 #include "onetree.h"
+#include "compute_lagrange.h"
 #include "compute_ot.h"
 #include <stdio.h>
 #include <stdlib.h>
