@@ -10,20 +10,16 @@ PAR = -g -O3 -lm
 CHECK = -Winline
 # -Winline : warn if any problem in including inline functions occurs
 
-all: clean test
+all: test clean
 
-# compile main
-test: clean buildLib $(NOMEFILE)
-	gcc $(NOMEFILE) -o $@ -L. -lro2ds $(CHECK) $(PAR)
-
-# link libraries
-buildLib: list.o graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o \
-		compute_nearest_neighbour.o compute_upper_bound.o compute_lagrange.o \
-		solve_tsp.o utils.o
-	ar r libro2ds.a *.o
+test: list.o edgelist.o graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o compute_lagrange.o solve_tsp.o utils.o
+	gcc list.o edgelist.o graph.o egraph.o tree.o onetree.o compute_mst.o compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o compute_lagrange.o solve_tsp.o utils.o $(NOMEFILE) -o test $(PAR)
 
 list.o: list.h list.c
 	gcc -g -c list.c
+
+edgelist.o: edge.h edgelist.h edgelist.c
+	gcc -g -c edgelist.c
 
 graph.o: graph.h graph.c
 	gcc -g -c graph.c
@@ -58,10 +54,5 @@ solve_tsp.o: solve_tsp.h solve_tsp.c
 utils.o: utils.h utils.c
 	gcc -g -c utils.c
 
-
 clean:
-	clear
-	-rm test
-	-rm test.a
-	-rm *.o
-	-rm *.gch
+	rm ./*o

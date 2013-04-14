@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include "constants.h"
 #include "graph.h"
 #include "egraph.h"
@@ -12,90 +11,86 @@
 #include "compute_upper_bound.h"
 #include "compute_lagrange.h"
 #include "solve_tsp.h"
-#include "utils.h"
 
 #include "list.h"
+#include "edge.h"
+#include "edgelist.h"
 
-int main(int argc, char** argv) {
+#include "utils.h"
+
+void main(int argc, char** argv) {
   int i;
   char* opt;
-  /*int n = DEFAULT_NUMBER_OF_NODES;
-  int s = DEFAULT_SEED;*/
 
-  parameters *pars = getParameters();
-  /*n = pars->no_of_nodes;
-  s = pars->seed;*/
-
-  /*printf("# : %d  ; seed : %d\n", n, s);
-  char ch = getchar();*/
+  parameters* pars = getParameters();
 
   /* ======================== */
   /* parse command line input */
   /* ======================== */
 
+
   for (i = 1; i < argc; i++) {
     opt = argv[i];
     if (strcmp(opt, "-n") == 0)
-      pars->no_of_nodes = atoi(argv[++i]);
+      pars->number_of_nodes = atoi(argv[++i]);
     if (strcmp(opt, "-s") == 0)
       pars->seed = atoi(argv[++i]);
   }
 
-  srand(pars->seed);
 
-  egraph EG;
-  egraph_init(&EG, pars->no_of_nodes);
 
-  if (pars->tsp_file != NULL) {
-    printf("using tsplib file %s\n", pars->tsp_file);
-    read_tsp_from_file(&EG, pars);
-  } else {
-    egraph_random(&EG);
-  }
 
-  //n = pars->no_of_nodes;
 
-  /*printf("# : %d  ; seed : %d\n", n, s);
-  ch = getchar();*/
 
-  printf("@main\ngraph is:\n");
-  egraph_print(&EG);
+
+  /* ================= */
+  /* inizializza grafo */
+  /* ================= */
 
   graph G;
   graph_init(&G, 1);
-  egraph_to_graph(&EG, &G);
 
-  tree T;
-  tree_init(&T, pars->no_of_nodes);
+  egraph EG;
+  egraph_init(&EG, pars->number_of_nodes);
 
-  printf("@ Euclidean TSP\n# number of nodes = %d\n# seed = %d\n\n", pars->no_of_nodes, pars->seed);
+  if (pars->tsp_file_option == TRUE) {
+    read_tsp_from_file(&EG, pars);
+    egraph_to_graph(&EG, &G);
+    printf("@ Euclidean TSP\n# tsplib instance\n# number of nodes = %d\n# tsplib file = %s\n\n", pars->number_of_nodes, pars->tsp_file);
+  }
+  else if (pars->random_instance_option == TRUE) {
+    if (pars->random_seed_option == FALSE) {
+      srand(pars->seed);
+      egraph_random(&EG);
+      egraph_to_graph(&EG, &G);
+      printf("@ Euclidean TSP\n# random instance\n# number of nodes = %d\n# seed = %d\n\n", pars->number_of_nodes, pars->seed);
+    }
+    else {
+      ; // aggiungi caso generazione pseudocasuale del seed
+    }
+  }
+
+
+  /* ========================================= */
+  /* Algoritmo Euristico - ricerca upper bound */
+  /* ========================================= */
+
+
   double heuristic_upper_bound;
-  heuristic_upper_bound = compute_upper_bound(&G, &T);
-  printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound);
+  heuristic_upper_bound = compute_upper_bound(&G);
+  printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound); 
 
-  egraph EG1;
-  egraph_init(&EG1, 1);
-  egraph_copy(&EG, &EG1);
-  tree_to_egraph(&T, &EG1);
-  egraph_plot(&EG, &EG1);
 
-  char ch = getchar();
 
-  heuristic_upper_bound = heur2opt(&G, &T, heuristic_upper_bound);
 
-  ch = getchar();
 
-  printf("new upper bound : %f\n", heuristic_upper_bound);
 
-  egraph_delete(&EG1);
-  egraph_init(&EG1, 1);
-  egraph_copy(&EG, &EG1);
-  tree_to_egraph(&T, &EG1);
-  egraph_plot(&EG, &EG1);
 
-  ch = getchar();
+  /* ==================================== */
+  /* Algoritmo Subgradiente - Lagrangiano */
+  /* ==================================== */
 
-  /**/
+  /*
   double lagrangean_lower_bound;
   double ub = heuristic_upper_bound;
   int max_num_of_iterations = 30000;
@@ -106,29 +101,34 @@ int main(int argc, char** argv) {
   printf("@ Lagrangean Dual Problem - Subgradient Algorithm\n");
   printf("# upper bound = %f\n# max number of iterations = %d\n# max number of iterations without improvements = %d\n# alpha = %f\n# alpha halving time = %d\n", ub, max_num_of_iterations, slack_time, ALPHA, alpha_halving_time);
   lagrangean_lower_bound = compute_lagrange(&G, &HL, ub);
+
   egraph EG2;
   egraph_init(&EG2, 1);
   egraph_copy(&EG, &EG2);
   onetree_to_egraph(&HL, &EG2);
   egraph_plot(&EG, &EG2);
-  /**/
+  */
 
+
+
+
+
+
+  /* ======================== */
+  /* Algoritmo Branch & Bound */
+  /* ======================== */
+ 
   double incumbent = heuristic_upper_bound + EPSILON;
   onetree H;
   onetree_init(&H, 1);
   printf("\n@ Branch and Bound\n# initial incumbent = %f\n", incumbent);
-  printf("Lagrangean lower bound = %f\n", lagrangean_lower_bound);
-  solve_tsp(&G, &H, &incumbent, 0);
+  solve_tsp(&G, &H, &incumbent, 0); 
 
-  printf("@main\nsolve_tsp terminated\n");
-  printf("ratio opt / lagrangean lower bound : %f\n", lagrangean_lower_bound/incumbent);
-
-  //egraph EG1;
-  egraph_delete(&EG1);
+  egraph EG1;
   egraph_init(&EG1, 1);
   egraph_copy(&EG, &EG1);
   onetree_to_egraph(&H, &EG1);
   egraph_plot(&EG, &EG1);
+  
 
-  return 0;
 }

@@ -24,7 +24,7 @@ int list_is_empty(list* L);
 void list_push_last(list* L, int x);
 int list_pop_first(list* L);
 list_node* list_get_first(list* L);
-list_node* list_get_next(list* L, list_node* pt);
+list_node* list_get_next(list* L, list_node* node);
 void list_remove(list* L, list_node* node);
 
 #endif

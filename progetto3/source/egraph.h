@@ -1,7 +1,6 @@
 #ifndef EGRAPH_H_
 #define EGRAPH_H_
 
-#include <stdio.h>
 #include "graph.h"
 #include "tree.h"
 #include "onetree.h"
@@ -55,7 +54,5 @@ void graph_to_egraph(graph* G, egraph* EG);
 void egraph_to_graph(egraph* EG, graph* G);
 void tree_to_egraph(tree* T, egraph* EG);
 void onetree_to_egraph(onetree* OT, egraph* EG);
-
-void egraph_print(egraph *EG);
 
 #endif

@@ -1,15 +1,9 @@
 #ifndef TREE_H_
 #define TREE_H_
 
-#include "constants.h"
-#include "graph.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 struct tree_node {
   int pred; // indice nodo predecessore
-  int succ; // indice nodo successore
+  int succ; // indice nodo successore // AGGIUNTA SUCCESSORE
   int deg; // grado del nodo (numero di lati incidenti nel nodo);
   double cost; // costo del lato dal nodo al suo predecessore
 };
@@ -31,13 +25,12 @@ void tree_copy(tree* FROM, tree* TO);
 void tree_set_root(tree* T, int r);
 int tree_get_root(tree* T);
 int tree_get_pred(tree* T, int v);
-int tree_get_succ(tree* T, int v);
+int tree_get_succ(tree* T, int v); // AGGIUNTA SUCCESSORE
 
 void tree_insert_edge(tree* T, int u, int v, double cost);
 void tree_remove_edge(tree* T, int u, int v);
 void tree_set_edge_cost(tree* T, int u, int v, double cost);
 double tree_get_edge_cost(tree* T, int u, int v);
-void tree_swap_edges(graph *G, tree *T, int u, int v);
 
 int tree_get_node_deg(tree* T, int v);
 int tree_adjacent_nodes(tree* T, int u, int v);
