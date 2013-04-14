@@ -1,14 +1,15 @@
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+#include <stdio.h>
+#include "constants.h"
+#include "graph.h"
+#include "onetree.h"
 #include "compute_lagrange.h"
 
 double compute_lagrange(graph* G, onetree* H, double ub) {
   int i, j, v, num_of_iterations, time_since_improvement;
   double alpha, square_norm, step_size, L, L_OPT;
-
-  // if ub has a forbidden edge, then the branch is useless
-  // this won't afflict the initial computation of lb
-  if (ub >= BIG) {
-    return BIG;
-  }
 
   graph WORK_GRAPH;
   onetree ONE_TREE;

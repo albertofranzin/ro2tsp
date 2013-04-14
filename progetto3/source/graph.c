@@ -24,15 +24,13 @@ void graph_copy(graph* FROM, graph* TO) {
   int n = (*FROM).n;
   graph_delete(TO);
   graph_init(TO, n);
-  /*for (i = 0; i < n; i++) {
+  for (i = 0; i < n; i++) {
     (*TO).V[i].deg = (*FROM).V[i].deg;
-  }*/
-  memcpy(TO->V, FROM->V, sizeof(FROM->V[0]) * n);
-  /*for (i = 0; i < n * (n + 1) / 2;i++) {
+  }
+  for (i = 0; i < n * (n + 1) / 2;i++) {
     (*TO).E[i].flag = (*FROM).E[i].flag;
     (*TO).E[i].cost = (*FROM).E[i].cost;
-  }*/
-  memcpy(TO->E, FROM->E, sizeof(TO->E[0])*n*(n+1)/2);
+  }
 }
 
 void graph_insert_edge(graph* G, int u, int v, double cost) {

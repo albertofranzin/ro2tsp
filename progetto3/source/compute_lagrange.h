@@ -1,13 +1,7 @@
 #ifndef COMPUTE_LAGRANGE_H_
 #define COMPUTE_LAGRANGE_H_
 
-#include "constants.h"
-#include "compute_ot.h"
-#include "compute_upper_bound.h"
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <stdio.h>
+
 #include "graph.h"
 #include "onetree.h"
 

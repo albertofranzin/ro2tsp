@@ -60,24 +60,24 @@ void onetree_insert_edge(onetree* OT, int u, int v, double cost) {
   if (u == 1 || v == 1) {
     if (u == 1) {
       if ((*OT).first_edge.node == 0) {
-        (*OT).first_edge.node = v;
-        (*OT).first_edge.cost = cost;
+	(*OT).first_edge.node = v;
+	(*OT).first_edge.cost = cost;
       }
       else if ((*OT).second_edge.node == 0) {
-        (*OT).second_edge.node = v;
-        (*OT).second_edge.cost = cost;
+	(*OT).second_edge.node = v;
+	(*OT).second_edge.cost = cost;
       }
       (*OT).tree.V[u-1].deg++;
       (*OT).tree.V[v-1].deg++;
     }
     else if (v == 1) {
       if ((*OT).first_edge.node == 0) {
-        (*OT).first_edge.node = u;
-        (*OT).first_edge.cost = cost;
+	(*OT).first_edge.node = u;
+	(*OT).first_edge.cost = cost;
       }
       else if ((*OT).second_edge.node == 0) {
-        (*OT).second_edge.node = u;
-        (*OT).second_edge.cost = cost;
+	(*OT).second_edge.node = u;
+	(*OT).second_edge.cost = cost;
       }
       (*OT).tree.V[u-1].deg++;
       (*OT).tree.V[v-1].deg++;
@@ -96,24 +96,24 @@ void onetree_remove_edge(onetree* OT, int u, int v) {
   if (u == 1 || v == 1) {
     if (u == 1) {
       if ((*OT).first_edge.node == v) {
-        (*OT).first_edge.node = 0;
-        (*OT).first_edge.cost = 0.0;
+	(*OT).first_edge.node = 0;
+	(*OT).first_edge.cost = 0.0;
       }
       else if ((*OT).second_edge.node == v) {
-        (*OT).second_edge.node = 0;
-        (*OT).second_edge.node = 0.0;
+	(*OT).second_edge.node = 0;
+	(*OT).second_edge.node = 0.0;
       }
       (*OT).tree.V[u-1].deg--;
       (*OT).tree.V[v-1].deg--;
     }
     else if (v == 1) {
       if ((*OT).first_edge.node == u) {
-        (*OT).first_edge.node = 0;
-        (*OT).first_edge.cost = 0.0;
+	(*OT).first_edge.node = 0;
+	(*OT).first_edge.cost = 0.0;
       }
       else if ((*OT).second_edge.node == u) {
-        (*OT).second_edge.node = 0;
-        (*OT).second_edge.node = 0.0;
+	(*OT).second_edge.node = 0;
+	(*OT).second_edge.node = 0.0;
       }
       (*OT).tree.V[u-1].deg--;
       (*OT).tree.V[v-1].deg--;
@@ -155,14 +155,15 @@ double onetree_get_edge_cost(onetree* OT, int u, int v) {
   if (u == 1 || v == 1) {
     if (u == 1) {
       if ((*OT).first_edge.node == v)
-        return (*OT).first_edge.cost;
+	return (*OT).first_edge.cost;
       else if ((*OT).second_edge.node == v)
-        return (*OT).second_edge.cost;
-    } else if (v == 1) {
+	return (*OT).second_edge.cost;
+    }
+    else if (v == 1) {
       if ((*OT).first_edge.node == u)
-        return (*OT).first_edge.cost;
+	return (*OT).first_edge.cost;
       else if ((*OT).second_edge.node == u)
-        return (*OT).second_edge.cost;
+	return (*OT).second_edge.cost;
     }
   }
   else
@@ -193,56 +194,3 @@ double onetree_get_cost(onetree* OT) {
  
   return c;
 }
-
-/*
-
-  THIS IS SOMETHING FOR THE LINEAR-TIME RE-ROOTING OF A 1-TREE
-  I began writing this instead of the other thing I had to do, crap.
-
-  int i, j, deg;
-  int u = 0, v = 0;
-
-  // look for two nodes with degree = 1
-  for (i = 1; i < T->n; ++i) {
-    if (tree_get_node_deg(T, i) == 1) {
-      u = i;
-      break;
-    }
-  }
-  for (; i <= T->n; ++i) {
-    if (tree_get_node_deg(T, i) == 1) {
-      v = i;
-      break;
-    }
-  }
-
-  // maybe there is only one node with degree 1 : in this case, look for a node
-  // with degree 3. An edge insisting on it will be removed, causing another node
-  // to have degree 1. Be careful to not insert a denied edge.
-  // This node will be taken into account for our job.
-  if (v == 0) {
-    for (i = 1; i < T->n; ++i) {
-      deg = tree_get_node_deg(T, i);
-      if (deg > 2) {
-        for (j = 1; j <= deg; ++j) {
-          if (j != i && tree_adjacent_nodes(T, i, j) && tree_get_node_deg(T, i) == 2
-              && tree_get_edge_cost(T, u, j) < BIG) {
-            v = j;
-            tree_remove_edge(T, i, j);
-            break;
-          }
-        }
-      }
-    }
-  }
-
-  // join the 2 nodes u, v
-  if (v == 0) {
-    / * haha * /
-  } else {
-    tree_insert_edge(T, u, v, graph_get_edge_cost(G, u, v));
-  }
-
-  // do the rest
-
-*/

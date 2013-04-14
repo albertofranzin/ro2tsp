@@ -1,4 +1,11 @@
+
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include "constants.h"
 #include "utils.h"
+
 
 /*inline int atPosition(int i, int j) {
 	if (i > j) {
@@ -8,6 +15,7 @@
 	}
 }*/
 
+/*
 unsigned long initializeRandom(unsigned int seed) {
 	unsigned long sd = seed;
 	if (sd == 0) {
@@ -23,6 +31,9 @@ unsigned long initializeRandom(unsigned int seed) {
 	//printf("utils.c :: initializeRandom :: srand done\n");
 	return sd;
 }
+*/
+
+
 
 /*
  * parHash
@@ -34,98 +45,131 @@ unsigned long initializeRandom(unsigned int seed) {
  *
  * return : an integer associated to the parameter
  */
+
 short parHash(char *parName) {
-	if (strcmp(parName, "NUMBER_OF_NODES") == 0)
-		return 0;
-	if (strcmp(parName, "SEED") == 0)
-		return 1;
-	if (strcmp(parName, "PLOT") == 0)
-		return 2;
-	if (strcmp(parName, "PLOT_ONLY_1TREE") == 0)
-		return 3;
-	if (strcmp(parName, "HEURISTIC_TRIALS") == 0)
-		return 4;
-	if (strcmp(parName, "TSP_FILE") == 0) {
-		return 5;
-	}
-	return -1;
+  if (strcmp(parName, "NUMBER_OF_NODES") == 0)
+    return 0;
+  if (strcmp(parName, "RANDOM_INSTANCE") == 0)
+    return 1;
+  if (strcmp(parName, "RANDOM_SEED") == 0)
+    return 2;
+  if (strcmp(parName, "SEED") == 0)
+    return 3;
+  if (strcmp(parName, "TSP_FILE_INSTANCE") == 0)
+    return 4;
+  if (strcmp(parName, "TSP_FILE") == 0)
+    return 5;
+  if (strcmp(parName, "HEURISTIC_TRIALS") == 0)
+    return 6;
+
+  return -1;
 }
+
 
 // read parameters from config file
 // default values for parameters are set here
+
+
 parameters *getParameters() {
-	parameters *pars = malloc(sizeof(parameters));
-	//memset(pars, 0, sizeof(parameters));
+  parameters *pars = (parameters*)calloc(1, sizeof(parameters));
 
-	pars->no_of_nodes = 10;
-	pars->seed = 0;
-	pars->plot = 1;
-	pars->plotOnlyTree = 0;
-	pars->heuristic_trials = 1;
-	pars->tsp_file = NULL;
+  pars->number_of_nodes = DEFAULT_NUMBER_OF_NODES;
+  pars->random_instance_option = DEFAULT_RANDOM_INSTANCE_OPTION;
+  pars->random_seed_option = DEFAULT_RANDOM_SEED_OPTION;
+  pars->seed = DEFAULT_SEED;
+  pars->tsp_file_option = DEFAULT_TSP_FILE_OPTION;
+  pars->tsp_file = DEFAULT_TSP_FILE;
+  pars->heuristic_trials = DEFAULT_HEURISTIC_TRIALS;
 
-	FILE *parFile = fopen(FILE_CONFIG, "r");
-	long i = 0, j;
-	char line[128];
-	char *p1, *p2;
-	int lineLen;
+  //pars->plot = 1;
+  //pars->plotOnlyTree = 0;
+  //pars->heuristic_trials = 1;
 
-	if ( parFile != NULL ) {
-		while( fgets(line, sizeof line, parFile) != NULL ){
-			lineLen = strlen(line)-1;
+  FILE *parFile = fopen(FILE_CONFIG, "r");
+  //long i = 0, j;
+  char line[128];
+  char *p1, *p2;
+  int lineLen;
 
-			// skip empty lines
-			if(lineLen == 0) continue;
-			if(line[lineLen] == '\n') line[lineLen] = 0;
+  if ( parFile != NULL ) {
 
-			// skip comments
-			if(line[0] == '#') continue;
+    while( fgets(line, sizeof line, parFile) != NULL ){
+      lineLen = strlen(line)-1;
 
-			// split and strip away the spaces
-			// removing the spaces is necessary in order to use
-			// the parHash() method above
-			p1 = strtok(line, "= ");
-			p2 = strtok(NULL, "= ");
+      // skip empty lines
+      if(lineLen == 0) continue;
+      if(line[lineLen] == '\n') line[lineLen] = 0;
 
-			if(p2 != NULL) {
-				// manage correctly each parameter
-				switch(parHash(p1)) {
-					case 0 : pars->no_of_nodes = atoi(p2);
-							 break;
-					case 1 : pars->seed = atoi(p2);
-							 break;
-					case 2 : if (p2[0] == 'y' || p2[0] == 'Y')
-							 	pars->plot = 1;
-							 else
-							 	pars->plot = 0;
-							 break;
-					case 3 : if (p2[0] == 'y' || p2[0] == 'Y')
-							 	pars->plotOnlyTree = 1;
-							 else
-							 	pars->plotOnlyTree = 0;
-							 break;
-					case 4 : pars->heuristic_trials = atoi(p2);
-							 break;
-					case 5 : if (strcmp(p2, "NULL") != 0) {
-								printf("%s\n", p2);
-								pars->tsp_file = malloc(sizeof(char) * strlen(p2));
-								strcpy(pars->tsp_file, p2);
-								printf("%s\n", pars->tsp_file);
-							 }
-							 break;
+      // skip comments
+      if(line[0] == '#') continue;
 
-					default: break;
-				}
-			}
-		}
-		fclose(parFile);
-	} else {
-		/* errore nell'apertura del file */
-		perror( FILE_CONFIG );
+      // split and strip away the spaces
+      // removing the spaces is necessary in order to use
+      // the parHash() method above
+      p1 = strtok(line, "= ");
+      p2 = strtok(NULL, "= ");
+
+      if(p2 != NULL) {
+	// manage correctly each parameter
+	switch(parHash(p1)) {
+
+	case 0 : 
+	  pars->number_of_nodes = atoi(p2);
+	  break;
+
+	case 1 : 
+	  if (strcmp(p2, "TRUE") == 0)
+	    pars->random_instance_option = 1;
+	  else if (strcmp(p2, "FALSE") == 0)
+	    pars->random_instance_option = 0;
+	  break;
+
+	case 2 : 
+	  if (strcmp(p2, "TRUE") == 0)
+	    pars->random_seed_option = 1;
+	  else if (strcmp(p2, "FALSE") == 0)
+	    pars->random_seed_option = 0;
+	  break;
+
+	case 3 :
+	  if (pars->random_instance_option == 1 && pars->random_seed_option == 0)
+	    pars->seed = atoi(p2);
+	  break;
+
+	case 4 : 
+	  if (strcmp(p2, "TRUE") == 0)
+	    pars->tsp_file_option = 1;
+	  else if (strcmp(p2, "FALSE") == 0)
+	    pars->tsp_file_option = 0;
+	  break;
+
+	case 5 : 
+	  if (pars->tsp_file_option == 1) {
+	    pars->tsp_file = malloc(sizeof(char) * strlen(p2));
+	    strcpy(pars->tsp_file, p2);
+	  }
+	  break;
+	case 6 : 
+	  pars->heuristic_trials = atoi(p2);
+	  break;
+
+	default:
+	  break;
+
+
 	}
-
-	return pars;
+      }
+    }
+    fclose(parFile);
+  }
+  else {
+    // errore nell'apertura del file
+    perror( FILE_CONFIG );
+  }
+  return pars;
 }
+
+
 
 short tspHash(char *parName, char *parValue) {
 	if (strcmp(parName, "NAME") == 0)
@@ -178,6 +222,8 @@ short tspHash(char *parName, char *parValue) {
 	return -1;
 }
 
+
+
 /*
  * read_tsp_from_file
  * - G : graph to be filled in
@@ -192,9 +238,7 @@ short tspHash(char *parName, char *parValue) {
 void read_tsp_from_file(egraph *G, parameters *pars) {
 
 	//parameters *pars = (parameters *)ppars;
-
-	printf("reading tsp file %s\n", pars->tsp_file);
-
+	//printf("reading tsp file %s\n", pars->tsp_file);
 	FILE *tspFile = fopen(pars->tsp_file, "r");
 	long i = 0, j;
 	char line[128];
@@ -226,8 +270,8 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 				case 0 : break;
 				case 1 : break;
 				case 2 : break;
-				case 3 : pars->no_of_nodes = atoi(p2);
-						 printf("updated no_of_nodes : %d\n", pars->no_of_nodes);
+				case 3 : pars->number_of_nodes = atoi(p2);
+				                 //printf("updated no_of_nodes : %d\n", pars->no_of_nodes);
 						 break;
 
 				case 41: // ?
@@ -238,7 +282,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 				case 51: break;
 
 				case 61:
-				case 62: egraph_init(G, pars->no_of_nodes);
+				case 62: egraph_init(G, pars->number_of_nodes);
 						 //i = 0;
 						 printf("graph initialized\n");
 						 while( fgets(line, sizeof line, tspFile) != NULL ) {
@@ -270,9 +314,10 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 							//printf("ghghghgh\n");
 							token3 = strtok(NULL, delimiters);
 
-							/*printf("%s %s %s | ", token1, token2, token3);
-							printf("%d %f %f\n", atoi(token1), atof(token2), atof(token3));*/
+							//printf("%s %s %s | ", token1, token2, token3);
+							//printf("%d %f %f\n", atoi(token1), atof(token2), atof(token3));
 
+							//j = atoi(token1)-1;
 							j = atoi(token1);
 							//G->V[j].x = atof(token2);
 							//G->V[j].y = atof(token3);
@@ -291,49 +336,44 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 		perror(pars->tsp_file);
 	}
 
-	/*for (i = 0; i < G->n; ++i) {
-		printf("%f %f", egraph_get_node_x(G, i), egraph_get_node_y(G, i));
-	}
-	char cc = getchar();*/
+//for (i = 0; i < G->n; ++i) {
+//		printf("%f %f", egraph_get_node_x(G, i), egraph_get_node_y(G, i));
+//	}
+//	char cc = getchar();
 
 	printf("graph filled, exiting\n");
 
-	for (i = 1; i <= pars->no_of_nodes; i++) {
-		for (j = i+1; j <= pars->no_of_nodes; j++) {
-			/*printf("vainmona\n");
-			char ch = getchar();*/
-			/*(*G).E[ j*(j+1) / 2 + i].flag = 1;
-			(*G).E[ j*(j+1) / 2 + i].cost = sqrt(pow( (*G).V[i].x - (*G).V[j].x, 2 ) + pow( (*G).V[i].y - (*G).V[j].y, 2 ));*/
-			/*egraph_set_edge_cost(G, i, j,
-				sqrt(
-					pow(
-						egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
-					) + pow(
-						egraph_get_node_y(G, i) - egraph_get_node_x(G, j), 2
-					)
-				)
-			);*/
-			egraph_insert_edge(G, i, j, sqrt(
-											pow(
-												egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
-											) + pow(
-												egraph_get_node_y(G, i) - egraph_get_node_y(G, j), 2
-											)
-										)
-			);
-			/*printf("%f %f\n", egraph_get_edge_cost(G, i, j), sqrt(
-					pow(
-						egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
-					) + pow(
-						egraph_get_node_y(G, i) - egraph_get_node_x(G, j), 2
-					)
-				)
-			);*/
+	for (i = 1; i <= pars->number_of_nodes; i++) {
+		for (j = i+1; j <= pars->number_of_nodes; j++) {
+		  //printf("vainmona\n");
+		  //char ch = getchar();
+		  //(*G).E[ j*(j+1) / 2 + i].flag = 1;
+		  //(*G).E[ j*(j+1) / 2 + i].cost = sqrt(pow( (*G).V[i].x - (*G).V[j].x, 2 ) + pow( (*G).V[i].y - (*G).V[j].y, 2 ));
+		  //egraph_set_edge_cost(G, i, j,
+		  //	sqrt(
+		  //			pow(
+		  //				egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
+		  //			) + pow(
+		  //				egraph_get_node_y(G, i) - egraph_get_node_x(G, j), 2
+		  //			)
+		  //		)
+		  //	);
+		  egraph_insert_edge(G, i, j, sqrt(    pow(egraph_get_node_x(G, i) - egraph_get_node_x(G, j),   2)    +     pow(egraph_get_node_y(G, i) - egraph_get_node_y(G, j),    2)         )  );
+			//printf("%f %f\n", egraph_get_edge_cost(G, i, j), sqrt(
+			//		pow(
+			//			egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
+			//		) + pow(
+			//			egraph_get_node_y(G, i) - egraph_get_node_x(G, j), 2
+			//		)
+			//	)
+			//);
 		}
 	}
 
 
 }
+
+
 
 /*
  * snbdComp

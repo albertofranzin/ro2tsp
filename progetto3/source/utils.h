@@ -1,6 +1,9 @@
 #ifndef __UTILS_H
 #define __UTILS_H
 
+#include "egraph.h"
+
+/*
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,24 +13,39 @@
 #include <time.h>
 #include "graph.h"
 #include "egraph.h"
-
+*/
 
 /* constants and variables */
 
 typedef struct _parameters {
-	unsigned int no_of_nodes;
-	unsigned int seed;
-	unsigned short plot;
-	unsigned short plotOnlyTree;
-	unsigned int heuristic_trials;
-	char *tsp_file;
+
+  unsigned int number_of_nodes;
+
+  int random_instance_option;
+  int random_seed_option;
+  unsigned int seed;
+
+  int tsp_file_option;
+  char *tsp_file;
+
+  unsigned int heuristic_trials;
+
 } parameters;
 
-// config file
-#define FILE_CONFIG "config"
 
+
+short parHash(char* c);
+
+parameters *getParameters(void);
+
+
+// config file
+//#define FILE_CONFIG "config"
+
+/*
 // define infinity for double
 #define INF 100000000.0
+*/
 
 /* methods */
 
@@ -40,10 +58,11 @@ typedef struct _parameters {
 // note that j=i cannot happen, because we don't have self-loops.
 // inline int atPosition(int, int);
 
-unsigned long initializeRandom(unsigned int seed);
 
-short parHash(char *);
-parameters *getParameters();
+/*
+unsigned long initializeRandom(unsigned int seed);
+*/
+
 
 /*
  * tspHash
@@ -79,9 +98,9 @@ short tspHash(char*, char*);
  * Does not guarantee correct working if this is not true.
  * Flexibility = 0!
  */
-void read_tsp_from_file(egraph *G, parameters *ppars);
+void read_tsp_from_file(egraph *G, parameters *pars);
 
-typedef int (*compfn)(const void*, const void*);
+//typedef int (*compfn)(const void*, const void*);
 //int snbdComp(const void *, const void *);
 //int snbdComp(node *, node *);
 // int sebwComp(const void *, const void *);
