@@ -273,7 +273,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 							/*printf("%s %s %s | ", token1, token2, token3);
 							printf("%d %f %f\n", atoi(token1), atof(token2), atof(token3));*/
 
-							j = atoi(token1) - 1;
+							j = atoi(token1);
 							//G->V[j].x = atof(token2);
 							//G->V[j].y = atof(token3);
 							egraph_set_node_x(G, j, atof(token2));
@@ -317,7 +317,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 											pow(
 												egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
 											) + pow(
-												egraph_get_node_y(G, i) - egraph_get_node_x(G, j), 2
+												egraph_get_node_y(G, i) - egraph_get_node_y(G, j), 2
 											)
 										)
 			);

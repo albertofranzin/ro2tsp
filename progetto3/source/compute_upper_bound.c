@@ -22,8 +22,17 @@ double compute_upper_bound(graph* G, tree *OT) { // da migliorare magari usando 
   }
   tree_copy(&BEST_OT, OT);
   tree_delete(&BEST_OT);
+
   printf("best_index is %d\n", best_index);
+
+  /*for (i = 0; i < OT->n; ++i) {
+    //printf("%d %d %d\n", OT->V[best_index].pred, best_index, OT->V[best_index].succ);
+    //best_index = OT->V[best_index].pred;
+    printf("%d %d\n", i, OT->V[i].pred);
+  }*/
+
   return min;
+  //return heur2opt(G, OT, min);
 }
 
 /*
