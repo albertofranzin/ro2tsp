@@ -122,7 +122,19 @@ void main(int argc, char** argv) {
   onetree H;
   onetree_init(&H, 1);
   printf("\n@ Branch and Bound\n# initial incumbent = %f\n", incumbent);
-  solve_tsp(&G, &H, &incumbent, 0); 
+
+  onetree ONE_TREE;
+  onetree_init(&ONE_TREE, 1);
+
+  double z;
+
+
+  //compute_ot(&G, &ONE_TREE);
+  //z = onetree_get_cost(&ONE_TREE);
+
+  z = compute_lagrange(&G, &ONE_TREE, incumbent);
+
+  solve_tsp(&G, &H, &incumbent, &ONE_TREE, z, 0); 
 
   egraph EG1;
   egraph_init(&EG1, 1);
