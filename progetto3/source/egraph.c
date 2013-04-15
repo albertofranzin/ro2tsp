@@ -1,11 +1,3 @@
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
-#include "constants.h"
-#include "graph.h"
-#include "tree.h"
-#include "onetree.h"
 #include "egraph.h"
 
 void egraph_init(egraph* EG, int n) {

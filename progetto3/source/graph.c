@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
 #include "graph.h"
 
 void graph_init(graph* G, int n) {

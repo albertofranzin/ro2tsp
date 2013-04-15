@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "graph.h"
+#include "list.h"
 #include "tree.h"
 
 /* calcola un albero ricoprente di costo minimo con radice root per il grafo G, e salva il riultato in T;

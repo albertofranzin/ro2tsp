@@ -1,6 +1,10 @@
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
 struct graph_node {
   int deg; // grado del nodo (numero di lati incidenti nel nodo);
 };

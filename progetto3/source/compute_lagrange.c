@@ -1,10 +1,3 @@
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <stdio.h>
-#include "constants.h"
-#include "graph.h"
-#include "onetree.h"
 #include "compute_lagrange.h"
 
 double compute_lagrange(graph* G, onetree* H, double ub) {

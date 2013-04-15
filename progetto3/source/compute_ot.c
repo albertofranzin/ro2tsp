@@ -1,6 +1,3 @@
-#include "graph.h"
-#include "onetree.h"
-#include "compute_mst.h"
 #include "compute_ot.h"
 
 void compute_ot(graph* G, onetree* OT) {

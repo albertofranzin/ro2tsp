@@ -1,6 +1,8 @@
 #ifndef ONETREE_H_
 #define ONETREE_H_
 
+#include <stdlib.h>
+#include <string.h>
 #include "tree.h"
 
 struct onetree_edge {
