@@ -1,6 +1,8 @@
 #ifndef LIST_H_
 #define LIST_H_
 
+#include <stdlib.h>
+
 struct list_node {
   int data;
   struct list_node* prev;

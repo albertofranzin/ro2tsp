@@ -1,5 +1,3 @@
-#include <stdlib.h>
-#include "edge.h"
 #include "edgelist.h"
 
 void edgelist_init(edgelist* EL) {

@@ -2,6 +2,8 @@
 #define COMPUTE_OT_H_
 
 #include "graph.h"
+#include "onetree.h"
+#include "compute_mst.h"
 
 /* calcola l'1-albero di G e salva il risultato in T;
  * - si assume G, T grafi inizializzati;

@@ -1,6 +1,7 @@
 #ifndef EDGELIST_H_
 #define EDGELIST_H_
 
+#include <stdlib.h>
 #include "edge.h"
 
 struct edgelist_node {

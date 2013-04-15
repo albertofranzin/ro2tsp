@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <string.h>
-#include "tree.h"
 #include "onetree.h"
 
 void onetree_init(onetree* OT, int n) {

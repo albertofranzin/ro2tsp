@@ -1,6 +1,3 @@
-#include "graph.h"
-#include "list.h"
-#include "tree.h"
 #include "compute_mst.h"
 
 void compute_mst(graph* G, tree* T, int root) {
