@@ -213,7 +213,7 @@ double compute_and_plot_lagrange(graph* G, double ub, int k, double alpha, int h
 
   /* stampo miglior lower bound e numero di iterazioni effettuate
    */
-  printf("number of iterations: %f\n", max_iter_counter);
+  printf("number of iterations: %d\n", max_iter_counter);
   printf("best lower bound computed: %f\n", L_best);
 
   fprintf(pipe, "e\n");

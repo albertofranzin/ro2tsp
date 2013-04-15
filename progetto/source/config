@@ -5,13 +5,13 @@
 # default values will be used
 
 # select desidered numer of nodes in the graph [int]
-NUMBER_OF_NODES = 28
+NUMBER_OF_NODES = 19
 
 # seed for random [int]
 # 0   : use time
 # n>0 : use n as seed - allow to replicate tests
 # SEED = 1077156643793973573
-SEED = 285999935225386660
+SEED = 321
 # SEED = 606922979702899690
 # SEED = 799974640738384520
 
@@ -30,5 +30,5 @@ HEURISTIC_TRIALS = 50
 # TSP_FILE = ../../../tsplib/bays29.tsp
 # TSP_FILE = dj38.tsp <-- lo risolve!!
 # TSP_FILE = ulysses16.tsp
-# TSP_FILE = NULL
-TSP_FILE = ../../../tsplib/eil51.tsp
+TSP_FILE = NULL
+#TSP_FILE = ../../../tsplib/eil51.tsp

@@ -284,7 +284,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 				case 61:
 				case 62: egraph_init(G, pars->number_of_nodes);
 						 //i = 0;
-						 printf("graph initialized\n");
+						 //printf("graph initialized\n");
 						 while( fgets(line, sizeof line, tspFile) != NULL ) {
 						 	//printf("doin' anything?\n");
 							lineLen = strlen(line)-1;
@@ -341,7 +341,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 //	}
 //	char cc = getchar();
 
-	printf("graph filled, exiting\n");
+	//printf("graph filled, exiting\n");
 
 	for (i = 1; i <= pars->number_of_nodes; i++) {
 		for (j = i+1; j <= pars->number_of_nodes; j++) {

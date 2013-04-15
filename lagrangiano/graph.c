@@ -127,6 +127,7 @@ double get_graph_cost(graph* G) {
     for (j = 1; j < i; j++) {
       if (adjacent(G, i, j)) {
         c += get_edge_cost(G, i, j);
+	printf("costo totale = %.20f\n", c);
       }
     }
   }

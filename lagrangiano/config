@@ -5,12 +5,12 @@
 # default values will be used
 
 # select desidered numer of nodes in the graph [int]
-NUMBER_OF_NODES = 100
+NUMBER_OF_NODES = 4
 
 # seed for random [int]
 # 0   : use time
 # n>0 : use n as seed - allow to replicate tests
-SEED = 800
+SEED = 500
 #4675401247965146886
 
 # plot graphs at the end? [y/n]

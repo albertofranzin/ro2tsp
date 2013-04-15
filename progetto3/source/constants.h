@@ -37,12 +37,12 @@
 // dimensioni grafo gnuplot
 
 // random instance
-/*
+
 #define X_MIN -0.010
 #define X_MAX 1.010
 #define Y_MIN -0.010
 #define Y_MAX 1.010
-*/
+
 
 // ulysses16
 /*
@@ -53,10 +53,64 @@
 */
 
 // dantzig42
+/*
 #define X_MIN 0.010
 #define X_MAX 180.010
 #define Y_MIN 10.010
 #define Y_MAX 110.010
+*/
+
+// att48
+/*
+#define X_MIN 0.010
+#define X_MAX 8000.010
+#define Y_MIN 0.010
+#define Y_MAX 8000.010
+*/
+
+// bays29
+/*
+#define X_MIN 0.010
+#define X_MAX 2500.010
+#define Y_MIN 0.010
+#define Y_MAX 2500.010
+*/
+
+// berlin52
+/*
+#define X_MIN 0.010
+#define X_MAX 1800.010
+#define Y_MIN 0.010
+#define Y_MAX 1200.010
+*/
+
+
+// eil51
+/*
+#define X_MIN 0.010
+#define X_MAX 80.010
+#define Y_MIN 0.010
+#define Y_MAX 80.010
+*/
+
+// eil76
+/*
+#define X_MIN 0.010
+#define X_MAX 80.010
+#define Y_MIN 0.010
+#define Y_MAX 80.010
+*/
+
+// eil101
+/*
+#define X_MIN 0.010
+#define X_MAX 80.010
+#define Y_MIN 0.010
+#define Y_MAX 80.010
+*/
+
+
+
 
 
 // bier127

@@ -8,7 +8,7 @@
 
 
 # set TRUE to use an instance from TSPLIB, set FALSE otherwise
-TSP_FILE_INSTANCE = TRUE
+TSP_FILE_INSTANCE = FALSE
 
 # location of TSP-formatted file (from TSPLIB)
 # NUMBER_OF_NODES may be overridden by the value found in the file
@@ -16,13 +16,13 @@ TSP_FILE_INSTANCE = TRUE
 # TSP_FILE = ../../progetto/source/dj38.tsp <-- lo risolve!!
 # TSP_FILE = ../../../tsplib/ulysses16.tsp
 # TSP_FILE = NULL
-TSP_FILE = ../../../tsplib/dantzig42.tsp
+TSP_FILE = ../tsplib/eil101.tsp
 
 
 
 
 # set TRUE to use a randomly generated instance, set FALSE otherwise
-RANDOM_INSTANCE = FALSE
+RANDOM_INSTANCE = TRUE
 
 # select desidered numer of nodes in the graph [int]
 NUMBER_OF_NODES = 10

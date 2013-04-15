@@ -83,7 +83,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   /* ================================================ */
   /* Verifico se è possibile potare il branch corrent */
   /* ================================================ */
-  if (z > *incumbent) { // il caso 
+  if (z > *incumbent) {
     onetree_delete(&ONE_TREE);
     return;
   }
@@ -133,7 +133,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   onetree_delete(&ONE_TREE);
 
 
-  // operazioni preliminari prima di avviare il branching
+  // operazioni preliminari prima di avviare il branching: inizializzazione di alcune strutture
+
   int temp_number_forced_edges_per_node[n];
   int temp_number_removed_edges_per_node[n];
 
@@ -157,16 +158,40 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   if ((v >= 1 && v <= n) && (u >= 1 && u <= n)) {
 
 
-    // branch #1 -> vieta il lato {w, v};
-    edgelist_empty(&edges_to_be_modified); // istruzione superflua
+    // FORWARD CHECKING - STRONG BRANCHING
+    int k;
+    int branch_selection[3];
+    double z1, z2, z3;
+    onetree FC_ONE_TREE1;
+    onetree FC_ONE_TREE2;
+    onetree FC_ONE_TREE3;
+    onetree_init(&FC_ONE_TREE1, 1);
+    onetree_init(&FC_ONE_TREE2, 1);
+    onetree_init(&FC_ONE_TREE3, 1);
+
+
+
+    // #1: vieto il lato {w, v};
+    edgelist_empty(&edges_to_be_modified);
     edgelist_push_last(&edges_to_be_modified, w, v, BIG);
-    state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges); // cerco di propagare i vincoli che voglio imporre sui lati (in questo caso BIG su {w, v}
-    if (state == SUCCESS) { // se la propagazione dei vincoli ha avuto successo, allora procedi con la chiamata ricorsiva a solve_tsp
-      number_of_calls++;    // se la propagazione non ha avuto successo, allora l'aggiunta del vincolo cost({w, v}) = BIG non permette al sottoalbero che si dirama da questo branch di giungere ad un ciclo
-      current_level++;      // es. stai imponendo il vincolo cost({w, v}) = BIG e il nodo w ha già due lati incidenti con costo BIG (3 lati forzati incidenti).
-      solve_tsp(G, H, incumbent, call_flag);
-      current_level--;
+    state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
+
+    if (state == SUCCESS) {
+ 
+      compute_ot(&WORK_GRAPH, &FC_ONE_TREE1);
+      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH));
+      onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_first_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE1))); 
+      onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_second_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE1)));
+      for (i = 2; i <= n; i++) {
+	onetree_set_edge_cost(&FC_ONE_TREE1, onetree_get_pred(&FC_ONE_TREE1, i), i, graph_get_edge_cost(G, onetree_get_pred(&FC_ONE_TREE1, i), i));
+      }
+      z1 = onetree_get_cost(&FC_ONE_TREE1);
+
     }
+    else {
+      z1 = *incumbent; // in questo modo il branch non verrà selezionato
+    }
+
     while (!edgelist_is_empty(&old_edges)) { // roll back costo lati
       old_edge = edgelist_pop_first(&old_edges);
       graph_set_edge_cost(&WORK_GRAPH, old_edge.x, old_edge.y, old_edge.cost);
@@ -176,18 +201,35 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
       number_removed_edges_per_node[i] = temp_number_removed_edges_per_node[i];
     }
 
-    // branch #2 -> forza il lato {w, v} e vieta il lato {w, u};
+
+
+
+
+
+
+    // #2: forzo il lato {w, v} e vieto il lato {w, u};
     edgelist_empty(&edges_to_be_modified);
     edgelist_push_last(&edges_to_be_modified, w, v, SMALL);
     edgelist_push_last(&edges_to_be_modified, w, u, BIG);
     state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
+
     if (state == SUCCESS) {
-      number_of_calls++;
-      current_level++;
-      solve_tsp(G, H, incumbent, call_flag);
-      current_level--;
+ 
+      compute_ot(&WORK_GRAPH, &FC_ONE_TREE2);
+      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH));
+      onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_first_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE2))); 
+      onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_second_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE2)));
+      for (i = 2; i <= n; i++) {
+	onetree_set_edge_cost(&FC_ONE_TREE2, onetree_get_pred(&FC_ONE_TREE2, i), i, graph_get_edge_cost(G, onetree_get_pred(&FC_ONE_TREE2, i), i));
+      }
+      z2 = onetree_get_cost(&FC_ONE_TREE2);
+
     }
-    while (!edgelist_is_empty(&old_edges)) { // roll back costo lati
+    else {
+      z2 = *incumbent;
+    }
+
+    while (!edgelist_is_empty(&old_edges)) {// roll back costo lati
       old_edge = edgelist_pop_first(&old_edges);
       graph_set_edge_cost(&WORK_GRAPH, old_edge.x, old_edge.y, old_edge.cost);
     }
@@ -196,17 +238,34 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
       number_removed_edges_per_node[i] = temp_number_removed_edges_per_node[i];
     }
 
-    // branch #3 -> forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
+
+
+
+
+
+
+    // #3: forzo i lati {w, v} e {w, u}
     edgelist_empty(&edges_to_be_modified);
     edgelist_push_last(&edges_to_be_modified, w, v, SMALL);
     edgelist_push_last(&edges_to_be_modified, w, u, SMALL);
     state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
+
     if (state == SUCCESS) {
-      number_of_calls++;
-      current_level++;
-      solve_tsp(G, H, incumbent, call_flag);
-      current_level--;
+ 
+      compute_ot(&WORK_GRAPH, &FC_ONE_TREE3);
+      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE3, compute_upper_bound(&WORK_GRAPH));
+      onetree_set_edge_cost(&FC_ONE_TREE3, 1, onetree_get_first_node(&FC_ONE_TREE3), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE3))); 
+      onetree_set_edge_cost(&FC_ONE_TREE3, 1, onetree_get_second_node(&FC_ONE_TREE3), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE3)));
+      for (i = 2; i <= n; i++) {
+	onetree_set_edge_cost(&FC_ONE_TREE3, onetree_get_pred(&FC_ONE_TREE3, i), i, graph_get_edge_cost(G, onetree_get_pred(&FC_ONE_TREE3, i), i));
+      }
+      z3 = onetree_get_cost(&FC_ONE_TREE3);
+
     }
+    else {
+      z3 = *incumbent;
+    }
+
     while (!edgelist_is_empty(&old_edges)) {  // roll back costo lati
       old_edge = edgelist_pop_first(&old_edges);
       graph_set_edge_cost(&WORK_GRAPH, old_edge.x, old_edge.y, old_edge.cost);
@@ -214,6 +273,116 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
     for (i = 0; i < n; i++) { // roll back contatori lati forzati - vietati
       number_forced_edges_per_node[i] = temp_number_forced_edges_per_node[i];
       number_removed_edges_per_node[i] = temp_number_removed_edges_per_node[i];
+    }
+
+
+
+    // imposto ordine con cui verranno selezionati i branch
+    if (z1 >= z2 >= z3)
+      { branch_selection[0] = 1; branch_selection[1] = 2; branch_selection[2] = 3; }
+    else if (z1 >= z3 >= z2)
+      { branch_selection[0] = 1; branch_selection[1] = 3; branch_selection[2] = 2; }
+    else if (z2 >= z1 >= z3)
+      { branch_selection[0] = 2; branch_selection[1] = 1; branch_selection[2] = 3; }
+    else if (z2 >= z3 >= z1)
+      { branch_selection[0] = 2; branch_selection[1] = 3; branch_selection[2] = 1; }
+    else if (z3 >= z1 >= z2)
+      { branch_selection[0] = 3; branch_selection[1] = 1; branch_selection[2] = 2; }
+    else
+      { branch_selection[0] = 3; branch_selection[1] = 2; branch_selection[2] = 1; }
+
+
+
+    for (k = 0; k < 3; k++) {
+
+      switch (branch_selection[k]) {
+
+      case 1:
+	if (z1 < *incumbent) {
+
+	  // branch #1 -> vieta il lato {w, v};
+	  edgelist_empty(&edges_to_be_modified);
+	  edgelist_push_last(&edges_to_be_modified, w, v, BIG);
+	  state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges); // cerco di propagare i vincoli che voglio imporre sui lati (in questo caso BIG su {w, v}
+	  if (state == SUCCESS) {
+	    number_of_calls++;
+	    current_level++;
+	    solve_tsp(G, H, incumbent, call_flag);
+	    current_level--;
+	  }
+	  while (!edgelist_is_empty(&old_edges)) { // roll back costo lati
+	    old_edge = edgelist_pop_first(&old_edges);
+	    graph_set_edge_cost(&WORK_GRAPH, old_edge.x, old_edge.y, old_edge.cost);
+	  }
+	  for (i = 0; i < n; i++) { // roll back contatori lati forzati - vietati
+	    number_forced_edges_per_node[i] = temp_number_forced_edges_per_node[i];
+	    number_removed_edges_per_node[i] = temp_number_removed_edges_per_node[i];
+	  }
+
+	}
+	break;
+
+
+      case 2:
+	if (z2 < *incumbent) {
+
+	  // branch #2 -> forza il lato {w, v} e vieta il lato {w, u};
+	  edgelist_empty(&edges_to_be_modified);
+	  edgelist_push_last(&edges_to_be_modified, w, v, SMALL);
+	  edgelist_push_last(&edges_to_be_modified, w, u, BIG);
+	  state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
+
+
+	  if (state == SUCCESS) {
+	    number_of_calls++;
+	    current_level++;
+	    solve_tsp(G, H, incumbent, call_flag);
+	    current_level--;
+	  }
+	  while (!edgelist_is_empty(&old_edges)) { // roll back costo lati
+	    old_edge = edgelist_pop_first(&old_edges);
+	    graph_set_edge_cost(&WORK_GRAPH, old_edge.x, old_edge.y, old_edge.cost);
+	  }
+	  for (i = 0; i < n; i++) { // roll back contatori lati forzati - vietati
+	    number_forced_edges_per_node[i] = temp_number_forced_edges_per_node[i];
+	    number_removed_edges_per_node[i] = temp_number_removed_edges_per_node[i];
+	  }
+
+	}
+	break;
+
+
+      case 3:
+	if (z3 < *incumbent) {
+
+	  // branch #3 -> forza i lati {w, v} e {w, u}, vieta tutti gli altri lati;
+	  edgelist_empty(&edges_to_be_modified);
+	  edgelist_push_last(&edges_to_be_modified, w, v, SMALL);
+	  edgelist_push_last(&edges_to_be_modified, w, u, SMALL);
+	  state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
+	  if (state == SUCCESS) {
+	    number_of_calls++;
+	    current_level++;
+	    solve_tsp(G, H, incumbent, call_flag);
+	    current_level--;
+	  }
+	  while (!edgelist_is_empty(&old_edges)) {  // roll back costo lati
+	    old_edge = edgelist_pop_first(&old_edges);
+	    graph_set_edge_cost(&WORK_GRAPH, old_edge.x, old_edge.y, old_edge.cost);
+	  }
+	  for (i = 0; i < n; i++) { // roll back contatori lati forzati - vietati
+	    number_forced_edges_per_node[i] = temp_number_forced_edges_per_node[i];
+	    number_removed_edges_per_node[i] = temp_number_removed_edges_per_node[i];
+	  }
+
+	}
+	break;
+
+      default:
+	break;
+
+      } // fine switch
+
     }
 
   } // fine caso branching 3 vie
@@ -222,16 +391,37 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   // BRANCHING A 2 VIE
   else if (((v >= 1 && v <= n) && (u < 1 || u > n)) || ((v < 1 || v > n) && (u >= 1 && u <= n))) {
 
-    // branch #1 -> vieta il lato {w, v};
+
+    // FORWARD CHECKING - STRONG BRANCHING
+    int k;
+    int branch_selection[2];
+    double z1, z2;
+    onetree FC_ONE_TREE1;
+    onetree FC_ONE_TREE2;
+    onetree_init(&FC_ONE_TREE1, 1);
+    onetree_init(&FC_ONE_TREE2, 1);
+
+
+    // #1: vieto il lato {w, v};
     edgelist_empty(&edges_to_be_modified);
     edgelist_push_last(&edges_to_be_modified, w, v, BIG);
     state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
     if (state == SUCCESS) {
-      number_of_calls++;
-      current_level++;
-      solve_tsp(G, H, incumbent, call_flag);
-      current_level--;
+ 
+      compute_ot(&WORK_GRAPH, &FC_ONE_TREE1);
+      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH));
+      onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_first_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE1))); 
+      onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_second_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE1)));
+      for (i = 2; i <= n; i++) {
+	onetree_set_edge_cost(&FC_ONE_TREE1, onetree_get_pred(&FC_ONE_TREE1, i), i, graph_get_edge_cost(G, onetree_get_pred(&FC_ONE_TREE1, i), i));
+      }
+      z1 = onetree_get_cost(&FC_ONE_TREE1);
+
     }
+    else {
+      z1 = *incumbent; // in questo modo il branch non verrà selezionato
+    }
+
     while (!edgelist_is_empty(&old_edges)) {  // roll back costo lati
       old_edge = edgelist_pop_first(&old_edges);
       graph_set_edge_cost(&WORK_GRAPH, old_edge.x, old_edge.y, old_edge.cost);
@@ -241,16 +431,31 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
       number_removed_edges_per_node[i] = temp_number_removed_edges_per_node[i];
     }
 
-    // branch #2 -> forza il lato {w, u};
+
+
+
+
+    // #2: forzo il lato {w, u};
     edgelist_empty(&edges_to_be_modified);
     edgelist_push_last(&edges_to_be_modified, w, v, SMALL);
     state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
+
     if (state == SUCCESS) {
-      number_of_calls++;
-      current_level++;
-      solve_tsp(G, H, incumbent, call_flag);
-      current_level--;
+ 
+      compute_ot(&WORK_GRAPH, &FC_ONE_TREE2);
+      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH));
+      onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_first_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE2))); 
+      onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_second_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE2)));
+      for (i = 2; i <= n; i++) {
+	onetree_set_edge_cost(&FC_ONE_TREE2, onetree_get_pred(&FC_ONE_TREE2, i), i, graph_get_edge_cost(G, onetree_get_pred(&FC_ONE_TREE2, i), i));
+      }
+      z2 = onetree_get_cost(&FC_ONE_TREE2);
+
     }
+    else {
+      z2 = *incumbent;
+    }
+
     while (!edgelist_is_empty(&old_edges)) {  // roll back costo lati
       old_edge = edgelist_pop_first(&old_edges);
       graph_set_edge_cost(&WORK_GRAPH, old_edge.x, old_edge.y, old_edge.cost);
@@ -258,6 +463,78 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
     for (i = 0; i < n; i++) { // roll back contatori lati forzati - vietati
       number_forced_edges_per_node[i] = temp_number_forced_edges_per_node[i];
       number_removed_edges_per_node[i] = temp_number_removed_edges_per_node[i];
+    }
+
+
+
+
+    // imposto ordine con cui verranno selezionati i branch
+    if (z1 >= z2)
+      { branch_selection[0] = 1; branch_selection[1] = 2; }
+    else
+      { branch_selection[0] = 2; branch_selection[1] = 1; }
+
+
+
+    for (k = 0; k < 3; k++) {
+
+      switch (branch_selection[k]) {
+
+      case 1: 
+	if (z1 < *incumbent) {
+
+	  // branch #1 -> vieta il lato {w, v};
+	  edgelist_empty(&edges_to_be_modified);
+	  edgelist_push_last(&edges_to_be_modified, w, v, BIG);
+	  state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
+	  if (state == SUCCESS) {
+	    number_of_calls++;
+	    current_level++;
+	    solve_tsp(G, H, incumbent, call_flag);
+	    current_level--;
+	  }
+	  while (!edgelist_is_empty(&old_edges)) {  // roll back costo lati
+	    old_edge = edgelist_pop_first(&old_edges);
+	    graph_set_edge_cost(&WORK_GRAPH, old_edge.x, old_edge.y, old_edge.cost);
+	  }
+	  for (i = 0; i < n; i++) { // roll back contatori lati forzati - vietati
+	    number_forced_edges_per_node[i] = temp_number_forced_edges_per_node[i];
+	    number_removed_edges_per_node[i] = temp_number_removed_edges_per_node[i];
+	  }
+
+	}
+	break;
+
+      case 2:
+	if (z2 < *incumbent) {
+
+	  // branch #2 -> forza il lato {w, u};
+	  edgelist_empty(&edges_to_be_modified);
+	  edgelist_push_last(&edges_to_be_modified, w, v, SMALL);
+	  state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
+	  if (state == SUCCESS) {
+	    number_of_calls++;
+	    current_level++;
+	    solve_tsp(G, H, incumbent, call_flag);
+	    current_level--;
+	  }
+	  while (!edgelist_is_empty(&old_edges)) {  // roll back costo lati
+	    old_edge = edgelist_pop_first(&old_edges);
+	    graph_set_edge_cost(&WORK_GRAPH, old_edge.x, old_edge.y, old_edge.cost);
+	  }
+	  for (i = 0; i < n; i++) { // roll back contatori lati forzati - vietati
+	    number_forced_edges_per_node[i] = temp_number_forced_edges_per_node[i];
+	    number_removed_edges_per_node[i] = temp_number_removed_edges_per_node[i];
+	  }
+
+	}
+	break;
+
+      default:
+	break;
+
+
+      } // fine switch
     }
 
   } // fine caso branching 2 vie
@@ -325,14 +602,13 @@ int propagate_constraints(graph* G, edgelist* edges_to_be_modified, edgelist* ol
   int n = (*G).n;
   int m = edgelist_get_size(edges_to_be_modified);
 
-  // scorro tutta la lista edges_to_be_modified, che contiene l'informazione su quali lati vincolare, e con quale vincolo (assegnare costo BIG oppure SMALL)
   current_node = edgelist_get_first(edges_to_be_modified);
+
   for (i = 0; i < m; i++) {
     e = edgelist_get_element(edges_to_be_modified, current_node);
+    edgelist_push_last(old_edges, e.x, e.y, graph_get_edge_cost(G, e.x, e.y));
 
-    edgelist_push_last(old_edges, e.x, e.y, graph_get_edge_cost(G, e.x, e.y)); // salvo il costo del lato originario
-
-    // applico il nuovo lato (o meglio il suo nuovo costo, BIG o SMALL) e aggiorno contatori number_removed_edges_per_node, ecc ecc
+    // applico il nuovo lato (o meglio il suo nuovo costo, BIG o SMALL)
     graph_set_edge_cost(G, e.x, e.y, e.cost);
     if (e.cost == BIG) {
       number_removed_edges_per_node[e.x-1]++;
@@ -349,11 +625,13 @@ int propagate_constraints(graph* G, edgelist* edges_to_be_modified, edgelist* ol
   }
 
 
-  // LOOP PRINCIPALE
+
+
   while (!edgelist_is_empty(&modified_edges)) {
 
-    // per ciasacun lato modificato (contenuto in modified_edges) controllo, per ciascuno dei suoi due estremi, se vi sono situazioni che certamente non porteranno ad un ciclo (es. un nodo con 3 lati incidenti forzati
-    // svuoto la lista perchè nella fase successiva ci dovrò inserire i lati vincolati "dedotti" dai lati modificati in questa iterazione del loop principale.
+
+
+    // per ogni lato appena modificato effettuo un check per vedere se ci sono casi impossibili
     while (!edgelist_is_empty(&modified_edges)) {
       mod_e = edgelist_pop_first(&modified_edges); // il lato appena modificato è del tipo:
                                                    //
@@ -369,7 +647,7 @@ int propagate_constraints(graph* G, edgelist* edges_to_be_modified, edgelist* ol
       if (number_forced_edges_per_node[mod_e.y-1] > 2 || number_removed_edges_per_node[mod_e.y-1] > n-3) // più di 2 lati forzati incidenti nel nodo mod_e.y, oppure più di n-3 lati rimossi nel nodo mod_e.y
 	return FAILURE;
 
-      // presenza 3-cicli di lati forzati -> potrebbe risultare un po' troppo onerosa e non servire abbastanza, valutare con qualche test se conviene tenerla
+      // presenza 3-cicli di lati forzati
       if (mod_e.cost <= SMALL) {
 	for (i = 1; i <= n; i++) {
 	  if (i != mod_e.x && i != mod_e.y) {
@@ -379,14 +657,13 @@ int propagate_constraints(graph* G, edgelist* edges_to_be_modified, edgelist* ol
 	}
       }
 
-      edgelist_push_last(&temp_list, mod_e.x, mod_e.y, mod_e.cost); // inserisco ogni lato della lista modified_edges in una lista temporanea
-    }                                                              
+      edgelist_push_last(&temp_list, mod_e.x, mod_e.y, mod_e.cost); // inserisco ogni lato della lista modified_edges in una lista temporanea: in questo modo, nella fase successiva
+    }                                        // potrò processare ogni lato modificato e inserire i nuovi lati dedotti nella lista vuota modified_edges che verrà usata nell'iterazione successiva
 
 
 
 
     // effettuo deduzione vincoli
-    // processo tutti i lati presenti nella lista temporanea, che altro non sono che i lati contenuti in modified_edges all'inizio dell'iterazione corrente del loop principale
     while (!edgelist_is_empty(&temp_list)) {
       e = edgelist_pop_first(&temp_list);
 
@@ -464,6 +741,5 @@ int propagate_constraints(graph* G, edgelist* edges_to_be_modified, edgelist* ol
     } // fine loop deduzione nuovi vincoli
 
   } // loop principale
-
   return SUCCESS;
 }
