@@ -27,8 +27,13 @@ void main() {
   initGraph(&G, pars->no_of_nodes);
   initGraph(&NN, 1);
   randomGraph(&G);
-  free(pars);
 
+  for (i = 1; i <= pars->no_of_nodes; i++) {
+    for (j = i+1; j <= pars->no_of_nodes; j++) {
+      printf("lato (%d, %d) -> costo = %.40f\n", i, j, get_edge_cost(&G, i, j));
+    }
+  }
+  free(pars);
   /* ============================================================================== */
   /* Calcola con algoritmo euristico upper bound per ciclo Hamiltoniano ottimo di G */
   /* ============================================================================== */
@@ -45,8 +50,9 @@ void main() {
   initGraph(&F, 1);
   initGraph(&H, 1);
 
-  //solve_tsp(&G, &H, &incumbent, 0);
-  //plotGraph(&G, &H, "default", NULL);
+  incumbent = 4.0;
+  solve_tsp(&G, &H, &incumbent, 0);
+  plotGraph(&G, &H, "default", NULL);
 
   deleteGraph(&F);
   deleteGraph(&H);
@@ -63,7 +69,7 @@ void main() {
   double L_best;
 
   //L_best = compute_lagrange(&G, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
-  L_best = compute_and_plot_lagrange(&G, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
+  //L_best = compute_and_plot_lagrange(&G, ub, ub_max_iter, alpha, alpha_max_iter, max_iter);
  
 //	solve_tsp(&G, &H, &incumbent, 0);
 
