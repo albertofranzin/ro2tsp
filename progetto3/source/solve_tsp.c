@@ -20,19 +20,21 @@ int* number_forced_edges_per_node; // numero di lati forzati per nodo: ad esempi
 int* number_removed_edges_per_node; // numero di lati vietati per node: ad esempio number_removed_edges_per_node[7-1] = numero di lati con costo BIG tra tutti i lati del tipo {7, v} dove v = 1, ..., n e v != 7. 
 
 
-void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
+void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, double z, int call_flag) {
   int i, j, u, v, w, current_call;
-  double z, cost_wv, cost_wu;
-  onetree ONE_TREE;
+  double cost_wv, cost_wu;
+  //onetree ONE_TREE;
   int n = (*G).n;
 
   /* ========================== */
   /* Inizializzazione strutture */
   /* ========================== */
+  //onetree_init(&ONE_TREE, 1);
   if (call_flag == 0) {
     graph_init(&WORK_GRAPH, 1);
     graph_copy(G, &WORK_GRAPH);
-    onetree_delete(H);
+    //onetree_delete(H);
+    onetree_copy(ONE_TREE, H); // copio in H l'1-albero passato in input alla prima chiamata, in casi fortunati potrebbe essere un ciclo ottimo!
 
     tour_found_flag = 0;
     current_level = 1;
@@ -45,9 +47,10 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
     call_flag = 1;
   }
   else {
+    // riciclo 1-albero passato in input (da euristico o altro: nota: dev'essere un 1-albero non un grafo qualsiasi!
+    //onetree_copy(H, &ONE_TREE); // non lo voglio riciclare solamente alla prima chiamata, ma ad ogni chiamata ricorsiva (soprattutto gli 1-alberi prodotti da strong-branching!
     call_flag = 2;
   }
-  onetree_init(&ONE_TREE, 1);
 
   // aggiornamento di alcune variabili utili per analizzare l'esecuzione dell'algoritmo
   number_of_levels = (current_level > number_of_levels) ? current_level : number_of_levels;
@@ -58,6 +61,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   /* ================ */
   /* Calcolo 1-albero */
   /* ================ */
+  // se si usano gli alberi calcolati per strong-branching, non serve calcolare l'1-albero, viene passato come parametro di input 
+  /*
   if (call_flag == 1) {
     //compute_ot(&WORK_GRAPH, &ONE_TREE);
     compute_lagrange(&WORK_GRAPH, &ONE_TREE, *incumbent);
@@ -66,34 +71,44 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
     //compute_ot(&WORK_GRAPH, &ONE_TREE);
     compute_lagrange(&WORK_GRAPH, &ONE_TREE, compute_upper_bound(&WORK_GRAPH));
   }
-
+  */
 
   /* =========================== */
   /* Calcolo costo dell'1-albero */
   /* =========================== */
-  onetree_set_edge_cost(&ONE_TREE, 1, onetree_get_first_node(&ONE_TREE), graph_get_edge_cost(G, 1, onetree_get_first_node(&ONE_TREE))); 
-  onetree_set_edge_cost(&ONE_TREE, 1, onetree_get_second_node(&ONE_TREE), graph_get_edge_cost(G, 1, onetree_get_second_node(&ONE_TREE)));
+  // se si usa strong branching si può passare direttamente anche il costo dell'1-albero 
+  /*
+  onetree_set_edge_cost(ONE_TREE, 1, onetree_get_first_node(ONE_TREE), graph_get_edge_cost(G, 1, onetree_get_first_node(ONE_TREE))); 
+  onetree_set_edge_cost(ONE_TREE, 1, onetree_get_second_node(ONE_TREE), graph_get_edge_cost(G, 1, onetree_get_second_node(ONE_TREE)));
   for (i = 2; i <= n; i++) {
-    onetree_set_edge_cost(&ONE_TREE, onetree_get_pred(&ONE_TREE, i), i, graph_get_edge_cost(G, onetree_get_pred(&ONE_TREE, i), i));
+    onetree_set_edge_cost(ONE_TREE, onetree_get_pred(ONE_TREE, i), i, graph_get_edge_cost(G, onetree_get_pred(ONE_TREE, i), i));
   }
   z = onetree_get_cost(&ONE_TREE);
-
+  */
 
 
   /* ================================================ */
   /* Verifico se è possibile potare il branch corrent */
   /* ================================================ */
+  // se si usa strong branching, questa verifica viene fatta prima di selezionare il branch
+  /*
   if (z > *incumbent) {
     onetree_delete(&ONE_TREE);
     return;
   }
+  */
 
 
 
   /* ====================================== */
   /* Eventuale aggiornamento dell'incumbent */
   /* ====================================== */
-  if (is_cycle(&ONE_TREE)) {
+  if (is_cycle(ONE_TREE)) {
+    printf("# updated incumbent = %f : current_call = %d : current level = %d\n", z, current_call, current_level);
+    *incumbent = z;
+    onetree_copy(ONE_TREE, H);
+    tour_found_flag = 1;
+    /*
     if (z < *incumbent || tour_found_flag == 0) {
       printf("# updated incumbent = %f : current_call = %d : current level = %d\n", z, current_call, current_level);
       *incumbent = z;
@@ -104,6 +119,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
       onetree_delete(&ONE_TREE);
       return;
     }
+    */
   }
 
 
@@ -112,7 +128,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   /* Seleziono un nodo per il branching */
   /* ================================== */
   for (w = 1; w <= n; w++) {
-    if (onetree_get_node_deg(&ONE_TREE, w) >= 3)
+    if (onetree_get_node_deg(ONE_TREE, w) >= 3)
       break;
   }
 
@@ -122,15 +138,15 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
   /* Seleziono dei lati per il branching */
   /* =================================== */
   for (v = 1; v <= n; v++) {
-   if (v != w && onetree_adjacent_nodes(&ONE_TREE, w, v) && graph_get_edge_cost(&WORK_GRAPH, w, v) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, v) < BIG)
+   if (v != w && onetree_adjacent_nodes(ONE_TREE, w, v) && graph_get_edge_cost(&WORK_GRAPH, w, v) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, v) < BIG)
       break;
   }
   for (u = 1; u <= n; u++) {
-    if (u != w && u != v && onetree_adjacent_nodes(&ONE_TREE, w, u) && graph_get_edge_cost(&WORK_GRAPH, w, u) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, u) < BIG)
+    if (u != w && u != v && onetree_adjacent_nodes(ONE_TREE, w, u) && graph_get_edge_cost(&WORK_GRAPH, w, u) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, u) < BIG)
       break;
   }
 
-  onetree_delete(&ONE_TREE);
+  //onetree_delete(&ONE_TREE);
 
 
   // operazioni preliminari prima di avviare il branching: inizializzazione di alcune strutture
@@ -178,8 +194,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 
     if (state == SUCCESS) {
  
-      compute_ot(&WORK_GRAPH, &FC_ONE_TREE1);
-      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH));
+      //compute_ot(&WORK_GRAPH, &FC_ONE_TREE1);
+      z1 = compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH));
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_first_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE1))); 
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_second_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE1)));
       for (i = 2; i <= n; i++) {
@@ -215,8 +231,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 
     if (state == SUCCESS) {
  
-      compute_ot(&WORK_GRAPH, &FC_ONE_TREE2);
-      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH));
+      //compute_ot(&WORK_GRAPH, &FC_ONE_TREE2);
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH));
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_first_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE2))); 
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_second_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE2)));
       for (i = 2; i <= n; i++) {
@@ -252,8 +268,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 
     if (state == SUCCESS) {
  
-      compute_ot(&WORK_GRAPH, &FC_ONE_TREE3);
-      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE3, compute_upper_bound(&WORK_GRAPH));
+      //compute_ot(&WORK_GRAPH, &FC_ONE_TREE3);
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE3, compute_upper_bound(&WORK_GRAPH));
       onetree_set_edge_cost(&FC_ONE_TREE3, 1, onetree_get_first_node(&FC_ONE_TREE3), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE3))); 
       onetree_set_edge_cost(&FC_ONE_TREE3, 1, onetree_get_second_node(&FC_ONE_TREE3), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE3)));
       for (i = 2; i <= n; i++) {
@@ -305,9 +321,11 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 	  edgelist_push_last(&edges_to_be_modified, w, v, BIG);
 	  state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges); // cerco di propagare i vincoli che voglio imporre sui lati (in questo caso BIG su {w, v}
 	  if (state == SUCCESS) {
+	    onetree_copy(&FC_ONE_TREE1, ONE_TREE);
+	    onetree_delete(&FC_ONE_TREE1);
 	    number_of_calls++;
 	    current_level++;
-	    solve_tsp(G, H, incumbent, call_flag);
+	    solve_tsp(G, H, incumbent, ONE_TREE, z1, call_flag);
 	    current_level--;
 	  }
 	  while (!edgelist_is_empty(&old_edges)) { // roll back costo lati
@@ -334,9 +352,11 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 
 
 	  if (state == SUCCESS) {
+	    onetree_copy(&FC_ONE_TREE2, ONE_TREE);
+	    onetree_delete(&FC_ONE_TREE2);
 	    number_of_calls++;
 	    current_level++;
-	    solve_tsp(G, H, incumbent, call_flag);
+	    solve_tsp(G, H, incumbent, ONE_TREE, z2, call_flag);
 	    current_level--;
 	  }
 	  while (!edgelist_is_empty(&old_edges)) { // roll back costo lati
@@ -361,9 +381,11 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 	  edgelist_push_last(&edges_to_be_modified, w, u, SMALL);
 	  state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
 	  if (state == SUCCESS) {
+	    onetree_copy(&FC_ONE_TREE3, ONE_TREE);
+	    onetree_delete(&FC_ONE_TREE3);
 	    number_of_calls++;
 	    current_level++;
-	    solve_tsp(G, H, incumbent, call_flag);
+	    solve_tsp(G, H, incumbent, ONE_TREE, z3, call_flag);
 	    current_level--;
 	  }
 	  while (!edgelist_is_empty(&old_edges)) {  // roll back costo lati
@@ -408,8 +430,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
     state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
     if (state == SUCCESS) {
  
-      compute_ot(&WORK_GRAPH, &FC_ONE_TREE1);
-      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH));
+      //compute_ot(&WORK_GRAPH, &FC_ONE_TREE1);
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH));
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_first_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE1))); 
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_second_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE1)));
       for (i = 2; i <= n; i++) {
@@ -442,8 +464,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 
     if (state == SUCCESS) {
  
-      compute_ot(&WORK_GRAPH, &FC_ONE_TREE2);
-      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH));
+      //compute_ot(&WORK_GRAPH, &FC_ONE_TREE2);
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH));
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_first_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE2))); 
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_second_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE2)));
       for (i = 2; i <= n; i++) {
@@ -488,9 +510,11 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 	  edgelist_push_last(&edges_to_be_modified, w, v, BIG);
 	  state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
 	  if (state == SUCCESS) {
+	    onetree_copy(&FC_ONE_TREE1, ONE_TREE);
+	    onetree_delete(&FC_ONE_TREE1);
 	    number_of_calls++;
 	    current_level++;
-	    solve_tsp(G, H, incumbent, call_flag);
+	    solve_tsp(G, H, incumbent, ONE_TREE, z1, call_flag);
 	    current_level--;
 	  }
 	  while (!edgelist_is_empty(&old_edges)) {  // roll back costo lati
@@ -513,9 +537,11 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 	  edgelist_push_last(&edges_to_be_modified, w, v, SMALL);
 	  state = propagate_constraints(&WORK_GRAPH, &edges_to_be_modified, &old_edges);
 	  if (state == SUCCESS) {
+	    onetree_copy(&FC_ONE_TREE2, ONE_TREE);
+	    onetree_delete(&FC_ONE_TREE2);
 	    number_of_calls++;
 	    current_level++;
-	    solve_tsp(G, H, incumbent, call_flag);
+	    solve_tsp(G, H, incumbent, ONE_TREE, z2, call_flag);
 	    current_level--;
 	  }
 	  while (!edgelist_is_empty(&old_edges)) {  // roll back costo lati
@@ -536,6 +562,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, int call_flag) {
 
       } // fine switch
     }
+
 
   } // fine caso branching 2 vie
 
