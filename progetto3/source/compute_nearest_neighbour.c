@@ -40,7 +40,7 @@
 }*/
 
 
-double compute_nearest_neighbour(graph *G, tree *OT, int start_node) {
+/*double compute_nearest_neighbour(graph *G, tree *OT, int start_node) {
   double min, cost_of_cycle, tmp_cost;
   int k, i, current, next;
 
@@ -76,14 +76,14 @@ double compute_nearest_neighbour(graph *G, tree *OT, int start_node) {
       }
     }
 
-    if (next == -1) {
+    if (next == -1) {*/
       /*for (i = 1; i <= n; i++) {
         tmp_cost = graph_get_edge_cost(G, current, i);
         printf("--> current = %d ; i = %d ; cost = %f\n", current, i, tmp_cost);
       }*/
       //char ch = getchar();
-      return BIG;
-    }
+      /*return BIG;
+    }*/
 
     /*for (i = 1; i <= n; i++) {
       if (visited[i] == 0 && graph_get_edge_cost(G, current, i) < min) {
@@ -92,7 +92,7 @@ double compute_nearest_neighbour(graph *G, tree *OT, int start_node) {
       }
     }*/
 
-    cost_of_cycle += min;
+    /*cost_of_cycle += min;
     tree_insert_edge(OT, current, next, min);
     //printf("(%d,%d), \n", current, next);
     visited[current-1] = 1;
@@ -104,7 +104,7 @@ double compute_nearest_neighbour(graph *G, tree *OT, int start_node) {
   tree_insert_edge(OT, current, start_node, min);
   //printf("(%d,%d)\n", current, start_node);
 
-  cost_of_cycle += min;
+  cost_of_cycle += min;*/
 
   /*printf("cost of the NN tour starting from node %d: %f.\n", start_node, cost_of_cycle);
   int a = 0, b = OT->V[a].pred;
@@ -116,6 +116,65 @@ double compute_nearest_neighbour(graph *G, tree *OT, int start_node) {
   }
   printf("\n");/ **/
 
-  return cost_of_cycle;
+  /*return cost_of_cycle;
+}*/
+
+double compute_nearest_neighbour(graph *G, cycle *C, int start_node) {
+  int i, j, k;
+  int current, next;
+  double min, current_cost, total_cost = 0.;
+  short visited[G->n + 1];
+  memset(visited, 0, sizeof(short) * (G->n + 1));
+
+  //printf("beginning NN\n");
+
+  cycle_delete(C);
+
+  //printf("deleted\n");
+
+  cycle_init(C, G->n);
+
+  //printf("hello\n");
+
+  current = start_node;
+  visited[current] = 1;
+  //C->node[0] = start_node;
+
+  for (i = 1; i < G->n; ++i) {
+
+    min = BIG;
+    next = -1;
+
+    for (j = 1; j <= G->n; ++j) {
+      current_cost = graph_get_edge_cost(G, current, j);
+      if (current != j && visited[j] == 0 && current_cost < min) {
+        //printf("%d %d %f\n", current, j, current_cost);
+        next = j;
+        min = current_cost;
+      }
+    }
+
+    if (next == -1) {
+      return BIG;
+    }
+
+    total_cost += min;
+    C->node[i-1] = current;
+    C->costs[i-1] = min;
+
+    visited[current] = 1;
+    current = next;
+
+  }
+
+  C->node[G->n - 1] = current;
+  C->costs[G->n - 1] = graph_get_edge_cost(G, current, start_node);
+  /*for (i = 0; i < G->n; ++i) {
+    printf("(%d, %f) ", C->node[i], C->costs[i]);
+  }
+  printf("\n");*/
+
+  return total_cost;
+
 }
 

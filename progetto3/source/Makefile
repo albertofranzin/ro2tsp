@@ -17,7 +17,7 @@ test: clean buildLib $(NOMEFILE)
 # link libraries
 buildLib: list.o edgelist.o graph.o egraph.o tree.o onetree.o compute_mst.o \
 		  compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o \
-		  compute_lagrange.o solve_tsp.o utils.o
+		  compute_lagrange.o solve_tsp.o utils.o cycle.o
 	ar r libro2ds.a *.o
 #	rm *.o
 
@@ -60,6 +60,8 @@ solve_tsp.o: solve_tsp.h solve_tsp.c
 utils.o: utils.h utils.c
 	gcc -g -c utils.c
 
+cycle.o: cycle.h cycle.c
+	gcc -g -c cycle.c
 
 clean:
 	clear

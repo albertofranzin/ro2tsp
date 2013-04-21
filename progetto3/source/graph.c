@@ -83,3 +83,23 @@ double graph_get_cost(graph* G) {
   }
   return c;
 }
+
+/*
+ * graph_prune_long_edges
+ * G : graph
+ * OT : onetree computed
+ * cost : cost of the onetree
+ * ub : upper bound on the solution
+ *
+ * remove the edges that surely cannot be in the optimal solution
+ */
+/*void graph_prune_long_edges(graph *G, onetree *OT, double cost, double ub) {
+  int i, j;
+  for (i = 1; i <= G->n; ++i) {
+    for (j = 1; j < i; ++j) {
+      if (!onetree_adjacent_nodes(OT, i, j) && cost) {
+        
+      }
+    }
+  }
+}*/

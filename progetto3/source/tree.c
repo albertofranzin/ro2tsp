@@ -51,6 +51,18 @@ int tree_get_succ(tree* T, int v) {
 }
 
 /*
+ * tree_reorient_node
+ *
+ * Swap pred and succ for the node
+ */
+void tree_redirect_node(tree *T, int v) {
+  int tmp = tree_get_pred(T, v);
+  T->V[v-1].pred = tree_get_succ(T, v);
+  T->V[v-1].succ = tmp;
+  //T->V[tmp-1].pred = v;
+}
+
+/*
  * inserisce il lato {v, p} ovvero associa a v il predecessore u
  * (se si vuole fare il contrario, basta ricordarsi di chiamare la funzione
  * fornendo i parametri u e v invertiti);
@@ -62,9 +74,16 @@ void tree_insert_edge(tree* T, int u, int v, double cost) {
   if (tree_adjacent_nodes(T, u, v))
     return;
 
+  //int tmps = tree_get_succ(T, v), tmpp = tree_get_pred(T, u);
   (*T).V[v-1].pred = u;
   (*T).V[u-1].succ = v;
   (*T).V[v-1].cost = cost;
+  /*if (tmps > 0) {
+    (*T).V[v-1].succ = tmps;
+  }
+  if (tmpp > 0) {
+    (*T).V[u-1].pred = tmpp;
+  }*/
   (*T).V[v-1].deg++;
   (*T).V[u-1].deg++;
 }
@@ -110,14 +129,20 @@ double tree_get_edge_cost(tree* T, int u, int v) {
 void tree_swap_edges(graph *G, tree *T, int u, int v) {
   int a = tree_get_pred(T, u), b = tree_get_pred(T, v);
 
-  tree_set_edge_cost(T, u, v, graph_get_edge_cost(G, u, v));
-  tree_set_edge_cost(T, a, b, graph_get_edge_cost(G, u, v));
-  tree_set_edge_cost(T, u, a, 0.);
-  tree_set_edge_cost(T, v, b, 0.);
+  //tree_set_edge_cost(T, u, v, graph_get_edge_cost(G, u, v));
+  //tree_set_edge_cost(T, a, b, graph_get_edge_cost(G, a, b));
+  tree_insert_edge(T, u, v, graph_get_edge_cost(G, u, v));
+  tree_insert_edge(T, a, b, graph_get_edge_cost(G, a, b));
+  tree_set_edge_cost(T, u, a, BIG);
+  tree_set_edge_cost(T, v, b, BIG);
   (*T).V[v-1].deg--;
   (*T).V[u-1].deg--;
   (*T).V[a-1].deg--;
   (*T).V[b-1].deg--;
+  /*(u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].flag = 1 ) : ( (*G).E[ v*(v-1)/2 + u-1].flag = 1 );
+  (a > b) ? ( (*G).E[ a*(a-1)/2 + b-1 ].flag = 1 ) : ( (*G).E[ b*(b-1)/2 + a-1].flag = 1 );
+  (u > a) ? ( (*G).E[ u*(u-1)/2 + a-1 ].flag = 0 ) : ( (*G).E[ a*(a-1)/2 + u-1].flag = 0 );
+  (v > b) ? ( (*G).E[ v*(v-1)/2 + b-1 ].flag = 0 ) : ( (*G).E[ b*(b-1)/2 + v-1].flag = 0 );*/
 }
 
 int tree_get_node_deg(tree* T, int v) {

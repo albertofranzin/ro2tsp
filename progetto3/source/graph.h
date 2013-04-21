@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+//#include "onetree.h"
 
 struct graph_node {
   int deg; // grado del nodo (numero di lati incidenti nel nodo);
@@ -39,5 +40,16 @@ int graph_get_node_deg(graph* G, int v);
 int graph_adjacent_nodes(graph* G, int u, int v);
 
 double graph_get_cost(graph* G);
+
+/*
+ * graph_prune_long_edges
+ * G : graph
+ * OT : onetree computed
+ * cost : cost of the onetree
+ * ub : upper bound on the solution
+ *
+ * remove the edges that surely cannot be in the optimal solution
+ */
+//void graph_prune_long_edges(graph *G, onetree *OT, double cost, double ub);
 
 #endif

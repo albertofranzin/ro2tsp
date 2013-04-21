@@ -12,6 +12,7 @@
 #include <string.h>
 #include "compute_lagrange.h"
 #include "compute_upper_bound.h"
+#include "cycle.h"
 
 
 void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, double z, int call_flag);
