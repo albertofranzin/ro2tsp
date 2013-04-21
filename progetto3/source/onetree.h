@@ -1,9 +1,9 @@
 #ifndef ONETREE_H_
 #define ONETREE_H_
 
+#include "tree.h"
 #include <stdlib.h>
 #include <string.h>
-#include "tree.h"
 
 struct onetree_edge {
   int node;
@@ -41,5 +41,16 @@ int onetree_adjacent_nodes(onetree* OT, int u, int v);
 
 double onetree_get_cost(onetree* OT);
 
+/*
+ * onetree_reroot
+ * OT : 1-tree
+ * root : new root node
+ *
+ * We suppose OT contains a cycle (or subcycle), and root belongs to it.
+ * Root gives the direction.
+ *
+ * performs O(n)-time re-rooting and re-orienting of a 1-tree
+ */
+void onetree_reroot(onetree *OT, int root);
 
 #endif

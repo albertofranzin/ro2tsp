@@ -12,7 +12,7 @@
 
 // per tentare di eliminare effetti errori arrotondamento
 //#define EPSILON 0.000000001
-#define EPSILON 0.00001
+#define EPSILON 0.0000001
 
 // parametri usati per algoritmo subgradiente - lagrange
 #define VERY_SMALL -1000000000.0
@@ -37,12 +37,12 @@
 // dimensioni grafo gnuplot
 
 // random instance
-
+/**/
 #define X_MIN -0.010
 #define X_MAX 1.010
 #define Y_MIN -0.010
 #define Y_MAX 1.010
-
+/**/
 
 // ulysses16
 /*
@@ -53,6 +53,7 @@
 */
 
 // dantzig42
+
 /*
 #define X_MIN 0.010
 #define X_MAX 180.010

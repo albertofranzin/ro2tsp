@@ -388,14 +388,11 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 }*/
 
 // sort edges by weight
-/*int sebwComp(const void *aa, const void *bb) {
-	edge **a = (edge **)aa,
-		 **b = (edge **)bb;
-
-	if ((*a)->weight < (*b)->weight) { return -1; }
-	if ((*a)->weight > (*b)->weight) { return 1; }
-	return 0;
-}*/
+int sebwComp (const void * a, const void * b) {
+  if (*(double*)a > *(double*)b) return 1;
+  else if (*(double*)a < *(double*)b) return -1;
+  else return 0;
+}
 
 /*void appendDouble(double **nnl, double n, int pos) {
 	double *nl = (double *)(*nnl);

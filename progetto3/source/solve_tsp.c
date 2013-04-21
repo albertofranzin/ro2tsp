@@ -114,6 +114,19 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
     *incumbent = z;
     onetree_copy(ONE_TREE, H);
     tour_found_flag = 1;
+
+    /*for (i = 1; i <= ONE_TREE->n; ++i) {
+      printf("%d : (%d %d)\n", i, onetree_get_pred(ONE_TREE, i), i);
+    }
+
+    printf("-----\n");
+
+    onetree_reroot(ONE_TREE, 4);
+
+    for (i = 1; i <= ONE_TREE->n; ++i) {
+      printf("%d : (%d %d)\n", i, onetree_get_pred(ONE_TREE, i), i);
+    }*/
+
     /*
     if (z < *incumbent || tour_found_flag == 0) {
       printf("# updated incumbent = %f : current_call = %d : current level = %d\n", z, current_call, current_level);
@@ -133,26 +146,109 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
   /* ================================== */
   /* Seleziono un nodo per il branching */
   /* ================================== */
-  for (w = 1; w <= n; w++) {
+  /** /for (w = 1; w <= n; w++) {
     if (onetree_get_node_deg(ONE_TREE, w) >= 3)
       break;
-  }
+  }/ **/
 
 
 
   /* =================================== */
   /* Seleziono dei lati per il branching */
   /* =================================== */
-  for (v = 1; v <= n; v++) {
-   if (v != w && onetree_adjacent_nodes(ONE_TREE, w, v) && graph_get_edge_cost(&WORK_GRAPH, w, v) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, v) < BIG)
+  /** /for (v = 1; v <= n; v++) {
+    if (v != w && onetree_adjacent_nodes(ONE_TREE, w, v) && graph_get_edge_cost(&WORK_GRAPH, w, v) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, v) < BIG)
       break;
   }
   for (u = 1; u <= n; u++) {
     if (u != w && u != v && onetree_adjacent_nodes(ONE_TREE, w, u) && graph_get_edge_cost(&WORK_GRAPH, w, u) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, u) < BIG)
       break;
-  }
+  }/ **/
 
   //onetree_delete(&ONE_TREE);
+
+  double most_convenient_edge_cost = SMALL,
+         edge_cost, ot_cost,
+         most_convenient_ot_cost = SMALL;
+  int most_convenient_index = -1,
+      most_convenient_index_e1 = -1,
+      most_convenient_index_e2 = -1;
+
+  onetree tmp_ot;
+  onetree_init(&tmp_ot, 1);
+
+  for (w = 1; w <= n; w++) {
+    if (onetree_get_node_deg(ONE_TREE, w) >= 3) {
+
+      for (v = 1; v <= n; v++) {
+        edge_cost = graph_get_edge_cost(&WORK_GRAPH, w, v);
+        if (v != w && onetree_adjacent_nodes(ONE_TREE, w, v) &&
+              edge_cost > SMALL && edge_cost < BIG) {
+          //break;
+
+          graph_set_edge_cost(&WORK_GRAPH, w, v, SMALL);
+          compute_ot(&WORK_GRAPH, &tmp_ot);
+          graph_set_edge_cost(&WORK_GRAPH, w, v, edge_cost);
+
+          onetree_set_edge_cost(&tmp_ot, 1,
+              onetree_get_first_node(&tmp_ot),
+              graph_get_edge_cost(G, 1, onetree_get_first_node(&tmp_ot)));
+          onetree_set_edge_cost(&tmp_ot, 1,
+              onetree_get_second_node(&tmp_ot),
+              graph_get_edge_cost(G, 1, onetree_get_second_node(&tmp_ot)));
+
+          for (i = 2; i <= n; i++) {
+            onetree_set_edge_cost(&tmp_ot, onetree_get_pred(&tmp_ot, i), i,
+                graph_get_edge_cost(G, onetree_get_pred(&tmp_ot, i), i));
+          }
+          ot_cost = onetree_get_cost(&tmp_ot);
+
+          if (ot_cost > most_convenient_ot_cost) {
+            most_convenient_ot_cost = ot_cost;
+            most_convenient_index_e1 = v;
+            most_convenient_index = w;
+          }
+        }
+      }
+
+      for (v = 1; v <= n; v++) {
+        edge_cost = graph_get_edge_cost(&WORK_GRAPH, w, v);
+        if (v != w && v != most_convenient_index_e1 &&
+              onetree_adjacent_nodes(ONE_TREE, w, v) &&
+              edge_cost > SMALL && edge_cost < BIG) {
+          //break;
+
+          graph_set_edge_cost(&WORK_GRAPH, w, v, SMALL);
+          compute_ot(&WORK_GRAPH, &tmp_ot);
+          graph_set_edge_cost(&WORK_GRAPH, w, v, edge_cost);
+
+          onetree_set_edge_cost(&tmp_ot, 1,
+              onetree_get_first_node(&tmp_ot),
+              graph_get_edge_cost(G, 1, onetree_get_first_node(&tmp_ot)));
+          onetree_set_edge_cost(&tmp_ot, 1,
+              onetree_get_second_node(&tmp_ot),
+              graph_get_edge_cost(G, 1, onetree_get_second_node(&tmp_ot)));
+
+          for (i = 2; i <= n; i++) {
+            onetree_set_edge_cost(&tmp_ot, onetree_get_pred(&tmp_ot, i), i,
+                graph_get_edge_cost(G, onetree_get_pred(&tmp_ot, i), i));
+          }
+          ot_cost = onetree_get_cost(&tmp_ot);
+
+          if (ot_cost > most_convenient_ot_cost) {
+            most_convenient_ot_cost = ot_cost;
+            most_convenient_index_e2 = v;
+            //most_convenient_index = w;
+          }
+        }
+      }
+
+    }
+  }
+
+  w = most_convenient_index;
+  v = most_convenient_index_e1;
+  u = most_convenient_index_e2;
 
 
   // operazioni preliminari prima di avviare il branching: inizializzazione di alcune strutture
@@ -191,6 +287,9 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
     onetree_init(&FC_ONE_TREE2, 1);
     onetree_init(&FC_ONE_TREE3, 1);
 
+    cycle WORK_CYCLE;
+    cycle_init(&WORK_CYCLE, 1);
+
 
 
     // #1: vieto il lato {w, v};
@@ -201,7 +300,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
     if (state == SUCCESS) {
  
       //compute_ot(&WORK_GRAPH, &FC_ONE_TREE1);
-      z1 = compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+      //z1 = compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+      z1 = compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE));
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_first_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE1))); 
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_second_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE1)));
       for (i = 2; i <= n; i++) {
@@ -238,7 +338,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
     if (state == SUCCESS) {
  
       //compute_ot(&WORK_GRAPH, &FC_ONE_TREE2);
-      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE));
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_first_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE2))); 
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_second_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE2)));
       for (i = 2; i <= n; i++) {
@@ -275,7 +376,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
     if (state == SUCCESS) {
  
       //compute_ot(&WORK_GRAPH, &FC_ONE_TREE3);
-      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE3, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE3, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE3, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE));
       onetree_set_edge_cost(&FC_ONE_TREE3, 1, onetree_get_first_node(&FC_ONE_TREE3), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE3))); 
       onetree_set_edge_cost(&FC_ONE_TREE3, 1, onetree_get_second_node(&FC_ONE_TREE3), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE3)));
       for (i = 2; i <= n; i++) {
@@ -429,6 +531,9 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
     onetree_init(&FC_ONE_TREE1, 1);
     onetree_init(&FC_ONE_TREE2, 1);
 
+    cycle WORK_CYCLE;
+    cycle_init(&WORK_CYCLE, 1);
+
 
     // #1: vieto il lato {w, v};
     edgelist_empty(&edges_to_be_modified);
@@ -437,7 +542,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
     if (state == SUCCESS) {
  
       //compute_ot(&WORK_GRAPH, &FC_ONE_TREE1);
-      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE));
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_first_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE1))); 
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_second_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE1)));
       for (i = 2; i <= n; i++) {
@@ -471,7 +577,8 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
     if (state == SUCCESS) {
  
       //compute_ot(&WORK_GRAPH, &FC_ONE_TREE2);
-      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+      //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE));
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_first_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE2))); 
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_second_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE2)));
       for (i = 2; i <= n; i++) {
@@ -691,8 +798,12 @@ int propagate_constraints(graph* G, edgelist* edges_to_be_modified, edgelist* ol
         }
       }
 
-      edgelist_push_last(&temp_list, mod_e.x, mod_e.y, mod_e.cost); // inserisco ogni lato della lista modified_edges in una lista temporanea: in questo modo, nella fase successiva
-    }                                        // potrò processare ogni lato modificato e inserire i nuovi lati dedotti nella lista vuota modified_edges che verrà usata nell'iterazione successiva
+      // inserisco ogni lato della lista modified_edges in una lista temporanea:
+      // in questo modo, nella fase successiva
+      // potrò processare ogni lato modificato e inserire i nuovi lati dedotti
+      // nella lista vuota modified_edges che verrà usata nell'iterazione successiva
+      edgelist_push_last(&temp_list, mod_e.x, mod_e.y, mod_e.cost);
+    }
 
 
 
@@ -701,40 +812,41 @@ int propagate_constraints(graph* G, edgelist* edges_to_be_modified, edgelist* ol
     while (!edgelist_is_empty(&temp_list)) {
       e = edgelist_pop_first(&temp_list);
 
-     
       if (number_forced_edges_per_node[e.x-1] == 2) {  // se il numero di lati forzati incidenti nel nodo e.x è pari a 2, allora vieta tutti gli altri lati
-	for (j = 1; j <= n; j++) {
-	  if (j != e.x) {
-	    c = graph_get_edge_cost(G, e.x, j);
-	    if (c > SMALL && c < BIG) { // vieta il lato solo se il lato non è già vietato o già forzato
+        for (j = 1; j <= n; j++) {
+          if (j != e.x) {
+            c = graph_get_edge_cost(G, e.x, j);
+            if (c > SMALL && c < BIG) { // vieta il lato solo se il lato non è già vietato o già forzato
 
-	      edgelist_push_last(old_edges, e.x, j, c); // salva il costo del lato originale
-	      graph_set_edge_cost(G, e.x, j, BIG);
-	      number_removed_edges_per_node[e.x-1]++;
-	      number_removed_edges_per_node[j-1]++;
+              edgelist_push_last(old_edges, e.x, j, c); // salva il costo del lato originale
+              graph_set_edge_cost(G, e.x, j, BIG);
+              number_removed_edges_per_node[e.x-1]++;
+              number_removed_edges_per_node[j-1]++;
 
-	      edgelist_push_last(&modified_edges, e.x, j, BIG); // inserisci il nuovo lato vietato nella lista dei lati modificati
+              edgelist_push_last(&modified_edges, e.x, j, BIG); // inserisci il nuovo lato vietato nella lista dei lati modificati
 
-	    }
-	  }
-	}
+            }
+          }
+        }
       }
-      else if (number_removed_edges_per_node[e.x-1] == n-3) { // se il numero di lati rimossi incidenti nel nodo e.x è pari a n-3, allora forza i rimanenti due lati
-	for (j = 1; j <= n; j++) {
-	  if (j != e.x) {
-	    c = graph_get_edge_cost(G, e.x, j);
-	    if (c > SMALL && c < BIG) {
+      else if (number_removed_edges_per_node[e.x-1] == n-3) {
+        // se il numero di lati rimossi incidenti nel nodo e.x è pari a n-3,
+        // allora forza i rimanenti due lati
+        for (j = 1; j <= n; j++) {
+          if (j != e.x) {
+            c = graph_get_edge_cost(G, e.x, j);
+            if (c > SMALL && c < BIG) {
 
-	      edgelist_push_last(old_edges, e.x, j, c);
-	      graph_set_edge_cost(G, e.x, j, SMALL);
-	      number_forced_edges_per_node[e.x-1]++;
-	      number_forced_edges_per_node[j-1]++;
+              edgelist_push_last(old_edges, e.x, j, c);
+              graph_set_edge_cost(G, e.x, j, SMALL);
+              number_forced_edges_per_node[e.x-1]++;
+              number_forced_edges_per_node[j-1]++;
 
-	      edgelist_push_last(&modified_edges, e.x, j, SMALL);
+              edgelist_push_last(&modified_edges, e.x, j, SMALL);
 
-	    }
-	  }
-	}
+            }
+          }
+        }
       }
 
       if (number_forced_edges_per_node[e.y-1] == 2) {  // se il numero di lati forzati incidenti nel nodo e.y è pari a 2, allora vieta tutti gli altri lati

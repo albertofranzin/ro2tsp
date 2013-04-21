@@ -10,6 +10,7 @@
 #include <time.h>
 #include "graph.h"
 #include "egraph.h"
+#include "onetree.h"
 
 /* constants and variables */
 
@@ -19,7 +20,7 @@ typedef struct _parameters {
 
   int random_instance_option;
   int random_seed_option;
-  unsigned int seed;
+  unsigned long seed;
 
   int tsp_file_option;
   char *tsp_file;
@@ -27,8 +28,6 @@ typedef struct _parameters {
   unsigned int heuristic_trials;
 
 } parameters;
-
-
 
 short parHash(char* c);
 
@@ -99,6 +98,8 @@ void read_tsp_from_file(egraph *G, parameters *pars);
 //typedef int (*compfn)(const void*, const void*);
 //int snbdComp(const void *, const void *);
 //int snbdComp(node *, node *);
-// int sebwComp(const void *, const void *);
+
+// sort nodes by cost - comparator for qsort
+int sebwComp ( const void *, const void *);
 
 #endif

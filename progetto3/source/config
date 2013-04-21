@@ -16,8 +16,12 @@ TSP_FILE_INSTANCE = FALSE
 # TSP_FILE = ../../progetto/source/dj38.tsp <-- lo risolve!!
 # TSP_FILE = ../../../tsplib/ulysses16.tsp
 # TSP_FILE = NULL
-TSP_FILE = ../tsplib/eil101.tsp
-
+# TSP_FILE = ../../../tsplib/eil101.tsp
+# TSP_FILE = ../../../tsplib/dantzig42.tsp
+# TSP_FILE = ../../../tsplib/berlin52.tsp
+# TSP_FILE = ../../../tsplib/pr76.tsp <-- SEGFAULT!!
+TSP_FILE = ../../../tsplib/att48.tsp
+# TSP_FILE = ../../../tsplib/bier127.tsp
 
 
 

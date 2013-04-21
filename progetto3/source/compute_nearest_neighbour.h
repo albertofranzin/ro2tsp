@@ -7,8 +7,9 @@
 #include "graph.h"
 #include "onetree.h"
 #include "tree.h"
+#include "cycle.h"
 
 
-double compute_nearest_neighbour(graph *G, tree *OT, int start_node);
+double compute_nearest_neighbour(graph *G, cycle *C, int start_node);
 
 #endif

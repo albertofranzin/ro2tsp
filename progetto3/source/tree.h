@@ -2,10 +2,10 @@
 #define TREE_H_
 
 #include "constants.h"
-#include "graph.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "graph.h"
 
 struct tree_node {
   int pred; // indice nodo predecessore
@@ -32,6 +32,13 @@ void tree_set_root(tree* T, int r);
 int tree_get_root(tree* T);
 int tree_get_pred(tree* T, int v);
 int tree_get_succ(tree* T, int v);
+
+/*
+ * tree_reorient_node
+ *
+ * Swap pred and succ for the node
+ */
+void tree_redirect_node(tree *T, int v);
 
 void tree_insert_edge(tree* T, int u, int v, double cost);
 void tree_remove_edge(tree* T, int u, int v);
