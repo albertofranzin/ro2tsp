@@ -169,6 +169,7 @@ double compute_nearest_neighbour(graph *G, cycle *C, int start_node) {
 
   C->node[G->n - 1] = current;
   C->costs[G->n - 1] = graph_get_edge_cost(G, current, start_node);
+  total_cost += C->costs[G->n - 1];
   /*for (i = 0; i < G->n; ++i) {
     printf("(%d, %f) ", C->node[i], C->costs[i]);
   }

@@ -55,7 +55,7 @@ double trimmedBranchAndBound(graph *G, onetree *OT);
  *
  * return : cost of the solution
  */
-double improved2opt(const graph *G, cycle *C, const double ccost);
+double improved2opt(graph *G, cycle *C, double ccost);
 
 /*
  * random_cycle_generation
@@ -68,7 +68,7 @@ double improved2opt(const graph *G, cycle *C, const double ccost);
  *
  * return : cost of the returned cycle
  */
-double random_cycle_generation(const graph *G, cycle *C, int num_cycles);
+double random_cycle_generation(graph *G, cycle *C, int num_cycles);
 
 
 #endif

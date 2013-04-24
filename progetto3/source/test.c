@@ -87,10 +87,12 @@ int main(int argc, char** argv) {
 
   double heuristic_upper_bound;
   heuristic_upper_bound = compute_upper_bound(&G, &C);
-  printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound); 
+  printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound);
 
-  /** /heuristic_upper_bound = heur2opt(&G, &C, heuristic_upper_bound);
-  printf("@ 2-opt\nupper bound = %f\n", heuristic_upper_bound);/ **/
+  /**/heuristic_upper_bound = heur2opt(&G, &C, heuristic_upper_bound);
+  printf("@ 2-opt\nupper bound = %f\n", heuristic_upper_bound);/**/
+
+  //heuristic_upper_bound = random_cycle_generation(&G, &C, 10000);
 
   /*onetree OT1;
   onetree_init(&OT1, pars->number_of_nodes);

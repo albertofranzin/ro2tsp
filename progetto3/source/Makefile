@@ -1,4 +1,5 @@
 NOMEFILE = test.c
+HEUR2OPT = heur2opt.c
 
 PAR = -g -O3 -lm
 # -g  : debug symbols
@@ -13,6 +14,10 @@ CHECK = -Winline
 # compile main
 test: clean buildLib $(NOMEFILE)
 	gcc $(NOMEFILE) -o $@ -L. -lro2ds $(CHECK) $(PAR)
+
+# test for 2 opt
+test2opt: clean buildLib $(HEUR2OPT)
+	gcc $(HEUR2OPT) -o $@ -L. -lro2ds $(CHECK) $(PAR)
 
 # link libraries
 buildLib: list.o edgelist.o graph.o egraph.o tree.o onetree.o compute_mst.o \
@@ -67,5 +72,6 @@ clean:
 	clear
 	-rm test
 	-rm test.a
+	-rm test2opt
 	-rm *.o
 	-rm *.gch

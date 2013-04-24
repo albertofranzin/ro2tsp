@@ -31,6 +31,7 @@ double compute_upper_bound(graph* G, cycle *C) {
     cycle_delete(C);
     cycle_init(C, n);
     cost_of_cycle = compute_nearest_neighbour(G, C, i);
+    cost_of_cycle = heur2opt(G, C, cost_of_cycle);
     //printf("coc : %f\n", cost_of_cycle);
     if (cost_of_cycle < min) {
         min = cost_of_cycle;
@@ -78,19 +79,14 @@ double heur2opt(graph *G, cycle *C, double ccost) {
                 - C->costs[i]
                 - C->costs[j];
 
-        if (k != j && h != i && (delta + EPSILON) < 0) {
+        if ((delta + EPSILON) < 0) { // k != j && h != i &&
 
-
-          // shouldn't be necessary, but wtf...
-          graph_set_edge_cost(G, C->node[i], C->node[k], BIG);
-          graph_set_edge_cost(G, C->node[j], C->node[h], BIG);
-
-          printf("swapping (%d,%d) [%f], (%d,%d) [%f] with (%d,%d) [%f], (%d,%d) [%f] : delta = %f\n",
+          /*printf("swapping (%d,%d) [%f], (%d,%d) [%f] with (%d,%d) [%f], (%d,%d) [%f] : delta = %f, cost = %f\n",
               C->node[i], C->node[(i+1) % G->n], C->costs[i],
               C->node[j], C->node[(j+1) % G->n], C->costs[j],
               C->node[i], C->node[j], graph_get_edge_cost(G, C->node[i], C->node[j]),
               C->node[(i+1) % G->n], C->node[(j+1) % G->n], graph_get_edge_cost(G, C->node[k], C->node[h]),
-              delta);
+              delta, cost + delta);*/
 
           /*printf("from\n");
           for (l = 0; l < G->n; ++l) {
@@ -98,7 +94,7 @@ double heur2opt(graph *G, cycle *C, double ccost) {
           }
           printf("\n");*/
 
-          //cost += delta;
+          cost += delta;
           for (l = 0; l <= (j - k) / 2; ++l) {
             tmp = C->node[k + l];
             //printf("tmp = %d\n", tmp);
@@ -131,13 +127,13 @@ double heur2opt(graph *G, cycle *C, double ccost) {
 
     }
 
-    printf("restarting %f\n", cost);
+    //printf("restarting\n");
 
   }
 
   //printf("finished\n");
 
-  cost = cycle_get_cost(C);
+  //cost = cycle_get_cost(C);
 
   return cost;
 }
@@ -216,27 +212,45 @@ double heur2opt(graph *G, cycle *C, double ccost) {
  *
  * return : cost of the solution
  */
-/*double improved2opt(graph *G, tree *T, double ccost) {
-  double cost = heur2opt(G, T, ccost);
+double improved2opt(graph *G, cycle *C, double ccost) {
+  double cost = heur2opt(G, C, ccost);
 
-  int n1 = 0, n2 = 0, n3 = 0, p1, p2, p3;
+  int n1 = 0, n2 = 0, n3 = 0, p1, p2, p3, l;
 
   n1 = rand() % G->n + 1;
   do { n2 = rand() % G->n + 1; } while(n2 == n1);
   do { n3 = rand() % G->n + 1; } while(n3 == n1 || n3 == n2);
 
-  p1 = tree_get_pred(T, n1);
-  p2 = tree_get_pred(T, n2);
-  p3 = tree_get_pred(T, n3);
+  p1 = (n1 + 1) % C->n;
+  p2 = (n2 + 1) % C->n;
+  p3 = (n3 + 1) % C->n;
 
-  tree_swap_edges(G, T, n1, n2);
-  tree_swap_edges(G, T, n1, n3);
-  tree_swap_edges(G, T, n2, n3);
+  /*tree_swap_edges(G, C, n1, n2);
+  tree_swap_edges(G, C, n1, n3);
+  tree_swap_edges(G, C, n2, n3);*/
 
-  //return heur2opt(G, T, tree_get_cost(T));
+  /*for (l = 0; l <= (j - k) / 2; ++l) {
+    tmp = C->node[k + l];
+    C->node[k + l] = C->node[j - l];
+    C->node[j - l] = tmp;
 
-  return ccost;  // something here is not working...
-}*/
+    C->costs[i + l] = graph_get_edge_cost(G, C->node[i + l], C->node[(i+l+1) % G->n]);
+    C->costs[j - l] = graph_get_edge_cost(G, C->node[j-l], C->node[(j-l+1) % G->n]);
+
+  }*/
+
+  double second = heur2opt(G, C, cycle_get_cost(C));
+
+  if (second < cost) {
+    printf("improved2opt really improved from %f to %f\n", cost, second);
+    return second;
+  } else {
+    printf("improved2opt did not improve\n");
+    return cost;
+  }
+
+  //return ccost;  // something here is not working...
+}/**/
 
 /*
  * random_cycle_generation
@@ -249,35 +263,33 @@ double heur2opt(graph *G, cycle *C, double ccost) {
  *
  * return : cost of the returned cycle
  */
-/*double random_cycle_generation(const graph *G, cycle *C, int num_cycles) {
+double random_cycle_generation(graph *G, cycle *C, int num_cycles) {
   double opt_cost = BIG, cost;
-  onetree WORK_OT, BEST_OT;
+  cycle WORK_CYCLE, BEST_CYCLE;
   int i, j, nodes[G->n + 1], remaining, target, tmp;
 
-  //onetree_init(&BEST_OT, 1);
-  / *onetree_init(&WORK_OT, 1);
-  printf("ciao %d\n", G->n);
-
-  char cch = getchar();* /
+  cycle_init(&BEST_CYCLE, 1);
 
   for (i = 0; i < num_cycles; ++i) {
     //printf("i = %d\n", i);
 
-    for (j = 0; j <= G->n; ++j) {
-      nodes[j] = j;
+    cycle_init(&WORK_CYCLE, G->n);
+
+    for (j = 0; j < G->n; ++j) {
+      nodes[j] = j+1;
     }
 
-    for (j = 0; j <= G->n; ++j) {
+    /*for (j = 0; j < G->n; ++j) {
       printf("%d ", nodes[j]);
     }
-    printf("\n");
+    printf("\n");*/
 
     //printf("array filled\n");
 
     remaining = G->n;
 
     // generate permutation of the node
-    for (j = 1; j < G->n; ++j) {
+    for (j = 0; j < G->n; ++j) {
       target = rand() % remaining;
 
       tmp = nodes[j];
@@ -287,86 +299,33 @@ double heur2opt(graph *G, cycle *C, double ccost) {
       remaining--;
     }
 
-    //printf("problem here?\n");
-
-    // insert permutation in a 1-tree
-    onetree_delete(&WORK_OT);
-    onetree_init(&WORK_OT, G->n);
-    for (j = 1; j < G->n; ++j) {
-      onetree_insert_edge(&WORK_OT, nodes[j], nodes[j+1],
-          graph_get_edge_cost(G, nodes[j], nodes[j+1]));
+    // fill in cycle with costs
+    cost = 0.;
+    for (j = 0; j < G->n; ++j) {
+      WORK_CYCLE.node[j] = nodes[j];
+      WORK_CYCLE.costs[j] += graph_get_edge_cost(G, nodes[j], nodes[(j+1) % G->n]);
+      cost += WORK_CYCLE.costs[j];
     }
-    onetree_insert_edge(&WORK_OT, nodes[G->n], nodes[1],
-        graph_get_edge_cost(G, nodes[G->n], nodes[1]));
 
-    //printf("or here?\n");
+    cost = heur2opt(G, &WORK_CYCLE, cost);
 
-    cost = onetree_get_cost(&WORK_OT);
-
-    printf("hmmm here?\ncost = %f\n", cost);
-
-    for (j = 1; j <= G->n; ++j) {
+    /*for (j = 0; j < G->n; ++j) {
       printf("%d ", nodes[j]);
     }
-    printf("\n");
-    /*egraph EG1;
-    egraph_init(&EG1, 1);
+    printf("\n");*/
 
-    printf("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
-
-    egraph_copy(EG, &EG1);
-
-    printf("aaaaaaaaaaaaaaaaaaaaaaa\n");
-
-    onetree_to_egraph(&WORK_OT, &EG1);
-
-    printf("rrrrrrrrrrrrrrrrrrrrrrrrrgh\n");
-
-    egraph_plot(EG, &EG1);
-    egraph_delete(&EG1);
-    char ch = getchar();*/
-
-    /*cost = heur2opt(G, &WORK_OT.tree,
-        cost - graph_get_edge_cost(G, 1, WORK_OT.first_edge.node)
-             - graph_get_edge_cost(G, 1, WORK_OT.second_edge.node));
-
-    printf("hmmm here?\ncost = %f\n", cost);*/
-
-    /*egraph EG1;
-    egraph_init(&EG1, 1);
-
-    printf("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
-
-    egraph_copy(EG, &EG1);
-
-    printf("aaaaaaaaaaaaaaaaaaaaaaa\n");
-
-    onetree_to_egraph(&WORK_OT, &EG1);
-
-    printf("rrrrrrrrrrrrrrrrrrrrrrrrrgh\n");
-
-    egraph_plot(EG, &EG1);
-    egraph_delete(&EG1);*/
-
-    /*if (cost < opt_cost) {
-      //printf("aaa\n");
-      onetree_copy(&WORK_OT, OT);
-      //printf("bbb\n");
+    if (cost < opt_cost) {
+      cycle_copy(&WORK_CYCLE, &BEST_CYCLE);
       opt_cost = cost;
     }
 
-    //char ch = getchar();
-
-    //printf("heeere\n");
-    //onetree_delete(&WORK_OT);
-    //printf("here!\n");
-
+    cycle_delete(&WORK_CYCLE);
   }
 
-  //onetree_copy(&BEST_OT, OT);
-  //onetree_delete(&BEST_OT);
+  cycle_copy(&BEST_CYCLE, C);
+  cycle_delete(&BEST_CYCLE);
 
   return opt_cost;
-}*/
+}
 
 
