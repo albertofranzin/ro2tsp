@@ -78,12 +78,12 @@
 */
 
 // berlin52
-/*
+/** /
 #define X_MIN 0.010
 #define X_MAX 1800.010
 #define Y_MIN 0.010
 #define Y_MAX 1200.010
-*/
+/ **/
 
 
 // eil51
@@ -111,7 +111,13 @@
 */
 
 
-
+// pr107
+/** /
+#define X_MIN 0.010
+#define X_MAX 20000.010
+#define Y_MIN 0.010
+#define Y_MAX 20000.010
+/** /
 
 
 // bier127

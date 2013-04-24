@@ -17,7 +17,8 @@ double compute_lagrange(graph* G, onetree* H, double ub) {
   graph_init(&WORK_GRAPH, 1);
   graph_copy(G, &WORK_GRAPH);
 
-  L_OPT = VERY_SMALL;
+  //L_OPT = VERY_SMALL;
+  int never_updated_flag = 1;
   alpha = ALPHA;
   num_of_iterations = 0;
   time_since_improvement = 0;
@@ -38,7 +39,8 @@ double compute_lagrange(graph* G, onetree* H, double ub) {
     
     /* aggiorno contatore iterazioni in cui il valore L non è migliorato.
      */
-    if (L > L_OPT) {
+    if (L > L_OPT || never_updated_flag == 1) {
+      never_updated_flag = 0;
       L_OPT = L;
       time_since_improvement = 0;
       onetree_copy(&ONE_TREE, H);

@@ -146,28 +146,28 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
   /* ================================== */
   /* Seleziono un nodo per il branching */
   /* ================================== */
-  /** /for (w = 1; w <= n; w++) {
+  /**/for (w = 1; w <= n; w++) {
     if (onetree_get_node_deg(ONE_TREE, w) >= 3)
       break;
-  }/ **/
+  }/**/
 
 
 
   /* =================================== */
   /* Seleziono dei lati per il branching */
   /* =================================== */
-  /** /for (v = 1; v <= n; v++) {
+  /**/for (v = 1; v <= n; v++) {
     if (v != w && onetree_adjacent_nodes(ONE_TREE, w, v) && graph_get_edge_cost(&WORK_GRAPH, w, v) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, v) < BIG)
       break;
   }
   for (u = 1; u <= n; u++) {
     if (u != w && u != v && onetree_adjacent_nodes(ONE_TREE, w, u) && graph_get_edge_cost(&WORK_GRAPH, w, u) > SMALL && graph_get_edge_cost(&WORK_GRAPH, w, u) < BIG)
       break;
-  }/ **/
+  }/**/
 
   //onetree_delete(&ONE_TREE);
 
-  double most_convenient_edge_cost = SMALL,
+  /** /double most_convenient_edge_cost = SMALL,
          edge_cost, ot_cost,
          most_convenient_ot_cost = SMALL;
   int most_convenient_index = -1,
@@ -248,7 +248,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
 
   w = most_convenient_index;
   v = most_convenient_index_e1;
-  u = most_convenient_index_e2;
+  u = most_convenient_index_e2;/ **/
 
 
   // operazioni preliminari prima di avviare il branching: inizializzazione di alcune strutture
