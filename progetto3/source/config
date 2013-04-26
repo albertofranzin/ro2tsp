@@ -8,25 +8,31 @@
 
 
 # set TRUE to use an instance from TSPLIB, set FALSE otherwise
-TSP_FILE_INSTANCE = FALSE
+TSP_FILE_INSTANCE = TRUE
 
 # location of TSP-formatted file (from TSPLIB)
 # NUMBER_OF_NODES may be overridden by the value found in the file
-# TSP_FILE = ../../../tsplib/bays29.tsp
-# TSP_FILE = ../../progetto/source/dj38.tsp <-- lo risolve!!
-# TSP_FILE = ../../../tsplib/ulysses16.tsp
+# TSP_FILE = ../../../tsplib/bayg29.tsp
+# TSP_FILE = ../../progetto/source/dj38.tsp
+# TSP_FILE = ../../../tsplib/ulysses22.tsp
 # TSP_FILE = NULL
-# TSP_FILE = ../../../tsplib/eil101.tsp
+# TSP_FILE = ../../../tsplib/kroC100.tsp
 # TSP_FILE = ../../../tsplib/dantzig42.tsp
 # TSP_FILE = ../../../tsplib/berlin52.tsp
 # TSP_FILE = ../../../tsplib/pr76.tsp <-- SEGFAULT!!
-TSP_FILE = ../../../tsplib/att48.tsp
+# TSP_FILE = ../../../tsplib/att48.tsp
 # TSP_FILE = ../../../tsplib/bier127.tsp
-
-
+# TSP_FILE = ../../../tsplib/eil76.tsp
+# TSP_FILE = ../../../tsplib/burma14.tsp
+# TSP_FILE = ../../../tsplib/sst70.tsp
+# TSP_FILE = ../../../tsplib/rat99.tsp
+# TSP_FILE = ../../../tsplib/rd100.tsp
+# TSP_FILE = ../../../tsplib/swiss42.tsp
+# TSP_FILE = ../../../tsplib/ahk48.tsp
+TSP_FILE = ../../../tsplib/fri26.tsp
 
 # set TRUE to use a randomly generated instance, set FALSE otherwise
-RANDOM_INSTANCE = TRUE
+RANDOM_INSTANCE = FALSE
 
 # select desidered numer of nodes in the graph [int]
 NUMBER_OF_NODES = 10

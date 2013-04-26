@@ -222,9 +222,21 @@ short tspHash(char *parName, char *parValue) {
             return 43;
         } else if (strcmp(parValue, "GEO") == 0) {
             return 44;
+        } else if (strcmp(parValue, "EXPLICIT") == 0) {
+          return 45;
         } else {
             return -1;
         }
+    }
+
+    if (strcmp(parName, "EDGE_WEIGHT_FORMAT") == 0) {
+      if (strcmp(parValue, "FULL_MATRIX") == 0) {
+        return 46;
+      } else if (strcmp(parValue, "LOWER_DIAG_ROW") == 0) {
+        return 47;
+      } else {
+        return -1;
+      }
     }
 
     if (strcmp(parName, "DISPLAY_DATA_TYPE") == 0) {
@@ -240,6 +252,10 @@ short tspHash(char *parName, char *parValue) {
 
     if (strcmp(parName, "DISPLAY_DATA_SECTION") == 0)
         return 62;
+
+    if (strcmp(parName, "EDGE_WEIGHT_SECTION") == 0) {
+      return 63;
+    }
 
     return -1;
 }
@@ -263,10 +279,12 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     //printf("reading tsp file %s\n", pars->tsp_file);
     FILE *tspFile = fopen(pars->tsp_file, "r");
     long i = 0, j;
-    char line[128];
+    char line[1024];
     char *p1, *p2;
     int lineLen;
     short read = 1;
+    short haveDistances = 1;
+    short matrix_type = 0;
 
     egraph_delete(G);
 
@@ -293,62 +311,166 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                 case 1 : break;
                 case 2 : break;
                 case 3 : pars->number_of_nodes = atoi(p2);
-                                 //printf("updated no_of_nodes : %d\n", pars->no_of_nodes);
                          break;
 
                 case 41: // ?
                 case 42: // what to do?
                 case 43: // nothing, for now
-                case 44: break;
+                case 44: //
+                case 45: break;
+
+                case 46: matrix_type = 46;
+                         break;
+                case 47: matrix_type = 47;
 
                 case 51: break;
 
+
                 case 61:
-                case 62: egraph_init(G, pars->number_of_nodes);
-                         //i = 0;
-                         //printf("graph initialized\n");
-                         while( fgets(line, sizeof line, tspFile) != NULL ) {
-                            //printf("doin' anything?\n");
-                            lineLen = strlen(line)-1;
+                case 62:
+                case 63: if (matrix_type == 0) {
+                             egraph_init(G, pars->number_of_nodes);
+                             //i = 0;
+                             //printf("graph initialized\n");
+                             const char delimiters[] = " ";
+                             while( fgets(line, sizeof line, tspFile) != NULL ) {
+                                //printf("doin' anything?\n");
+                                lineLen = strlen(line)-1;
 
-                            // skip empty lines
-                            if(lineLen == 0) continue;
-                            if(line[lineLen] == '\n') line[lineLen] = 0;
+                                // skip empty lines
+                                if(lineLen == 0) continue;
+                                if(line[lineLen] == '\n') line[lineLen] = 0;
 
-                            // skip comments
-                            if(line[0] == '#') continue;
+                                // skip comments
+                                if(line[0] == '#') continue;
 
-                            if (strcmp(line, "EOF") == 0 ||
-                                strcmp(line, " EOF") == 0) {
-                                break;
-                            }
+                                if (strcmp(line, "EOF") == 0 ||
+                                    strcmp(line, " EOF") == 0) {
+                                    break;
+                                }
 
-                            char *running, *token1, *token2, *token3;
-                            const char delimiters[] = " ";
+                                char *running, *token1, *token2, *token3;
 
-                            // token = strtok(&running, delimiters);
-                            //printf("abababab\n");
-                            //strcpy(running, line);
-                            //printf("cdcdcdcd\n");
-                            token1 = strtok(line, delimiters);
-                            //printf("efefefef\n");
-                            token2 = strtok(NULL, delimiters);
-                            //printf("ghghghgh\n");
-                            token3 = strtok(NULL, delimiters);
+                                // token = strtok(&running, delimiters);
+                                //printf("abababab\n");
+                                //strcpy(running, line);
+                                //printf("cdcdcdcd\n");
+                                token1 = strtok(line, delimiters);
+                                //printf("efefefef\n");
+                                token2 = strtok(NULL, delimiters);
+                                //printf("ghghghgh\n");
+                                token3 = strtok(NULL, delimiters);
 
-                            //printf("%s %s %s | ", token1, token2, token3);
-                            //printf("%d %f %f\n", atoi(token1), atof(token2), atof(token3));
+                                //printf("%s %s %s | ", token1, token2, token3);
+                                //printf("%d %f %f\n", atoi(token1), atof(token2), atof(token3));
 
-                            //j = atoi(token1)-1;
-                            j = atoi(token1);
-                            //G->V[j].x = atof(token2);
-                            //G->V[j].y = atof(token3);
-                            egraph_set_node_x(G, j, atof(token2));
-                            egraph_set_node_y(G, j, atof(token3));
+                                //j = atoi(token1)-1;
+                                j = atoi(token1);
+                                //G->V[j].x = atof(token2);
+                                //G->V[j].y = atof(token3);
+                                egraph_set_node_x(G, j, atof(token2));
+                                egraph_set_node_y(G, j, atof(token3));
 
+                             }
+                             //printf("here?\n");
+                             break;
+                         } else if (matrix_type == 46) {
+                             // full matrix
+                             // each row contains pars->number_of_nodes elements
+                             // (or, at least, it should...)
+                             egraph_init(G, pars->number_of_nodes);
+                             int row = 0, cumulative_counter = 0, stop;
+                             const char delimiters[] = " ";
+                             while (fgets(line, sizeof(line), tspFile) != NULL) {
+                                lineLen = strlen(line)-1;
+
+                                // skip empty lines
+                                if(lineLen == 0) continue;
+                                if(line[lineLen] == '\n') line[lineLen] = 0;
+
+                                // skip comments
+                                if(line[0] == '#') continue;
+
+                                if (strcmp(line, "EOF") == 0 ||
+                                    strcmp(line, " EOF") == 0) {
+                                    break;
+                                }
+
+                                char *tokens[pars->number_of_nodes], *tok;
+
+                                int count = 0;
+                                tok = strtok(line, delimiters);
+
+                                tokens[cumulative_counter] = tok;
+                                cumulative_counter++;
+                                stop = 0;
+                                while (!stop) {
+                                  tok = strtok(NULL, delimiters);
+                                  if (tok == NULL) {
+                                    stop = 1;
+                                  } else {
+                                    tokens[cumulative_counter] = tok;
+                                    cumulative_counter++;
+                                  }
+                                }
+
+                                //cumulative_counter += j;
+
+                                if (cumulative_counter >= pars->number_of_nodes) {
+                                  row++;
+                                  cumulative_counter %= pars->number_of_nodes;
+
+                                  for (j = 0; j < row; ++j) {
+                                    egraph_insert_edge(G, row, j+1, atof(tokens[j]));
+                                  }
+                                }
+
+                             }
+
+                             haveDistances = 0;
+                             break;
+                         } else if (matrix_type == 47) {
+                             egraph_init(G, pars->number_of_nodes);
+
+                             int row = 0, pos = 0;
+                             const char delimiters[] = " ";
+                             while( fgets(line, sizeof line, tspFile) != NULL ) {
+
+                                //printf("doin' anything?\n");
+                                lineLen = strlen(line)-1;
+
+                                // skip empty lines
+                                if(lineLen == 0) continue;
+                                if(line[lineLen] == '\n') line[lineLen] = 0;
+
+                                // skip comments
+                                if(line[0] == '#') continue;
+
+                                if (strcmp(line, "EOF") == 0 ||
+                                    strcmp(line, " EOF") == 0) {
+                                    break;
+                                }
+
+                                char *running, *tokens[pars->number_of_nodes], *tok;
+                                tok = strtok(line, delimiters);
+
+                                /*tokens[cumulative_counter] = tok;
+                                cumulative_counter++;
+                                stop = 0;*/
+                                while (tok != NULL) {
+                                  egraph_insert_edge(G, row+1, pos+1, atof(tok));
+                                  pos++;
+                                  if (atof(tok) == 0.) {
+                                    row++;
+                                    pos = 0;
+                                  }
+                                  tok = strtok(NULL, delimiters);
+                                }
+                             }
+
+                             haveDistances = 0;
+                             break;
                          }
-                         //printf("here?\n");
-                         break;
 
                 default: break;
             }
@@ -358,40 +480,129 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
         perror(pars->tsp_file);
     }
 
-//for (i = 0; i < G->n; ++i) {
-//      printf("%f %f", egraph_get_node_x(G, i), egraph_get_node_y(G, i));
-//  }
-//  char cc = getchar();
+    //for (i = 0; i < G->n; ++i) {
+    //      printf("%f %f", egraph_get_node_x(G, i), egraph_get_node_y(G, i));
+    //  }
+    //  char cc = getchar();
 
     //printf("graph filled, exiting\n");
 
-    for (i = 1; i <= pars->number_of_nodes; i++) {
+    double x, y;
+    double min_x = egraph_get_node_x(G, 1);
+    double max_x = min_x;
+    double min_y = egraph_get_node_y(G, 1);
+    double max_y = min_y;
+
+    if (haveDistances) {
+      for (i = 1; i <= pars->number_of_nodes; i++) {
+        x = egraph_get_node_x(G, i);
+        y = egraph_get_node_y(G, i);
         for (j = i+1; j <= pars->number_of_nodes; j++) {
-          //printf("vainmona\n");
-          //char ch = getchar();
-          //(*G).E[ j*(j+1) / 2 + i].flag = 1;
-          //(*G).E[ j*(j+1) / 2 + i].cost = sqrt(pow( (*G).V[i].x - (*G).V[j].x, 2 ) + pow( (*G).V[i].y - (*G).V[j].y, 2 ));
-          //egraph_set_edge_cost(G, i, j,
-          //    sqrt(
-          //            pow(
-          //                egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
-          //            ) + pow(
-          //                egraph_get_node_y(G, i) - egraph_get_node_x(G, j), 2
-          //            )
-          //        )
-          //    );
-          egraph_insert_edge(G, i, j, sqrt(    pow(egraph_get_node_x(G, i) - egraph_get_node_x(G, j),   2)    +     pow(egraph_get_node_y(G, i) - egraph_get_node_y(G, j),    2)         )  );
-            //printf("%f %f\n", egraph_get_edge_cost(G, i, j), sqrt(
-            //      pow(
-            //          egraph_get_node_x(G, i) - egraph_get_node_x(G, j), 2
-            //      ) + pow(
-            //          egraph_get_node_y(G, i) - egraph_get_node_x(G, j), 2
-            //      )
-            //  )
-            //);
+          egraph_insert_edge(G, i, j,
+            sqrt(
+              pow(x - egraph_get_node_x(G, j), 2)
+              +
+              pow(y - egraph_get_node_y(G, j), 2)
+            )
+          );
         }
+
+        if (x < min_x) {
+          min_x = x;
+        } else if (x > max_x) {
+          max_x = x;
+        }
+
+        if (y < min_y) {
+          min_y = y;
+        } else if (y > max_y) {
+          max_y = y;
+        }
+      }
+    } else {
+      // fill in nodes coords
+      // found at http://stackoverflow.com/questions/10963054/finding-the-coordinates-of-points-from-distance-matrix
+      // hoe it works, since there is something I havent' understood yet...
+
+      // set first node at (0,0)
+      // I hope everything falls into the first quadrant
+      egraph_set_node_x(G, 0, 0.);
+      egraph_set_node_y(G, 0, 0.);
+
+      // set node 2 on the same horz. line, at proper distance
+      egraph_set_node_x(G, 2, egraph_get_edge_cost(G, 1, 2));
+      egraph_set_node_y(G, 2, 0.);
+
+      // iterate brute-force step until all nodes have been somewhat correctly given
+      // their coords - or some values sufficiently near to them.
+      short placed[pars->number_of_nodes + 1];
+      memset(placed, 0, sizeof(placed));
+      placed[0] = 1; // no need, but just in case
+      placed[1] = 1;
+      placed[2] = 1;
+
+      double Dp1p2 = egraph_get_edge_cost(G, 1, 2), Dp1p3, Dp2p3, cosine, angle;
+
+      min_x = 0.;
+      max_x = Dp1p2 + 1;
+      min_y = 0.;
+      max_y = 2.;
+
+      double x1 = 0., y1 = 0.;
+      double x2 = egraph_get_node_x(G, 2), y2 = 0.;
+      double x3, y3;
+
+      short remaining = pars->number_of_nodes - 2;
+      while (remaining > 0) {
+        for (i = 3; i <= pars->number_of_nodes; ++i) {
+          if (placed[i] == 0) {
+            /*x3 = egraph_get_node_x(G, i);
+            y3 = egraph_get_node_y(G, i);*/
+
+            Dp1p3 = egraph_get_edge_cost(G, 1, i);
+            Dp2p3 = egraph_get_edge_cost(G, 2, i);
+
+            cosine = (Dp1p2*Dp1p2 + Dp2p3*Dp2p3 - Dp1p3*Dp1p3) / (2*Dp1p2*Dp2p3);
+            angle = acosf(cosine);
+            x = cosine * Dp1p3;
+            y = sinf(angle) * Dp1p3;
+
+            /*cosine = (Dp1p2*Dp1p2 + Dp1p3*Dp1p3 - Dp2p3*Dp2p3)/(2*Dp1p2*Dp1p3);
+            angle = acosf(cosine);
+            x = cosine * Dp1p3;
+            y = sinf(angle) * Dp1p3;*/
+            egraph_set_node_x(G, i, x);
+            egraph_set_node_y(G, i, y);
+
+            if (x < min_x) {
+              min_x = x;
+            } else if (x > max_x) {
+              max_x = x;
+            }
+
+            if (y < min_y) {
+              min_y = y;
+            } else if (y > max_y) {
+              max_y = y;
+            }
+
+            placed[i] = 1;
+          }
+        }
+
+        remaining--;
+      } // end while (remaining > 0)
+
     }
 
+    // set bounds and add some padding
+    G->min_x = min_x - (max_x - min_x) / 50;
+    G->max_x = max_x + (max_x - min_x) / 50;
+    G->min_y = min_y - (max_y - min_y) / 50;
+    G->max_y = max_y + (max_y - min_y) / 50;
+
+    //printf("%f %f %f %f\n", min_x, max_x, min_y, max_y);
+    //printf("%f %f %f %f\n", G->min_x, G->max_x, G->min_y, G->max_y);
 
 }
 

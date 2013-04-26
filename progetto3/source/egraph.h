@@ -29,6 +29,11 @@ struct egraph {
   int n; // numero nodi del grafo;
   egraph_node* V; // nodi del grafo;
   egraph_edge* E; // lati del grafo;
+  // coords:
+  double max_x;
+  double min_x;
+  double max_y;
+  double min_y;
 };
 
 typedef struct egraph egraph;
@@ -54,6 +59,11 @@ int egraph_adjacent_nodes(egraph* EG, int u, int v);
 double egraph_get_cost(egraph* EG);
 
 void egraph_plot(egraph* EG1, egraph* EG2);
+
+/*
+ * print egraph as (diagonal) matrix of costs
+ */
+void egraph_print(egraph *EG);
 
 void graph_to_egraph(graph* G, egraph* EG);
 void egraph_to_graph(egraph* EG, graph* G);

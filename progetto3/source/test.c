@@ -167,17 +167,22 @@ int main(int argc, char** argv) {
 
   if (is_cycle(&ONE_TREE) == 1) {
     printf("lagrangiano FTW!\n");
+    egraph EG1;
+    egraph_init(&EG1, 1);
+    egraph_copy(&EG, &EG1);
+    onetree_to_egraph(&ONE_TREE, &EG1);
+    egraph_plot(&EG, &EG1);
   } else {
     printf("\n@ Branch and Bound\n# initial incumbent = %f, lower bound = %f\n",
       incumbent, z);
     solve_tsp(&G, &H, &incumbent, &ONE_TREE, z, 0);
+    egraph EG1;
+    egraph_init(&EG1, 1);
+    egraph_copy(&EG, &EG1);
+    onetree_to_egraph(&H, &EG1);
+    egraph_plot(&EG, &EG1);
   }
 
-  egraph EG1;
-  egraph_init(&EG1, 1);
-  egraph_copy(&EG, &EG1);
-  onetree_to_egraph(&H, &EG1);
-  egraph_plot(&EG, &EG1);
 
   printf("Quality of bounds:\n");
   printf("- upper bound/opt : %f\n", heuristic_upper_bound / incumbent);
