@@ -25,6 +25,7 @@ double compute_upper_bound(graph* G, cycle *C) {
 
   //printf("about to compute first cycle\n");
   min = compute_nearest_neighbour(G, &BEST_CYCLE, 1);
+  min = heur2opt(G, &BEST_CYCLE, min);
   //printf("first cycle computed\n");
   best_index = 1;
   for (i = 2; i <= n; i++) {

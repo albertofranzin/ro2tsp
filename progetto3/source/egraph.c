@@ -5,6 +5,11 @@ void egraph_init(egraph* EG, int n) {
   (*EG).n = n;
   (*EG).V = (egraph_node*)calloc(n, sizeof(egraph_node) * n);
   (*EG).E = (egraph_edge*)calloc(n * (n + 1) / 2, sizeof(egraph_edge));
+
+  EG->max_x = X_MAX;
+  EG->max_y = Y_MAX;
+  EG->min_x = X_MIN;
+  EG->min_y = Y_MIN;
 }
 
 void egraph_delete(egraph* EG) {
@@ -33,6 +38,12 @@ void egraph_random(egraph* EG) {
       (*EG).E[ j*(j+1) / 2 + i].cost = sqrt(pow( (*EG).V[i].x - (*EG).V[j].x, 2 ) + pow( (*EG).V[i].y - (*EG).V[j].y, 2 ));
     }
   }
+
+  EG->max_x = 1.1;
+  EG->max_y = 1.1;
+  EG->min_x = -0.1;
+  EG->min_y = -0.1;
+
 }
 
 void egraph_copy(egraph* FROM, egraph* TO) {
@@ -50,6 +61,11 @@ void egraph_copy(egraph* FROM, egraph* TO) {
     (*TO).E[i].flag = (*FROM).E[i].flag;
     (*TO).E[i].cost = (*FROM).E[i].cost;
   }
+
+  TO->max_x = FROM->max_x;
+  TO->max_y = FROM->max_y;
+  TO->min_x = FROM->min_x;
+  TO->min_y = FROM->min_y;
 }
 
 void egraph_set_node_x(egraph* EG, int v, double x) {
@@ -136,16 +152,16 @@ void egraph_plot(egraph* EG1, egraph* EG2) {
   if (n1 > 0) {
     for (i = 0; i < n1 * (n1 + 1) / 2; i++) {
       if ((*EG1).E[i].flag == 1) {
-	eg1_has_some_edge = 1;
-	break;
+        eg1_has_some_edge = 1;
+        break;
       }
     }
   }
   if (n2 > 0) {
     for (i = 0; i < n2 * (n2 + 1) / 2; i++) {
       if ((*EG2).E[i].flag == 1) {
-	eg2_has_some_edge = 1;
-	break;
+        eg2_has_some_edge = 1;
+        break;
       }
     }
   }
@@ -153,9 +169,12 @@ void egraph_plot(egraph* EG1, egraph* EG2) {
   FILE* pipe = popen("gnuplot -persist", "w");
 
   fprintf(pipe, "set multiplot\n");
-  fprintf(pipe, "set size square\n");
-  fprintf(pipe, "set xrange [%.3f:%.3f]\n", X_MIN, X_MAX);
-  fprintf(pipe, "set yrange [%.3f:%.3f]\n", Y_MIN, Y_MAX);
+  /*if (EG1->max_x - EG1->min_x < EPSILON && <-- this needs some more thinking
+      EG1->max_y - EG1->min_y < EPSILON) {*/
+    fprintf(pipe, "set size square\n");
+  //}
+  fprintf(pipe, "set xrange [%.3f:%.3f]\n", EG1->min_x, EG1->max_x);
+  fprintf(pipe, "set yrange [%.3f:%.3f]\n", EG1->min_y, EG1->max_y);
   fprintf(pipe, "set xlabel 'X'\n");
   fprintf(pipe, "set ylabel 'Y'\n");
   //fprintf(pipe, "unset xtics\n");
@@ -246,6 +265,19 @@ void egraph_plot(egraph* EG1, egraph* EG2) {
   }
 
   fflush(pipe);
+}
+
+/*
+ * print egraph as (diagonal) matrix of costs
+ */
+void egraph_print(egraph *EG) {
+  int i, j;
+  for (i = 1; i <= EG->n; ++i) {
+    for (j = 1; j <= i; ++j) {
+     printf("%f ", egraph_get_edge_cost(EG, i, j));
+    }
+    printf("\n");
+  }
 }
 
 void egraph_to_graph(egraph* EG, graph* G) {
