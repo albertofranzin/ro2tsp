@@ -67,7 +67,7 @@ short parHash(char *parName) {
 parameters *getParameters() {
   parameters *pars = (parameters*)calloc(1, sizeof(parameters));
 
-  printf("@getParameters : calloc done\n");
+  //printf("@getParameters : calloc done\n");
 
   pars->number_of_nodes = DEFAULT_NUMBER_OF_NODES;
   pars->random_instance_option = DEFAULT_RANDOM_INSTANCE_OPTION;
@@ -89,7 +89,7 @@ parameters *getParameters() {
 
   if ( parFile != NULL ) {
 
-    printf("@getParameters : beginning file scan\n");
+    //printf("@getParameters : beginning file scan\n");
 
     while( fgets(line, sizeof line, parFile) != NULL ){
       lineLen = strlen(line)-1;
@@ -107,70 +107,70 @@ parameters *getParameters() {
       p1 = strtok(line, "= ");
       p2 = strtok(NULL, "= ");
 
-      printf("%s %s\n", p1, p2);
+      //printf("%s %s\n", p1, p2);
 
       if(p2 != NULL) {
         // manage correctly each parameter
         switch(parHash(p1)) {
 
         case 0 :
-          printf("@getParameters : case 0 : number_of_nodes\n");
+          //printf("@getParameters : case 0 : number_of_nodes\n");
           pars->number_of_nodes = atoi(p2);
-          printf("@getParameters : case 0 done\n");
+          //printf("@getParameters : case 0 done\n");
           break;
 
         case 1 :
-          printf("@getParameters : case 1 : random_instance_option\n");
+          //printf("@getParameters : case 1 : random_instance_option\n");
           if (strcmp(p2, "TRUE") == 0)
             pars->random_instance_option = 1;
           else if (strcmp(p2, "FALSE") == 0)
             pars->random_instance_option = 0;
-          printf("@getParameters : case 1 done\n");
+          //printf("@getParameters : case 1 done\n");
           break;
 
         case 2 :
-          printf("@getParameters : case 2 : random_seed_option\n");
+          //printf("@getParameters : case 2 : random_seed_option\n");
           if (strcmp(p2, "TRUE") == 0)
             pars->random_seed_option = 1;
           else if (strcmp(p2, "FALSE") == 0)
             pars->random_seed_option = 0;
-          printf("@getParameters : case 2 done\n");
+          //printf("@getParameters : case 2 done\n");
           break;
 
         case 3 :
-          printf("@getParameters : case 3 : seed\n");
+          //printf("@getParameters : case 3 : seed\n");
           if (pars->random_instance_option == 1 && pars->random_seed_option == 0)
             pars->seed = atoi(p2);
-          printf("@getParameters : case 3 done\n");
+          //printf("@getParameters : case 3 done\n");
           break;
 
         case 4 :
-          printf("@getParameters : case 4 : tsp_file_option\n");
+          //printf("@getParameters : case 4 : tsp_file_option\n");
           if (strcmp(p2, "TRUE") == 0)
             pars->tsp_file_option = 1;
           else if (strcmp(p2, "FALSE") == 0)
             pars->tsp_file_option = 0;
-          printf("@getParameters : case 4 done\n");
+          //printf("@getParameters : case 4 done\n");
           break;
 
         case 5 :
-          printf("@getParameters :: case 5 : tsp_file\n");
+          //printf("@getParameters :: case 5 : tsp_file\n");
           if (pars->tsp_file_option == 1) {
             pars->tsp_file = malloc(sizeof(char) * strlen(p2));
             strcpy(pars->tsp_file, p2);
-            printf("@getParameters :: case 5 :: string copied\n");
+            //printf("@getParameters :: case 5 :: string copied\n");
           }
-          printf("@getParameters :: case 5 done\n");
+          //printf("@getParameters :: case 5 done\n");
           break;
 
         case 6 :
-          printf("@getParameters :: case 6 : heuristic_trials\n");
+          //printf("@getParameters :: case 6 : heuristic_trials\n");
           pars->heuristic_trials = atoi(p2);
-          printf("@getParameters :: case 6 done\n");
+          //printf("@getParameters :: case 6 done\n");
           break;
 
         default:
-          printf("@getParameters :: default\n");
+          //printf("@getParameters :: default\n");
           break;
 
 
@@ -178,16 +178,16 @@ parameters *getParameters() {
       }
     }
 
-    printf("@getParameters : closing (file) time\n");
+    //printf("@getParameters : closing (file) time\n");
     fclose(parFile);
-    printf("@getParameters : closing (file) time passed\n");
+    //printf("@getParameters : closing (file) time passed\n");
   }
   else {
     // errore nell'apertura del file
     perror( FILE_CONFIG );
   }
 
-  printf("@getParameters : exiting\n");
+  //printf("@getParameters : exiting\n");
   return pars;
 }
 
@@ -488,12 +488,19 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     //printf("graph filled, exiting\n");
 
     double x, y;
-    double min_x = egraph_get_node_x(G, 1);
-    double max_x = min_x;
-    double min_y = egraph_get_node_y(G, 1);
-    double max_y = min_y;
+
+    double min_x;
+    double max_x;
+    double min_y;
+    double max_y;
 
     if (haveDistances) {
+
+      min_x = egraph_get_node_x(G, 1);
+      max_x = min_x;
+      min_y = egraph_get_node_y(G, 1);
+      max_y = min_y;
+
       for (i = 1; i <= pars->number_of_nodes; i++) {
         x = egraph_get_node_x(G, i);
         y = egraph_get_node_y(G, i);
@@ -522,78 +529,62 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     } else {
       // fill in nodes coords
       // found at http://stackoverflow.com/questions/10963054/finding-the-coordinates-of-points-from-distance-matrix
-      // hoe it works, since there is something I havent' understood yet...
-
-      // set first node at (0,0)
-      // I hope everything falls into the first quadrant
-      egraph_set_node_x(G, 0, 0.);
-      egraph_set_node_y(G, 0, 0.);
-
-      // set node 2 on the same horz. line, at proper distance
-      egraph_set_node_x(G, 2, egraph_get_edge_cost(G, 1, 2));
-      egraph_set_node_y(G, 2, 0.);
-
-      // iterate brute-force step until all nodes have been somewhat correctly given
-      // their coords - or some values sufficiently near to them.
-      short placed[pars->number_of_nodes + 1];
-      memset(placed, 0, sizeof(placed));
-      placed[0] = 1; // no need, but just in case
-      placed[1] = 1;
-      placed[2] = 1;
+      // hope it works, since there is something I haven't understood yet...
 
       double Dp1p2 = egraph_get_edge_cost(G, 1, 2), Dp1p3, Dp2p3, cosine, angle;
 
+      double x1 = 0., y1 = 0.;
+      double x2 = Dp1p2, y2 = 0.;
+
+      // set first node at (0,0)
+      egraph_set_node_x(G, 1, x1);
+      egraph_set_node_y(G, 1, y1);
+
+      // set node 2 on the same horz. line, at proper distance
+      egraph_set_node_x(G, 2, x2);
+      egraph_set_node_y(G, 2, y2);
+
+      // for padding
       min_x = 0.;
       max_x = Dp1p2 + 1;
       min_y = 0.;
       max_y = 2.;
 
-      double x1 = 0., y1 = 0.;
-      double x2 = egraph_get_node_x(G, 2), y2 = 0.;
-      double x3, y3;
+      // iterate brute-force step until all nodes have been somewhat correctly given
+      // their coords - or some values sufficiently near to them.
 
-      short remaining = pars->number_of_nodes - 2;
-      while (remaining > 0) {
-        for (i = 3; i <= pars->number_of_nodes; ++i) {
-          if (placed[i] == 0) {
-            /*x3 = egraph_get_node_x(G, i);
-            y3 = egraph_get_node_y(G, i);*/
+      for (i = 3; i <= pars->number_of_nodes; ++i) {
 
-            Dp1p3 = egraph_get_edge_cost(G, 1, i);
-            Dp2p3 = egraph_get_edge_cost(G, 2, i);
+        Dp1p3 = egraph_get_edge_cost(G, 1, i);
+        Dp2p3 = egraph_get_edge_cost(G, 2, i);
 
-            cosine = (Dp1p2*Dp1p2 + Dp2p3*Dp2p3 - Dp1p3*Dp1p3) / (2*Dp1p2*Dp2p3);
-            angle = acosf(cosine);
-            x = cosine * Dp1p3;
-            y = sinf(angle) * Dp1p3;
+        cosine = (Dp1p2*Dp1p2 + Dp1p3*Dp1p3 - Dp2p3*Dp2p3) / (2*Dp1p2*Dp1p3);
+        angle = acosf(cosine);
+        x = cosine * Dp1p3;
+        y = sinf(angle) * Dp1p3;
 
-            /*cosine = (Dp1p2*Dp1p2 + Dp1p3*Dp1p3 - Dp2p3*Dp2p3)/(2*Dp1p2*Dp1p3);
-            angle = acosf(cosine);
-            x = cosine * Dp1p3;
-            y = sinf(angle) * Dp1p3;*/
-            egraph_set_node_x(G, i, x);
-            egraph_set_node_y(G, i, y);
+        egraph_set_node_x(G, i, x);
 
-            if (x < min_x) {
-              min_x = x;
-            } else if (x > max_x) {
-              max_x = x;
-            }
+        if (fabs(sqrt((x-x1)*(x-x1) + (y-y1)*(y-y1)) - Dp1p3) > 0.1) {
+          y = -y;
+        }
+        egraph_set_node_y(G, i, y);
 
-            if (y < min_y) {
-              min_y = y;
-            } else if (y > max_y) {
-              max_y = y;
-            }
-
-            placed[i] = 1;
-          }
+        if (x < min_x) {
+          min_x = x;
+        } else if (x > max_x) {
+          max_x = x;
         }
 
-        remaining--;
-      } // end while (remaining > 0)
+        if (y < min_y) {
+          min_y = y;
+        } else if (y > max_y) {
+          max_y = y;
+        }
 
-    }
+      }
+
+    } // end if-else
 
     // set bounds and add some padding
     G->min_x = min_x - (max_x - min_x) / 50;
@@ -603,6 +594,8 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
     //printf("%f %f %f %f\n", min_x, max_x, min_y, max_y);
     //printf("%f %f %f %f\n", G->min_x, G->max_x, G->min_y, G->max_y);
+
+    egraph_print(G);
 
 }
 
@@ -633,17 +626,33 @@ int sebwComp (const void * a, const void * b) {
   else return 0;
 }
 
-/*void appendDouble(double **nnl, double n, int pos) {
-    double *nl = (double *)(*nnl);
-
-    double *tmp = realloc(nl, sizeof(nl) + sizeof(double)); 
-    if (tmp != NULL) {
-        memcpy(&(tmp), &(nl), sizeof(nl));
-        // beware : 'pos' correctness is not checked!
-        tmp[pos] = n;
-        nl = tmp;
-    } else {
-        fprintf(stderr, "memory allocation failed - smthg very close to a segfault [evil laugh] \n");
-        exit(1);
-    }
-}*/
+/*
+ * print_helper_menu
+ *
+ * print a menu with the list of all the parameters
+ * and how to use the sw
+ */
+void print_helper_menu() {
+  printf("\n");
+  printf("  TSP solver for the course of Ricerca Operativa 2\n");
+  printf("  a.y. 2012/13, taught by prof. M. Fischetti\n\n");
+  printf("  authors: Alberto Franzin\n         Ludovico Minto\n\n");
+  printf("  Helper menu\n");
+  printf("  This software can solve two kind on TSP instances:\n");
+  printf("  - instances in TSPLIB format;\n");
+  printf("  - random instances.\n\n");
+  printf("  There are two ways to use it: set the desidered parameters\n");
+  printf("  in the 'config' file provided with the package,\n");
+  printf("  or append the desidered parameters to the command:\n");
+  printf("  -s [--seed] x   : x (integer) selects the desidered seed\n");
+  printf("                    for the random instance, such that:\n");
+  printf("                      if x >= 0, then x is the seed;\n");
+  printf("                      if x < 0, then a pseudorandom seed will be used.\n");
+  printf("  -n [--number] x : x (positive integer) is the number of nodes to be generated\n");
+  printf("                    in the random instance.\n");
+  printf("  -f [--file]   x : x (valid file/path) is the TSPLIB-formatted file of the instance.\n");
+  printf("                    If this option is chosen, then the previous ones\n");
+  printf("                    will be ignored, if present.\n");
+  printf("  -h [--help]     : printf this menu and exit.\n");
+  printf("\n\n");
+}

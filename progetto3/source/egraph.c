@@ -171,7 +171,7 @@ void egraph_plot(egraph* EG1, egraph* EG2) {
   fprintf(pipe, "set multiplot\n");
   /*if (EG1->max_x - EG1->min_x < EPSILON && <-- this needs some more thinking
       EG1->max_y - EG1->min_y < EPSILON) {*/
-    fprintf(pipe, "set size square\n");
+    //fprintf(pipe, "set size square\n");
   //}
   fprintf(pipe, "set xrange [%.3f:%.3f]\n", EG1->min_x, EG1->max_x);
   fprintf(pipe, "set yrange [%.3f:%.3f]\n", EG1->min_y, EG1->max_y);
