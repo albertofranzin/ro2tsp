@@ -8,7 +8,7 @@
 
 
 # set TRUE to use an instance from TSPLIB, set FALSE otherwise
-TSP_FILE_INSTANCE = TRUE
+TSP_FILE_INSTANCE = FALSE
 
 # location of TSP-formatted file (from TSPLIB)
 # NUMBER_OF_NODES may be overridden by the value found in the file
@@ -29,10 +29,13 @@ TSP_FILE_INSTANCE = TRUE
 # TSP_FILE = ../../../tsplib/rd100.tsp
 # TSP_FILE = ../../../tsplib/swiss42.tsp
 # TSP_FILE = ../../../tsplib/ahk48.tsp
-TSP_FILE = ../../../tsplib/fri26.tsp
+# TSP_FILE = ../../../tsplib/fri26.tsp
+# TSP_FILE = ../../../tsplib/agr17.tsp
+# TSP_FILE = ../../../tsplib/agr24.tsp
+TSP_FILE = ../../../tsplib/agr48.tsp
 
 # set TRUE to use a randomly generated instance, set FALSE otherwise
-RANDOM_INSTANCE = FALSE
+RANDOM_INSTANCE = TRUE
 
 # select desidered numer of nodes in the graph [int]
 NUMBER_OF_NODES = 10
@@ -40,7 +43,7 @@ NUMBER_OF_NODES = 10
 # set TRUE to use a randomly genrated seed, set FALSE otherwise
 # the choice is significant only if RANDOM_INSTANCE = TRUE
 # -> case TRUE not yet supported
-RANDOM_SEED = FALSE
+RANDOM_SEED = TRUE
 
 # seed for random [int]
 SEED = 123

@@ -32,15 +32,29 @@ int main(int argc, char** argv) {
 
 
   for (i = 1; i < argc; i++) {
+
     opt = argv[i];
-    if (strcmp(opt, "-n") == 0)
+
+    if (strcmp(opt, "-n") == 0 || strcmp(opt, "--number") == 0)
       pars->number_of_nodes = atoi(argv[++i]);
-    if (strcmp(opt, "-s") == 0)
+
+    if (strcmp(opt, "-s") == 0 || strcmp(opt, "--seed") == 0)
       pars->seed = atol(argv[++i]);
+
+    if (strcmp(opt, "-f") == 0 || strcmp(opt, "--file") == 0) {
+      // will ignore other options
+      pars->tsp_file_option = TRUE;
+      pars->random_instance_option = FALSE;
+      pars->tsp_file = argv[++i];
+    }
+
+    if (strcmp(opt, "-h") == 0 || strcmp(opt, "--help") == 0) {
+      // print help and exit
+      print_helper_menu();
+      return 0;
+    }
+
   }
-
-
-
 
 
 
@@ -61,15 +75,15 @@ int main(int argc, char** argv) {
     printf("@ Euclidean TSP\n# tsplib instance\n# number of nodes = %d\n# tsplib file = %s\n\n", pars->number_of_nodes, pars->tsp_file);
   }
   else if (pars->random_instance_option == TRUE) {
-    if (pars->random_seed_option == FALSE) {
+    if (pars->random_seed_option == FALSE || pars->seed >= 0) {
       srand(pars->seed);
-      egraph_random(&EG);
-      egraph_to_graph(&EG, &G);
-      printf("@ Euclidean TSP\n# random instance\n# number of nodes = %d\n# seed = %ld\n\n", pars->number_of_nodes, pars->seed);
     }
     else {
-      ; // aggiungi caso generazione pseudocasuale del seed
+      srand(time(NULL));
     }
+    egraph_random(&EG);
+    egraph_to_graph(&EG, &G);
+    printf("@ Euclidean TSP\n# random instance\n# number of nodes = %d\n# seed = %ld\n\n", pars->number_of_nodes, pars->seed);
   }
 
 

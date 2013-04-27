@@ -20,7 +20,7 @@ typedef struct _parameters {
 
   int random_instance_option;
   int random_seed_option;
-  unsigned long seed;
+  long seed;
 
   int tsp_file_option;
   char *tsp_file;
@@ -67,17 +67,24 @@ unsigned long initializeRandom(unsigned int seed);
  * recognizes parameters.
  *
  * returns:
- *  0 : parName = 'name'
- *  1 : (parName, parValue) = ('type', 'tsp')
- *  2 : parName = 'comment'
- *  3 : parName = 'dimension'
+ *  0 : parName = 'NAME'
+ *  1 : (parName, parValue) = ('TYPE', 'TSP')
+ *  2 : parName = 'COMMENT'
+ *  3 : parName = 'DIMENSION'
+ *
  * 41 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EUD_2D')
  * 42 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'MAN_2D')
  * 43 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'CEIL_2D')
  * 44 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'GEO')
+ * 45 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EXPLICIT')
+ * 46 : (parName, parValue) = ('EDGE_WEIGHT_FORMAT', 'FULL_MATRIX')
+ * 47 : (parName, parValue) = ('EDGE_WEIGHT_FORMAT', 'LOWER_DIAG_ROW')
+ *
  * 51 : (parName, parValue) = ('DISPLAY_DATA_TYPE', 'COORD_DISPLAY')
  * 61 : parName = 'NODE_COORD_SECTION'
  * 62 : parName = 'DISPLAY_DATA_SECTION'
+ * 63 : parName = 'EDGE_WEIGHT_SECTION'
+ *
  * -1 : all the other combinations/values
  */
 short tspHash(char*, char*);
@@ -101,5 +108,13 @@ void read_tsp_from_file(egraph *G, parameters *pars);
 
 // sort nodes by cost - comparator for qsort
 int sebwComp ( const void *, const void *);
+
+/*
+ * print_helper_menu
+ *
+ * print a menu with the list of all the parameters
+ * and how to use the sw
+ */
+void print_helper_menu();
 
 #endif
