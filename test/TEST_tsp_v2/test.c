@@ -12,8 +12,12 @@
 #include "tsp_solve.h"
 
 void main() {
-  int n = 30; // numero di nodi
-  int s = 123; // seed
+  int n = 40; // numero di nodi
+  int s = 0; // seed
+
+  // errore nodi 31-4-20-39-24 anzichè 31-20-39-4-34
+  // n = 40
+  // s = 0
 
   egraph EG;
   egraph_init(&EG, n);
@@ -23,6 +27,13 @@ void main() {
   graph G;
   graph_init(&G, 1);
   egraph_to_graph(&EG, &G);
+
+  //double c1 = 0.0;
+  //double c2 = 0.0;
+
+  //c1 = graph_get_edge_cost(&G, 31, 4) + graph_get_edge_cost(&G, 4, 20) + graph_get_edge_cost(&G, 20, 39) + graph_get_edge_cost(&G, 39, 34);
+  //c2 = graph_get_edge_cost(&G, 31, 20) + graph_get_edge_cost(&G, 20, 39) + graph_get_edge_cost(&G, 39, 4) + graph_get_edge_cost(&G, 4, 34);
+  //printf("c1 = %f, c2 = %f\n", c1, c2);
 
   onetree NN;
   onetree_init(&NN, n);

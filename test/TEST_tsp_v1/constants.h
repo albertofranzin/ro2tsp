@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H_
 #define CONSTANTS_H_
 
-#define EPSILON 0.0
+#define EPSILON 0.0000001
 
 #define BIG 1000.0
 #define SMALL -1000.0

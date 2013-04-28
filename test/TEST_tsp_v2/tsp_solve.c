@@ -14,7 +14,9 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
 
     graph_copy(&(*input).G, G_curr);
     onetree_copy(&(*input).H, &(*status).H_best);
-    (*status).z_best = onetree_get_cost(&(*input).H); // eventualmente status.z_best=input.ub, ma ciò imporrebbe di fornire in input un ub che è esattamente il costo del tour input.H
+    (*status).z_best = onetree_get_cost(&(*input).H);
+    onetree_copy(&(*input).H, &(*output).H_opt);
+    (*output).z_opt = (*input).ub;
 
   }
   (*stats).number_of_calls++;
@@ -33,34 +35,26 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     }
   }
 
-  if ((*status).z_curr >= (*status).z_best+EPSILON) {
+  if ((*status).z_curr >= (*status).z_best) { // >= (*status).z_best+EPSILON ? 
     return;
   }
 
   if (onetree_is_cycle(OT_curr)) {
-    if ((*status).current_call != 1) {
-      onetree_copy(OT_curr, &(*status).H_best);
-      (*status).z_best = (*status).z_curr;
-    }
-    else if ((*status).current_call == 1) {
-      onetree_copy(OT_curr, &(*output).H_opt);
-      (*output).z_opt = (*status).z_best = (*status).z_curr;
-    }
+    onetree_copy(OT_curr, &(*status).H_best);
+    (*status).z_best = (*status).z_curr;
     printf("# updated incumbent = %f : current_call = %d : current level = %d\n", (*status).z_best, (*status).current_call, (*status).current_level);
+    if ((*status).current_call == 1) {
+      onetree_copy(OT_curr, &(*output).H_opt);
+      (*output).z_opt = (*status).z_curr;
+    }
     return;
   }
-
 
   int w, v, u;
   // seleziona un nodo per il branching
   tsp_select_node(status, &w);
   // seleziona due lati per il branching
   tsp_select_edges(status, &w, &v, &u);
-
-
-  tsp_backup backup;
-  tsp_backup_init(&backup);
-  tsp_backup_save(&backup, status, N, N, N, N, Y, Y, N);
 
   // se esistono due lati mai forzati e mai vietati, allora procedi con BRANCHING A 3 VIE
   if (v > 0 && u > 0) {
@@ -69,36 +63,41 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     int branch_selection[3];
     tsp_backup backup_fc1, backup_fc2, backup_fc3;
     tsp_backup_init(&backup_fc1); tsp_backup_init(&backup_fc2); tsp_backup_init(&backup_fc3);
+    tsp_backup update_fc1, update_fc2, update_fc3;
+    tsp_backup_init(&update_fc1); tsp_backup_init(&update_fc2); tsp_backup_init(&update_fc3);
 
     // vieta il lato {w, v};
-    tsp_constraints_a(w, v, 0, BIG, 0.0, status, &backup, &backup_fc1);
+    tsp_backup_save(&backup_fc1, status, N, N, N, N, Y, Y, N);
+    tsp_constraints_a(w, v, 0, BIG, 0.0, status, &backup_fc1, &update_fc1);
     compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr)+EPSILON);
     (*status).z_curr = 0.0;
     for (i = 1; i <= n; i++) {
       z1 = (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
     }
-    tsp_backup_save(&backup_fc1, status, Y, Y, N, N, Y, Y, N);
-    tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_save(&update_fc1, status, Y, Y, N, N, N, N, N);
+    tsp_backup_restore(&backup_fc1, status, N, N, N, N, Y, Y, N, Y);
 
     // forza il lato {w, v} e vieta il lato {w, u};
-    tsp_constraints_a(w, v, u, SMALL, BIG, status, &backup, &backup_fc2);
+    tsp_backup_save(&backup_fc2, status, N, N, N, N, Y, Y, N);
+    tsp_constraints_a(w, v, u, SMALL, BIG, status, &backup_fc2, &update_fc2);
     compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr)+EPSILON);
     (*status).z_curr = 0.0;
     for (i = 1; i <= n; i++) {
       z2 = (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
     }
-    tsp_backup_save(&backup_fc2, status, Y, Y, N, N, Y, Y, N);
-    tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_save(&update_fc2, status, Y, Y, N, N, N, N, N);
+    tsp_backup_restore(&backup_fc2, status, N, N, N, N, Y, Y, N, Y);
 
     // forza i lati {w, v} e {w, u};
-    tsp_constraints_a(w, v, u, SMALL, SMALL, status, &backup, &backup_fc3);
+    tsp_backup_save(&backup_fc3, status, N, N, N, N, Y, Y, N);
+    tsp_constraints_a(w, v, u, SMALL, SMALL, status, &backup_fc3, &update_fc3);
     compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr)+EPSILON);
     (*status).z_curr = 0.0;
     for (i = 1; i <= n; i++) {
       z3 = (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
     }
-    tsp_backup_save(&backup_fc3, status, Y, Y, N, N, Y, Y, N);
-    tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_save(&update_fc3, status, Y, Y, N, N, N, N, N);
+    tsp_backup_restore(&backup_fc3, status, N, N, N, N, Y, Y, N, Y);
 
     if (z1 >= z2 && z2 >= z3)
       { branch_selection[0] = 1; branch_selection[1] = 2; branch_selection[2] = 3; }
@@ -113,35 +112,37 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     else
       { branch_selection[0] = 3; branch_selection[1] = 2; branch_selection[2] = 1; }
 
-
     for (k = 0; k < 3; k++) {
       switch (branch_selection[k]) {
 
       case 1:
 	if (z1 < (*status).z_best) {
-	  tsp_backup_restore(&backup_fc1, status, Y, Y, N, N, Y, Y, N, Y);
+	  tsp_backup_restore(&update_fc1, status, Y, Y, N, N, N, N, N, Y);
 	  tsp_solve(input, output, status, stats);
-	  tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
-	}
+	  tsp_backup_restore(&backup_fc1, status, N, N, N, N, Y, Y, N, Y);
+	  }
 	tsp_backup_delete(&backup_fc1);
+	tsp_backup_delete(&update_fc1);
 	break;
 
       case 2:
 	if (z2 < (*status).z_best) {
-	  tsp_backup_restore(&backup_fc2, status, Y, Y, N, N, Y, Y, N, Y);
+	  tsp_backup_restore(&update_fc2, status, Y, Y, N, N, N, N, N, Y);
 	  tsp_solve(input, output, status, stats);
-	  tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
-	}
+	  tsp_backup_restore(&backup_fc2, status, N, N, N, N, Y, Y, N, Y);
+	  }
 	tsp_backup_delete(&backup_fc2);
+	tsp_backup_delete(&update_fc2);
 	break;
 
       case 3:
 	if (z3 < (*status).z_best) {
-	  tsp_backup_restore(&backup_fc3, status, Y, Y, N, N, Y, Y, N, Y);
+	  tsp_backup_restore(&update_fc3, status, Y, Y, N, N, N, N, N, Y);
 	  tsp_solve(input, output, status, stats);
-	  tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
-	}
+	  tsp_backup_restore(&backup_fc3, status, N, N, N, N, Y, Y, N, Y);
+	  }
 	tsp_backup_delete(&backup_fc3);
+	tsp_backup_delete(&update_fc3);
 	break;
 
       default:
@@ -159,53 +160,58 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     int branch_selection[2];
     tsp_backup backup_fc1, backup_fc2;
     tsp_backup_init(&backup_fc1); tsp_backup_init(&backup_fc2);
+    tsp_backup update_fc1, update_fc2;
+    tsp_backup_init(&update_fc1); tsp_backup_init(&update_fc2);
 
     // vieta il lato {w, v}
-    tsp_constraints_a(w, v, 0, BIG, 0.0, status, &backup, &backup_fc1);
+    tsp_backup_save(&backup_fc1, status, N, N, N, N, Y, Y, N);
+    tsp_constraints_a(w, v, 0, BIG, 0.0, status, &backup_fc1, &update_fc1);
     compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr)+EPSILON);
     (*status).z_curr = 0.0;
     for (i = 1; i <= n; i++) {
       z1 = (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
     }
-    tsp_backup_save(&backup_fc1, status, Y, Y, N, N, Y, Y, N);
-    tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_save(&update_fc1, status, Y, Y, N, N, N, N, N);
+    tsp_backup_restore(&backup_fc1, status, N, N, N, N, Y, Y, N, Y);
 
     // forza il lato {w, u};
-    tsp_constraints_a(w, v, 0, SMALL, 0.0, status, &backup, &backup_fc2);
+    tsp_backup_save(&backup_fc2, status, N, N, N, N, Y, Y, N);
+    tsp_constraints_a(w, v, 0, SMALL, 0.0, status, &backup_fc2, &update_fc2);
     compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr)+EPSILON);
     (*status).z_curr = 0.0;
     for (i = 1; i <= n; i++) {
       z2 = (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
     }
-    tsp_backup_save(&backup_fc2, status, Y, Y, N, N, Y, Y, N);
-    tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_save(&update_fc2, status, Y, Y, N, N, N, N, N);
+    tsp_backup_restore(&backup_fc2, status, N, N, N, N, Y, Y, N, Y);
 
     if (z1 >= z2)
       { branch_selection[0] = 1; branch_selection[1] = 2; }
     else
       { branch_selection[0] = 2; branch_selection[1] = 1; }
 
-
     for (k = 0; k < 3; k++) {
       switch (branch_selection[k]) {
 
       case 1:
 	if (z1 < (*status).z_best) {
-	  tsp_backup_restore(&backup_fc1, status, Y, Y, N, N, Y, Y, N, Y);
+	  tsp_backup_restore(&update_fc1, status, Y, Y, N, N, N, N, N, Y);
 	  tsp_solve(input, output, status, stats);
-	  tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
-	}
+	  tsp_backup_restore(&backup_fc1, status, N, N, N, N, Y, Y, N, Y);
+	  }
 	tsp_backup_delete(&backup_fc1);
+	tsp_backup_delete(&update_fc1);
 	break;
 
 
       case 2:
 	if (z2 < (*status).z_best) {
-	  tsp_backup_restore(&backup_fc2, status, Y, Y, N, N, Y, Y, N, Y);
+	  tsp_backup_restore(&update_fc2, status, Y, Y, N, N, N, N, N, Y);
 	  tsp_solve(input, output, status, stats);
-	  tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
-	}
+	  tsp_backup_restore(&backup_fc2, status, N, N, N, N, Y, Y, N, Y);
+	  }
 	tsp_backup_delete(&backup_fc2);
+	tsp_backup_delete(&update_fc2);
 	break;
 
       }
@@ -218,7 +224,6 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     (*output).z_opt = (*status).z_best;
   }
 
-  tsp_backup_delete(&backup);
   return;
 }
 
