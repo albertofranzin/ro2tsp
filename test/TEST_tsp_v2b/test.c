@@ -12,12 +12,10 @@
 #include "tsp_solve.h"
 
 void main() {
-  int n = 20; // numero di nodi
-  int s = 0; // seed
-
-  // errore nodi 31-4-20-39-24 anzichè 31-20-39-4-34
-  // n = 40
-  // s = 0
+  int n = 70;
+  int s = 0;
+  //int n = 30; // numero di nodi
+  //int s = 129003; // seed
 
   egraph EG;
   egraph_init(&EG, n);
