@@ -12,7 +12,7 @@
 #include "tsp_solve.h"
 
 void main() {
-  int n = 100; // numero di nodi
+  int n = 40; // numero di nodi
   int s = 0; // seed
 
   egraph EG;

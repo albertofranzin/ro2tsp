@@ -59,7 +59,7 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
   // se esistono due lati mai forzati e mai vietati, allora procedi con BRANCHING A 3 VIE
   if (v > 0 && u > 0) {
     int k;
-    double z1, z2, z3;
+    double z1, z2, z3, ub, ub_nn;
     int branch_selection[3];
     tsp_backup backup_fc1, backup_fc2, backup_fc3;
     tsp_backup_init(&backup_fc1); tsp_backup_init(&backup_fc2); tsp_backup_init(&backup_fc3);
@@ -107,7 +107,7 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     //if (tsp_constraints_acep_simple(w, v, 0, BIG, 0.0, status, &backup_fc1, &update_fc1) == SUCCESS) {
     if (tsp_constraints_acep_recursive(w, v, 0, BIG, 0.0, status, &backup_fc1, &update_fc1) == SUCCESS) {
     //if (tsp_constraints_acep_iterative(w, v, 0, BIG, 0.0, status, &backup_fc1, &update_fc1) == SUCCESS) {
-      compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr)+EPSILON);
+      compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr) + EPSILON);
       (*status).z_curr = 0.0;
       for (i = 1; i <= n; i++) {
 	z1 = (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
@@ -162,7 +162,7 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     //if (tsp_constraints_acep_simple(w, v, u, SMALL, BIG, status, &backup_fc2, &update_fc2) == SUCCESS) {
     if (tsp_constraints_acep_recursive(w, v, u, SMALL, BIG, status, &backup_fc2, &update_fc2) == SUCCESS) {
     //if (tsp_constraints_acep_iterative(w, v, u, SMALL, BIG, status, &backup_2, &update_fc2) == SUCCESS) {
-      compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr)+EPSILON);
+      compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr) + EPSILON);
       (*status).z_curr = 0.0;
       for (i = 1; i <= n; i++) {
 	z2 = (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
@@ -216,7 +216,7 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     //if (tsp_constraints_acep_simple(w, v, u, SMALL, SMALL, status, &backup_fc3, &update_fc3) == SUCCESS) {
     if (tsp_constraints_acep_recursive(w, v, u, SMALL, SMALL, status, &backup_fc3, &update_fc3) == SUCCESS) {
     //if (tsp_constraints_acep_iterative(w, v, u, SMALL, SMALL, status, &backup_3, &update_fc3) == SUCCESS) {
-      compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr)+EPSILON);
+      compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr) + EPSILON);
       (*status).z_curr = 0.0;
       for (i = 1; i <= n; i++) {
 	z3 = (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
@@ -340,7 +340,7 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     //if (tsp_constraints_acep_simple(w, v, 0, BIG, 0.0, status, &backup_fc1, &update_fc1) == SUCCESS) {
     if (tsp_constraints_acep_recursive(w, v, 0, BIG, 0.0, status, &backup_fc1, &update_fc1) == SUCCESS) {
     //if (tsp_constraints_acep_iterative(w, v, 0, BIG, 0.0, status, &backup_fc1, &update_fc1) == SUCCESS) {
-      compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr)+EPSILON);
+      compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr) + EPSILON);
       (*status).z_curr = 0.0;
       for (i = 1; i <= n; i++) {
 	z1 = (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
@@ -393,7 +393,7 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     //if (tsp_constraints_acep_simple(w, v, 0, SMALL, 0.0, status, &backup_fc2, &update_fc2) == SUCCESS) {
     if (tsp_constraints_acep_recursive(w, v, 0, SMALL, 0.0, status, &backup_fc2, &update_fc2) == SUCCESS) {
     // if (tsp_constraints_acep_iterative(w, v, 0, SMALL, 0.0, status, &backup_fc2, &update_fc2) == SUCCESS) {
-      compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr)+EPSILON);
+      compute_lagrange(G_curr, OT_curr, compute_upper_bound(G_curr, OT_curr) + EPSILON);
       (*status).z_curr = 0.0;
       for (i = 1; i <= n; i++) {
 	z2 = (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
