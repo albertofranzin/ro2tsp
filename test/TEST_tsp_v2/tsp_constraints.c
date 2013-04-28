@@ -1,6 +1,6 @@
 #include "tsp_constraints.h"
 
-void tsp_constraints_a(int w, int v, int u, double cost_wv, double cost_wu, tsp_status* status, tsp_backup* backup, tsp_backup* backup_fc) {
+void tsp_constraints_a(int w, int v, int u, double cost_wv, double cost_wu, tsp_status* status, tsp_backup* backup, tsp_backup* update) {
 
   graph* G_curr = &(*status).G_curr;
   int n = (*status).G_curr.n;
@@ -11,8 +11,8 @@ void tsp_constraints_a(int w, int v, int u, double cost_wv, double cost_wu, tsp_
 
   graph_set_edge_cost(G_curr, w, v, cost_wv);
 
-  if (backup_fc != NULL) {
-    tsp_backup_save_edge(backup_fc, w, v, cost_wv);
+  if (update != NULL) {
+    tsp_backup_save_edge(update, w, v, cost_wv);
   }
 
   if (cost_wv <= SMALL) {
@@ -30,8 +30,8 @@ void tsp_constraints_a(int w, int v, int u, double cost_wv, double cost_wu, tsp_
 
     graph_set_edge_cost(G_curr, w, u, cost_wu);
 
-    if (backup_fc != NULL) {
-      tsp_backup_save_edge(backup_fc, w, u, cost_wu);
+    if (update != NULL) {
+      tsp_backup_save_edge(update, w, u, cost_wu);
     }
 
     if (cost_wu <= SMALL) {

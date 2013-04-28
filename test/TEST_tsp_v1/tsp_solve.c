@@ -14,7 +14,9 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
 
     graph_copy(&(*input).G, G_curr);
     onetree_copy(&(*input).H, &(*status).H_best);
-    (*status).z_best = onetree_get_cost(&(*input).H); // eventualmente status.z_best=input.ub, ma ciò imporrebbe di fornire in input un ub che è esattamente il costo del tour input.H
+    (*status).z_best = onetree_get_cost(&(*input).H);
+    onetree_copy(&(*input).H, &(*output).H_opt);
+    (*output).z_opt = (*input).ub;
 
   }
   (*stats).number_of_calls++;
@@ -31,24 +33,20 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     (*status).z_curr += graph_get_edge_cost(&(*input).G, onetree_get_pred(OT_curr, i), i);
   }
 
-  //printf("z curr = %.60f\nz best = %.60f\nub = %.60f\n", (*status).z_curr, (*status).z_best, ub);
-  if ((*status).z_curr >= (*status).z_best+EPSILON) {
+  if ((*status).z_curr >= (*status).z_best) { // >= (*status).z_best +EPSILON ? 
     return;
   }
 
   if (onetree_is_cycle(OT_curr)) {
-    if ((*status).current_call != 1) {
-      onetree_copy(OT_curr, &(*status).H_best);
-      (*status).z_best = (*status).z_curr;
-    }
-    else if ((*status).current_call == 1) {
-      onetree_copy(OT_curr, &(*output).H_opt);
-      (*output).z_opt = (*status).z_best = (*status).z_curr;
-    }
+    onetree_copy(OT_curr, &(*status).H_best);
+    (*status).z_best = (*status).z_curr;
     printf("# updated incumbent = %f : current_call = %d : current level = %d\n", (*status).z_best, (*status).current_call, (*status).current_level);
+    if ((*status).current_call == 1) {
+      onetree_copy(OT_curr, &(*output).H_opt);
+      (*output).z_opt = (*status).z_curr;
+    }
     return;
   }
-
 
   int w, v, u;
   // seleziona un nodo per il branching
@@ -56,44 +54,54 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
   // seleziona due lati per il branching
   tsp_select_edges(status, &w, &v, &u);
 
-
-  tsp_backup backup;
-  tsp_backup_init(&backup);
-  tsp_backup_save(&backup, status, N, N, N, N, Y, Y, N);
-
   // se esistono due lati mai forzati e mai vietati, allora procedi con BRANCHING A 3 VIE
   if (v > 0 && u > 0) {
+    tsp_backup backup_1, backup_2, backup_3;
+    tsp_backup_init(&backup_1); tsp_backup_init(&backup_2); tsp_backup_init(&backup_3);
+
 
     // vieta il lato {w, v};
-    tsp_constraints_a(w, v, 0, BIG, 0.0, status, &backup);
+    tsp_backup_save(&backup_1, status, N, N, N, N, Y, Y, N);
+    tsp_constraints_a(w, v, 0, BIG, 0.0, status, &backup_1, NULL);
     tsp_solve(input, output, status, stats);
-    tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_restore(&backup_1, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_delete(&backup_1);
 
 
     // forza il lato {w, v} e vieta il lato {w, u};
-    tsp_constraints_a(w, v, u, SMALL, BIG, status, &backup);
+    tsp_backup_save(&backup_2, status, N, N, N, N, Y, Y, N);
+    tsp_constraints_a(w, v, u, SMALL, BIG, status, &backup_2, NULL);
     tsp_solve(input, output, status, stats);
-    tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_restore(&backup_2, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_delete(&backup_2);
 
     // forza i lati {w, v} e {w, u};
-    tsp_constraints_a(w, v, u, SMALL, SMALL, status, &backup);
+    tsp_backup_save(&backup_3, status, N, N, N, N, Y, Y, N);
+    tsp_constraints_a(w, v, u, SMALL, SMALL, status, &backup_3, NULL);
     tsp_solve(input, output, status, stats);
-    tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_restore(&backup_3, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_delete(&backup_3);
 
   }
 
   // se esiste un solo lato mai forzato e mai vietato, allora procedi con BRANCHING A 2 VIE
   else if (v > 0) {
+    tsp_backup backup_1, backup_2;
+    tsp_backup_init(&backup_1); tsp_backup_init(&backup_2);
 
     // vieta il lato {w, v}
-    tsp_constraints_a(w, v, 0, BIG, 0.0, status, &backup);
+    tsp_backup_save(&backup_1, status, N, N, N, N, Y, Y, N);
+    tsp_constraints_a(w, v, 0, BIG, 0.0, status, &backup_1, NULL);
     tsp_solve(input, output, status, stats);
-    tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_restore(&backup_1, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_delete(&backup_1);
 
     // forza il lato {w, u};
-    tsp_constraints_a(w, v, 0, SMALL, 0.0, status, &backup);
+    tsp_backup_save(&backup_2, status, N, N, N, N, Y, Y, N);
+    tsp_constraints_a(w, v, 0, SMALL, 0.0, status, &backup_2, NULL);
     tsp_solve(input, output, status, stats);
-    tsp_backup_restore(&backup, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_restore(&backup_2, status, N, N, N, N, Y, Y, N, Y);
+    tsp_backup_delete(&backup_2);
 
   }
 
@@ -102,7 +110,6 @@ void tsp_solve(tsp_input* input, tsp_output* output, tsp_status* status, tsp_sta
     (*output).z_opt = (*status).z_best;
   }
 
-  tsp_backup_delete(&backup);
   return;
 }
 

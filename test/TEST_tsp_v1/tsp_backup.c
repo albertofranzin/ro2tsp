@@ -81,11 +81,24 @@ void tsp_backup_restore(tsp_backup* backup, tsp_status* status, int opt_1, int o
     lvector_copy(&(*backup).forced_edges, &(*status).forced_edges);
   }
   if (opt_8 == Y) {
+    
+    int i;
     edge e;
-
+    int m = elist_get_size(&(*backup).G_modified_edges);
+    elist_node* current_node = elist_get_first(&(*backup).G_modified_edges);
+    for (i = 0; i < m; i++) {
+      e = elist_get_element(&(*backup).G_modified_edges, current_node);
+      graph_set_edge_cost(&(*status).G_curr, e.x, e.y, e.cost);
+      current_node = elist_get_next(&(*backup).G_modified_edges, current_node);
+    }
+    
+    /*
+    edge e;
     while (!elist_is_empty(&(*backup).G_modified_edges)) {
       e = elist_pop_first(&(*backup).G_modified_edges);
       graph_set_edge_cost(&(*status).G_curr, e.x, e.y, e.cost);
     }
+    */
+    
   }
 }

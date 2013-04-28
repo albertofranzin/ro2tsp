@@ -12,8 +12,8 @@
 #include "tsp_solve.h"
 
 void main() {
-  int n = 30; // numero di nodi
-  int s = 123; // seed
+  int n = 40; // numero di nodi
+  int s = 0; // seed
 
   egraph EG;
   egraph_init(&EG, n);
