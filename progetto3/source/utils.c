@@ -529,7 +529,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     } else {
       // fill in nodes coords
       // found at http://stackoverflow.com/questions/10963054/finding-the-coordinates-of-points-from-distance-matrix
-      // hope it works, since there is something I haven't understood yet...
+      // hope it works, since there is probably something I haven't understood yet...
 
       double Dp1p2 = egraph_get_edge_cost(G, 1, 2), Dp1p3, Dp2p3, cosine, angle;
 

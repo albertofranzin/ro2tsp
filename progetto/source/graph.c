@@ -9,7 +9,7 @@ void initGraph(graph* G, int n) {
   /*for (i = 0; i < n; i++)
     (*G).V[i].x = (*G).V[i].y = (*G).V[i].deg = 0;
   for (i = 0; i < n * (n + 1) / 2; i++)
-    (*G).E[i].flag = (*G).E[i].cost = 0;/**/
+    (*G).E[i].flag = (*G).E[i].cost = 0;/ **/
   // since all the fields are set to 0, a badass memset should be faster
   memset((*G).V, 0, sizeof(node) * n);
   memset((*G).E, 0, sizeof(edge) * n * (n + 1) / 2);/**/
@@ -135,7 +135,7 @@ void plotGraph(graph* G1, graph* G2, char* opt1, char* opt2) {
   fprintf(pipe, "set multiplot\n");
   //fprintf(pipe, "set size square\n");
   /** /fprintf(pipe, "set xrange [-0.010:1.010]\n");
-  fprintf(pipe, "set yrange [-0.010:1.010]\n");/** /
+  fprintf(pipe, "set yrange [-0.010:1.010]\n");/ **/
 
   /* values good for ulysses16.tsp */
   /*fprintf(pipe, "set xrange [30.010:42.010]\n");
@@ -151,11 +151,11 @@ void plotGraph(graph* G1, graph* G2, char* opt1, char* opt2) {
 
   /* values good for bayg29.tsp */
   /** /fprintf(pipe, "set xrange [0:2000.010]\n");
-  fprintf(pipe, "set yrange [0:2500.010]\n");/* */
+  fprintf(pipe, "set yrange [0:2500.010]\n");/ * */
 
   /* values good for berlin52.tsp */
   /** /fprintf(pipe, "set xrange [0:2000.010]\n");
-  fprintf(pipe, "set yrange [0:2000.010]\n");/* */
+  fprintf(pipe, "set yrange [0:2000.010]\n");/ * */
 
   /* values good for datzig42.tsp */
   /**/fprintf(pipe, "set xrange [0:200.010]\n");

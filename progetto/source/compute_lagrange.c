@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <string.h>
-#include "graph.h"
 #include "compute_lagrange.h"
 
 double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max_iter) {
@@ -14,7 +11,6 @@ double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max
   int n = (*G).n;
 
   short abrupt_end = 0;
-
   double mult[n+1];
   double subgrad[n+1];
 
@@ -63,8 +59,10 @@ double compute_lagrange(graph* G, double ub, int k, double alpha, int h, int max
 
     /* riduci (dimezza) alpha se L non è migliorato nelle ultime h iterazioni.
      */
-    if (counter > h)
+    if (counter > h) {
       alpha /= 2;
+      counter = 1;
+    }
 
     /* calcolo le componenti del vettore subgradiente,
      * calcolo norma al quadrato del vettore subgradiente
