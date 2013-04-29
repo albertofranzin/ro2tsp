@@ -8,12 +8,13 @@
 #include "heuristics.h"
 #include "solve_tsp.h"
 #include "utils.h"
-#include "subgradient.h"
+#include "malloc.h"
+
 
 #define BIG 100000
 #define SMALL -100000
 
-void main() {
+int main() {
 
   parameters *pars = getParameters();
   printf("## %d\n", pars->no_of_nodes);
@@ -22,7 +23,7 @@ void main() {
 
   int i, j;
   graph G, F, H, NN;
-  clock_t c1, c2;
+  __clock_t c1, c2;
   initGraph(&G, pars->no_of_nodes);
   initGraph(&F, 1);
   initGraph(&H, 1);
@@ -37,11 +38,16 @@ void main() {
   // print_graph(&G);
 
   copyGraph(&G, &F);
+
+  compute_ot(&G, &F);
+  printf("cost: %f\n", get_graph_cost(&F));
+  exit(0);
+
   double incumbent = heuristicBound(&G, &NN, pars->heuristic_trials);
   printf("starting incumbent is %f\n", incumbent);
   //printf("should be %f\n", get_graph_cost(&NN));
   //print_graph(&G);
-  //print_graph(&NN);
+  print_graph(&NN);
   deleteGraph(&NN);
 
   //incumbent = 4.31;

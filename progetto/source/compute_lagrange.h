@@ -2,6 +2,8 @@
 #define COMPUTE_LAGRANGE_H_
 
 #include "graph.h"
+#include <stdlib.h>
+#include <string.h>
 
 /* calcola e ritorna un (buon) lower bound per TSP su grafo G utilizzando l'algoritmo subgradiente - moltiplicatori lagrangiani: in pratica calcola il miglior valore della funzione lagrangiana associata al TSP su G;
  *

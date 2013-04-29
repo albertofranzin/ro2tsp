@@ -59,7 +59,7 @@ short is_cycle(tree *t);
  * - t : the tree
  * - u : the node
  */
-static inline get_tree_node_deg(tree *t, int u) {
+static inline int get_tree_node_deg(tree *t, int u) {
 	return t->nodes[u-1].deg;
 }
 

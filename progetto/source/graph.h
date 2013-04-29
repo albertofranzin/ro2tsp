@@ -12,6 +12,7 @@
 #include <math.h>
 #include "node.h"
 #include "edge.h"
+#include "compute_path.h"
 
 
 /* grafo non diretto pesato;

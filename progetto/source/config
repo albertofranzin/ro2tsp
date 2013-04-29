@@ -11,9 +11,10 @@ NUMBER_OF_NODES = 19
 # 0   : use time
 # n>0 : use n as seed - allow to replicate tests
 # SEED = 1077156643793973573
-SEED = 321
+# SEED = 285999935225386660
 # SEED = 606922979702899690
 # SEED = 799974640738384520
+SEED = 321
 
 # plot graphs at the end? [y/n]
 PLOT = y
@@ -31,4 +32,4 @@ HEURISTIC_TRIALS = 50
 # TSP_FILE = dj38.tsp <-- lo risolve!!
 # TSP_FILE = ulysses16.tsp
 TSP_FILE = NULL
-#TSP_FILE = ../../../tsplib/eil51.tsp
+# TSP_FILE = ../../../tsplib/eil51.tsp

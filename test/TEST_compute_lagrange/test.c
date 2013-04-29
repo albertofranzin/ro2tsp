@@ -8,8 +8,8 @@
 #include "compute_lagrange.h"
 
 void main() {
-  int n = 40; // numero di nodi
-  int s = 800; // seed
+  int n = 30; // numero di nodi
+  int s = 123; // seed
 
   egraph EG;
   egraph_init(&EG, n);

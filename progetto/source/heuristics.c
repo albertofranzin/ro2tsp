@@ -82,8 +82,7 @@ double nearestNeighbour(graph *G, graph *H, int root) {
  * return : bound
  */
 double heuristicBound(graph *G, graph *H, int howMany) {
-	int n = G->n,
-		i;
+	int n = G->n, i;
 	double bounds[howMany], min;
 
 	for (i = 0; i < howMany; ++i) {
