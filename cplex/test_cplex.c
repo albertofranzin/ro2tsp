@@ -1,4 +1,3 @@
-#include <ilcplex/cplex.h>
 #include "cplex_solver.h"
 
 
@@ -30,354 +29,320 @@ int Flatten2DIndices(int i, int j, int m) {
 
 int main (int argc, char *argv[]) {
 
-    // return code
-    int ret = 0;
-    // status code returned by cplex callable library functions
-    int status = 0;
-    // cplex environment to pass to/from cplex callable library
-    CPXENVptr env = NULL;
-    // partial formulation
-    CPXLPptr  ip = NULL;
-    // use for storing error messages returned by CPLEX
-    char errmsg[1024];
-    // counters
-    int i, j, k;
-    // number of vertices in the graph
-    int m;
-    // number of variables in the problem (=m^2)
-    int n;
+  int i, j, k;
+  char* opt;
 
-    char* opt;
-    parameters* pars = getParameters();
+  parameters* pars = getParameters();
 
-    /* ======================== */
-    /* parse command line input */
-    /* ======================== */
+  /* ======================== */
+  /* parse command line input */
+  /* ======================== */
 
 
-    for (i = 1; i < argc; i++) {
+  for (i = 1; i < argc; i++) {
 
-        opt = argv[i];
+      opt = argv[i];
 
-        if (strcmp(opt, "-n") == 0 || strcmp(opt, "--number") == 0)
-            pars->number_of_nodes = atoi(argv[++i]);
+      if (strcmp(opt, "-n") == 0 || strcmp(opt, "--number") == 0)
+          pars->number_of_nodes = atoi(argv[++i]);
 
-        if (strcmp(opt, "-s") == 0 || strcmp(opt, "--seed") == 0)
-            pars->seed = atol(argv[++i]);
+      if (strcmp(opt, "-s") == 0 || strcmp(opt, "--seed") == 0)
+          pars->seed = atol(argv[++i]);
 
-        if (strcmp(opt, "-f") == 0 || strcmp(opt, "--file") == 0) {
-            // will ignore other options
-            pars->tsp_file_option = TRUE;
-            pars->random_instance_option = FALSE;
-            pars->tsp_file = argv[++i];
-        }
+      if (strcmp(opt, "-f") == 0 || strcmp(opt, "--file") == 0) {
+          // will ignore other options
+          pars->tsp_file_option = TRUE;
+          pars->random_instance_option = FALSE;
+          pars->tsp_file = argv[++i];
+      }
 
-        if (strcmp(opt, "-h") == 0 || strcmp(opt, "--help") == 0) {
-            // print help and exit
-            print_helper_menu();
-            return 0;
-        }
+      if (strcmp(opt, "-h") == 0 || strcmp(opt, "--help") == 0) {
+          // print help and exit
+          print_helper_menu();
+          return 0;
+      }
 
-    }
-
-
-    /* ================= */
-    /* inizializza grafo */
-    /* ================= */
-
-    graph G;
-    graph_init(&G, 1);
-
-    egraph EG;
-    egraph_init(&EG, pars->number_of_nodes);
-
-    if (pars->tsp_file_option == TRUE) {
-        read_tsp_from_file(&EG, pars);
-        egraph_to_graph(&EG, &G);
-        printf("@ Euclidean TSP\n# tsplib instance\n# number of nodes = %d\n# tsplib file = %s\n\n", pars->number_of_nodes, pars->tsp_file);
-    }
-    else if (pars->random_instance_option == TRUE) {
-        if (pars->random_seed_option == FALSE || pars->seed >= 0) {
-            srand(pars->seed);
-        }
-        else {
-            srand(time(NULL));
-        }
-        egraph_random(&EG);
-        egraph_to_graph(&EG, &G);
-        printf("@ Euclidean TSP\n# random instance\n# number of nodes = %d\n# seed = %ld\n\n", pars->number_of_nodes, pars->seed);
-    }
-
-
-    m = pars->number_of_nodes;
-    n = m*m;
-
-    // distance matrix
-    double** D = (double**) malloc(m * sizeof(double*));
-    float v;
-
-    for(i = 0; i < m-1; i++) {
-        //fprintf(stdout, "input distances (%d,j) with j>%d\n", i, i);
-        D[i] = (double*) malloc(m * sizeof(double));
-        D[i][i] = INFINITY;
-        for(j = i + 1; j < m; j++) {
-            //fscanf(stdin, "%f", &v);
-            D[i][j] = (double) graph_get_edge_cost(&G,i+1,j+1);
-        }
-    }
-    D[m-1] = (double*) malloc(m * sizeof(double));
-    // make distance matrix symmetric
-    for(i = 0; i < m - 1; i++) {
-        for(j = i + 1; j < m; j++) {
-            D[j][i] = D[i][j];
-        }
-    }
-
-    // print distance matrix
-    fprintf(stderr, "distance matrix is:\n");
-    for(i = 0; i < m; i++) {
-        for(j = 0; j < m; j++) {
-            if (i == j) {
-                fprintf(stderr, " inf");
-            } else {
-                fprintf(stderr, " %.2f", D[i][j]);
-            }
-        }
-        fprintf(stderr, "\n");
-    }
-
-    // until here, everything seems ok
-
-      // flatten to costs
-  double* c = (double*) malloc(n * sizeof(double));
-  k = 0;
-  for(i = 0; i < m; i++) {
-    for(j = 0; j < m; j++) {
-      c[k] = D[i][j];
-      k++;
-    }
   }
 
-  printf("yo yo ma\n");
 
-    // initialize the CPLEX environment 
-    env = CPXopenCPLEX(&status);
-    if(status){
-        fprintf(stderr, "Error: failed to initialize CPLEX environment\n");
-        exit(1);
+  /* ================= */
+  /* inizializza grafo */
+  /* ================= */
+
+  graph G;
+  graph_init(&G, 1);
+
+  egraph EG;
+  egraph_init(&EG, pars->number_of_nodes);
+
+  if (pars->tsp_file_option == TRUE) {
+    read_tsp_from_file(&EG, pars);
+    egraph_to_graph(&EG, &G);
+    printf("@ Euclidean TSP\n# tsplib instance\n# number of nodes = %d\n# tsplib file = %s\n\n", pars->number_of_nodes, pars->tsp_file);
+  }
+  else if (pars->random_instance_option == TRUE) {
+    if (pars->random_seed_option == FALSE || pars->seed >= 0) {
+        srand(pars->seed);
+    } else {
+        srand(time(NULL));
     }
 
-    // turn on output to screen
-    status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_OFF);
-    status = CPXsetintparam(env, CPX_PARAM_MIPDISPLAY, 2);
+    egraph_random(&EG);
+    egraph_to_graph(&EG, &G);
+    printf("@ Euclidean TSP\n# random instance\n# number of nodes = %d\n# seed = %ld\n\n", pars->number_of_nodes, pars->seed);
+  }
 
 
-    char *probname = NULL;
-    int numcols;
-    int numrows;
-    int objsen;
-    //double *obj = NULL;
-    double *rhs = NULL;
-    char *sense = NULL;
-    int *matbeg = NULL;
-    int *matcnt = NULL;
-    int *matind = NULL;
-    double *matval = NULL;
-    double *lb = NULL;
-    double *ub = NULL;
-    char *ctype = NULL;
+  /////////////////////////////////////////////////////////////////
+  //
+  //   let the cplex part begin
+  //
+  /////////////////////////////////////////////////////////////////
 
-    int solstat;
-    //double *x = NULL;
-    CPXLPptr lp = NULL;
+  //
+  // define variables
+  //
 
-    int iteration = 1;
+  // status code returned by cplex callable library functions
+  int status = 0;
+  // cplex environment to pass to/from cplex callable library
+  CPXENVptr env = NULL;
+  // partial formulation
+  CPXLPptr lp = NULL;
+  // use for storing error messages returned by CPLEX
+  char errmsg[1024];
 
-    // create the problem
-    lp = CPXcreateprob(env, &status, "tsp");
-    if (lp == NULL) {
-        fprintf(stderr, "%s, failed to create problem\n", argv[0]);
-        exit(4);
+  // number of vertices in the graph
+  int m;
+  // number of variables in the problem (=m^2)
+  int n;
+
+  m = pars->number_of_nodes;
+  n = m*m;
+
+  int NUMCOLS = (G.n * (G.n - 1)) / 2,
+      NUMROWS = G.n,
+      NUMNZ = G.n * (G.n - 1);
+
+  // Declare pointers for the variables and arrays that will contain
+  // the data which define the LP problem.  The cplex_setup_problem() routine
+  // allocates space for the problem data.
+  char    *probname = "tsp";
+  int      numcols;
+  int      numrows;
+  int      objsen;
+  double  *obj = NULL;
+  double  *rhs = NULL;
+  char    *sense = NULL;
+  int     *matbeg = NULL;
+  int     *matcnt = NULL;
+  int     *matind = NULL;
+  double  *matval = NULL;
+  double  *lb = NULL;
+  double  *ub = NULL;
+  char    *ctype = NULL;
+
+  // Declare and allocate space for the variables and arrays where we will
+  // store the optimization results including the status, objective value,
+  // variable values, and row slacks.
+  int      solstat;
+  double   objval;
+  double   x[NUMCOLS];
+  double   slack[NUMROWS];
+
+
+  //
+  // create problem
+  //
+
+  // if returns, means it's ok
+  status = cplex_create_problem(env, lp, probname);
+  assert(!status);
+
+  printf("lp problem created\n");
+
+  // MOVE TO SOMEWHERE ELSE
+  // turn on output to screen
+  //status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_OFF);
+  //status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);
+  //status = CPXsetintparam(env, CPX_PARAM_MIPDISPLAY, 2);
+  if (status) {
+    fprintf (stderr, "Failure to turn on screen indicator, error %d.\n", status);
+    exit(1);
+  }
+
+
+  //
+  // fill in problem data
+  //
+
+  cplex_table hash_table;
+  cplex_table_init(&hash_table, NUMCOLS);
+  cplex_table_populate(&hash_table, &G);
+
+  status = cplex_setup_problem(&G, &hash_table, env, lp,
+              probname, &numrows, &numcols, &objsen,
+              &obj, &rhs, &sense,
+              &matbeg, &matcnt, &matind, &matval,
+              &lb, &ub, &ctype);
+  assert(!status);
+
+  printf("problem filled in\n");
+
+
+  //
+  // solve
+  //
+
+  // control for the solver cycle
+  int iteration   = 1,
+      termination = FALSE,
+      cur_numrows, cur_numcols;
+  int subtour_labels[G.n];
+
+  while (!termination) {
+
+    //printf("cplex: solving to LP optimality, max time %d sec\n", MAXTIME);
+    //status = CPXlpopt(env, lp);
+
+    // Optimize the problem and obtain solution.
+    status = CPXmipopt(env, lp);
+    if ( status ) {
+      fprintf (stderr, "Failed to optimize MIP.\n");
+      exit(1);
     }
 
-    double *obj =   (double *) malloc (m * (m-1) * sizeof(double) / 2);
+    printf("problem solved (hopefully) at iteration %d\n", iteration);
 
-    for (i = 0; i < m; ++i) {
-        for (j = 0; j < i; ++j) {
-            obj[i * m + j] = c[i * m + j];
-        }
+
+    // Write the output to the screen.
+    solstat = CPXgetstat(env, lp);
+    status  = CPXgetobjval(env, lp, &objval);
+    if (status) {
+      fprintf (stderr,"No MIP objective value available.  Exiting...\n");
+      exit(1);
     }
 
-    status = CPXchgobjsen (env, lp, CPX_MIN);
-    printf("obj done\n");
+    printf("Solution status = %d\n", solstat);
+    printf("Solution value  = %f\n\n", objval);
 
-    // variable lower bounds 
-    double* xL = (double*) malloc(m * (m-1) * sizeof(double) / 2);
-    // variable upper bounds
-    double* xU = (double*) malloc(m * (m-1) * sizeof(double) / 2);
-    // variable types
-    ctype = (char*) malloc(m * (m-1) * sizeof(char) / 2);
-    for(j = 0; j < m * (m-1) / 2; j++) {
-        xL[j] = 0;
-        xU[j] = 1;
-        ctype[j] = 'B';  // variables are binary
+    // decommentare nel caso
+    /*// Set time limit for solving the problem
+    CPXsetdblparam(env, CPX_PARAM_TILIM, MAXTIME);
+
+    // Set relative tolerance on IP solution
+    CPXsetdblparam(env, CPX_PARAM_EPGAP, 1E-8);*/
+
+    // The size of the problem should be obtained by asking CPLEX
+    cur_numrows = CPXgetnumrows(env, lp);
+    cur_numcols = CPXgetnumcols(env, lp);
+    printf("numrows = %d, numcols = %d\n", numrows, numcols);
+
+
+    status = CPXgetx(env, lp, x, 0, cur_numcols-1);
+    if (status) {
+      fprintf(stderr, "Failed to get optimal integer x.\n");
+      exit(1);
     }
 
-    status = CPXnewcols (env, lp, m * (m-1) / 2 , obj, xL, xU, ctype, NULL);
+    status = CPXgetslack(env, lp, slack, 0, cur_numrows-1);
+    if (status) {
+      fprintf(stderr, "Failed to get optimal slack values.\n");
+      exit(1);
+    }
 
-    printf("variable bounds done\n");
+    /*
+    for (i = 0; i < cur_numrows; i++) {
+      printf ("Row %d:  Slack = %10f\n", i, slack[i]);
+    }
 
-    /*status = setproblemdata (&probname, &numcols, &numrows, &objsen, &obj,
-        &rhs, &sense, &matbeg, &matcnt, &matind, &matval,
-        &lb, &ub, &ctype);
+    for (j = 0; j < cur_numcols; j++) {
+      printf ("Column %d:  Value = %10f\n", j, x[j]);
+    }
 
-    if (status){
-        fprintf(stderr, "Error: setproblemdata failed at iteration %d", iteration);
-        exit(1);
-    }*/
+    for (j = 0; j < cur_numcols; j++) {
+      printf ("Column %d:  Value = %10f\n", j, x[j]);
+    }
+    */
 
-    printf("lp problem created\n");
+    /*
+    // DISEGNA IL GRAFO
+    graph G_CPLEX;
+    egraph EG_CPLEX;
+    int var;
 
-    int termination = FALSE;
-    int subtour_labels[m];
-
-
-    while (!termination) {
-
-      //printf("cplex: solving to LP optimality, max time %d sec\n", MAXTIME);
-      status = CPXlpopt(env, lp);
-
-      if (status) {
-          if (status == CPXERR_PRESLV_INForUNBD) {
-              //;
-              //error("cplex: infeasible or unbounded\n");
-              fprintf(stderr, "cheavaca\n");
-          } else {
-              fprintf(stderr, "cplex: failed to optimize, code %d\n", status); 
-          }
+    graph_init(&G_CPLEX, n);
+    for (var = 1; var <= cur_numcols; var++) {
+      if (x[var-1] == 1.0) {
+        get_edge_from_var(&i, &j, &var, &hash_table);
+        graph_insert_edge(&G_CPLEX, i, j, 0.0);
       }
+    }
+    egraph_init(&EG_CPLEX, 1);
+    egraph_copy(&EG, &EG_CPLEX);
+    graph_to_egraph(&G_CPLEX, &EG_CPLEX);
+    egraph_plot(&EG, &EG_CPLEX);
+    egraph_delete(&EG_CPLEX);
+    graph_delete(&G_CPLEX);
+    */
 
-      printf("problem solved (hopefully)\n");
+    //
+    // look for cycles
+    //
 
-      // decommentare nel caso
-      /*// Set time limit for solving the problem
-      CPXsetdblparam(env, CPX_PARAM_TILIM, MAXTIME);
+    for(i = 0; i < cur_numcols; i++) {
+      x[i] = rint(x[i]);
+    }
 
-      // Set relative tolerance on IP solution
-      CPXsetdblparam(env, CPX_PARAM_EPGAP, 1E-8);*/
+    memset(subtour_labels, 0, sizeof(subtour_labels));
 
-      /* The size of the problem should be obtained by asking CPLEX */
-      numrows = CPXgetnumrows(env, lp);
-      numcols = CPXgetnumcols(env, lp);
+    // find a tour
+    i = 0;
+    int mark = 1, count = 0;
+    int found_one = TRUE;
 
-      printf("numrows = %d, numcols = %d\n", numrows, numcols);
+    while (found_one) {
+      found_one = FALSE;
 
-      double *x =     (double *) malloc (numcols * sizeof(double)),
-             *slack = (double *) malloc (numrows * sizeof(double)),
-             *dj =    (double *) malloc (numcols * sizeof(double)),
-             *pi =    (double *) malloc (numrows * sizeof(double));
-
-
-      if (x     == NULL ||
-          slack == NULL ||
-          dj    == NULL ||
-          pi    == NULL   ) {
-          status = CPXERR_NO_MEMORY;
-          fprintf (stderr, "Could not allocate memory for solution.\n");
-          exit(5);
-      }
-
-      printf("space for solution allocated\n");
-
-
-      status = CPXsolution (env, lp, &solstat, &obj, x, pi, slack, dj);
-      if ( status ) {
-          fprintf (stderr, "Failed to obtain solution.\n");
-          //exit(6);
-      }
-
-
-      printf ("\nSolution status = %d\n", solstat);
-      printf ("Solution value  = %f\n\n", obj);
-
-      for (i = 0; i < numrows; i++) {
-          printf ("Row %d:  Slack = %10f  Pi = %10f\n", i, slack[i], pi[i]);
-      }
-
-      for (j = 0; j < numcols; j++) {
-          printf ("Column %d:  Value = %10f  Reduced cost = %10f\n",
-                  j, x[j], dj[j]);
-      }
-
-      //
-      // look for cycles
-      //
-
-      solstat = CPXgetstat(env, lp);
-      if (solstat != 101) {
-        fprintf(stdout, "  couldn't find optimal solution, status = %d\n", 
-          solstat);
-        //termination = TRUE;
-        //break;
-      }
-
-      memset(x, 0., sizeof(x));
-
-      CPXgetmipx(env, lp, x, 0, n - 1);
-      CPXgetmipobjval(env, lp, obj);
-      for(i = 0; i < n; i++) {
-        x[i] = rint(x[i]);
-      }
-
-      memset(subtour_labels, 0, sizeof(subtour_labels));
-
-      // find a tour
-      i = 0;
-      int mark = 1, count = 0;
-      int found_one = TRUE;
-
-      while (found_one) {
-        found_one = FALSE;
-
-        if (subtour_labels[i] == 0) {
-          printf("%d ", i);
-          found_one = TRUE;
-          subtour_labels[i] = mark;
-          for (j = 0; j < m; ++j) {
-            int k = (i > j) ? i*m + j : j * m + i;
-            if (x[k] == 1) {
-              i = k;
-              count++;
-              break;
-            }
-          }
-        } else {
-          printf("\n");
-          // if full cycle, we're done
-          if (count == m) {
-            printf("got a cycle!\n");
-            termination = TRUE;
+      if (subtour_labels[i] == 0) {
+        printf("%d ", i);
+        found_one = TRUE;
+        subtour_labels[i] = mark;
+        for (j = 0; j < m; ++j) {
+          int k = (i > j) ? i*m + j : j * m + i;
+          if (x[k] == 1) {
+            i = k;
+            count++;
             break;
           }
-
-          // indices
-          double* indices = (double*) malloc(count * sizeof(double));
-
-          int k = 0;
-          for(j = 0; j < count; j++) {
-            if (subtour_labels[j] == mark) {
-              indices[k++] = j;
-            }
-          }
-
-          // add constraint in the correct way, porcatroia...
-
-          mark++;
         }
-      }
+      } else {
+        printf("\n");
+        // if full cycle, we're done
+        if (count == m) {
+          printf("got a cycle!\n");
+          termination = TRUE;
+          break;
+        }
 
+        // indices
+        double* indices = (double*) malloc(count * sizeof(double));
+
+        int k = 0;
+        for(j = 0; j < count; j++) {
+          if (subtour_labels[j] == mark) {
+            indices[k++] = j;
+          }
+        }
+
+        // add constraint in the correct way, porcatroia...
+
+        mark++;
+      }
     }
 
-    return ret;
+  }
+
+  return 0;
 }
 
