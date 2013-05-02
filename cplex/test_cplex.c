@@ -278,7 +278,7 @@ int main (int argc, char *argv[]) {
              *pi =    (double *) malloc (numrows * sizeof(double));
 
 
-      if ( x    == NULL ||
+      if (x     == NULL ||
           slack == NULL ||
           dj    == NULL ||
           pi    == NULL   ) {
