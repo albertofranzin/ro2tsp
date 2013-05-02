@@ -37,24 +37,29 @@
  * its structure is:
  * |  v1  |  v2  |  position  |
  */
-typedef struct _table {
+struct cplex_table {
+
   int size;
+  int n; // numero di nodi del grafo a cui è associata la tabella: servirà per calcolare pos a partire dagli indici dei vertici estremi di un lato
   int** entries;
-} table;
+
+};
+
+typedef struct cplex_table cplex_table;
 
 /*
  * table_init
  *
  * create a table starting from a graph
  */
-void table_init(table* TAB, graph* G);
+void cplex_table_init(cplex_table* CPX_TAB, int size);
 
 /*
  * table_delete
  *
  * delete a table
  */
-void table_delete(table* TAB);
+void cplex_table_delete(cplex_table* CPX_TAB);
 
 /*
  * pos_from_vertices
@@ -66,7 +71,12 @@ void table_delete(table* TAB);
  * int * : pointer to index of vertex 2 (not modified)
  * int * : pointer to index of position (to be modified)
  */
-void pos_from_vertices(table* TAB, int* x, int* y, int* pos);
+/* 
+ * le posizioni dei lati (i, j) sono assegnate come segue (sia n=5)
+ * lato: (1,2) (1,3) (1,4) (1,5) (2,3) (2,4) (2,5) (3,4) (3,5) ...
+ * pos :   1     2     3     4     5     6     7     8     9   ...
+ */
+void cplex_table_populate(cplex_table* CPX_TAB, graph* G);
 
 /*
  * vertices_from_pos
@@ -78,8 +88,19 @@ void pos_from_vertices(table* TAB, int* x, int* y, int* pos);
  * int * : pointer to index of vertex 2 (to be modified)
  * int * : pointer to index of position (not modified)
  */
-void vertices_from_pos(table* TAB, int* x, int* y, int* pos);
+void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int* pos);
 
+/*
+ * pos_from_vertices
+ *
+ * hash (pos)<-(v1, v2)
+ *
+ * table * : hash table
+ * int * : pointer to index of vertex 1 (not modified)
+ * int * : pointer to index of vertex 2 (not modified)
+ * int * : pointer to index of position (to be modified)
+ */
+void pos_from_vertices(cplex_table* CPX_TAB, int* x, int* y, int* pos);
 
 
 
@@ -134,7 +155,7 @@ int cplex_create_problem(CPXENVptr, CPXLPptr);
  *
  * return : operation status
  */
-int cplex_setup_problem(graph *, table *, CPXENVptr, CPXLPptr,
+int cplex_setup_problem(graph *, cplex_table *, CPXENVptr, CPXLPptr,
             char *, int *, int *, int *,
             double **, double **, char **,
             int **, int **, int **, double **,
