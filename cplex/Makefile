@@ -20,7 +20,8 @@ test_cplex: clean buildLib $(NOMEFILE)
 # link libraries
 buildLib: list.o edgelist.o graph.o egraph.o tree.o onetree.o compute_mst.o \
 		  compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o \
-		  compute_lagrange.o solve_tsp.o utils.o cycle.o
+		  compute_lagrange.o solve_tsp.o utils.o cycle.o \
+		  cplex_solver.o
 	ar r libro2ds.a *.o
 #	rm *.o
 
@@ -65,6 +66,9 @@ utils.o: utils.h utils.c
 
 cycle.o: cycle.h cycle.c
 	gcc -g -c cycle.c
+
+cplex_solver.o: cplex_solver.h cplex_solver.c
+	gcc $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) -g -c cplex_solver.c
 
 clean:
 	clear

@@ -1,12 +1,6 @@
+#include <ilcplex/cplex.h>
 #include "cplex_solver.h"
 
-// maximum length of variable/constraint names
-#define MAXNAME 64
-#define INFINITY 1e30
-#define EPSILON 1e-6
-#define MAXITN 10
-#define TRUE 1
-#define FALSE 0
 
 // sparsify constraint format and add it to CPLEX problem
 void AddConstraint(CPXENVptr env, CPXLPptr lp, int nz, 
@@ -34,7 +28,7 @@ int Flatten2DIndices(int i, int j, int m) {
   return i*m + j;
 }
 
-int main (int argc, char const* argv[]) {
+int main (int argc, char *argv[]) {
 
     // return code
     int ret = 0;
@@ -229,7 +223,7 @@ int main (int argc, char const* argv[]) {
         ctype[j] = 'B';  // variables are binary
     }
 
-    status = CPXnewcols (env, lp, m * (m-1) / 2 , obj, xL, xU, NULL, ctype);
+    status = CPXnewcols (env, lp, m * (m-1) / 2 , obj, xL, xU, ctype, NULL);
 
     printf("variable bounds done\n");
 
@@ -244,213 +238,145 @@ int main (int argc, char const* argv[]) {
 
     printf("lp problem created\n");
 
-
-    //printf("cplex: solving to LP optimality, max time %d sec\n", MAXTIME);
-    status = CPXlpopt(env, lp);
-
-    if (status) {
-        if (status == CPXERR_PRESLV_INForUNBD) {
-            //;
-            //error("cplex: infeasible or unbounded\n");
-            fprintf(stderr, "cheavaca\n");
-        } else {
-            fprintf(stderr, "cplex: failed to optimize, code %d\n", status); 
-        }
-    }
-
-    printf("problem solved (hopefully)\n");
-
-    // decommentare nel caso
-    /*// Set time limit for solving the problem
-    CPXsetdblparam(env, CPX_PARAM_TILIM, MAXTIME);
-
-    // Set relative tolerance on IP solution
-    CPXsetdblparam(env, CPX_PARAM_EPGAP, 1E-8);*/
-
-    /* The size of the problem should be obtained by asking CPLEX */
-    numrows = CPXgetnumrows(env, lp);
-    numcols = CPXgetnumcols(env, lp);
-
-    printf("numrows = %d, numcols = %d\n", numrows, numcols);
-
-    double *x =     (double *) malloc (numcols * sizeof(double)),
-           *slack = (double *) malloc (numrows * sizeof(double)),
-           *dj =    (double *) malloc (numcols * sizeof(double)),
-           *pi =    (double *) malloc (numrows * sizeof(double));
+    int termination = FALSE;
+    int subtour_labels[m];
 
 
-    if ( x     == NULL ||
-        slack == NULL ||
-        dj    == NULL ||
-        pi    == NULL   ) {
-        status = CPXERR_NO_MEMORY;
-        fprintf (stderr, "Could not allocate memory for solution.\n");
-        exit(5);
-    }
+    while (!termination) {
 
-    printf("space for solution allocated\n");
+      //printf("cplex: solving to LP optimality, max time %d sec\n", MAXTIME);
+      status = CPXlpopt(env, lp);
 
-
-    status = CPXsolution (env, lp, &solstat, &obj, x, pi, slack, dj);
-    if ( status ) {
-        fprintf (stderr, "Failed to obtain solution.\n");
-        exit(6);
-    }
-
-
-    printf ("\nSolution status = %d\n", solstat);
-    printf ("Solution value  = %f\n\n", obj);
-
-    for (i = 0; i < numrows; i++) {
-        printf ("Row %d:  Slack = %10f  Pi = %10f\n", i, slack[i], pi[i]);
-    }
-
-    for (j = 0; j < numcols; j++) {
-        printf ("Column %d:  Value = %10f  Reduced cost = %10f\n",
-                j, x[j], dj[j]);
-    } 
-
-
-  /*printf("ma ma yo\n");
-
-  // variable lower bounds 
-  double* xL = (double*) malloc(n * sizeof(double));
-  // variable upper bounds
-  double* xU = (double*) malloc(n * sizeof(double));
-  // variable types
-  ctype = (char*) malloc(n * sizeof(char));
-  for(j = 0; j < n; j++) {
-    xL[j] = 0;
-    xU[j] = 1;
-    ctype[j] = 'B';  // variables are binary
-  }
-
-  printf("ma yo\n");
-
-  // TODO:
-  // create the variables
-
-  // add constraints in ip
-  double* coeffs = (double*) malloc(n * sizeof(double));
-  int* indices = (int*) malloc(n * sizeof(int));
-  int nz = 0;
-
-  printf("nz\n");
-
-  // constraints 1: for all i, sum_j x_{ij} = 1
-  for(i = 0; i < m; i++) {
-    nz = 0;
-    for(j = 0; j < m; j++) {
-      if (i != j) {
-        coeffs[nz] = 1.0;
-        printf("%d %d\n", i, j);
-        indices[nz] = Flatten2DIndices(i,j,m);
-        nz++;
+      if (status) {
+          if (status == CPXERR_PRESLV_INForUNBD) {
+              //;
+              //error("cplex: infeasible or unbounded\n");
+              fprintf(stderr, "cheavaca\n");
+          } else {
+              fprintf(stderr, "cplex: failed to optimize, code %d\n", status); 
+          }
       }
-    }
-    sense = 'E';  // equation
-    rhs = 1.0;    // =1
-    printf("adding constraint %d\n", i);
-    AddConstraint(env, ip, nz, coeffs, indices, sense, rhs);
-    printf("constraint added %d\n", i);
-  }
 
-  printf("yayo\n");
+      printf("problem solved (hopefully)\n");
 
-  // TODO:
-  // constraints 2: for all j, sum_i x_{ij} = 1
-  for(j = 0; j < m; j++) {
-    // (compute nz, coeffs, indices, sense, rhs)
-    AddConstraint(env, ip, nz, coeffs, indices, sense, rhs);
-  }
+      // decommentare nel caso
+      /*// Set time limit for solving the problem
+      CPXsetdblparam(env, CPX_PARAM_TILIM, MAXTIME);
 
-  printf("ya\n");
+      // Set relative tolerance on IP solution
+      CPXsetdblparam(env, CPX_PARAM_EPGAP, 1E-8);*/
 
-  // select LP optimization algorithm
-  status = CPXsetintparam(env, CPX_PARAM_LPMETHOD, CPX_ALG_AUTOMATIC);
-  if (status != 0) {
-    fprintf(stderr, "%s: could not select optimization algorithm, error %d\n", 
-      argv[0], status);
-    exit(3);
-  }
+      /* The size of the problem should be obtained by asking CPLEX */
+      numrows = CPXgetnumrows(env, lp);
+      numcols = CPXgetnumcols(env, lp);
 
-  printf("hey\n");
+      printf("numrows = %d, numcols = %d\n", numrows, numcols);
 
-  // do it!
-  fprintf(stdout, "************ TSP: algorithmic progress ****************\n");
-  int termination = FALSE;
-  double objval;
-   x = (double*) malloc(n * sizeof(double));
-  int currentvertex;
-  int* successor = (int*) malloc(m * sizeof(int));
-  int* cycle = (int*) malloc(m * sizeof(int));
-  int solstat = 0;
-  int itncount = 1;
-  while(!termination) {
+      double *x =     (double *) malloc (numcols * sizeof(double)),
+             *slack = (double *) malloc (numrows * sizeof(double)),
+             *dj =    (double *) malloc (numcols * sizeof(double)),
+             *pi =    (double *) malloc (numrows * sizeof(double));
 
-    // optimize 
-    status = CPXmipopt(env, ip);
-    if (status != 0) {
-      fprintf(stderr, "%s: failed to call optimization algorithm on ip\n", 
-          argv[0]);
-      exit(10);
-    }
-    solstat = CPXgetstat(env, ip);
-    if (solstat != 101) {
-      fprintf(stdout, "  couldn't find optimal solution, status = %d\n", 
+
+      if ( x    == NULL ||
+          slack == NULL ||
+          dj    == NULL ||
+          pi    == NULL   ) {
+          status = CPXERR_NO_MEMORY;
+          fprintf (stderr, "Could not allocate memory for solution.\n");
+          exit(5);
+      }
+
+      printf("space for solution allocated\n");
+
+
+      status = CPXsolution (env, lp, &solstat, &obj, x, pi, slack, dj);
+      if ( status ) {
+          fprintf (stderr, "Failed to obtain solution.\n");
+          //exit(6);
+      }
+
+
+      printf ("\nSolution status = %d\n", solstat);
+      printf ("Solution value  = %f\n\n", obj);
+
+      for (i = 0; i < numrows; i++) {
+          printf ("Row %d:  Slack = %10f  Pi = %10f\n", i, slack[i], pi[i]);
+      }
+
+      for (j = 0; j < numcols; j++) {
+          printf ("Column %d:  Value = %10f  Reduced cost = %10f\n",
+                  j, x[j], dj[j]);
+      }
+
+      //
+      // look for cycles
+      //
+
+      solstat = CPXgetstat(env, lp);
+      if (solstat != 101) {
+        fprintf(stdout, "  couldn't find optimal solution, status = %d\n", 
           solstat);
-      termination = TRUE;
-      break;
-    }
-    // get ip solution
-    for(i = 0; i < n; i++) {
-      x[i] = 0;
-    }
-    CPXgetmipx(env, ip, x, 0, n - 1);
-    CPXgetmipobjval(env, ip, &objval);
-    for(i = 0; i < n; i++) {
-      x[i] = rint(x[i]);
-    }
-    fprintf(stdout, "iteration %d: current solution with cost %.2f:\n", 
-        itncount, objval);
+        //termination = TRUE;
+        //break;
+      }
 
-    // TODO:
-    // verify if there are disjoint cycles
-    // (compute successors)
-    // (find a cycle, let k be its cardinality)
+      memset(x, 0., sizeof(x));
 
-    if (k >= m) {
-      // cycle is hamiltonian, optimal solution
-      fprintf(stdout, " )\n    is the optimal solution\n");
-      termination = TRUE;
-    } else {
-      // solution is union of disjoint cycles, break the cycle
-      fprintf(stdout, " )\n    is a disjoint cycle, breaking\n");
+      CPXgetmipx(env, lp, x, 0, n - 1);
+      CPXgetmipobjval(env, lp, obj);
+      for(i = 0; i < n; i++) {
+        x[i] = rint(x[i]);
+      }
 
-      // TODO:
-      // add the constraint sum_{i!=j in cycle} x[i][j] <= k - 1
-      // (compute nz, coeffs, indices, sense, rhs)
-      AddConstraint(env, ip, nz, coeffs, indices, sense, rhs);
+      memset(subtour_labels, 0, sizeof(subtour_labels));
+
+      // find a tour
+      i = 0;
+      int mark = 1, count = 0;
+      int found_one = TRUE;
+
+      while (found_one) {
+        found_one = FALSE;
+
+        if (subtour_labels[i] == 0) {
+          printf("%d ", i);
+          found_one = TRUE;
+          subtour_labels[i] = mark;
+          for (j = 0; j < m; ++j) {
+            int k = (i > j) ? i*m + j : j * m + i;
+            if (x[k] == 1) {
+              i = k;
+              count++;
+              break;
+            }
+          }
+        } else {
+          printf("\n");
+          // if full cycle, we're done
+          if (count == m) {
+            printf("got a cycle!\n");
+            termination = TRUE;
+            break;
+          }
+
+          // indices
+          double* indices = (double*) malloc(count * sizeof(double));
+
+          int k = 0;
+          for(j = 0; j < count; j++) {
+            if (subtour_labels[j] == mark) {
+              indices[k++] = j;
+            }
+          }
+
+          // add constraint in the correct way, porcatroia...
+
+          mark++;
+        }
+      }
+
     }
-    itncount++;
-  }
-  fprintf(stdout, "*******************************************************\n");
-
-  // free storage
-  free(cycle);
-  free(successor);
-  free(x);
-  CPXfreeprob(env, &ip);
-  free(coeffs);
-  free(indices);
-  free(ctype);
-  free(xU);
-  free(xL);
-  free(c);
-  for(i = m-1; i >= 0; i--) {
-    free(D[i]);
-  }
-  free(D);*/
 
     return ret;
 }
