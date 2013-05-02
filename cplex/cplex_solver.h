@@ -17,7 +17,6 @@
 
 #define MAXNAME 64
 #define INFINITY 1e30
-#define EPSILON 1e-6
 #define MAXITN 10
 #define TRUE 1
 #define FALSE 0
@@ -34,35 +33,38 @@
  * hash table for computing position of a constraint starting from vertices
  * and viceversa. It's a size x 3 matrix
  *
- * its structure is:
+ * - size    : # of entries (rows)
+ * - n       : number of nodes of the graph associated to the table.
+ *               Useful for computing the position of the elements
+ *               in the table
+ * - entries : 
+ *
+ * structure of entries is:
  * |  v1  |  v2  |  position  |
+ *
  */
-struct cplex_table {
-
+typedef struct _cplex_table {
   int size;
-  int n; // numero di nodi del grafo a cui è associata la tabella: servirà per calcolare pos a partire dagli indici dei vertici estremi di un lato
+  int n;
   int** entries;
-
-};
-
-typedef struct cplex_table cplex_table;
+} cplex_table;
 
 /*
- * table_init
+ * cplex_table_init
  *
  * create a table starting from a graph
  */
 void cplex_table_init(cplex_table* CPX_TAB, int size);
 
 /*
- * table_delete
+ * cplex_table_delete
  *
  * delete a table
  */
 void cplex_table_delete(cplex_table* CPX_TAB);
 
 /*
- * pos_from_vertices
+ * cplex_table_populate
  *
  * hash (v1, v2)->(pos)
  *
@@ -189,15 +191,16 @@ int cplex_solve_problem(CPXENVptr, CPXLPptr);
  * cplex_add_SEC
  *
  * - CPXENVptr : pointer to the CPLEX environment
- * - CPXLPptr : pointer to the CPLEX LP problem
- * - int : number of components
- * - double * : vector of components
- * - double
+ * - CPXLPptr  : pointer to the CPLEX LP problem
+ * - int       : number of components
+ * - int *     : vector of indices
+ * - double *  : vector of components
+ * - double    : right-hand-side of the constraint
  *
  * add a new SEC constraint to the lp
  *
  * return : operation status
  */
-int cplex_add_SEC(CPXENVptr, CPXLPptr, int, double *, double);
+int cplex_add_SEC(CPXENVptr, CPXLPptr, int, int *, double *, double);
 
 #endif
