@@ -48,10 +48,10 @@ void cplex_table_delete(cplex_table* CPX_TAB) {
  *
  * hash (v1, v2)->(pos)
  *
- * table * : hash table
- * int * : pointer to index of vertex 1 (not modified)
- * int * : pointer to index of vertex 2 (not modified)
- * int * : pointer to index of position (to be modified)
+ * cplex_table * : hash table
+ * int *         : pointer to index of vertex 1 (not modified)
+ * int *         : pointer to index of vertex 2 (not modified)
+ * int *         : pointer to index of position (to be modified)
  *
  * le posizioni dei lati (i, j) sono assegnate come segue (sia n=5)
  * lato: (1,2) (1,3) (1,4) (1,5) (2,3) (2,4) (2,5) (3,4) (3,5) ...
@@ -63,19 +63,20 @@ void cplex_table_populate(cplex_table* CPX_TAB, graph* G) {
     printf("error: table_populate\n");
     exit(EXIT_FAILURE);
   }
+  // assert(CPX_TAB->size == G->n * (G->n - 1)) / 2);
 
   int i, j, pos;
   int n = (*G).n;
 
   (*CPX_TAB).n = n;
 
+  // assumendo che i nodi del grafo siano 0, 1, 2, ..., n-1 si ha:
+  // pos = n * (i + 1) - ((i * (i + 1)) / 2) - n + j - i - 1
+  // nel nostro caso i nodi del grafo sono indicizzati 1, 2, ..., n
+  // inoltre vogliamo che pos parta da 1 e non da 0
+  // pos = 1 + n * i ((i * (i - 1)) / 2) - n + j - i - 1
   for (i = 1; i <= n; i++) {
     for (j = i+1; j <= n; j++) {
-      // assumendo che i nodi del grafo siano 0, 1, 2, ..., n-1 si ha:
-      // pos = n * (i + 1) - ((i * (i + 1)) / 2) - n + j - i - 1
-      // nel nostro caso i nodi del grafo sono indicizzati 1, 2, ..., n
-      // inoltre vogliamo che pos parta da 1 e non da 0
-      // pos = 1 + n * i ((i * (i - 1)) / 2) - n + j - i - 1
       pos = n * i - ((i * (i - 1)) / 2) - n + j - i; 
       (*CPX_TAB).entries[pos-1][0] = i;
       (*CPX_TAB).entries[pos-1][1] = j;
@@ -90,21 +91,20 @@ void cplex_table_populate(cplex_table* CPX_TAB, graph* G) {
  *
  * hash (pos)->(v1, v2)
  *
- * table * : hash table
- * int * : pointer to index of vertex 1 (to be modified)
- * int * : pointer to index of vertex 2 (to be modified)
- * int * : pointer to index of position (not modified)
+ * cplex_table * : hash table
+ * int *         : pointer to index of vertex 1 (to be modified)
+ * int *         : pointer to index of vertex 2 (to be modified)
+ * int *         : pointer to index of position (not modified)
  */
-void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int* pos) {
-  if (*x < 1 || *x > (*CPX_TAB).n || *y < 1 || *y > (*CPX_TAB).n || *x == *y) {
-    printf("error: pos_from_vertices\n");
+void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int *pos) {
+  if (*pos < 1 || *pos > CPX_TAB->size) {
+    fprintf(stderr, "error: vertices_from_pos\n");
+    fprintf(stderr, "pos = %d, size = %d\n", *pos, CPX_TAB->size);
     exit(EXIT_FAILURE);
   }
-  if (*x < *y) {
-    *pos = (*CPX_TAB).n * *x     -     ((*x * (*x - 1)) / 2) - (*CPX_TAB).n     +      *y - *x;
-  } else {
-    *pos = (*CPX_TAB).n * *y     -     ((*y * (*y - 1)) / 2) - (*CPX_TAB).n     +      *x - *y;
-  }
+
+  *x = (*CPX_TAB).entries[*pos-1][0];
+  *y = (*CPX_TAB).entries[*pos-1][1];
 }
 
 /*
@@ -112,19 +112,22 @@ void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int* pos) {
  *
  * hash (pos)<-(v1, v2)
  *
- * table * : hash table
- * int * : pointer to index of vertex 1 (not modified)
- * int * : pointer to index of vertex 2 (not modified)
- * int * : pointer to index of position (to be modified)
+ * cplex_table * : hash table
+ * int *         : pointer to index of vertex 1 (not modified)
+ * int *         : pointer to index of vertex 2 (not modified)
+ * int *         : pointer to index of position (to be modified)
  */
 void pos_from_vertices(cplex_table* CPX_TAB, int* x, int* y, int* pos) {
-  if (*pos < 1 || *pos > (*CPX_TAB).size) {
-    printf("error: vertices_from_pos\n");
+  if (*x < 1 || *x > (*CPX_TAB).n || *y < 1 || *y > (*CPX_TAB).n || *x == *y) {
+    fprintf(stderr, "error: pos_from_vertices\n");
+    printf("x = %d, y = %d, n = %d\n", *x, *y, CPX_TAB->n);
     exit(EXIT_FAILURE);
   }
-
-  *x = (*CPX_TAB).entries[*pos-1][0];
-  *y = (*CPX_TAB).entries[*pos-1][1];
+  if (*x < *y) {
+    *pos = (*CPX_TAB).n * *x - ((*x * (*x - 1)) / 2) - (*CPX_TAB).n + *y - *x;
+  } else {
+    *pos = (*CPX_TAB).n * *y - ((*y * (*y - 1)) / 2) - (*CPX_TAB).n + *x - *y;
+  }
 }
 
 
@@ -141,17 +144,18 @@ void pos_from_vertices(cplex_table* CPX_TAB, int* x, int* y, int* pos) {
  * cplex_create_problem
  *
  * - CPXENVptr : pointer to the CPLEX environment
- * - CPXLPptr : pointer to the CPLEX LP problem
+ * - CPXLPptr  : pointer to the CPLEX LP problem
+ * - char *    : problem name
  *
  * create a new environment and problem
  *
  * return : operation status
  */
-int cplex_create_problem(CPXENVptr env, CPXLPptr lp) {
+int cplex_create_problem(CPXENVptr env, CPXLPptr lp, char *probname) {
   int status;
 
   // Initialize the CPLEX environment
-  env = CPXopenCPLEX (&status);
+  env = CPXopenCPLEX(&status);
 
   // If an error occurs, the status value indicates the reason for
   // failure.  A call to CPXgeterrorstring will produce the text of
@@ -170,7 +174,7 @@ int cplex_create_problem(CPXENVptr env, CPXLPptr lp) {
 
   // Create the problem.
 
-  lp = CPXcreateprob(env, &status, "tsp");
+  lp = CPXcreateprob(env, &status, probname);
 
   // A returned pointer of NULL may mean that not enough memory
   // was available or there was some other problem.  In the case of
@@ -276,7 +280,7 @@ int cplex_setup_problem(
   int x, y, var;
 
   for (i = 1; i <= NUMCOLS; i++) {
-    get_edge_from_var(&x, &y, &i, hash_table);
+    vertices_from_pos(hash_table, &x, &y, &i);
     zobj[i-1] = graph_get_edge_cost(G, x, y);
   }
 
@@ -289,59 +293,82 @@ int cplex_setup_problem(
   }
 
   for (i = 1; i <= n; i++) {
-   for (j = i+1; j <= n; j++) {
-    get_var_from_edge(&i, &j, &var, hash_table);
-    zmatind[(var-1)*2] = i-1;
-    zmatval[(var-1)*2] = 1.0;
-    zmatind[(var-1)*2 + 1] = j-1;
-    zmatval[(var-1)*2 + 1] = 1.0;
-   }
+    for (j = i+1; j <= n; j++) {
+      pos_from_vertices(hash_table, &i, &j, &var);
+      zmatind[(var-1)*2] = i-1;
+      zmatval[(var-1)*2] = 1.0;
+      zmatind[(var-1)*2 + 1] = j-1;
+      zmatval[(var-1)*2 + 1] = 1.0;
+    }
   }
 
+  // constraints on (binary) variables (edges)
+  // x_e \in {0,1} \forall e \in E
   for (i = 0; i < NUMCOLS; i++) {
     zlb[i] = 0.0;
     zub[i] = 1.0;
-  }
-
-  for (i = 0; i < NUMCOLS; i++) {
     zctype[i] = 'B';
   }
 
-  // The right-hand-side values don't fit nicely on a line above.
-  // So put them here.
+  // right-hand-side values - constraints on node degree
+  // sum_{e \in \delta(v)} x_e = 2 \forall v \in V
   for (i = 0; i < NUMROWS; i++) {
     zsense[i] = 'E';
     zrhs[i] = 2.0;
   }
 
   if (status) {
-    free_and_null ((char **) &zprobname);
-    free_and_null ((char **) &zobj);
-    free_and_null ((char **) &zrhs);
-    free_and_null ((char **) &zsense);
-    free_and_null ((char **) &zmatbeg);
-    free_and_null ((char **) &zmatcnt);
-    free_and_null ((char **) &zmatind);
-    free_and_null ((char **) &zmatval);
-    free_and_null ((char **) &zlb);
-    free_and_null ((char **) &zub);
-    free_and_null ((char **) &zctype);
+
+    /*free_and_null((char **) &zprobname);
+    free_and_null((char **) &zobj);
+    free_and_null((char **) &zrhs);
+    free_and_null((char **) &zsense);
+    free_and_null((char **) &zmatbeg);
+    free_and_null((char **) &zmatcnt);
+    free_and_null((char **) &zmatind);
+    free_and_null((char **) &zmatval);
+    free_and_null((char **) &zlb);
+    free_and_null((char **) &zub);
+    free_and_null((char **) &zctype);*/
+
+    exit(1);
+
   } else {
+
     *numcols_p   = NUMCOLS;
     *numrows_p   = NUMROWS;
     *objsen_p    = CPX_MIN;
 
-    *probname_p  = zprobname;
-    *obj_p       = zobj;
-    *rhs_p       = zrhs;
-    *sense_p     = zsense;
-    *matbeg_p    = zmatbeg;
-    *matcnt_p    = zmatcnt;
-    *matind_p    = zmatind;
-    *matval_p    = zmatval;
-    *lb_p        = zlb;
-    *ub_p        = zub;
-    *ctype_p     = zctype;
+    strcpy(probname_p, zprobname);
+    *obj_p    = zobj;
+    *rhs_p    = zrhs;
+    *sense_p  = zsense;
+    *matbeg_p = zmatbeg;
+    *matcnt_p = zmatcnt;
+    *matind_p = zmatind;
+    *matval_p = zmatval;
+    *lb_p     = zlb;
+    *ub_p     = zub;
+    *ctype_p  = zctype;
+
+  }
+
+  // now tell cplex everythiing it needs
+
+  status = CPXcopylp(env, lp, NUMCOLS, NUMROWS, *objsen_p,
+                      zobj, zrhs, zsense, zmatbeg, zmatcnt, zmatind, zmatval,
+                      zlb, zub, NULL);
+
+  if (status) {
+    fprintf(stderr, "Failed to copy problem data.\n");
+    exit(1);
+  }
+
+  status = CPXcopyctype(env, lp, zctype);
+
+  if (status) {
+    fprintf(stderr, "Failed to copy ctype\n");
+    exit(1);
   }
 
   return status;
@@ -353,9 +380,9 @@ int cplex_setup_problem(
  * cplex_create_obj_function
  *
  * - CPXENVptr : pointer to the CPLEX environment
- * - CPXLPptr : pointer to the CPLEX LP problem
- * - int : number of coefficients
- * - double * : coefficients of the objective function
+ * - CPXLPptr  : pointer to the CPLEX LP problem
+ * - int       : number of coefficients
+ * - double *  : coefficients of the objective function
  *
  * return : operation status
  */
@@ -377,15 +404,31 @@ int cplex_create_obj_function(CPXENVptr env, CPXLPptr lp,
  * - int       : number of components
  * - int *     : vector of indices
  * - double *  : vector of components
- * - double    : right-hand-side of the constraint
+ * - double    : vector containing the right-hand-side of the constraint
  *
  * add a new SEC constraint to the lp
  *
  * return : operation status
  */
-int cplex_add_SEC(CPXENVptr env, CPXLPptr lp, int numcols,
-          int * indices, double *coeffs, double rhs) {
-  int status;
+int cplex_add_SEC(CPXENVptr env, CPXLPptr lp, int nonzeros,
+          int *indices, double *coeffs, double *rhs) {
+  int status, i,
+      rmatbeg[nonzeros];
+
+  char *sense = (char *)malloc(sizeof(char));
+  sense[0] = 'L';
+
+  for (i = 0; i < nonzeros; ++i) {
+    rmatbeg[i] = i;
+  }
+
+  status = CPXaddrows(env, lp, 0, 1, nonzeros, rhs, sense,
+            rmatbeg, indices, coeffs, NULL, NULL);
+
+  if (status) {
+    fprintf(stderr, "Could not add constraint.\nBye.");
+    exit(1);
+  }
 
   return status;
 } // end cplex_add_SEC

@@ -28,19 +28,20 @@
  *************************************************/
 
 /*
- * table
+ * cplex_table
  *
  * hash table for computing position of a constraint starting from vertices
- * and viceversa. It's a size x 3 matrix
+ * and viceversa. It's a 'size x 3' matrix
  *
  * - size    : # of entries (rows)
  * - n       : number of nodes of the graph associated to the table.
  *               Useful for computing the position of the elements
  *               in the table
- * - entries : 
- *
- * structure of entries is:
- * |  v1  |  v2  |  position  |
+ * - entries : index of node/position, according to the following structure:
+ *             |  v1  |  v2  |  position  |
+ *             |  v1  |  v3  |  position  |
+ *             |  v1  |  v4  |  position  |
+ *             ...
  *
  */
 typedef struct _cplex_table {
@@ -68,10 +69,10 @@ void cplex_table_delete(cplex_table* CPX_TAB);
  *
  * hash (v1, v2)->(pos)
  *
- * table * : hash table
- * int * : pointer to index of vertex 1 (not modified)
- * int * : pointer to index of vertex 2 (not modified)
- * int * : pointer to index of position (to be modified)
+ * cplex_table * : hash table
+ * int *         : pointer to index of vertex 1 (not modified)
+ * int *         : pointer to index of vertex 2 (not modified)
+ * int *         : pointer to index of position (to be modified)
  */
 /* 
  * le posizioni dei lati (i, j) sono assegnate come segue (sia n=5)
@@ -85,22 +86,22 @@ void cplex_table_populate(cplex_table* CPX_TAB, graph* G);
  *
  * hash (pos)->(v1, v2)
  *
- * table * : hash table
- * int * : pointer to index of vertex 1 (to be modified)
- * int * : pointer to index of vertex 2 (to be modified)
- * int * : pointer to index of position (not modified)
+ * cplex_table * : hash table
+ * int *         : pointer to index of vertex 1 (to be modified)
+ * int *         : pointer to index of vertex 2 (to be modified)
+ * int *         : pointer to index of position (not modified)
  */
-void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int* pos);
+void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int *pos);
 
 /*
  * pos_from_vertices
  *
  * hash (pos)<-(v1, v2)
  *
- * table * : hash table
- * int * : pointer to index of vertex 1 (not modified)
- * int * : pointer to index of vertex 2 (not modified)
- * int * : pointer to index of position (to be modified)
+ * cplex_table * : hash table
+ * int *         : pointer to index of vertex 1 (not modified)
+ * int *         : pointer to index of vertex 2 (not modified)
+ * int *         : pointer to index of position (to be modified)
  */
 void pos_from_vertices(cplex_table* CPX_TAB, int* x, int* y, int* pos);
 
@@ -118,13 +119,14 @@ void pos_from_vertices(cplex_table* CPX_TAB, int* x, int* y, int* pos);
  * cplex_create_problem
  *
  * - CPXENVptr : pointer to the CPLEX environment
- * - CPXLPptr : pointer to the CPLEX LP problem
+ * - CPXLPptr  : pointer to the CPLEX LP problem
+ * - char *    : problem name
  *
  * create a new environment and problem
  *
  * return : operation status
  */
-int cplex_create_problem(CPXENVptr, CPXLPptr);
+int cplex_create_problem(CPXENVptr, CPXLPptr, char *);
 
 /*
  * cplex_setup_problem
@@ -167,9 +169,9 @@ int cplex_setup_problem(graph *, cplex_table *, CPXENVptr, CPXLPptr,
  * cplex_create_obj_function
  *
  * - CPXENVptr : pointer to the CPLEX environment
- * - CPXLPptr : pointer to the CPLEX LP problem
- * - int : number of coefficients
- * - double * : coefficients of the objective function
+ * - CPXLPptr  : pointer to the CPLEX LP problem
+ * - int       : number of coefficients
+ * - double *  : coefficients of the objective function
  *
  * return : operation status
  */
@@ -179,7 +181,7 @@ int cplex_create_obj_function(CPXENVptr, CPXLPptr, int, double *);
  * cplex_solve_problem
  *
  * - CPXENVptr : pointer to the CPLEX environment
- * - CPXLPptr : pointer to the CPLEX LP problem
+ * - CPXLPptr  : pointer to the CPLEX LP problem
  *
  * solve a LP problem using CPLEX
  *
@@ -195,12 +197,12 @@ int cplex_solve_problem(CPXENVptr, CPXLPptr);
  * - int       : number of components
  * - int *     : vector of indices
  * - double *  : vector of components
- * - double    : right-hand-side of the constraint
+ * - double    : vector containing the right-hand-side of the constraint
  *
  * add a new SEC constraint to the lp
  *
  * return : operation status
  */
-int cplex_add_SEC(CPXENVptr, CPXLPptr, int, int *, double *, double);
+int cplex_add_SEC(CPXENVptr, CPXLPptr, int, int *, double *, double *);
 
 #endif
