@@ -77,12 +77,20 @@ void cplex_table_populate(cplex_table* CPX_TAB, graph* G) {
   // pos = 1 + n * i ((i * (i - 1)) / 2) - n + j - i - 1
   for (i = 1; i <= n; i++) {
     for (j = i+1; j <= n; j++) {
-      pos = n * i - ((i * (i - 1)) / 2) - n + j - i; 
+      pos = n * i - ((i * (i - 1)) / 2) - n + j - i;
       (*CPX_TAB).entries[pos-1][0] = i;
       (*CPX_TAB).entries[pos-1][1] = j;
       (*CPX_TAB).entries[pos-1][2] = pos;
     }
+
   }
+  /*for (i = 1; i <= n; ++i) {
+    for (j = i+1; j <= n; ++j) {
+      printf("%d \n", n * i - ((i * (i - 1)) / 2) - n + j - i);
+    }
+    printf("\n");
+  }
+  char ch = getchar();*/
 
 } // end cplex_table_populate
 
@@ -94,17 +102,18 @@ void cplex_table_populate(cplex_table* CPX_TAB, graph* G) {
  * cplex_table * : hash table
  * int *         : pointer to index of vertex 1 (to be modified)
  * int *         : pointer to index of vertex 2 (to be modified)
- * int *         : pointer to index of position (not modified)
+ * int           : index of position (not modified)
  */
-void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int *pos) {
-  if (*pos < 1 || *pos > CPX_TAB->size) {
+void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int pos) {
+  //printf("%d ", pos);fflush(stdout);
+  if (pos < 1 || pos > CPX_TAB->size) {
     fprintf(stderr, "error: vertices_from_pos\n");
-    fprintf(stderr, "pos = %d, size = %d\n", *pos, CPX_TAB->size);
+    fprintf(stderr, "pos = %d, size = %d\n", pos, CPX_TAB->size);
     exit(EXIT_FAILURE);
   }
 
-  *x = (*CPX_TAB).entries[*pos-1][0];
-  *y = (*CPX_TAB).entries[*pos-1][1];
+  *x = CPX_TAB->entries[pos-1][0];
+  *y = CPX_TAB->entries[pos-1][1];
 }
 
 /*
@@ -113,20 +122,23 @@ void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int *pos) {
  * hash (pos)<-(v1, v2)
  *
  * cplex_table * : hash table
- * int *         : pointer to index of vertex 1 (not modified)
- * int *         : pointer to index of vertex 2 (not modified)
+ * int           : index of vertex 1 (not modified)
+ * int           : index of vertex 2 (not modified)
  * int *         : pointer to index of position (to be modified)
  */
-void pos_from_vertices(cplex_table* CPX_TAB, int* x, int* y, int* pos) {
-  if (*x < 1 || *x > (*CPX_TAB).n || *y < 1 || *y > (*CPX_TAB).n || *x == *y) {
+void pos_from_vertices(cplex_table* CPX_TAB, int x, int y, int* pos) {
+  //printf("%d %d\n", x, y);
+  if (x < 1 || x > CPX_TAB->n ||
+      y < 1 || y > CPX_TAB->n ||
+      x == y                    ) {
     fprintf(stderr, "error: pos_from_vertices\n");
-    printf("x = %d, y = %d, n = %d\n", *x, *y, CPX_TAB->n);
+    printf("x = %d, y = %d, n = %d\n", x, y, CPX_TAB->n);
     exit(EXIT_FAILURE);
   }
-  if (*x < *y) {
-    *pos = (*CPX_TAB).n * *x - ((*x * (*x - 1)) / 2) - (*CPX_TAB).n + *y - *x;
+  if (x < y) {
+    *pos = CPX_TAB->n * x - ((x * (x - 1)) / 2) - CPX_TAB->n + y - x;
   } else {
-    *pos = (*CPX_TAB).n * *y - ((*y * (*y - 1)) / 2) - (*CPX_TAB).n + *x - *y;
+    *pos = CPX_TAB->n * y - ((y * (y - 1)) / 2) - CPX_TAB->n + x - y;
   }
 }
 
@@ -151,11 +163,11 @@ void pos_from_vertices(cplex_table* CPX_TAB, int* x, int* y, int* pos) {
  *
  * return : operation status
  */
-int cplex_create_problem(CPXENVptr env, CPXLPptr lp, char *probname) {
+int cplex_create_problem(CPXENVptr *env, CPXLPptr *lp, char *probname) {
   int status;
 
   // Initialize the CPLEX environment
-  env = CPXopenCPLEX(&status);
+  *env = CPXopenCPLEX(&status);
 
   // If an error occurs, the status value indicates the reason for
   // failure.  A call to CPXgeterrorstring will produce the text of
@@ -164,17 +176,17 @@ int cplex_create_problem(CPXENVptr env, CPXLPptr lp, char *probname) {
   // CPXgeterrorstring.  For other CPLEX routines, the errors will
   // be seen if the CPX_PARAM_SCRIND indicator is set to CPX_ON.
 
-  if (env == NULL) {
+  if (*env == NULL) {
     char errmsg[CPXMESSAGEBUFSIZE];
     fprintf(stderr, "Could not open CPLEX environment.\n");
-    CPXgeterrorstring(env, status, errmsg);
+    CPXgeterrorstring(*env, status, errmsg);
     fprintf(stderr, "%s", errmsg);
     exit(1);
   }
 
   // Create the problem.
 
-  lp = CPXcreateprob(env, &status, probname);
+  *lp = CPXcreateprob(*env, &status, probname);
 
   // A returned pointer of NULL may mean that not enough memory
   // was available or there was some other problem.  In the case of
@@ -183,7 +195,7 @@ int cplex_create_problem(CPXENVptr env, CPXLPptr lp, char *probname) {
   // the parameter CPX_PARAM_SCRIND causes the error message to
   // appear on stdout.
 
-  if (lp == NULL) {
+  if (*lp == NULL) {
     fprintf (stderr, "Failed to create LP.\n");
     exit(1);
   }
@@ -233,11 +245,10 @@ int cplex_setup_problem(
             int **matbeg_p, int **matcnt_p, int **matind_p, double **matval_p,
             double **lb_p, double **ub_p, char **ctype_p) {
 
-  int n = (*G).n;
-  int NUMCOLS, NUMROWS, NUMNZ;
-  NUMCOLS = (n * (n-1)) / 2;
-  NUMROWS = n;
-  NUMNZ   = (n-1) * n;
+  int n = G->n;
+  int NUMCOLS = (n * (n - 1)) / 2,
+      NUMROWS = n,
+      NUMNZ = n * (n - 1);
 
   char   *zprobname = NULL;  // Problem name <= 16 characters
   double *zobj      = NULL;
@@ -280,7 +291,7 @@ int cplex_setup_problem(
   int x, y, var;
 
   for (i = 1; i <= NUMCOLS; i++) {
-    vertices_from_pos(hash_table, &x, &y, &i);
+    vertices_from_pos(hash_table, &x, &y, i);
     zobj[i-1] = graph_get_edge_cost(G, x, y);
   }
 
@@ -294,7 +305,7 @@ int cplex_setup_problem(
 
   for (i = 1; i <= n; i++) {
     for (j = i+1; j <= n; j++) {
-      pos_from_vertices(hash_table, &i, &j, &var);
+      pos_from_vertices(hash_table, i, j, &var);
       zmatind[(var-1)*2] = i-1;
       zmatval[(var-1)*2] = 1.0;
       zmatind[(var-1)*2 + 1] = j-1;
@@ -317,6 +328,8 @@ int cplex_setup_problem(
     zrhs[i] = 2.0;
   }
 
+  //printf("array created\n");
+
   if (status) {
 
     /*free_and_null((char **) &zprobname);
@@ -335,11 +348,14 @@ int cplex_setup_problem(
 
   } else {
 
+    //printf("assigning variables\n");
+
     *numcols_p   = NUMCOLS;
     *numrows_p   = NUMROWS;
     *objsen_p    = CPX_MIN;
 
-    strcpy(probname_p, zprobname);
+    // HOUSTON, we have a problem with strcpy
+    //strcpy(probname_p, zprobname);
     *obj_p    = zobj;
     *rhs_p    = zrhs;
     *sense_p  = zsense;
@@ -353,11 +369,29 @@ int cplex_setup_problem(
 
   }
 
-  // now tell cplex everythiing it needs
+  // now tell cplex everything it needs
 
-  status = CPXcopylp(env, lp, NUMCOLS, NUMROWS, *objsen_p,
-                      zobj, zrhs, zsense, zmatbeg, zmatcnt, zmatind, zmatval,
-                      zlb, zub, NULL);
+  /*printf("%d %d %d\n", NUMCOLS, NUMROWS, CPX_PARAM_SCRIND);
+  printf("zobj:\n");
+  for (i = 0; i < NUMCOLS; ++i) {
+    printf("%f\n", zobj[i]);
+  }
+  printf("zrhs, zsense:\n");
+  for (i = 0; i < NUMROWS; ++i) {
+    printf("%f %c\n", zrhs[i], zsense[i]);
+  }
+  printf("zmatbeg\n");
+  for (i = 0; i < NUMCOLS; ++i) {
+    printf("%d %d %d %f\n", zmatbeg[i], zmatcnt[i], zmatind[i], zmatval[i]);
+  }
+  printf("zlb\n");
+  for (i = 0; i < NUMCOLS; ++i) {
+    printf("%f %f\n", zlb[i], zub[i]);
+  }
+  printf("parameters seem ok\n");*/
+  status = CPXcopylp(env, lp, NUMCOLS, NUMROWS, CPX_MIN,
+                     zobj, zrhs, zsense, zmatbeg, zmatcnt, zmatind, zmatval,
+                     zlb, zub, NULL);
 
   if (status) {
     fprintf(stderr, "Failed to copy problem data.\n");
@@ -404,23 +438,34 @@ int cplex_create_obj_function(CPXENVptr env, CPXLPptr lp,
  * - int       : number of components
  * - int *     : vector of indices
  * - double *  : vector of components
- * - double    : vector containing the right-hand-side of the constraint
+ * - double *  : vector containing the right-hand-side of the constraint
  *
  * add a new SEC constraint to the lp
  *
  * return : operation status
  */
-int cplex_add_SEC(CPXENVptr env, CPXLPptr lp, int nonzeros,
+// hash_table has been added for debug!
+int cplex_add_SEC(cplex_table *hash_table, CPXENVptr env, CPXLPptr lp, int nonzeros,
           int *indices, double *coeffs, double *rhs) {
   int status, i,
       rmatbeg[nonzeros];
 
-  char *sense = (char *)malloc(sizeof(char));
-  sense[0] = 'L';
+  char sense[1] = {'L'};
 
   for (i = 0; i < nonzeros; ++i) {
     rmatbeg[i] = i;
   }
+
+#ifdef DEBUG
+  // print more infos for debug
+  int x, y;
+  for (i = 0; i < nonzeros; ++i) {
+    vertices_from_pos(hash_table, &x,&y,indices[i]+1);
+    printf("%f;%d = (%d,%d)\n", coeffs[i], indices[i], x, y);
+  }
+  printf(" <= %f\n", rhs[0]);
+  char ch = getchar();
+#endif
 
   status = CPXaddrows(env, lp, 0, 1, nonzeros, rhs, sense,
             rmatbeg, indices, coeffs, NULL, NULL);
