@@ -1,32 +1,6 @@
 #include "cplex_solver.h"
 
 
-// sparsify constraint format and add it to CPLEX problem
-void AddConstraint(CPXENVptr env, CPXLPptr lp, int nz, 
-       double* coeffs, int* ind, char sense, double rhs) {
-  int status = 0;
-  // add constraints in row-wise sparse format
-  int rmatbeg[2];
-  // nonzeroes stored in rmatval starting at position:
-  rmatbeg[0] = 0;
-  // nonzeroes stored in rmatval ending at position:
-  rmatbeg[1] = nz-1;
-  // create the constraints
-  printf("aaaaa\n");
-  status = CPXaddrows(env, lp, 0, 1, nz, &rhs, &sense, rmatbeg, ind, coeffs, NULL, NULL);
-  printf("uuuuu\n");
-  if (status != 0) {
-    fprintf(stderr, "pooling-slp: could not create constraints, error %d\n", 
-      status);
-    exit(3);
-  }
-}
-
-// take row, column and width and produce a one-dimensional index
-int Flatten2DIndices(int i, int j, int m) {
-  return i*m + j;
-}
-
 int main (int argc, char *argv[]) {
 
   int i, j, k;
@@ -156,7 +130,7 @@ int main (int argc, char *argv[]) {
   //
 
   // if returns, means it's ok
-  status = cplex_create_problem(env, lp, probname);
+  status = cplex_create_problem(&env, &lp, probname);
   assert(!status);
 
   printf("lp problem created\n");
@@ -164,7 +138,7 @@ int main (int argc, char *argv[]) {
   // MOVE TO SOMEWHERE ELSE
   // turn on output to screen
   //status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_OFF);
-  //status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);
+  status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);
   //status = CPXsetintparam(env, CPX_PARAM_MIPDISPLAY, 2);
   if (status) {
     fprintf (stderr, "Failure to turn on screen indicator, error %d.\n", status);
@@ -194,16 +168,21 @@ int main (int argc, char *argv[]) {
   // solve
   //
 
+  // iterate the following steps:
+  // - solve the problem
+  // - look at the cycle(s):
+  //   - if there is only one cycle, we're done, and exit
+  //   - else, parse the subcycles and add the apt SEC constraint
+
   // control for the solver cycle
   int iteration   = 1,
       termination = FALSE,
+      problem_solved = FALSE,
       cur_numrows, cur_numcols;
   int subtour_labels[G.n];
 
-  while (!termination) {
 
-    //printf("cplex: solving to LP optimality, max time %d sec\n", MAXTIME);
-    //status = CPXlpopt(env, lp);
+  while (!problem_solved) {
 
     // Optimize the problem and obtain solution.
     status = CPXmipopt(env, lp);
@@ -236,7 +215,7 @@ int main (int argc, char *argv[]) {
     // The size of the problem should be obtained by asking CPLEX
     cur_numrows = CPXgetnumrows(env, lp);
     cur_numcols = CPXgetnumcols(env, lp);
-    printf("numrows = %d, numcols = %d\n", numrows, numcols);
+    printf("numrows = %d, numcols = %d\n", cur_numrows, cur_numcols);
 
 
     status = CPXgetx(env, lp, x, 0, cur_numcols-1);
@@ -265,8 +244,9 @@ int main (int argc, char *argv[]) {
     }
     */
 
-    /*
+    /** /
     // DISEGNA IL GRAFO
+    printf("plot graph\n");
     graph G_CPLEX;
     egraph EG_CPLEX;
     int var;
@@ -274,74 +254,127 @@ int main (int argc, char *argv[]) {
     graph_init(&G_CPLEX, n);
     for (var = 1; var <= cur_numcols; var++) {
       if (x[var-1] == 1.0) {
-        get_edge_from_var(&i, &j, &var, &hash_table);
+        vertices_from_pos(&hash_table, &i, &j, var);
         graph_insert_edge(&G_CPLEX, i, j, 0.0);
       }
     }
     egraph_init(&EG_CPLEX, 1);
     egraph_copy(&EG, &EG_CPLEX);
-    graph_to_egraph(&G_CPLEX, &EG_CPLEX);
+    graph_to_egraph(&G_CPLEX, &EG_CPLEX); // <- segfault here
     egraph_plot(&EG, &EG_CPLEX);
     egraph_delete(&EG_CPLEX);
     graph_delete(&G_CPLEX);
-    */
+    / **/
 
     //
     // look for cycles
     //
 
+    printf("here you should have seen the graph... have you?\n");
+
     for(i = 0; i < cur_numcols; i++) {
       x[i] = rint(x[i]);
     }
 
-    memset(subtour_labels, 0, sizeof(subtour_labels));
 
     // find a tour
-    i = 0;
-    int mark = 1, count = 0;
-    int found_one = TRUE;
+    int     mark      = 1, // label of (sub)tour
+            count     = 1, // size of (sub)tour
+            tot_count = 0, // counter of edges
+            pos,           // position of edge in x array
+            starter;       // starting node for each (sub)cycle
+    int     indices[G.n];  // indices array for SEC insertion
+    double  coeffs[G.n];   // coefficients array for SEC insertion
 
-    while (found_one) {
-      found_one = FALSE;
-
-      if (subtour_labels[i] == 0) {
-        printf("%d ", i);
-        found_one = TRUE;
-        subtour_labels[i] = mark;
-        for (j = 0; j < m; ++j) {
-          int k = (i > j) ? i*m + j : j * m + i;
-          if (x[k] == 1) {
-            i = k;
-            count++;
-            break;
-          }
-        }
-      } else {
-        printf("\n");
-        // if full cycle, we're done
-        if (count == m) {
-          printf("got a cycle!\n");
-          termination = TRUE;
-          break;
-        }
-
-        // indices
-        double* indices = (double*) malloc(count * sizeof(double));
-
-        int k = 0;
-        for(j = 0; j < count; j++) {
-          if (subtour_labels[j] == mark) {
-            indices[k++] = j;
-          }
-        }
-
-        // add constraint in the correct way, porcatroia...
-
-        mark++;
-      }
+    memset(subtour_labels, 0, sizeof(subtour_labels));
+    memset(indices, 0, sizeof(indices));
+    //memset(coeffs, 1., sizeof(coeffs));
+    for (j = 0; j < G.n; ++j) {
+      coeffs[j] = 1.0;
     }
 
-  }
+    i = 0;
+    k = 0;
+    starter = 0;
+    termination = FALSE;
+    while (!termination) {
+
+      if (i < G.n && subtour_labels[i] == 0) {
+
+        printf("%d ", i+1);
+        subtour_labels[i] = mark;
+
+        for (j = 0; j < G.n; ++j) {
+          if (subtour_labels[j] == 0) {
+            pos_from_vertices(&hash_table, i+1, j+1, &pos);
+            if (x[pos-1] == 1.0) {
+              indices[k++] = pos-1;
+              count++;
+              i = j;
+              break;
+            }
+          }
+        }
+
+      } else {
+
+        printf("\n");
+        printf("count = %d, tot_count = %d\n", count, tot_count+count);
+        // if full cycle, we're done
+        if (count == G.n) {
+          printf("got a full cycle!\n");
+          termination = TRUE;
+          problem_solved = TRUE;
+          break;
+        } else {
+          // insert last edge (the one going back to starting node)
+          pos_from_vertices(&hash_table, i+1, starter+1, &pos);
+          indices[k] = pos-1;
+          //count++;
+
+          // adjust the counter of passed nodes
+          tot_count += count;
+
+          // create temporary arrays for the constraint insertion
+          // length is the size of subcycle
+          int    idx[count];
+          double cfs[count],
+                 rhs[1] = {count-1};
+
+          memcpy(&idx, &indices, sizeof(idx));
+          memcpy(&cfs, &coeffs, sizeof(cfs));
+
+          // insert constraint
+          status = cplex_add_SEC(&hash_table, env, lp, count, idx, cfs, rhs);
+          assert(!status);
+
+          // exit?
+          if (tot_count == G.n) {
+            mark = 0;
+            termination = TRUE;
+          } else {
+            // reset count
+            count = 1;
+            k = 0;
+            printf("let's look for another cycle\n");
+
+            // look for the first non-labelled node
+            i = 0;
+            while (i < G.n && subtour_labels[i] != 0) {
+              i++;
+            }
+            starter = i;
+            // go to next subcycle
+            mark++;
+          }
+
+        } // end subcycle analysis
+
+      } // end outer if-else
+
+    } // end while (!termination)
+
+  } // end while (!problem_solved)
 
   return 0;
 }

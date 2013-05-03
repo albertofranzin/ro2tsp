@@ -15,11 +15,11 @@
  *
  *************************************************/
 
-#define MAXNAME 64
+#define MAXNAME  64
 #define INFINITY 1e30
-#define MAXITN 10
-#define TRUE 1
-#define FALSE 0
+#define MAXITN   10
+#define TRUE     1
+#define FALSE    0
 
 /*************************************************
  *
@@ -89,9 +89,9 @@ void cplex_table_populate(cplex_table* CPX_TAB, graph* G);
  * cplex_table * : hash table
  * int *         : pointer to index of vertex 1 (to be modified)
  * int *         : pointer to index of vertex 2 (to be modified)
- * int *         : pointer to index of position (not modified)
+ * int           : index of position (not modified)
  */
-void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int *pos);
+void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int pos);
 
 /*
  * pos_from_vertices
@@ -99,11 +99,11 @@ void vertices_from_pos(cplex_table* CPX_TAB, int* x, int* y, int *pos);
  * hash (pos)<-(v1, v2)
  *
  * cplex_table * : hash table
- * int *         : pointer to index of vertex 1 (not modified)
- * int *         : pointer to index of vertex 2 (not modified)
+ * int           : index of vertex 1 (not modified)
+ * int           : index of vertex 2 (not modified)
  * int *         : pointer to index of position (to be modified)
  */
-void pos_from_vertices(cplex_table* CPX_TAB, int* x, int* y, int* pos);
+void pos_from_vertices(cplex_table* CPX_TAB, int x, int y, int* pos);
 
 
 
@@ -126,7 +126,7 @@ void pos_from_vertices(cplex_table* CPX_TAB, int* x, int* y, int* pos);
  *
  * return : operation status
  */
-int cplex_create_problem(CPXENVptr, CPXLPptr, char *);
+int cplex_create_problem(CPXENVptr *, CPXLPptr *, char *);
 
 /*
  * cplex_setup_problem
@@ -160,10 +160,10 @@ int cplex_create_problem(CPXENVptr, CPXLPptr, char *);
  * return : operation status
  */
 int cplex_setup_problem(graph *, cplex_table *, CPXENVptr, CPXLPptr,
-            char *, int *, int *, int *,
-            double **, double **, char **,
-            int **, int **, int **, double **,
-            double **, double **, char **);
+                        char *, int *, int *, int *,
+                        double **, double **, char **,
+                        int **, int **, int **, double **,
+                        double **, double **, char **);
 
 /*
  * cplex_create_obj_function
@@ -197,12 +197,12 @@ int cplex_solve_problem(CPXENVptr, CPXLPptr);
  * - int       : number of components
  * - int *     : vector of indices
  * - double *  : vector of components
- * - double    : vector containing the right-hand-side of the constraint
+ * - double *  : vector containing the right-hand-side of the constraint
  *
  * add a new SEC constraint to the lp
  *
  * return : operation status
  */
-int cplex_add_SEC(CPXENVptr, CPXLPptr, int, int *, double *, double *);
+int cplex_add_SEC(cplex_table *, CPXENVptr, CPXLPptr, int, int *, double *, double *);
 
 #endif
