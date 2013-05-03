@@ -332,7 +332,7 @@ int cplex_setup_problem(
 
   if (status) {
 
-    /*free_and_null((char **) &zprobname);
+    free_and_null((char **) &zprobname);
     free_and_null((char **) &zobj);
     free_and_null((char **) &zrhs);
     free_and_null((char **) &zsense);
@@ -342,7 +342,7 @@ int cplex_setup_problem(
     free_and_null((char **) &zmatval);
     free_and_null((char **) &zlb);
     free_and_null((char **) &zub);
-    free_and_null((char **) &zctype);*/
+    free_and_null((char **) &zctype);
 
     exit(1);
 
