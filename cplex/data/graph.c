@@ -30,7 +30,7 @@ void graph_copy(graph* FROM, graph* TO) {
   }
 }
 
-void graph_insert_edge(graph* G, int u, int v, double cost) {
+inline void graph_insert_edge(graph* G, int u, int v, double cost) {
   if (graph_adjacent_nodes(G, u, v))
     return;
   (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].flag = 1 ) : ( (*G).E[ v*(v-1)/2 + u-1].flag = 1 );
@@ -39,7 +39,7 @@ void graph_insert_edge(graph* G, int u, int v, double cost) {
   (*G).V[v-1].deg++;
 }
 
-void graph_remove_edge(graph* G, int u, int v) {
+inline void graph_remove_edge(graph* G, int u, int v) {
   if (!graph_adjacent_nodes(G, u, v))
     return;
   (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].flag = 0 ) : ( (*G).E[ v*(v-1)/2 + u-1].flag = 0 );
@@ -48,23 +48,23 @@ void graph_remove_edge(graph* G, int u, int v) {
   (*G).V[v-1].deg--;
 }
 
-void graph_set_edge_cost(graph* G, int u, int v, double cost) {
+inline void graph_set_edge_cost(graph* G, int u, int v, double cost) {
   if (!graph_adjacent_nodes(G, u, v))
     return;
   (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*G).E[ v*(v-1)/2 + u-1 ].cost = cost );
 }
 
-double graph_get_edge_cost(graph* G, int u, int v) {
+inline double graph_get_edge_cost(graph* G, int u, int v) {
   if (!graph_adjacent_nodes(G, u, v))
     return 0.0;
   return (u > v) ? (*G).E[ u*(u-1)/2 + v-1 ].cost : (*G).E[ v*(v-1)/2 + u-1 ].cost;
 }
 
-int graph_get_node_deg(graph* G, int v) {
+inline int graph_get_node_deg(graph* G, int v) {
   return (*G).V[v-1].deg;
 }
 
-int graph_adjacent_nodes(graph* G, int u, int v) {
+inline int graph_adjacent_nodes(graph* G, int u, int v) {
   return (u > v) ? (*G).E[ u*(u-1)/2 + v-1 ].flag : (*G).E[ v*(v-1)/2 + u-1 ].flag;
 }
 

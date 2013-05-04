@@ -1,7 +1,7 @@
 #ifndef __CYCLE_H
 #define __CYCLE_H
 
-#include "constants.h"
+#include "../base/constants.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

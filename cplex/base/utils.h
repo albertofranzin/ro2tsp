@@ -8,9 +8,9 @@
 #include <float.h>
 #include <math.h>
 #include <time.h>
-#include "graph.h"
-#include "egraph.h"
-#include "onetree.h"
+#include "../data/graph.h"
+#include "../data/egraph.h"
+#include "../data/onetree.h"
 
 /* constants and variables */
 
@@ -29,34 +29,12 @@ typedef struct _parameters {
 
 } parameters;
 
+/* methods */
+
 short parHash(char* c);
 
 parameters *getParameters(void);
 
-
-// config file
-//#define FILE_CONFIG "config"
-
-/*
-// define infinity for double
-#define INF 100000000.0
-*/
-
-/* methods */
-
-// position in the list of costs (matrixGraph->edgeList):
-// Corresponding edge (i,j) is in position (binom(i-1, 2) + j)
-// in the list of edges - look for 'triangular numbers'.
-// Note that since we start counting from 0, the formula
-// for triangular numbers should be adjusted accordingly.
-// A swap is needed if j > i, but it's fine since graph is directed;
-// note that j=i cannot happen, because we don't have self-loops.
-// inline int atPosition(int, int);
-
-
-/*
-unsigned long initializeRandom(unsigned int seed);
-*/
 
 
 /*

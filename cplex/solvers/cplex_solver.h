@@ -7,7 +7,7 @@
 #include <string.h>
 #include <assert.h>
 #include <ilcplex/cplex.h>
-#include "utils.h"
+#include "../base/utils.h"
 
 /*************************************************
  *
@@ -166,18 +166,6 @@ int cplex_setup_problem(graph *, cplex_table *, CPXENVptr, CPXLPptr,
                         double **, double **, char **);
 
 /*
- * cplex_create_obj_function
- *
- * - CPXENVptr : pointer to the CPLEX environment
- * - CPXLPptr  : pointer to the CPLEX LP problem
- * - int       : number of coefficients
- * - double *  : coefficients of the objective function
- *
- * return : operation status
- */
-int cplex_create_obj_function(CPXENVptr, CPXLPptr, int, double *);
-
-/*
  * cplex_solve_problem
  *
  * - CPXENVptr : pointer to the CPLEX environment
@@ -203,6 +191,7 @@ int cplex_solve_problem(CPXENVptr, CPXLPptr);
  *
  * return : operation status
  */
-int cplex_add_SEC(cplex_table *, CPXENVptr, CPXLPptr, int, int *, double *, double *);
+int cplex_add_SEC(cplex_table *, CPXENVptr, CPXLPptr,
+                  int, int *, double *, double *);
 
 #endif

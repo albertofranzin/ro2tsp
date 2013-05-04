@@ -31,13 +31,13 @@ void graph_init(graph* G, int n);
 void graph_delete(graph* G);
 void graph_copy(graph* FROM, graph* TO);
 
-void graph_insert_edge(graph* G, int u, int v, double cost);
-void graph_remove_edge(graph* G, int u, int v);
-void graph_set_edge_cost(graph* G, int u, int v, double cost);
-double graph_get_edge_cost(graph* G, int u, int v);
+inline void graph_insert_edge(graph* G, int u, int v, double cost);
+inline void graph_remove_edge(graph* G, int u, int v);
+inline void graph_set_edge_cost(graph* G, int u, int v, double cost);
+inline double graph_get_edge_cost(graph* G, int u, int v);
 
-int graph_get_node_deg(graph* G, int v);
-int graph_adjacent_nodes(graph* G, int u, int v);
+inline int graph_get_node_deg(graph* G, int v);
+inline int graph_adjacent_nodes(graph* G, int u, int v);
 
 double graph_get_cost(graph* G);
 

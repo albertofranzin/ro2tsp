@@ -1,6 +1,6 @@
 #include "list.h"
 
-void list_init(list* L) {
+inline void list_init(list* L) {
   (*L).size = 0;
   (*L).head.prev = NULL;
   (*L).head.next = &(*L).tail;
@@ -16,11 +16,11 @@ void list_delete(list* L) {
   }
 }
 
-int list_get_size(list* L) {
+inline int list_get_size(list* L) {
   return (*L).size;
 }
 
-int list_is_empty(list* L) {
+inline int list_is_empty(list* L) {
   return ((*L).size == 0);
 }
 
@@ -49,12 +49,12 @@ int list_pop_first(list* L) {
   return x;
 }
 
-list_node* list_get_first(list* L) {
+inline list_node* list_get_first(list* L) {
 
   return (*L).head.next;
 }
 
-list_node* list_get_next(list* L, list_node* node) {
+inline list_node* list_get_next(list* L, list_node* node) {
 
   return (*node).next;
 }

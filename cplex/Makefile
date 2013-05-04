@@ -1,7 +1,6 @@
 NOMEFILE = test_cplex.c
 
-PAR = -O3 -lm
-# -O3 : badass optimization
+PAR = -lm 
 # -lm : linking to math lib math.h
 #
 #  #OPT = -ftree-vectorizer-verbose=2 -finline-functions -std=c99
@@ -9,7 +8,7 @@ PAR = -O3 -lm
 CFLAGS = 
 # debug options will be appended when asked by using 'make debug'
 
-CHECK = -Winline
+CHECK = -Winline -Wall
 # -Winline : warn if any problem in including inline functions occurs
 
 CPLEX_COMPILER_OPT = -I/opt/ibm/ILOG/CPLEX_Studio125/cplex/include -DIL_STD
@@ -21,6 +20,10 @@ all: clean test_cplex
 test_cplex: cleanComp buildLib $(NOMEFILE)
 	gcc $(NOMEFILE) -o $@ -L. -lro2ds $(CFLAGS) $(CHECK) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR)
 
+release: CFLAGS += -O3
+release: clean test_cplex
+# -O3 : badass optimization
+
 debug: CFLAGS += -g -DDEBUG
 debug: clean test_cplex
 # -g      : debug symbols
@@ -28,57 +31,57 @@ debug: clean test_cplex
 
 
 # link libraries
-buildLib: list.o edgelist.o graph.o egraph.o tree.o onetree.o compute_mst.o \
+buildLib: list.o edgelist.o graph.o egraph.o tree.o onetree.o cycle.o \
 		  compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o \
-		  compute_lagrange.o solve_tsp.o utils.o cycle.o \
+		  compute_lagrange.o compute_mst.o solve_tsp.o utils.o \
 		  cplex_solver.o
 	ar r libro2ds.a *.o
-#	rm *.o
+	rm *.o
 
-list.o: list.h list.c
-	gcc $(CFLAGS) $(PAR) -c list.c
+list.o: data/list.h data/list.c
+	gcc $(CFLAGS) $(PAR) -c data/list.c
 
-edgelist.o: edge.h edgelist.h edgelist.c
-	gcc $(CFLAGS) $(PAR) -c edgelist.c
+edgelist.o: data/edge.h data/edgelist.h data/edgelist.c
+	gcc $(CFLAGS) $(PAR) -c data/edgelist.c
 
-graph.o: graph.h graph.c
-	gcc $(CFLAGS) $(PAR) -c graph.c
+graph.o: data/graph.h data/graph.c
+	gcc $(CFLAGS) $(PAR) -c data/graph.c
 
-egraph.o: egraph.h egraph.c
-	gcc $(CFLAGS) $(PAR) -c egraph.c
+egraph.o: data/egraph.h data/egraph.c
+	gcc $(CFLAGS) $(PAR) -c data/egraph.c
 
-tree.o: tree.h tree.c
-	gcc $(CFLAGS) $(PAR) -c tree.c
+tree.o: data/tree.h data/tree.c
+	gcc $(CFLAGS) $(PAR) -c data/tree.c
 
-onetree.o: onetree.h onetree.c
-	gcc $(CFLAGS) $(PAR) -c onetree.c
+onetree.o: data/onetree.h data/onetree.c
+	gcc $(CFLAGS) $(PAR) -c data/onetree.c
 
-compute_mst.o: compute_mst.h compute_mst.c
-	gcc $(CFLAGS) $(PAR) -c compute_mst.c
+cycle.o: data/cycle.h data/cycle.c
+	gcc $(CFLAGS) $(PAR) -c data/cycle.c
 
-compute_ot.o: compute_ot.h compute_ot.c
-	gcc $(CFLAGS) $(PAR) -c compute_ot.c
+compute_mst.o: algos/compute_mst.h algos/compute_mst.c
+	gcc $(CFLAGS) $(PAR) -c algos/compute_mst.c
 
-compute_nearest_neighbour.o: compute_nearest_neighbour.h compute_nearest_neighbour.c
-	gcc $(CFLAGS) $(PAR) -c compute_nearest_neighbour.c
+compute_ot.o: algos/compute_ot.h algos/compute_ot.c
+	gcc $(CFLAGS) $(PAR) -c algos/compute_ot.c
 
-compute_upper_bound.o: compute_upper_bound.h compute_upper_bound.c
-	gcc $(CFLAGS) $(PAR) -c compute_upper_bound.c
+compute_nearest_neighbour.o: algos/compute_nearest_neighbour.h algos/compute_nearest_neighbour.c
+	gcc $(CFLAGS) $(PAR) -c algos/compute_nearest_neighbour.c
 
-compute_lagrange.o: compute_lagrange.h compute_lagrange.c
-	gcc $(CFLAGS) $(PAR) -c compute_lagrange.c
+compute_upper_bound.o: algos/compute_upper_bound.h algos/compute_upper_bound.c
+	gcc $(CFLAGS) $(PAR) -c algos/compute_upper_bound.c
 
-solve_tsp.o: solve_tsp.h solve_tsp.c
-	gcc $(CFLAGS) $(PAR) -c solve_tsp.c
+compute_lagrange.o: algos/compute_lagrange.h algos/compute_lagrange.c
+	gcc $(CFLAGS) $(PAR) -c algos/compute_lagrange.c
 
-utils.o: utils.h utils.c
-	gcc $(CFLAGS) $(PAR) -c utils.c
+solve_tsp.o: solvers/solve_tsp.h solvers/solve_tsp.c
+	gcc $(CFLAGS) $(PAR) -c solvers/solve_tsp.c
 
-cycle.o: cycle.h cycle.c
-	gcc $(CFLAGS) $(PAR) -c cycle.c
+cplex_solver.o: solvers/cplex_solver.h solvers/cplex_solver.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cplex_solver.c
 
-cplex_solver.o: cplex_solver.h cplex_solver.c
-	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c cplex_solver.c
+utils.o: base/utils.h base/utils.c
+	gcc $(CFLAGS) $(PAR) -c base/utils.c
 
 cleanComp:
 	clear

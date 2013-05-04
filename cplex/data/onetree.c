@@ -30,23 +30,23 @@ void onetree_copy(onetree* FROM, onetree* TO) {
   tree_copy(&(*FROM).tree, &(*TO).tree);
 }
 
-void onetree_set_root(onetree* OT, int r) {
+inline void onetree_set_root(onetree* OT, int r) {
   tree_set_root(&(*OT).tree, r);
 }
 
-int onetree_get_root(onetree* OT) {
+inline int onetree_get_root(onetree* OT) {
   return tree_get_root(&(*OT).tree);
 }
 
-int onetree_get_pred(onetree* OT, int v) {
+inline int onetree_get_pred(onetree* OT, int v) {
   return tree_get_pred(&(*OT).tree, v);
 }
 
-int onetree_get_first_node(onetree* OT) {
+inline int onetree_get_first_node(onetree* OT) {
   return (*OT).first_edge.node;
 }
 
-int onetree_get_second_node(onetree* OT) {
+inline int onetree_get_second_node(onetree* OT) {
   return (*OT).second_edge.node;
 }
 
@@ -165,11 +165,11 @@ double onetree_get_edge_cost(onetree* OT, int u, int v) {
     return tree_get_edge_cost(&(*OT).tree, u, v);
 }
 
-int onetree_get_node_deg(onetree* OT, int v) {
+inline int onetree_get_node_deg(onetree* OT, int v) {
   return tree_get_node_deg(&(*OT).tree, v);
 }
 
-int onetree_adjacent_nodes(onetree* OT, int u, int v) {
+inline int onetree_adjacent_nodes(onetree* OT, int u, int v) {
   if (u == 1 && v != 1)
     return ((*OT).first_edge.node == v || (*OT).second_edge.node == v);
   else if (u != 1 && v == 1)

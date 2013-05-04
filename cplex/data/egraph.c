@@ -68,23 +68,23 @@ void egraph_copy(egraph* FROM, egraph* TO) {
   TO->min_y = FROM->min_y;
 }
 
-void egraph_set_node_x(egraph* EG, int v, double x) {
+inline void egraph_set_node_x(egraph* EG, int v, double x) {
   (*EG).V[v-1].x = x;
 }
 
-void egraph_set_node_y(egraph* EG, int v, double y) {
+inline void egraph_set_node_y(egraph* EG, int v, double y) {
   (*EG).V[v-1].y = y;
 }
 
-double egraph_get_node_x(egraph* EG, int v) {
+inline double egraph_get_node_x(egraph* EG, int v) {
   return (*EG).V[v-1].x;
 }
 
-double egraph_get_node_y(egraph* EG, int v) {
+inline double egraph_get_node_y(egraph* EG, int v) {
   return (*EG).V[v-1].y;
 }
 
-void egraph_insert_edge(egraph* EG, int u, int v, double cost) {
+inline void egraph_insert_edge(egraph* EG, int u, int v, double cost) {
   if (egraph_adjacent_nodes(EG, u, v))
     return;
   (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].flag = 1 ) : ( (*EG).E[ v*(v-1)/2 + u-1].flag = 1 );
@@ -93,7 +93,7 @@ void egraph_insert_edge(egraph* EG, int u, int v, double cost) {
   (*EG).V[v-1].deg++;
 }
 
-void egraph_remove_edge(egraph* EG, int u, int v) {
+inline void egraph_remove_edge(egraph* EG, int u, int v) {
   if (!egraph_adjacent_nodes(EG, u, v))
     return;
   (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].flag = 0 ) : ( (*EG).E[ v*(v-1)/2 + u-1].flag = 0 );
@@ -103,23 +103,23 @@ void egraph_remove_edge(egraph* EG, int u, int v) {
 
 }
 
-void egraph_set_edge_cost(egraph* EG, int u, int v, double cost) {
+inline void egraph_set_edge_cost(egraph* EG, int u, int v, double cost) {
   if (!egraph_adjacent_nodes(EG, u, v))
     return;
   (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*EG).E[ v*(v-1)/2 + u-1 ].cost = cost );
 }
 
-double egraph_get_edge_cost(egraph* EG, int u, int v) {
+inline double egraph_get_edge_cost(egraph* EG, int u, int v) {
   if (!egraph_adjacent_nodes(EG, u, v))
     return 0.0;
   return (u > v) ? (*EG).E[ u*(u-1)/2 + v-1 ].cost : (*EG).E[ v*(v-1)/2 + u-1 ].cost;
 }
 
-int egraph_get_node_deg(egraph* EG, int v) {
+inline int egraph_get_node_deg(egraph* EG, int v) {
   return (*EG).V[v-1].deg;
 }
 
-int egraph_adjacent_nodes(egraph* EG, int u, int v) {
+inline int egraph_adjacent_nodes(egraph* EG, int u, int v) {
   return (u > v) ? (*EG).E[ u*(u-1)/2 + v-1 ].flag : (*EG).E[ v*(v-1)/2 + u-1 ].flag;
 }
 

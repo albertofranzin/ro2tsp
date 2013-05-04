@@ -15,24 +15,33 @@
 }*/
 
 // da migliorare magari usando altri euristici
-double compute_upper_bound(graph* G, cycle *C) {
+double compute_upper_bound(graph* G, cycle *C, int algo) {
   int i, best_index;
   double min, cost_of_cycle;
   int n = G->n;
+
+  // horrible, but something
+  if (algo == RANDOM_CYCLE) {
+    return random_cycle_generation(G, C, 100);
+  }
 
   cycle BEST_CYCLE;
   cycle_init(&BEST_CYCLE, n);
 
   //printf("about to compute first cycle\n");
   min = compute_nearest_neighbour(G, &BEST_CYCLE, 1);
-  min = heur2opt(G, &BEST_CYCLE, min);
+  if (algo == NEAREST_NEIGHBOUR_2_OPT) {
+    min = heur2opt(G, &BEST_CYCLE, min);
+  }
   //printf("first cycle computed\n");
   best_index = 1;
   for (i = 2; i <= n; i++) {
     cycle_delete(C);
     cycle_init(C, n);
     cost_of_cycle = compute_nearest_neighbour(G, C, i);
-    cost_of_cycle = heur2opt(G, C, cost_of_cycle);
+    if (algo == NEAREST_NEIGHBOUR_2_OPT) {
+      cost_of_cycle = heur2opt(G, C, cost_of_cycle);
+    }
     //printf("coc : %f\n", cost_of_cycle);
     if (cost_of_cycle < min) {
         min = cost_of_cycle;

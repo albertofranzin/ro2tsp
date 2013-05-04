@@ -1,18 +1,18 @@
 #ifndef SOLVE_TSP_H_
 #define SOLVE_TSP_H_
 
-#include "constants.h"
-#include "graph.h"
-#include "onetree.h"
-#include "edgelist.h"
+#include "../base/constants.h"
+#include "../data/graph.h"
+#include "../data/onetree.h"
+#include "../data/edgelist.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "edge.h"
-#include "edgelist.h"
+#include "../data/edge.h"
+#include "../data/edgelist.h"
 #include <string.h>
-#include "compute_lagrange.h"
-#include "compute_upper_bound.h"
-#include "cycle.h"
+#include "../algos/compute_lagrange.h"
+#include "../algos/compute_upper_bound.h"
+#include "../data/cycle.h"
 
 
 void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, double z, int call_flag);

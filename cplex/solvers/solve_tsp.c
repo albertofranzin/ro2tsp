@@ -301,7 +301,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
  
       //compute_ot(&WORK_GRAPH, &FC_ONE_TREE1);
       //z1 = compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
-      z1 = compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE));
+      z1 = compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE, NEAREST_NEIGHBOUR_2_OPT));
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_first_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE1))); 
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_second_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE1)));
       for (i = 2; i <= n; i++) {
@@ -339,7 +339,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
  
       //compute_ot(&WORK_GRAPH, &FC_ONE_TREE2);
       //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
-      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE));
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE, NEAREST_NEIGHBOUR_2_OPT));
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_first_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE2))); 
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_second_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE2)));
       for (i = 2; i <= n; i++) {
@@ -377,7 +377,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
  
       //compute_ot(&WORK_GRAPH, &FC_ONE_TREE3);
       //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE3, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
-      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE3, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE));
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE3, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE, NEAREST_NEIGHBOUR_2_OPT));
       onetree_set_edge_cost(&FC_ONE_TREE3, 1, onetree_get_first_node(&FC_ONE_TREE3), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE3))); 
       onetree_set_edge_cost(&FC_ONE_TREE3, 1, onetree_get_second_node(&FC_ONE_TREE3), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE3)));
       for (i = 2; i <= n; i++) {
@@ -543,7 +543,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
  
       //compute_ot(&WORK_GRAPH, &FC_ONE_TREE1);
       //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
-      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE));
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE1, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE, NEAREST_NEIGHBOUR_2_OPT));
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_first_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE1))); 
       onetree_set_edge_cost(&FC_ONE_TREE1, 1, onetree_get_second_node(&FC_ONE_TREE1), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE1)));
       for (i = 2; i <= n; i++) {
@@ -578,7 +578,7 @@ void solve_tsp(graph* G, onetree* H, double* incumbent, onetree* ONE_TREE, doubl
  
       //compute_ot(&WORK_GRAPH, &FC_ONE_TREE2);
       //compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_TREE));
-      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE));
+      compute_lagrange(&WORK_GRAPH, &FC_ONE_TREE2, compute_upper_bound(&WORK_GRAPH, &WORK_CYCLE, NEAREST_NEIGHBOUR_2_OPT));
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_first_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_first_node(&FC_ONE_TREE2))); 
       onetree_set_edge_cost(&FC_ONE_TREE2, 1, onetree_get_second_node(&FC_ONE_TREE2), graph_get_edge_cost(G, 1, onetree_get_second_node(&FC_ONE_TREE2)));
       for (i = 2; i <= n; i++) {

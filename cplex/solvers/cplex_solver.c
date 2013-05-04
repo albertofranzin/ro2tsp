@@ -1,5 +1,6 @@
 #include "cplex_solver.h"
 
+
 /*************************************************
  *
  * hash table (commodity)
@@ -198,6 +199,27 @@ int cplex_create_problem(CPXENVptr *env, CPXLPptr *lp, char *probname) {
   if (*lp == NULL) {
     fprintf (stderr, "Failed to create LP.\n");
     exit(1);
+  }
+
+  // turn on output to screen if debug mode is chosen
+#ifdef DEBUG
+  status = CPXsetintparam(*env, CPX_PARAM_SCRIND, CPX_ON);
+#else
+  status = CPXsetintparam(*env, CPX_PARAM_SCRIND, CPX_OFF);
+#endif
+
+  //status = CPXsetintparam(*env, CPX_PARAM_MIPDISPLAY, 2);
+
+  if (status) {
+    fprintf (stderr, "Failure to trigger screen indicator, error %d.\n", status);
+    exit(1);
+  }
+
+  // select LP optimization algorithm
+  status = CPXsetintparam(*env, CPX_PARAM_LPMETHOD, CPX_ALG_AUTOMATIC);
+  if (status != 0) {
+    fprintf(stderr, "Could not select optimization algorithm, error %d\n", status);
+    exit(3);
   }
 
   return status;
@@ -409,27 +431,6 @@ int cplex_setup_problem(
 } // end cplex_setup_problem
 
 
-
-/*
- * cplex_create_obj_function
- *
- * - CPXENVptr : pointer to the CPLEX environment
- * - CPXLPptr  : pointer to the CPLEX LP problem
- * - int       : number of coefficients
- * - double *  : coefficients of the objective function
- *
- * return : operation status
- */
-int cplex_create_obj_function(CPXENVptr env, CPXLPptr lp,
-          int numcols, double *objval) {
-  int status;
-
-  return status;
-} // end cplex_create_obj_function
-
-
-
-
 /*
  * cplex_add_SEC
  *
@@ -445,8 +446,8 @@ int cplex_create_obj_function(CPXENVptr env, CPXLPptr lp,
  * return : operation status
  */
 // hash_table has been added for debug!
-int cplex_add_SEC(cplex_table *hash_table, CPXENVptr env, CPXLPptr lp, int nonzeros,
-          int *indices, double *coeffs, double *rhs) {
+int cplex_add_SEC(cplex_table *hash_table, CPXENVptr env, CPXLPptr lp,
+                  int nonzeros, int *indices, double *coeffs, double *rhs) {
   int status, i,
       rmatbeg[nonzeros];
 
@@ -468,7 +469,7 @@ int cplex_add_SEC(cplex_table *hash_table, CPXENVptr env, CPXLPptr lp, int nonze
 #endif
 
   status = CPXaddrows(env, lp, 0, 1, nonzeros, rhs, sense,
-            rmatbeg, indices, coeffs, NULL, NULL);
+                      rmatbeg, indices, coeffs, NULL, NULL);
 
   if (status) {
     fprintf(stderr, "Could not add constraint.\nBye.");

@@ -1,21 +1,26 @@
 #ifndef COMPUTE_UPPER_BOUND_H_
 #define COMPUTE_UPPER_BOUND_H_
 
-#include "constants.h"
-#include "utils.h"
+#include "../base/constants.h"
+#include "../base/utils.h"
 #include "compute_nearest_neighbour.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
-#include "graph.h"
-#include "onetree.h"
-#include "tree.h"
+#include "../data/graph.h"
+#include "../data/onetree.h"
+#include "../data/tree.h"
 #include "compute_lagrange.h"
-#include "solve_tsp.h"
-#include "cycle.h"
+#include "../solvers/solve_tsp.h"
+#include "../data/cycle.h"
+
+// algorithms available for the computation of the upper bound:
+#define NEAREST_NEIGHBOUR        1
+#define NEAREST_NEIGHBOUR_2_OPT  2
+#define RANDOM_CYCLE             3
 
 
-double compute_upper_bound(graph *G, cycle *C);
+double compute_upper_bound(graph *G, cycle *C, int algo);
 
 /*
  * heur2opt
