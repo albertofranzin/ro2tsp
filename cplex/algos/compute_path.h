@@ -1,9 +1,9 @@
 #ifndef COMPUTE_PATH_H_
 #define COMPUTE_PATH_H_
 
-#include "graph.h"
-#include "egraph.h"
-#include "tree.h"
+#include "../data/graph.h"
+#include "../data/egraph.h"
+#include "../data/tree.h"
 
 /* calcola un percorso dal nodo from al nodo to nel grafo G;
  * - si assume G, P grafi inizializzati;

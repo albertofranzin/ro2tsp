@@ -2,9 +2,9 @@
 #define COMPUTE_MST_H_
 
 #include <stdlib.h>
-#include "graph.h"
-#include "list.h"
-#include "tree.h"
+#include "../data/graph.h"
+#include "../data/list.h"
+#include "../data/tree.h"
 
 /* calcola un albero ricoprente di costo minimo con radice root per il grafo G, e salva il riultato in T;
  * - si assume G, T grafi inizializzati;

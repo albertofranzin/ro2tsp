@@ -1,11 +1,11 @@
 #ifndef EGRAPH_H_
 #define EGRAPH_H_
 
+#include "../base/constants.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include "constants.h"
 #include "graph.h"
 #include "tree.h"
 #include "onetree.h"
@@ -43,18 +43,18 @@ void egraph_delete(egraph* EG);
 void egraph_random(egraph* EG);
 void egraph_copy(egraph* FROM, egraph* TO);
 
-void egraph_set_node_x(egraph* EG, int v, double x);
-void egraph_set_node_y(egraph* EG, int v, double y);
-double egraph_get_node_x(egraph* EG, int v);
-double egraph_get_node_y(egraph* EG, int v);
+inline void egraph_set_node_x(egraph* EG, int v, double x);
+inline void egraph_set_node_y(egraph* EG, int v, double y);
+inline double egraph_get_node_x(egraph* EG, int v);
+inline double egraph_get_node_y(egraph* EG, int v);
 
-void egraph_insert_edge(egraph* EG, int u, int v, double cost);
-void egraph_remove_edge(egraph* EG, int u, int v);
-void egraph_set_edge_cost(egraph* EG, int u, int v, double cost);
-double egraph_get_edge_cost(egraph* EG, int u, int v);
+inline void egraph_insert_edge(egraph* EG, int u, int v, double cost);
+inline void egraph_remove_edge(egraph* EG, int u, int v);
+inline void egraph_set_edge_cost(egraph* EG, int u, int v, double cost);
+inline double egraph_get_edge_cost(egraph* EG, int u, int v);
 
-int egraph_get_node_deg(egraph* EG, int v);
-int egraph_adjacent_nodes(egraph* EG, int u, int v);
+inline int egraph_get_node_deg(egraph* EG, int v);
+inline int egraph_adjacent_nodes(egraph* EG, int u, int v);
 
 double egraph_get_cost(egraph* EG);
 

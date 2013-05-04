@@ -1,4 +1,6 @@
-#include "cplex_solver.h"
+#include "solvers/cplex_solver.h"
+#include "algos/compute_upper_bound.h"
+#include "data/cycle.h"
 
 
 int main (int argc, char *argv[]) {
@@ -67,6 +69,18 @@ int main (int argc, char *argv[]) {
   }
 
 
+  printf("creating a cycle\n");
+  cycle C;
+  cycle_init(&C, 1);
+  printf("cycle created\n");
+
+  double heuristic_upper_bound;
+  heuristic_upper_bound = compute_upper_bound(&G, &C, NEAREST_NEIGHBOUR);
+  printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound);
+
+  /**/heuristic_upper_bound = heur2opt(&G, &C, heuristic_upper_bound);
+  printf("@ 2-opt\nupper bound = %f\n", heuristic_upper_bound);/**/
+
   /////////////////////////////////////////////////////////////////
   //
   //   let the cplex part begin
@@ -86,13 +100,6 @@ int main (int argc, char *argv[]) {
   // use for storing error messages returned by CPLEX
   char errmsg[1024];
 
-  // number of vertices in the graph
-  int m;
-  // number of variables in the problem (=m^2)
-  int n;
-
-  m = pars->number_of_nodes;
-  n = m*m;
 
   int NUMCOLS = (G.n * (G.n - 1)) / 2,
       NUMROWS = G.n,
@@ -135,16 +142,6 @@ int main (int argc, char *argv[]) {
 
   printf("lp problem created\n");
 
-  // MOVE TO SOMEWHERE ELSE
-  // turn on output to screen
-  //status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_OFF);
-  status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);
-  //status = CPXsetintparam(env, CPX_PARAM_MIPDISPLAY, 2);
-  if (status) {
-    fprintf (stderr, "Failure to turn on screen indicator, error %d.\n", status);
-    exit(1);
-  }
-
 
   //
   // fill in problem data
@@ -161,6 +158,12 @@ int main (int argc, char *argv[]) {
               &lb, &ub, &ctype);
   assert(!status);
 
+  status = CPXsetdblparam(env, CPX_PARAM_CUTUP, heuristic_upper_bound);
+  if (status) {
+    fprintf (stderr, "Failed to set an upper bound.\n");
+    exit(1);
+  }
+
   printf("problem filled in\n");
 
 
@@ -175,24 +178,30 @@ int main (int argc, char *argv[]) {
   //   - else, parse the subcycles and add the apt SEC constraint
 
   // control for the solver cycle
-  int iteration   = 1,
-      termination = FALSE,
-      problem_solved = FALSE,
-      cur_numrows, cur_numcols;
-  int subtour_labels[G.n];
+  int iteration   = 1,          // # of iterations passed
+      termination = FALSE,      // control for the inner cycle
+      problem_solved = FALSE,   // control for the mail cycle
+      cur_numrows,              // # of rows, as modified by new constraints
+      cur_numcols;              // # of cols, as modified by new constraints
 
+  // variables for (sub)cycle detection
+  int     mark      = 1,       // label of (sub)tour
+          count     = 1,       // size of (sub)tour
+          tot_count = 0,       // counter of edges
+          pos,                 // position of edge in x array
+          starter;             // starting node for each (sub)cycle
+  int     indices[G.n],        // indices array for SEC insertion
+          subtour_labels[G.n]; // subtour labels
+  double  coeffs[G.n];         // coefficients array for SEC insertion
 
   while (!problem_solved) {
 
     // Optimize the problem and obtain solution.
     status = CPXmipopt(env, lp);
-    if ( status ) {
+    if (status) {
       fprintf (stderr, "Failed to optimize MIP.\n");
       exit(1);
     }
-
-    printf("problem solved (hopefully) at iteration %d\n", iteration);
-
 
     // Write the output to the screen.
     solstat = CPXgetstat(env, lp);
@@ -202,6 +211,7 @@ int main (int argc, char *argv[]) {
       exit(1);
     }
 
+    printf("problem solved (hopefully) at iteration %d\n", iteration);
     printf("Solution status = %d\n", solstat);
     printf("Solution value  = %f\n\n", objval);
 
@@ -230,6 +240,7 @@ int main (int argc, char *argv[]) {
       exit(1);
     }
 
+#ifdef DEBUG
     /*
     for (i = 0; i < cur_numrows; i++) {
       printf ("Row %d:  Slack = %10f\n", i, slack[i]);
@@ -243,6 +254,7 @@ int main (int argc, char *argv[]) {
       printf ("Column %d:  Value = %10f\n", j, x[j]);
     }
     */
+#endif
 
     /** /
     // DISEGNA IL GRAFO
@@ -278,14 +290,6 @@ int main (int argc, char *argv[]) {
 
 
     // find a tour
-    int     mark      = 1, // label of (sub)tour
-            count     = 1, // size of (sub)tour
-            tot_count = 0, // counter of edges
-            pos,           // position of edge in x array
-            starter;       // starting node for each (sub)cycle
-    int     indices[G.n];  // indices array for SEC insertion
-    double  coeffs[G.n];   // coefficients array for SEC insertion
-
     memset(subtour_labels, 0, sizeof(subtour_labels));
     memset(indices, 0, sizeof(indices));
     //memset(coeffs, 1., sizeof(coeffs));
@@ -295,7 +299,10 @@ int main (int argc, char *argv[]) {
 
     i = 0;
     k = 0;
-    starter = 0;
+    mark        = 1;
+    count       = 1;
+    tot_count   = 0;
+    starter     = 0;
     termination = FALSE;
     while (!termination) {
 
@@ -320,13 +327,17 @@ int main (int argc, char *argv[]) {
 
         printf("\n");
         printf("count = %d, tot_count = %d\n", count, tot_count+count);
+
         // if full cycle, we're done
         if (count == G.n) {
+
           printf("got a full cycle!\n");
           termination = TRUE;
           problem_solved = TRUE;
           break;
+
         } else {
+
           // insert last edge (the one going back to starting node)
           pos_from_vertices(&hash_table, i+1, starter+1, &pos);
           indices[k] = pos-1;
@@ -350,9 +361,12 @@ int main (int argc, char *argv[]) {
 
           // exit?
           if (tot_count == G.n) {
+
             mark = 0;
             termination = TRUE;
+
           } else {
+
             // reset count
             count = 1;
             k = 0;
@@ -366,6 +380,7 @@ int main (int argc, char *argv[]) {
             starter = i;
             // go to next subcycle
             mark++;
+
           }
 
         } // end subcycle analysis
@@ -374,6 +389,7 @@ int main (int argc, char *argv[]) {
 
     } // end while (!termination)
 
+    iteration++;
   } // end while (!problem_solved)
 
   return 0;

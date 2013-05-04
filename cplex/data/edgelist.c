@@ -34,11 +34,11 @@ void edgelist_empty(edgelist* EL) {
   }
 }
 
-int edgelist_get_size(edgelist* EL) {
+inline int edgelist_get_size(edgelist* EL) {
   return (*EL).size;
 }
 
-int edgelist_is_empty(edgelist* EL) {
+inline int edgelist_is_empty(edgelist* EL) {
   return ((*EL).size == 0);
 }
 
@@ -83,16 +83,16 @@ edge edgelist_pop_first(edgelist* EL) {
   return e;
 }
 
-edge edgelist_get_element(edgelist* EL, edgelist_node* node) {
+inline edge edgelist_get_element(edgelist* EL, edgelist_node* node) {
   return (*node).data;
 }
 
-edgelist_node* edgelist_get_first(edgelist* EL) {
+inline edgelist_node* edgelist_get_first(edgelist* EL) {
 
   return (*EL).head.next;
 }
 
-edgelist_node* edgelist_get_next(edgelist* EL, edgelist_node* node) {
+inline edgelist_node* edgelist_get_next(edgelist* EL, edgelist_node* node) {
 
   return (*node).next;
 }

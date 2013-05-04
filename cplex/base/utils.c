@@ -1,34 +1,6 @@
 #include "utils.h"
 
 
-/*inline int atPosition(int i, int j) {
-    if (i > j) {
-        return (i * (i-1)) / 2 + j;
-    } else {
-        return (j * (j-1)) / 2 + i;
-    }
-}*/
-
-/*
-unsigned long initializeRandom(unsigned int seed) {
-    unsigned long sd = seed;
-    if (sd == 0) {
-        time_t now = time ( 0 ); 
-        unsigned char *p = (unsigned char *)&now;
-        sd = 0;
-        size_t i;
-
-        for ( i = 0; i < sizeof now; i++ ) 
-            sd = sd * ( UCHAR_MAX + 2U ) + p[i];
-    }
-    srand(sd);
-    //printf("utils.c :: initializeRandom :: srand done\n");
-    return sd;
-}
-*/
-
-
-
 /*
  * parHash
  * parName : the string
@@ -69,20 +41,19 @@ parameters *getParameters() {
 
   //printf("@getParameters : calloc done\n");
 
-  pars->number_of_nodes = DEFAULT_NUMBER_OF_NODES;
+  pars->number_of_nodes        = DEFAULT_NUMBER_OF_NODES;
   pars->random_instance_option = DEFAULT_RANDOM_INSTANCE_OPTION;
-  pars->random_seed_option = DEFAULT_RANDOM_SEED_OPTION;
-  pars->seed = DEFAULT_SEED;
-  pars->tsp_file_option = DEFAULT_TSP_FILE_OPTION;
-  pars->tsp_file = DEFAULT_TSP_FILE;
-  pars->heuristic_trials = DEFAULT_HEURISTIC_TRIALS;
+  pars->random_seed_option     = DEFAULT_RANDOM_SEED_OPTION;
+  pars->seed                   = DEFAULT_SEED;
+  pars->tsp_file_option        = DEFAULT_TSP_FILE_OPTION;
+  pars->tsp_file               = DEFAULT_TSP_FILE;
+  pars->heuristic_trials       = DEFAULT_HEURISTIC_TRIALS;
 
   //pars->plot = 1;
   //pars->plotOnlyTree = 0;
   //pars->heuristic_trials = 1;
 
   FILE *parFile = fopen(FILE_CONFIG, "r");
-  //long i = 0, j;
   char line[128];
   char *p1, *p2;
   int lineLen;
@@ -113,66 +84,72 @@ parameters *getParameters() {
         // manage correctly each parameter
         switch(parHash(p1)) {
 
-        case 0 :
-          //printf("@getParameters : case 0 : number_of_nodes\n");
-          pars->number_of_nodes = atoi(p2);
-          //printf("@getParameters : case 0 done\n");
-          break;
+          // number of nodes
+          case 0 :
+            //printf("@getParameters : case 0 : number_of_nodes\n");
+            pars->number_of_nodes = atoi(p2);
+            //printf("@getParameters : case 0 done\n");
+            break;
 
-        case 1 :
-          //printf("@getParameters : case 1 : random_instance_option\n");
-          if (strcmp(p2, "TRUE") == 0)
-            pars->random_instance_option = 1;
-          else if (strcmp(p2, "FALSE") == 0)
-            pars->random_instance_option = 0;
-          //printf("@getParameters : case 1 done\n");
-          break;
+          // random instance?
+          case 1 :
+            //printf("@getParameters : case 1 : random_instance_option\n");
+            if (strcmp(p2, "TRUE") == 0)
+              pars->random_instance_option = 1;
+            else if (strcmp(p2, "FALSE") == 0)
+              pars->random_instance_option = 0;
+            //printf("@getParameters : case 1 done\n");
+            break;
 
-        case 2 :
-          //printf("@getParameters : case 2 : random_seed_option\n");
-          if (strcmp(p2, "TRUE") == 0)
-            pars->random_seed_option = 1;
-          else if (strcmp(p2, "FALSE") == 0)
-            pars->random_seed_option = 0;
-          //printf("@getParameters : case 2 done\n");
-          break;
+          // random seed or a fixed one?
+          case 2 :
+            //printf("@getParameters : case 2 : random_seed_option\n");
+            if (strcmp(p2, "TRUE") == 0)
+              pars->random_seed_option = 1;
+            else if (strcmp(p2, "FALSE") == 0)
+              pars->random_seed_option = 0;
+            //printf("@getParameters : case 2 done\n");
+            break;
 
-        case 3 :
-          //printf("@getParameters : case 3 : seed\n");
-          if (pars->random_instance_option == 1 && pars->random_seed_option == 0)
-            pars->seed = atoi(p2);
-          //printf("@getParameters : case 3 done\n");
-          break;
+          // seed value
+          case 3 :
+            //printf("@getParameters : case 3 : seed\n");
+            if (pars->random_instance_option == 1 && pars->random_seed_option == 0)
+              pars->seed = atoi(p2);
+            //printf("@getParameters : case 3 done\n");
+            break;
 
-        case 4 :
-          //printf("@getParameters : case 4 : tsp_file_option\n");
-          if (strcmp(p2, "TRUE") == 0)
-            pars->tsp_file_option = 1;
-          else if (strcmp(p2, "FALSE") == 0)
-            pars->tsp_file_option = 0;
-          //printf("@getParameters : case 4 done\n");
-          break;
+          // use a TSPLIB instance?
+          case 4 :
+            //printf("@getParameters : case 4 : tsp_file_option\n");
+            if (strcmp(p2, "TRUE") == 0)
+              pars->tsp_file_option = 1;
+            else if (strcmp(p2, "FALSE") == 0)
+              pars->tsp_file_option = 0;
+            //printf("@getParameters : case 4 done\n");
+            break;
 
-        case 5 :
-          //printf("@getParameters :: case 5 : tsp_file\n");
-          if (pars->tsp_file_option == 1) {
-            pars->tsp_file = malloc(sizeof(char) * strlen(p2));
-            strcpy(pars->tsp_file, p2);
-            //printf("@getParameters :: case 5 :: string copied\n");
-          }
-          //printf("@getParameters :: case 5 done\n");
-          break;
+          // TSPLIB instance file
+          case 5 :
+            //printf("@getParameters :: case 5 : tsp_file\n");
+            if (pars->tsp_file_option == 1) {
+              pars->tsp_file = malloc(sizeof(char) * strlen(p2));
+              strcpy(pars->tsp_file, p2);
+              //printf("@getParameters :: case 5 :: string copied\n");
+            }
+            //printf("@getParameters :: case 5 done\n");
+            break;
 
-        case 6 :
-          //printf("@getParameters :: case 6 : heuristic_trials\n");
-          pars->heuristic_trials = atoi(p2);
-          //printf("@getParameters :: case 6 done\n");
-          break;
+          // number of iterations for the heuristic
+          case 6 :
+            //printf("@getParameters :: case 6 : heuristic_trials\n");
+            pars->heuristic_trials = atoi(p2);
+            //printf("@getParameters :: case 6 done\n");
+            break;
 
-        default:
-          //printf("@getParameters :: default\n");
-          break;
-
+          default:
+            //printf("@getParameters :: default\n");
+            break;
 
         }
       }
@@ -283,7 +260,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     char *p1, *p2;
     int lineLen;
     short read = 1;
-    short haveDistances = 1;
+    short haveCoords = 1;
     short matrix_type = 0;
 
     egraph_delete(G);
@@ -307,34 +284,51 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
             // manage correctly each parameter
             switch(tspHash(p1, p2)) {
+
+                // parName = 'NAME'
                 case 0 : break;
+
+                // (parName, parValue) = ('TYPE', 'TSP')
                 case 1 : break;
+
+                // parName = 'COMMENT'
                 case 2 : break;
+
+                // parName = 'DIMENSION'
                 case 3 : pars->number_of_nodes = atoi(p2);
                          break;
 
+                // 41 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EUD_2D')
+                // 42 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'MAN_2D')
+                // 43 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'CEIL_2D')
+                // 44 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'GEO')
+                // 45 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EXPLICIT')
                 case 41: // ?
                 case 42: // what to do?
                 case 43: // nothing, for now
                 case 44: //
                 case 45: break;
 
+                // (parName, parValue) = ('EDGE_WEIGHT_FORMAT', 'FULL_MATRIX')
                 case 46: matrix_type = 46;
                          break;
+                // (parName, parValue) = ('EDGE_WEIGHT_FORMAT', 'LOWER_DIAG_ROW')
                 case 47: matrix_type = 47;
+                         break;
 
+                // (parName, parValue) = ('DISPLAY_DATA_TYPE', 'COORD_DISPLAY')
                 case 51: break;
 
-
+                // parName = 'NODE_COORD_SECTION'
                 case 61:
+                // parName = 'DISPLAY_DATA_SECTION'
                 case 62:
+                // parName = 'EDGE_WEIGHT_SECTION'
                 case 63: if (matrix_type == 0) {
                              egraph_init(G, pars->number_of_nodes);
-                             //i = 0;
-                             //printf("graph initialized\n");
+
                              const char delimiters[] = " ";
                              while( fgets(line, sizeof line, tspFile) != NULL ) {
-                                //printf("doin' anything?\n");
                                 lineLen = strlen(line)-1;
 
                                 // skip empty lines
@@ -351,33 +345,27 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
                                 char *running, *token1, *token2, *token3;
 
-                                // token = strtok(&running, delimiters);
-                                //printf("abababab\n");
-                                //strcpy(running, line);
-                                //printf("cdcdcdcd\n");
                                 token1 = strtok(line, delimiters);
-                                //printf("efefefef\n");
                                 token2 = strtok(NULL, delimiters);
-                                //printf("ghghghgh\n");
                                 token3 = strtok(NULL, delimiters);
 
                                 //printf("%s %s %s | ", token1, token2, token3);
                                 //printf("%d %f %f\n", atoi(token1), atof(token2), atof(token3));
 
-                                //j = atoi(token1)-1;
                                 j = atoi(token1);
-                                //G->V[j].x = atof(token2);
-                                //G->V[j].y = atof(token3);
                                 egraph_set_node_x(G, j, atof(token2));
                                 egraph_set_node_y(G, j, atof(token3));
 
                              }
-                             //printf("here?\n");
                              break;
+
                          } else if (matrix_type == 46) {
                              // full matrix
                              // each row contains pars->number_of_nodes elements
                              // (or, at least, it should...)
+                             // since the assumption is NOT verified, we need
+                             // to keep track of the count of read elements
+                             // to manually split each row
                              egraph_init(G, pars->number_of_nodes);
                              int row = 0, cumulative_counter = 0, stop;
                              const char delimiters[] = " ";
@@ -401,6 +389,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                 int count = 0;
                                 tok = strtok(line, delimiters);
 
+                                // very dirty
                                 tokens[cumulative_counter] = tok;
                                 cumulative_counter++;
                                 stop = 0;
@@ -414,8 +403,6 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                   }
                                 }
 
-                                //cumulative_counter += j;
-
                                 if (cumulative_counter >= pars->number_of_nodes) {
                                   row++;
                                   cumulative_counter %= pars->number_of_nodes;
@@ -427,16 +414,19 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
                              }
 
-                             haveDistances = 0;
+                             haveCoords = 0;
                              break;
                          } else if (matrix_type == 47) {
+                             // lower diagonal row matrix
+                             // things are (surprisingly) easier here,
+                             // since we have to count the read elements,
+                             // and manually create the rows.
                              egraph_init(G, pars->number_of_nodes);
 
                              int row = 0, pos = 0;
                              const char delimiters[] = " ";
                              while( fgets(line, sizeof line, tspFile) != NULL ) {
 
-                                //printf("doin' anything?\n");
                                 lineLen = strlen(line)-1;
 
                                 // skip empty lines
@@ -454,9 +444,6 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                 char *running, *tokens[pars->number_of_nodes], *tok;
                                 tok = strtok(line, delimiters);
 
-                                /*tokens[cumulative_counter] = tok;
-                                cumulative_counter++;
-                                stop = 0;*/
                                 while (tok != NULL) {
                                   egraph_insert_edge(G, row+1, pos+1, atof(tok));
                                   pos++;
@@ -468,7 +455,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                 }
                              }
 
-                             haveDistances = 0;
+                             haveCoords = 0;
                              break;
                          }
 
@@ -494,8 +481,10 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     double min_y;
     double max_y;
 
-    if (haveDistances) {
+    if (haveCoords) {
 
+      // TSPLIB file contains node coordinates
+      // for each edge, compute the distance (= the cost)
       min_x = egraph_get_node_x(G, 1);
       max_x = min_x;
       min_y = egraph_get_node_y(G, 1);
@@ -514,6 +503,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
           );
         }
 
+        // look for updated bounds
         if (x < min_x) {
           min_x = x;
         } else if (x > max_x) {
@@ -527,7 +517,8 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
         }
       }
     } else {
-      // fill in nodes coords
+      // TSPLIB instance has the cost matrix
+      // we need to compute the nodes coords
       // found at http://stackoverflow.com/questions/10963054/finding-the-coordinates-of-points-from-distance-matrix
       // hope it works, since there is probably something I haven't understood yet...
 
@@ -592,10 +583,13 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     G->min_y = min_y - (max_y - min_y) / 50;
     G->max_y = max_y + (max_y - min_y) / 50;
 
-    //printf("%f %f %f %f\n", min_x, max_x, min_y, max_y);
-    //printf("%f %f %f %f\n", G->min_x, G->max_x, G->min_y, G->max_y);
+#ifdef DEBUG
+    printf("area bounds\n");
+    printf("%f %f %f %f\n", min_x, max_x, min_y, max_y);
+    printf("%f %f %f %f\n", G->min_x, G->max_x, G->min_y, G->max_y);
 
     egraph_print(G);
+#endif
 
 }
 

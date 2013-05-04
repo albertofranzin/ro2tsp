@@ -4,11 +4,7 @@ void tree_init(tree* T, int n) {
 
   (*T).n = n;
   (*T).root = 0;
-  /*printf("aa\n");
-  printf("sizeof tree : %d nodes\n", n);
-  printf("bb\n");*/
   (*T).V = (tree_node *)calloc(n, sizeof(tree_node));
-  //printf("cc\n");
 }
 
 void tree_delete(tree* T) {
@@ -34,19 +30,19 @@ void tree_copy(tree* FROM, tree* TO) {
   memcpy(TO->V, FROM->V, sizeof(FROM->V[0])*n);
 }
 
-void tree_set_root(tree* T, int r) {
+inline void tree_set_root(tree* T, int r) {
   (*T).root = r;
 }
 
-int tree_get_root(tree* T) {
+inline int tree_get_root(tree* T) {
   return (*T).root;
 }
 
-int tree_get_pred(tree* T, int v) {
+inline int tree_get_pred(tree* T, int v) {
   return (*T).V[v-1].pred;
 }
 
-int tree_get_succ(tree* T, int v) {
+inline int tree_get_succ(tree* T, int v) {
   return (*T).V[v-1].succ;
 }
 
@@ -55,7 +51,7 @@ int tree_get_succ(tree* T, int v) {
  *
  * Swap pred and succ for the node
  */
-void tree_redirect_node(tree *T, int v) {
+inline void tree_redirect_node(tree *T, int v) {
   int tmp = tree_get_pred(T, v);
   T->V[v-1].pred = tree_get_succ(T, v);
   T->V[v-1].succ = tmp;
@@ -69,26 +65,19 @@ void tree_redirect_node(tree *T, int v) {
  * se esiste già il lato, ovvero se u è predecessore di v
  * oppure v è predecessore di u, allora non fa nulla.
  */
-void tree_insert_edge(tree* T, int u, int v, double cost) {
+inline void tree_insert_edge(tree* T, int u, int v, double cost) {
   // due nodi u, v sono adiacenti se u è predecessore di v o viceversa
   if (tree_adjacent_nodes(T, u, v))
     return;
 
-  //int tmps = tree_get_succ(T, v), tmpp = tree_get_pred(T, u);
   (*T).V[v-1].pred = u;
   (*T).V[u-1].succ = v;
   (*T).V[v-1].cost = cost;
-  /*if (tmps > 0) {
-    (*T).V[v-1].succ = tmps;
-  }
-  if (tmpp > 0) {
-    (*T).V[u-1].pred = tmpp;
-  }*/
   (*T).V[v-1].deg++;
   (*T).V[u-1].deg++;
 }
 
-void tree_remove_edge(tree* T, int u, int v) {
+inline void tree_remove_edge(tree* T, int u, int v) {
   if (!tree_adjacent_nodes(T, u, v))
     return;
   (*T).V[v-1].pred = 0;
@@ -98,7 +87,7 @@ void tree_remove_edge(tree* T, int u, int v) {
   (*T).V[u-1].deg--;
 }
 
-void tree_set_edge_cost(tree* T, int u, int v, double cost) {
+inline void tree_set_edge_cost(tree* T, int u, int v, double cost) {
   if (!tree_adjacent_nodes(T, u, v))
     return;
 
@@ -108,7 +97,7 @@ void tree_set_edge_cost(tree* T, int u, int v, double cost) {
     (*T).V[u-1].cost = cost;
 }
 
-double tree_get_edge_cost(tree* T, int u, int v) {
+inline double tree_get_edge_cost(tree* T, int u, int v) {
   if (!tree_adjacent_nodes(T, u, v))
     return BIG;
 
@@ -126,11 +115,9 @@ double tree_get_edge_cost(tree* T, int u, int v) {
  *
  * swap edges (u, pred(u)), (v, pred(v)) making them (u,v), (pred(u), pred(v))
  */
-void tree_swap_edges(graph *G, tree *T, int u, int v) {
+inline void tree_swap_edges(graph *G, tree *T, int u, int v) {
   int a = tree_get_pred(T, u), b = tree_get_pred(T, v);
 
-  //tree_set_edge_cost(T, u, v, graph_get_edge_cost(G, u, v));
-  //tree_set_edge_cost(T, a, b, graph_get_edge_cost(G, a, b));
   tree_insert_edge(T, u, v, graph_get_edge_cost(G, u, v));
   tree_insert_edge(T, a, b, graph_get_edge_cost(G, a, b));
   tree_set_edge_cost(T, u, a, BIG);
@@ -139,17 +126,13 @@ void tree_swap_edges(graph *G, tree *T, int u, int v) {
   (*T).V[u-1].deg--;
   (*T).V[a-1].deg--;
   (*T).V[b-1].deg--;
-  /*(u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].flag = 1 ) : ( (*G).E[ v*(v-1)/2 + u-1].flag = 1 );
-  (a > b) ? ( (*G).E[ a*(a-1)/2 + b-1 ].flag = 1 ) : ( (*G).E[ b*(b-1)/2 + a-1].flag = 1 );
-  (u > a) ? ( (*G).E[ u*(u-1)/2 + a-1 ].flag = 0 ) : ( (*G).E[ a*(a-1)/2 + u-1].flag = 0 );
-  (v > b) ? ( (*G).E[ v*(v-1)/2 + b-1 ].flag = 0 ) : ( (*G).E[ b*(b-1)/2 + v-1].flag = 0 );*/
 }
 
-int tree_get_node_deg(tree* T, int v) {
+inline int tree_get_node_deg(tree* T, int v) {
   return (*T).V[v-1].deg;
 }
 
-int tree_adjacent_nodes(tree* T, int u, int v) {
+inline int tree_adjacent_nodes(tree* T, int u, int v) {
   //printf("adj ?? %d, %d\n", u, v);
   return (((*T).V[v-1].pred == u) || (*T).V[u-1].pred == v);
 }
