@@ -7,6 +7,7 @@ PAR = -lm
 
 CFLAGS = 
 # debug options will be appended when asked by using 'make debug'
+# release optimization will be added then command is 'make release'
 
 CHECK = -Winline -Wall
 # -Winline : warn if any problem in including inline functions occurs
@@ -32,8 +33,8 @@ debug: clean test_cplex
 
 # link libraries
 buildLib: list.o edgelist.o graph.o egraph.o tree.o onetree.o cycle.o \
-		  compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o \
-		  compute_lagrange.o compute_mst.o base.o utils.o \
+		  compute_ot.o compute_upper_bound.o compute_lagrange.o compute_mst.o \
+		  base.o utils.o \
 		  solve_tsp.o cplex_solver.o
 	ar r libro2ds.a *.o
 	rm *.o
@@ -67,9 +68,6 @@ compute_mst.o: algos/compute_mst.h algos/compute_mst.c
 compute_ot.o: algos/compute_ot.h algos/compute_ot.c
 	gcc $(CFLAGS) $(PAR) -c algos/compute_ot.c
 
-compute_nearest_neighbour.o: algos/compute_nearest_neighbour.h algos/compute_nearest_neighbour.c
-	gcc $(CFLAGS) $(PAR) -c algos/compute_nearest_neighbour.c
-
 compute_upper_bound.o: algos/compute_upper_bound.h algos/compute_upper_bound.c
 	gcc $(CFLAGS) $(PAR) -c algos/compute_upper_bound.c
 
@@ -86,6 +84,7 @@ cplex_solver.o: solvers/cplex_solver.h solvers/cplex_solver.c
 # base (common utilities)
 base.o: base/base.h base/base.c
 	gcc $(CFLAGS) $(PAR) -c base/base.c
+
 utils.o: base/utils.h base/utils.c
 	gcc $(CFLAGS) $(PAR) -c base/utils.c
 
