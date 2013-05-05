@@ -4,7 +4,11 @@
 # you can comment the parameters you don't want to set
 # default values will be used
 
-
+# chosen solver
+# options:
+# - BRANCH_AND_BOUND
+# - CPLEX
+CHOSEN_SOLVER = CPLEX
 
 
 # set TRUE to use an instance from TSPLIB, set FALSE otherwise

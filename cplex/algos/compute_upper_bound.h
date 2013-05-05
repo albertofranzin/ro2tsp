@@ -14,11 +14,6 @@
 #include "../solvers/solve_tsp.h"
 #include "../data/cycle.h"
 
-// algorithms available for the computation of the upper bound:
-#define NEAREST_NEIGHBOUR        1
-#define NEAREST_NEIGHBOUR_2_OPT  2
-#define RANDOM_CYCLE             3
-
 
 double compute_upper_bound(graph *G, cycle *C, int algo);
 

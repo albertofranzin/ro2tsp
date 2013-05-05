@@ -1,6 +1,6 @@
 NOMEFILE = test_cplex.c
 
-PAR = -lm 
+PAR = -lm
 # -lm : linking to math lib math.h
 #
 #  #OPT = -ftree-vectorizer-verbose=2 -finline-functions -std=c99
@@ -33,11 +33,12 @@ debug: clean test_cplex
 # link libraries
 buildLib: list.o edgelist.o graph.o egraph.o tree.o onetree.o cycle.o \
 		  compute_ot.o compute_nearest_neighbour.o compute_upper_bound.o \
-		  compute_lagrange.o compute_mst.o solve_tsp.o utils.o \
-		  cplex_solver.o
+		  compute_lagrange.o compute_mst.o base.o utils.o \
+		  solve_tsp.o cplex_solver.o
 	ar r libro2ds.a *.o
 	rm *.o
 
+# data structures
 list.o: data/list.h data/list.c
 	gcc $(CFLAGS) $(PAR) -c data/list.c
 
@@ -59,6 +60,7 @@ onetree.o: data/onetree.h data/onetree.c
 cycle.o: data/cycle.h data/cycle.c
 	gcc $(CFLAGS) $(PAR) -c data/cycle.c
 
+# algorithms
 compute_mst.o: algos/compute_mst.h algos/compute_mst.c
 	gcc $(CFLAGS) $(PAR) -c algos/compute_mst.c
 
@@ -74,15 +76,20 @@ compute_upper_bound.o: algos/compute_upper_bound.h algos/compute_upper_bound.c
 compute_lagrange.o: algos/compute_lagrange.h algos/compute_lagrange.c
 	gcc $(CFLAGS) $(PAR) -c algos/compute_lagrange.c
 
+# solvers
 solve_tsp.o: solvers/solve_tsp.h solvers/solve_tsp.c
 	gcc $(CFLAGS) $(PAR) -c solvers/solve_tsp.c
 
 cplex_solver.o: solvers/cplex_solver.h solvers/cplex_solver.c
 	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cplex_solver.c
 
+# base (common utilities)
+base.o: base/base.h base/base.c
+	gcc $(CFLAGS) $(PAR) -c base/base.c
 utils.o: base/utils.h base/utils.c
 	gcc $(CFLAGS) $(PAR) -c base/utils.c
 
+# cleanup
 cleanComp:
 	clear
 	-rm test_cplex

@@ -16,6 +16,8 @@
 
 typedef struct _parameters {
 
+  unsigned int solver;
+
   unsigned int number_of_nodes;
 
   int random_instance_option;
@@ -25,6 +27,7 @@ typedef struct _parameters {
   int tsp_file_option;
   char *tsp_file;
 
+  unsigned int heuristic_algo;
   unsigned int heuristic_trials;
 
 } parameters;
@@ -86,14 +89,6 @@ void read_tsp_from_file(egraph *G, parameters *pars);
 
 // sort nodes by cost - comparator for qsort
 int sebwComp ( const void *, const void *);
-
-/*
- * print_helper_menu
- *
- * print a menu with the list of all the parameters
- * and how to use the sw
- */
-void print_helper_menu();
 
 /*
  * free_and_null
