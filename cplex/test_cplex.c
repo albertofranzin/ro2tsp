@@ -55,7 +55,7 @@ int main (int argc, char *argv[]) {
     case BRANCH_AND_BOUND :
         incumbent = heuristic_upper_bound + EPSILON;
         printf("heuristic_upper_bound = %.30f,\n", heuristic_upper_bound);
-        printf(")           incumbent = %.30f\n", incumbent);
+        printf("            incumbent = %.30f\n",  incumbent);
         onetree H;
         onetree_init(&H, 1);
 

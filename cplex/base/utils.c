@@ -280,7 +280,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     //parameters *pars = (parameters *)ppars;
     //printf("reading tsp file %s\n", pars->tsp_file);
     FILE *tspFile = fopen(pars->tsp_file, "r");
-    long  i = 0, j;
+    int   i = 0, j;
     char  line[1024];
     char *p1, *p2;
     int   lineLen;
@@ -501,10 +501,10 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
     double x, y;
 
-    double min_x;
-    double max_x;
-    double min_y;
-    double max_y;
+    double min_x,
+           max_x,
+           min_y,
+           max_y;
 
     if (haveCoords) {
 
@@ -547,10 +547,22 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
       // found at http://stackoverflow.com/questions/10963054/finding-the-coordinates-of-points-from-distance-matrix
       // hope it works, since there is probably something I haven't understood yet...
 
-      double Dp1p2 = egraph_get_edge_cost(G, 1, 2), Dp1p3, Dp2p3, cosine, angle;
+      double Dp1p2 = egraph_get_edge_cost(G, 1, 2),  // 1-2
+             Dp1p3,                                  // 1-3
+             Dp2p3,                                  // 2-3
+             Dp1pn,                                  // 1-n, n >= 4
+             Dp2pn,                                  // 2-n, n >= 4
+             tentative_cost_1,
+             tentative_cost_2,
+             cosine,
+             angle;
 
-      double x1 = 0., y1 = 0.;
-      double x2 = Dp1p2, y2 = 0.;
+      double x1 = 0.,
+             y1 = 0.,
+             x2 = Dp1p2,
+             y2 = 0.,
+             x3,
+             y3;
 
       // set first node at (0,0)
       egraph_set_node_x(G, 1, x1);
@@ -566,22 +578,42 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
       min_y = 0.;
       max_y = 2.;
 
+      // set third node coords, in order to build the orthonormal space
+      Dp1p3 = egraph_get_edge_cost(G, 1, 3);
+      Dp2p3 = egraph_get_edge_cost(G, 2, 3);
+
+      cosine = (Dp1p2*Dp1p2 + Dp1p3*Dp1p3 - Dp2p3*Dp2p3) / (2*Dp1p2*Dp1p3);
+      angle  = acosf(cosine);
+      x3 = cosine * Dp1p3;
+      y3 = sinf(angle) * Dp1p3;
+
+      egraph_set_node_x(G, 3, x3);
+      egraph_set_node_y(G, 3, y3);
+
       // iterate brute-force step until all nodes have been somewhat correctly given
       // their coords - or some values sufficiently near to them.
 
-      for (i = 3; i <= pars->number_of_nodes; ++i) {
+      for (i = 4; i <= pars->number_of_nodes; ++i) {
 
-        Dp1p3 = egraph_get_edge_cost(G, 1, i);
-        Dp2p3 = egraph_get_edge_cost(G, 2, i);
+        Dp1pn = egraph_get_edge_cost(G, 1, i);
+        Dp2pn = egraph_get_edge_cost(G, 2, i);
 
-        cosine = (Dp1p2*Dp1p2 + Dp1p3*Dp1p3 - Dp2p3*Dp2p3) / (2*Dp1p2*Dp1p3);
-        angle = acosf(cosine);
-        x = cosine * Dp1p3;
-        y = sinf(angle) * Dp1p3;
+        cosine = (Dp1p2*Dp1p2 + Dp1pn*Dp1pn - Dp2pn*Dp2pn) / (2*Dp1p2*Dp1pn);
+        angle  = acosf(cosine);
+        x = cosine * Dp1pn;
+        y = sinf(angle) * Dp1pn;
 
         egraph_set_node_x(G, i, x);
 
-        if (fabs(sqrt((x-x1)*(x-x1) + (y-y1)*(y-y1)) - Dp1p3) > 0.1) {
+        tentative_cost_1 = sqrt((x-x3)*(x-x3) + (y-y3)*(y-y3));
+        tentative_cost_2 = sqrt((x-x3)*(x-x3) + (-y-y3)*(-y-y3));
+
+        printf("3, %d, %f (%f) %f \n", i, 
+            sqrt((x-x3)*(x-x3) + (y-y3)*(y-y3)),
+            sqrt((x-x3)*(x-x3) + (-y-y3)*(-y-y3)),
+            egraph_get_edge_cost(G, 3, i));
+        if (fabs(tentative_cost_1 - egraph_get_edge_cost(G, 3, i)) > 
+            fabs(tentative_cost_2 - egraph_get_edge_cost(G, 3, i))) {
           y = -y;
         }
         egraph_set_node_y(G, i, y);
