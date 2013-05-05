@@ -38,12 +38,12 @@
 
 #define DEFAULT_RANDOM_INSTANCE_OPTION 1 // -> TRUE
 #define DEFAULT_RANDOM_SEED_OPTION     0 // -> FALSE
-#define DEFAULT_SEED                    0
+#define DEFAULT_SEED                   0
 
 #define DEFAULT_TSP_FILE_OPTION 0 // -> FALSE
 #define DEFAULT_TSP_FILE        NULL
 
-#define DEFAULT_HEURISTIC_ALGO NEAREST_NEIGHBOUR_2_OPT
+#define DEFAULT_HEURISTIC_ALGO   NEAREST_NEIGHBOUR_2_OPT
 #define DEFAULT_HEURISTIC_TRIALS 1
 
 // dimensioni grafo gnuplot

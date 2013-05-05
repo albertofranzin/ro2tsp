@@ -14,21 +14,30 @@
 
 /* constants and variables */
 
+/*
+ * parameters
+ *
+ * unsigned int  solver                  : solver method (cplex or b&b)
+ * unsigned int  number_of_nodes         : # of nodes in the graph
+ * int           random_instance_option  : generate a random graph?
+ * int           random_seed_option      : use a pseudorandom seed?
+ * long          seed                    : seed
+ * int           tsp_file_option         : use a TSPLIB(-like) instance?
+ * char         *tsp_file                : TSPLIB path/filename
+ * unsigned int  heuristic_algo          : heuristic algorithm
+ * unsigned int  heuristic_trials        : number of trials of the heuristic algo
+ */
 typedef struct _parameters {
 
-  unsigned int solver;
-
-  unsigned int number_of_nodes;
-
-  int random_instance_option;
-  int random_seed_option;
-  long seed;
-
-  int tsp_file_option;
-  char *tsp_file;
-
-  unsigned int heuristic_algo;
-  unsigned int heuristic_trials;
+  unsigned int  solver;
+  unsigned int  number_of_nodes;
+  int           random_instance_option;
+  int           random_seed_option;
+  long          seed;
+  int           tsp_file_option;
+  char         *tsp_file;
+  unsigned int  heuristic_algo;
+  unsigned int  heuristic_trials;
 
 } parameters;
 

@@ -1,20 +1,6 @@
 #include "compute_upper_bound.h"
 
-/*double compute_upper_bound(graph* G) { // da migliorare magari usando altri euristici
-  int i;
-  double min, cost_of_cycle;
-  int n = (*G).n;
 
-  min = compute_nearest_neighbour(G, 1);
-  for (i = 2; i <= n; i++) {
-    cost_of_cycle = compute_nearest_neighbour(G, i);
-    if (cost_of_cycle < min)
-      min = cost_of_cycle;
-  }
-  return min;
-}*/
-
-// da migliorare magari usando altri euristici
 double compute_upper_bound(graph* G, cycle *C, int algo) {
   int i, best_index;
   double min, cost_of_cycle;
@@ -29,7 +15,7 @@ double compute_upper_bound(graph* G, cycle *C, int algo) {
   cycle_init(&BEST_CYCLE, n);
 
   //printf("about to compute first cycle\n");
-  min = compute_nearest_neighbour(G, &BEST_CYCLE, 1);
+  min = compute_nearest_neighbour(G, &BEST_CYCLE, 1, algo);
   if (algo == NEAREST_NEIGHBOUR_2_OPT) {
     min = heur2opt(G, &BEST_CYCLE, min);
   }
@@ -38,7 +24,7 @@ double compute_upper_bound(graph* G, cycle *C, int algo) {
   for (i = 2; i <= n; i++) {
     cycle_delete(C);
     cycle_init(C, n);
-    cost_of_cycle = compute_nearest_neighbour(G, C, i);
+    cost_of_cycle = compute_nearest_neighbour(G, C, i, algo);
     if (algo == NEAREST_NEIGHBOUR_2_OPT) {
       cost_of_cycle = heur2opt(G, C, cost_of_cycle);
     }
@@ -54,6 +40,66 @@ double compute_upper_bound(graph* G, cycle *C, int algo) {
   /*printf("best_index is %d, it costs %f\n", best_index, min);
   char ch = getchar();*/
   return min;
+}
+
+double compute_nearest_neighbour(graph *G, cycle *C, int start_node, int algo) {
+  int i, j, k;
+  int current, next;
+  double min, current_cost, total_cost = 0.;
+  short visited[G->n + 1];
+  memset(visited, 0, sizeof(short) * (G->n + 1));
+
+  //printf("beginning NN\n");
+
+  cycle_delete(C);
+
+  //printf("deleted\n");
+
+  cycle_init(C, G->n);
+
+  //printf("hello\n");
+
+  current = start_node;
+  visited[current] = 1;
+  //C->node[0] = start_node;
+
+  for (i = 1; i < G->n; ++i) {
+
+    min = BIG;
+    next = -1;
+
+    for (j = 1; j <= G->n; ++j) {
+      current_cost = graph_get_edge_cost(G, current, j);
+      if (current != j && visited[j] == 0 && current_cost < min) {
+        //printf("%d %d %f\n", current, j, current_cost);
+        next = j;
+        min = current_cost;
+      }
+    }
+
+    if (next == -1) {
+      return BIG;
+    }
+
+    total_cost += min;
+    C->node[i-1] = current;
+    C->costs[i-1] = min;
+
+    visited[current] = 1;
+    current = next;
+
+  }
+
+  C->node[G->n - 1] = current;
+  C->costs[G->n - 1] = graph_get_edge_cost(G, current, start_node);
+  total_cost += C->costs[G->n - 1];
+  /*for (i = 0; i < G->n; ++i) {
+    printf("(%d, %f) ", C->node[i], C->costs[i]);
+  }
+  printf("\n");*/
+
+  return total_cost;
+
 }
 
 /*
@@ -84,50 +130,25 @@ double heur2opt(graph *G, cycle *C, double ccost) {
       for (j = i+1; j < C->n; ++j) {
         k = (i+1) % G->n;
         h = (j+1) % G->n;
-        delta =   graph_get_edge_cost(G, C->node[i], C->node[j])
-                + graph_get_edge_cost(G, C->node[k], C->node[h])
-                - C->costs[i]
-                - C->costs[j];
+        delta = graph_get_edge_cost(G, C->node[i], C->node[j]) +
+                graph_get_edge_cost(G, C->node[k], C->node[h]) -
+                C->costs[i] -
+                C->costs[j];
 
-        if ((delta + EPSILON) < 0) { // k != j && h != i &&
-
-          /*printf("swapping (%d,%d) [%f], (%d,%d) [%f] with (%d,%d) [%f], (%d,%d) [%f] : delta = %f, cost = %f\n",
-              C->node[i], C->node[(i+1) % G->n], C->costs[i],
-              C->node[j], C->node[(j+1) % G->n], C->costs[j],
-              C->node[i], C->node[j], graph_get_edge_cost(G, C->node[i], C->node[j]),
-              C->node[(i+1) % G->n], C->node[(j+1) % G->n], graph_get_edge_cost(G, C->node[k], C->node[h]),
-              delta, cost + delta);*/
-
-          /*printf("from\n");
-          for (l = 0; l < G->n; ++l) {
-            printf("%d ", C->node[l]);
-          }
-          printf("\n");*/
+        if ((delta + EPSILON) < 0) {
 
           cost += delta;
           for (l = 0; l <= (j - k) / 2; ++l) {
-            tmp = C->node[k + l];
-            //printf("tmp = %d\n", tmp);
+
+            tmp            = C->node[k + l];
             C->node[k + l] = C->node[j - l];
-            //printf("C->node[%d + %d] = %d\n", k, l, C->node[k + l]);
             C->node[j - l] = tmp;
-            //printf("C->node[%d - %d] = %d\n", j, l, C->node[j - l]);
 
             C->costs[i + l] = graph_get_edge_cost(G, C->node[i + l], C->node[(i+l+1) % G->n]);
-            C->costs[j - l] = graph_get_edge_cost(G, C->node[j-l], C->node[(j-l+1) % G->n]);
+            C->costs[j - l] = graph_get_edge_cost(G, C->node[j - l], C->node[(j-l+1) % G->n]);
 
           }
           changed = 1;
-
-          /*printf("to\n");
-          for (l = 0; l < G->n; ++l) {
-            printf("%d ", C->node[l]);
-            if (C->costs[l] != graph_get_edge_cost(G, C->node[l], C->node[(l+1) % G->n])) {
-              printf("found!\n");
-              char ch = getchar();
-            }
-          }
-          printf("\n");*/
 
           j = C->n;
           i = C->n;
