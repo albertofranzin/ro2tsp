@@ -27,6 +27,10 @@ short parHash(char *parName) {
     return 5;
   if (strcmp(parName, "HEURISTIC_TRIALS") == 0)
     return 6;
+  if (strcmp(parName, "CHOSEN_SOLVER") == 0)
+    return 7;
+  if (strcmp(parName, "HEURISTIC_ALGO") == 0)
+    return 8;
 
   return -1;
 }
@@ -37,10 +41,11 @@ short parHash(char *parName) {
 
 
 parameters *getParameters() {
-  parameters *pars = (parameters*)calloc(1, sizeof(parameters));
+  parameters *pars = (parameters *)calloc(1, sizeof(parameters));
 
   //printf("@getParameters : calloc done\n");
 
+  pars->solver                 = DEFAULT_SOLVER;
   pars->number_of_nodes        = DEFAULT_NUMBER_OF_NODES;
   pars->random_instance_option = DEFAULT_RANDOM_INSTANCE_OPTION;
   pars->random_seed_option     = DEFAULT_RANDOM_SEED_OPTION;
@@ -48,17 +53,20 @@ parameters *getParameters() {
   pars->tsp_file_option        = DEFAULT_TSP_FILE_OPTION;
   pars->tsp_file               = DEFAULT_TSP_FILE;
   pars->heuristic_trials       = DEFAULT_HEURISTIC_TRIALS;
+  pars->heuristic_algo         = DEFAULT_HEURISTIC_ALGO;
+
 
   //pars->plot = 1;
   //pars->plotOnlyTree = 0;
   //pars->heuristic_trials = 1;
 
   FILE *parFile = fopen(FILE_CONFIG, "r");
-  char line[128];
-  char *p1, *p2;
-  int lineLen;
+  char  line[128];
+  char *p1,
+       *p2;
+  int   lineLen;
 
-  if ( parFile != NULL ) {
+  if (parFile != NULL) {
 
     //printf("@getParameters : beginning file scan\n");
 
@@ -146,6 +154,23 @@ parameters *getParameters() {
             pars->heuristic_trials = atoi(p2);
             //printf("@getParameters :: case 6 done\n");
             break;
+
+          case 7 :
+            if (strcmp(p2, "BRANCH_AND_BOUND") == 0) {
+              pars->solver = BRANCH_AND_BOUND;
+            } else if (strcmp(p2, "CPLEX") == 0) {
+              pars->solver = CPLEX;
+            }
+            break;
+
+          case 8 :
+            if (strcmp(p2, "NEAREST_NEIGHBOUR") == 0) {
+              pars->solver = NEAREST_NEIGHBOUR;
+            } else if (strcmp(p2, "NEAREST_NEIGHBOUR_2_OPT") == 0) {
+              pars->solver = NEAREST_NEIGHBOUR_2_OPT;
+            } else if (strcmp(p2, "RANDOM_CYCLE") == 0) {
+              pars->solver = RANDOM_CYCLE;
+            }
 
           default:
             //printf("@getParameters :: default\n");
@@ -255,12 +280,12 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     //parameters *pars = (parameters *)ppars;
     //printf("reading tsp file %s\n", pars->tsp_file);
     FILE *tspFile = fopen(pars->tsp_file, "r");
-    long i = 0, j;
-    char line[1024];
+    long  i = 0, j;
+    char  line[1024];
     char *p1, *p2;
-    int lineLen;
-    short read = 1;
-    short haveCoords = 1;
+    int   lineLen;
+    short read        = 1;
+    short haveCoords  = 1;
     short matrix_type = 0;
 
     egraph_delete(G);
@@ -620,36 +645,6 @@ int sebwComp (const void * a, const void * b) {
   else return 0;
 }
 
-/*
- * print_helper_menu
- *
- * print a menu with the list of all the parameters
- * and how to use the sw
- */
-void print_helper_menu() {
-  printf("\n");
-  printf("  TSP solver for the course of Ricerca Operativa 2\n");
-  printf("  a.y. 2012/13, taught by prof. M. Fischetti\n\n");
-  printf("  authors: Alberto Franzin\n         Ludovico Minto\n\n");
-  printf("  Helper menu\n");
-  printf("  This software can solve two kind on TSP instances:\n");
-  printf("  - instances in TSPLIB format;\n");
-  printf("  - random instances.\n\n");
-  printf("  There are two ways to use it: set the desidered parameters\n");
-  printf("  in the 'config' file provided with the package,\n");
-  printf("  or append the desidered parameters to the command:\n");
-  printf("  -s [--seed] x   : x (integer) selects the desidered seed\n");
-  printf("                    for the random instance, such that:\n");
-  printf("                      if x >= 0, then x is the seed;\n");
-  printf("                      if x < 0, then a pseudorandom seed will be used.\n");
-  printf("  -n [--number] x : x (positive integer) is the number of nodes to be generated\n");
-  printf("                    in the random instance.\n");
-  printf("  -f [--file]   x : x (valid file/path) is the TSPLIB-formatted file of the instance.\n");
-  printf("                    If this option is chosen, then the previous ones\n");
-  printf("                    will be ignored, if present.\n");
-  printf("  -h [--help]     : printf this menu and exit.\n");
-  printf("\n\n");
-}
 
 /*
  * free_and_null

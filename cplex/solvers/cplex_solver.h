@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <ilcplex/cplex.h>
 #include "../base/utils.h"
+#include "../data/graph.h"
 
 /*************************************************
  *
@@ -16,7 +17,7 @@
  *************************************************/
 
 #define MAXNAME  64
-#define INFINITY 1e30
+//#define INFINITY 1e30
 #define MAXITN   10
 #define TRUE     1
 #define FALSE    0
@@ -116,6 +117,17 @@ void pos_from_vertices(cplex_table* CPX_TAB, int x, int y, int* pos);
 
 
 /*
+ * cplex_solve_problem
+ *
+ * - graph *  : pointer to the graph
+ * - egraph * : pointer to the egraph object
+ * - double * : pointer to incumbent
+ *
+ * solve a LP problem using CPLEX
+ */
+void cplex_solve_problem(graph *, egraph *, double *);
+
+/*
  * cplex_create_problem
  *
  * - CPXENVptr : pointer to the CPLEX environment
@@ -164,18 +176,6 @@ int cplex_setup_problem(graph *, cplex_table *, CPXENVptr, CPXLPptr,
                         double **, double **, char **,
                         int **, int **, int **, double **,
                         double **, double **, char **);
-
-/*
- * cplex_solve_problem
- *
- * - CPXENVptr : pointer to the CPLEX environment
- * - CPXLPptr  : pointer to the CPLEX LP problem
- *
- * solve a LP problem using CPLEX
- *
- * return : operation status
- */
-int cplex_solve_problem(CPXENVptr, CPXLPptr);
 
 /*
  * cplex_add_SEC
