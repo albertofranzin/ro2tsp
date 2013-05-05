@@ -32,7 +32,7 @@ debug: clean test_cplex
 
 
 # link libraries
-buildLib: list.o edgelist.o graph.o egraph.o tree.o onetree.o cycle.o \
+buildLib: list.o edgelist.o graph.o egraph.o tree.o onetree.o cycle.o cplex_table.o \
 		  compute_ot.o compute_upper_bound.o compute_lagrange.o compute_mst.o \
 		  base.o utils.o \
 		  solve_tsp.o cplex_solver.o
@@ -60,6 +60,9 @@ onetree.o: data/onetree.h data/onetree.c
 
 cycle.o: data/cycle.h data/cycle.c
 	gcc $(CFLAGS) $(PAR) -c data/cycle.c
+
+cplex_table.o: data/cplex_table.h data/cplex_table.c
+	gcc $(CFLAGS) $(PAR) -c data/cplex_table.c
 
 # algorithms
 compute_mst.o: algos/compute_mst.h algos/compute_mst.c
