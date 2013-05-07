@@ -8,7 +8,7 @@ double compute_upper_bound(graph* G, cycle *C, int algo) {
 
   // horrible, but something
   if (algo == RANDOM_CYCLE) {
-    return random_cycle_generation(G, C, 100);
+    return random_cycle_generation(G, C, 1000);
   }
 
   cycle BEST_CYCLE;
@@ -144,8 +144,10 @@ double heur2opt(graph *G, cycle *C, double ccost) {
             C->node[k + l] = C->node[j - l];
             C->node[j - l] = tmp;
 
-            C->costs[i + l] = graph_get_edge_cost(G, C->node[i + l], C->node[(i+l+1) % G->n]);
-            C->costs[j - l] = graph_get_edge_cost(G, C->node[j - l], C->node[(j-l+1) % G->n]);
+            C->costs[i + l] = graph_get_edge_cost(G, C->node[i + l],
+                                                     C->node[(i+l+1) % G->n]);
+            C->costs[j - l] = graph_get_edge_cost(G, C->node[j - l],
+                                                     C->node[(j-l+1) % G->n]);
 
           }
           changed = 1;
@@ -243,32 +245,12 @@ double heur2opt(graph *G, cycle *C, double ccost) {
  *
  * return : cost of the solution
  */
-double improved2opt(graph *G, cycle *C, double ccost) {
+double heur232opt(graph *G, cycle *C, double ccost) {
   double cost = heur2opt(G, C, ccost);
 
-  int n1 = 0, n2 = 0, n3 = 0, p1, p2, p3, l;
+  int n1 = 0, n2 = 0, n3 = 0, p1, p2, p3;
 
-  n1 = rand() % G->n + 1;
-  do { n2 = rand() % G->n + 1; } while(n2 == n1);
-  do { n3 = rand() % G->n + 1; } while(n3 == n1 || n3 == n2);
-
-  p1 = (n1 + 1) % C->n;
-  p2 = (n2 + 1) % C->n;
-  p3 = (n3 + 1) % C->n;
-
-  /*tree_swap_edges(G, C, n1, n2);
-  tree_swap_edges(G, C, n1, n3);
-  tree_swap_edges(G, C, n2, n3);*/
-
-  /*for (l = 0; l <= (j - k) / 2; ++l) {
-    tmp = C->node[k + l];
-    C->node[k + l] = C->node[j - l];
-    C->node[j - l] = tmp;
-
-    C->costs[i + l] = graph_get_edge_cost(G, C->node[i + l], C->node[(i+l+1) % G->n]);
-    C->costs[j - l] = graph_get_edge_cost(G, C->node[j-l], C->node[(j-l+1) % G->n]);
-
-  }*/
+  int i, j, k, h, l, m;
 
   double second = heur2opt(G, C, cycle_get_cost(C));
 

@@ -7,8 +7,8 @@
 #define FALSE   0
 
 // valori convenzionali per i costi +infinito e -infinito dei lati 
-#define BIG    50000.0
-#define SMALL -50000.0
+#define BIG    5000000.0
+#define SMALL -5000000.0
 
 // per tentare di eliminare effetti errori arrotondamento
 //#define EPSILON 0.000000001
@@ -36,11 +36,11 @@
 
 #define DEFAULT_SOLVER BRANCH_AND_BOUND
 
-#define DEFAULT_RANDOM_INSTANCE_OPTION 1 // -> TRUE
-#define DEFAULT_RANDOM_SEED_OPTION     0 // -> FALSE
+#define DEFAULT_RANDOM_INSTANCE_OPTION TRUE
+#define DEFAULT_RANDOM_SEED_OPTION     FALSE
 #define DEFAULT_SEED                   0
 
-#define DEFAULT_TSP_FILE_OPTION 0 // -> FALSE
+#define DEFAULT_TSP_FILE_OPTION FALSE
 #define DEFAULT_TSP_FILE        NULL
 
 #define DEFAULT_HEURISTIC_ALGO   NEAREST_NEIGHBOUR_2_OPT

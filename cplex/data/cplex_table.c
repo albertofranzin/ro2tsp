@@ -53,10 +53,10 @@ void cplex_table_delete(cplex_table* CPX_TAB) {
  */
 void cplex_table_populate(cplex_table* CPX_TAB, graph* G) {
 
-  if ((*CPX_TAB).size != ((*G).n * ( (*G).n - 1))  /  2) {
+  /*if ((*CPX_TAB).size != ((*G).n * ( (*G).n - 1))  /  2) {
     printf("error: table_populate\n");
     exit(EXIT_FAILURE);
-  }
+  }*/
   // assert(CPX_TAB->size == G->n * (G->n - 1)) / 2);
 
   int i, j, pos;
