@@ -1,7 +1,7 @@
 #include "cpx_solver.h"
 
-void cpx_solver(graph* G, egraph* EG) {
-  int i, j, k;
+void cpx_solver(graph* G, graph* H) {
+  int i, j, k, pos;
 
   int status;
   CPXENVptr env = NULL;
@@ -65,6 +65,16 @@ void cpx_solver(graph* G, egraph* EG) {
 
   }
 
+  graph_delete(H);
+  graph_init(H, n);
+  for (pos = 1; pos <= cur_numcols; pos++) {
+    if (x[pos-1] > 0.9) {
+      vertices_from_pos(&hash_table, &i, &j, pos);
+      graph_insert_edge(H, i, j, graph_get_edge_cost(G, i, j));
+    }
+  }
+
+  /*
   // plotta grafo
   graph Gtmp1;
   egraph EGtmp1;
@@ -85,6 +95,6 @@ void cpx_solver(graph* G, egraph* EG) {
   egraph_delete(&EGtmp1);
   graph_delete(&Gtmp1);
 
-
+  */
 
 }

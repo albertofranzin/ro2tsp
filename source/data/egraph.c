@@ -234,8 +234,8 @@ void egraph_plot(egraph* EG1, egraph* EG2) {
 
   fprintf(pipe, "set multiplot\n");
   fprintf(pipe, "set size square\n");
-  fprintf(pipe, "set xrange [%.3f:%.3f]\n", X_MIN, X_MAX);
-  fprintf(pipe, "set yrange [%.3f:%.3f]\n", Y_MIN, Y_MAX);
+  fprintf(pipe, "set xrange [%.3f:%.3f]\n", EG1->min_x, EG1->max_x);
+  fprintf(pipe, "set yrange [%.3f:%.3f]\n", EG1->min_y, EG1->max_y);
   fprintf(pipe, "set xlabel 'X'\n");
   fprintf(pipe, "set ylabel 'Y'\n");
   //fprintf(pipe, "unset xtics\n");
