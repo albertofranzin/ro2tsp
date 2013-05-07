@@ -167,9 +167,9 @@ parameters *getParameters() {
             if (strcmp(p2, "NEAREST_NEIGHBOUR") == 0) {
               pars->heuristic_algo = NEAREST_NEIGHBOUR;
             } else if (strcmp(p2, "NEAREST_NEIGHBOUR_2_OPT") == 0) {
-              pars->heuristic_algo = NEAREST_NEIGHBOUR_2_OPT;
+              pars->solver = NEAREST_NEIGHBOUR_2_OPT;
             } else if (strcmp(p2, "RANDOM_CYCLE") == 0) {
-              pars->heuristic_algo = RANDOM_CYCLE;
+              pars->solver = RANDOM_CYCLE;
             }
 
           default:
@@ -408,7 +408,6 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                     strcmp(line, " EOF") == 0) {
                                     break;
                                 }
-
                                 char *tokens[pars->number_of_nodes], *tok;
 
                                 int count = 0;
@@ -433,7 +432,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                   cumulative_counter %= pars->number_of_nodes;
 
                                   for (j = 0; j < row; ++j) {
-				    if (row != j+1) {
+				    if (row != j+1 && row <= pars->number_of_nodes && j < pars->number_of_nodes) {
 				      egraph_insert_edge(G, row, j+1, atof(tokens[j]));
 				    }
                                   }
@@ -472,13 +471,11 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                 tok = strtok(line, delimiters);
 
                                 while (tok != NULL) {
-                                  if (row != pos                  &&
-                                      row < pars->number_of_nodes &&
-                                      pos < pars->number_of_nodes    ) {
-                                    egraph_insert_edge(G, row+1, pos+1, atof(tok));
-                                  }
+				  if (row != pos && row < pars->number_of_nodes && pos < pars->number_of_nodes) { // <- eliminare i controlli row,pos<number_of_nodes ?
+				    egraph_insert_edge(G, row+1, pos+1, atof(tok));
+				  }
                                   pos++;
-                                  if (atof(tok) == 0.) {
+                                  if (atof(tok) == 0.0) {
                                     row++;
                                     pos = 0;
                                   }
@@ -513,24 +510,22 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
            max_y;
 
     if (haveCoords) {
-
       // TSPLIB file contains node coordinates
       // for each edge, compute the distance (= the cost)
       min_x = egraph_get_node_x(G, 1);
       max_x = min_x;
       min_y = egraph_get_node_y(G, 1);
       max_y = min_y;
-
       for (i = 1; i <= pars->number_of_nodes; i++) {
         x = egraph_get_node_x(G, i);
         y = egraph_get_node_y(G, i);
         for (j = i+1; j <= pars->number_of_nodes; j++) {
           egraph_insert_edge(G, i, j,
-            sqrt(
+			     rint(sqrt(
               pow(x - egraph_get_node_x(G, j), 2)
               +
-              pow(y - egraph_get_node_y(G, j), 2)
-            )
+              pow(y - egraph_get_node_y(G, j), 2))
+				       )
           );
         }
 
@@ -614,10 +609,10 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
         tentative_cost_1 = sqrt((x-x3)*(x-x3) + (y-y3)*(y-y3));
         tentative_cost_2 = sqrt((x-x3)*(x-x3) + (-y-y3)*(-y-y3));
 
-        printf("3, %d, %f (%f) %f \n", i, 
+        /*printf("3, %d, %f (%f) %f \n", i, 
             sqrt((x-x3)*(x-x3) + (y-y3)*(y-y3)),
             sqrt((x-x3)*(x-x3) + (-y-y3)*(-y-y3)),
-            egraph_get_edge_cost(G, 3, i));
+            egraph_get_edge_cost(G, 3, i));*/
         if (fabs(tentative_cost_1 - egraph_get_edge_cost(G, 3, i)) > 
             fabs(tentative_cost_2 - egraph_get_edge_cost(G, 3, i))) {
           y = -y;

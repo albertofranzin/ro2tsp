@@ -15,6 +15,6 @@
 #include "cpx_add_sec.h"
 #include "cpx_mark_subtours.h"
 
-void cpx_solver(graph* G, graph* H, double *incumbent);
+void cpx_solver(graph* G, graph* H);
 
 #endif

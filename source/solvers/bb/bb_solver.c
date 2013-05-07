@@ -62,33 +62,95 @@ void bb_solver(bb_input* input, bb_output* output, bb_status* status, bb_stats* 
     bb_backup_init(&backup_1); bb_backup_init(&backup_2); bb_backup_init(&backup_3);
 
 
+
     // BRANCH #1 : vieta il lato {w, v};
 
-    bb_backup_save(&backup_1, status, N, N, Y, Y, Y, Y, Y);
-    if (bb_constraints_acep_iterative(w, v, 0, BIG, 0.0, status, &backup_1, NULL) == SUCCESS) {
+    /*
+    // a | ap_simple | ap_recursive | ap_iterative
+    bb_backup_save(&backup_1, status, N, N, Y, Y, Y, Y, N);
+    bb_constraints_ap_iterative(w, v, 0, BIG, 0.0, status, &backup_1, NULL);
+    bb_solver(input, output, status, stats);
+    bb_backup_restore(&backup_1, status, N, N, Y, Y, Y, Y, N, Y);
+    bb_backup_delete(&backup_1);
+    */
+
+    /*
+    // ac | acp_simple | acp_recursive | apc_iterative
+    bb_backup_save(&backup_1, status, N, N, Y, Y, Y, Y, N);
+    if (bb_constraints_acp_iterative(w, v, 0, BIG, 0.0, status, &backup_1, NULL) == SUCCESS) {
       bb_solver(input, output, status, stats);
     }
-    bb_backup_restore(&backup_1, status, N, N, Y, Y, Y, Y, Y, Y);
+    bb_backup_restore(&backup_1, status, N, N, Y, Y, Y, Y, N, Y);
+    bb_backup_delete(&backup_1);
+    */
+
+    // ace | acep_simple | acep_recursive | acep_iterative
+    bb_backup_save(&backup_1, status, N, N, Y, Y, Y, Y, N);
+    if (bb_constraints_acp_iterative(w, v, 0, BIG, 0.0, status, &backup_1, NULL) == SUCCESS) {
+      bb_solver(input, output, status, stats);
+    }
+    bb_backup_restore(&backup_1, status, N, N, Y, Y, Y, Y, N, Y);
     bb_backup_delete(&backup_1);
     
 
+
     // BRANCH #2 : forza il lato {w, v} e vieta il lato {w, u};
     
-    bb_backup_save(&backup_2, status, N, N, Y, Y, Y, Y, Y);
-    if (bb_constraints_acep_iterative(w, v, u, SMALL, BIG, status, &backup_2, NULL) == SUCCESS) {
+    /*
+    // a | ap_simple | ap_recursive | ap_iterative
+    bb_backup_save(&backup_2, status, N, N, Y, Y, Y, Y, N);
+    bb_constraints_ap_iterative(w, v, u, SMALL, BIG, status, &backup_2, NULL);
+    bb_solver(input, output, status, stats);
+    bb_backup_restore(&backup_2, status, N, N, Y, Y, Y, Y, N, Y);
+    bb_backup_delete(&backup_2);
+    */
+
+    /*
+    // ac | acp_simple | acp_recursive | apc_iterative
+    bb_backup_save(&backup_2, status, N, N, Y, Y, Y, Y, N);
+    if (bb_constraints_acp_iterative(w, v, u, SMALL, BIG, status, &backup_2, NULL) == SUCCESS) {
+     bb_solver(input, output, status, stats);
+    }
+    bb_backup_restore(&backup_2, status, N, N, Y, Y, Y, Y, N, Y);
+    bb_backup_delete(&backup_2);
+    */
+
+    // ace | acep_simple | acep_recursive | acep_iterative
+    bb_backup_save(&backup_2, status, N, N, Y, Y, Y, Y, N);
+    if (bb_constraints_acp_iterative(w, v, u, SMALL, BIG, status, &backup_2, NULL) == SUCCESS) {
       bb_solver(input, output, status, stats);
     }
-    bb_backup_restore(&backup_2, status, N, N, Y, Y, Y, Y, Y, Y);
+    bb_backup_restore(&backup_2, status, N, N, Y, Y, Y, Y, N, Y);
     bb_backup_delete(&backup_2);
     
 
     // BRANCH #3 : forza i lati {w, v} e {w, u};
    
-    bb_backup_save(&backup_3, status, N, N, Y, Y, Y, Y, Y);
-    if (bb_constraints_acep_iterative(w, v, u, SMALL, SMALL, status, &backup_3, NULL) == SUCCESS) {
+    /*
+    // a | ap_simple | ap_recursive | ap_iterative
+    bb_backup_save(&backup_3, status, N, N, Y, Y, Y, Y, N);
+    bb_constraints_ap_iterative(w, v, u, SMALL, SMALL, status, &backup_3, NULL);
+    bb_solver(input, output, status, stats);
+    bb_backup_restore(&backup_3, status, N, N, Y, Y, Y, Y, N, Y);
+    bb_backup_delete(&backup_3);
+    */
+
+    /*
+    // ac | acp_simple | acp_recursive | apc_iterative
+    bb_backup_save(&backup_3, status, N, N, Y, Y, Y, Y, N);
+    if (bb_constraints_acp_iterative(w, v, u, SMALL, SMALL, status, &backup_3, NULL) == SUCCESS) {
       bb_solver(input, output, status, stats);
     }
-    bb_backup_restore(&backup_3, status, N, N, Y, Y, Y, Y, Y, Y);
+    bb_backup_restore(&backup_3, status, N, N, Y, Y, Y, Y, N, Y);
+    bb_backup_delete(&backup_3);
+    */
+
+    // ace | acep_simple | acep_recursive | acep_iterative
+    bb_backup_save(&backup_3, status, N, N, Y, Y, Y, Y, N);
+    if (bb_constraints_acp_iterative(w, v, u, SMALL, SMALL, status, &backup_3, NULL) == SUCCESS) {
+      bb_solver(input, output, status, stats);
+    }
+    bb_backup_restore(&backup_3, status, N, N, Y, Y, Y, Y, N, Y);
     bb_backup_delete(&backup_3);
         
 
@@ -102,24 +164,63 @@ void bb_solver(bb_input* input, bb_output* output, bb_status* status, bb_stats* 
 
 
     // BRANCH #1 : vieta il lato {w, v}
-    
-    bb_backup_save(&backup_1, status, N, N, Y, Y, Y, Y, Y);
-    if (bb_constraints_acep_iterative(w, v, 0, BIG, 0.0, status, &backup_1, NULL) == SUCCESS) {
+ 
+    /*
+    // a | ap_simple | ap_recursive | ap_iterative
+    bb_backup_save(&backup_1, status, N, N, Y, Y, Y, Y, N);
+    bb_constraints_ap_iterative(w, v, 0, BIG, 0.0, status, &backup_1, NULL);
+    bb_solver(input, output, status, stats);
+    bb_backup_restore(&backup_1, status, N, N, Y, Y, Y, Y, N, Y);
+    bb_backup_delete(&backup_1);
+    */
+
+    /*
+    // ac | acp_simple | acp_recursive | apc_iterative
+    bb_backup_save(&backup_1, status, N, N, Y, Y, Y, Y, N);
+    if (bb_constraints_acp_iterative(w, v, 0, BIG, 0.0, status, &backup_1, NULL) == SUCCESS) {
       bb_solver(input, output, status, stats);
     }
-    bb_backup_restore(&backup_1, status, N, N, Y, Y, Y, Y, Y, Y);
+    bb_backup_restore(&backup_1, status, N, N, Y, Y, Y, Y, N, Y);
+    bb_backup_delete(&backup_1);
+    */
+
+    // ace | acep_simple | acep_recursive | acep_iterative
+    bb_backup_save(&backup_1, status, N, N, Y, Y, Y, Y, N);
+    if (bb_constraints_acp_iterative(w, v, 0, BIG, 0.0, status, &backup_1, NULL) == SUCCESS) {
+      bb_solver(input, output, status, stats);
+    }
+    bb_backup_restore(&backup_1, status, N, N, Y, Y, Y, Y, N, Y);
     bb_backup_delete(&backup_1);
 
 
     // BRANCH #2 : forza il lato {w, u};
  
-    bb_backup_save(&backup_2, status, N, N, Y, Y, Y, Y, Y);
-    if (bb_constraints_acep_iterative(w, v, 0, SMALL, 0.0, status, &backup_2, NULL) == SUCCESS) {
+    /*
+    // a | ap_simple | ap_recursive | ap_iterative
+    bb_backup_save(&backup_2, status, N, N, Y, Y, Y, Y, N);
+    bb_constraints_ap_iterative(w, v, 0, SMALL, 0.0, status, &backup_2, NULL);
+    bb_solver(input, output, status, stats);
+    bb_backup_restore(&backup_2, status, N, N, Y, Y, Y, Y, N, Y);
+    bb_backup_delete(&backup_2);
+    */
+
+    /*
+    // ac | acp_simple | acp_recursive | apc_iterative
+    bb_backup_save(&backup_2, status, N, N, Y, Y, Y, Y, N);
+    if (bb_constraints_acp_iterative(w, v, 0, SMALL, 0.0, status, &backup_2, NULL) == SUCCESS) {
       bb_solver(input, output, status, stats);
     }
-    bb_backup_restore(&backup_2, status, N, N, Y, Y, Y, Y, Y, Y);
+    bb_backup_restore(&backup_2, status, N, N, Y, Y, Y, Y, N, Y);
     bb_backup_delete(&backup_2);
-    
+    */
+
+    // ace | acep_simple | acep_recursive | acep_iterative
+    bb_backup_save(&backup_2, status, N, N, Y, Y, Y, Y, N);
+    if (bb_constraints_acp_iterative(w, v, 0, SMALL, 0.0, status, &backup_2, NULL) == SUCCESS) {
+      bb_solver(input, output, status, stats);
+    }
+    bb_backup_restore(&backup_2, status, N, N, Y, Y, Y, Y, N, Y);
+    bb_backup_delete(&backup_2);
 
   }
 
