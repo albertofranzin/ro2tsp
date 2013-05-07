@@ -8,7 +8,7 @@ void graph_init(graph* G, int n) {
     (*G).E = (graph_edge*)calloc(n * (n + 1) / 2, sizeof(graph_edge));
   }
   else {
-    printf("error: graph_init\n");
+    printf("error: graph_init: %d\n", n);
     exit(EXIT_FAILURE);
   }
 }
@@ -45,7 +45,7 @@ void graph_insert_edge(graph* G, int u, int v, double cost) {
     (*G).V[v-1].deg++;
   }
   else {
-    printf("error: graph_insert_edge\n");
+    printf("error: graph_insert_edge: (%d, %d)\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -58,7 +58,7 @@ void graph_remove_edge(graph* G, int u, int v) {
     (*G).V[v-1].deg--;
   }
   else {
-    printf("error: graph_remove_edge\n");
+    printf("error: graph_remove_edge: (%d, %d)\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -69,7 +69,7 @@ void graph_set_edge_cost(graph* G, int u, int v, double cost) {
     (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*G).E[ v*(v-1)/2 + u-1 ].cost = cost );
   }
   else {
-    printf("error: graph_set_edge_cost\n");
+    printf("error: graph_set_edge_cost: (%d, %d)\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -80,7 +80,7 @@ double graph_get_edge_cost(graph* G, int u, int v) {
     return (u > v) ? (*G).E[ u*(u-1)/2 + v-1 ].cost : (*G).E[ v*(v-1)/2 + u-1 ].cost;
   }
   else {
-    printf("error: graph_get_edge_cost\n");
+    printf("error: graph_get_edge_cost: (%d, %d)\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -90,7 +90,7 @@ int graph_get_node_deg(graph* G, int v) {
     return (*G).V[v-1].deg;
   }
   else {
-    printf("error: graph_get_node_deg\n");
+    printf("error: graph_get_node_deg: %d\n", v);
     exit(EXIT_FAILURE);
   }
 }
@@ -100,7 +100,7 @@ int graph_adjacent_nodes(graph* G, int u, int v) {
     return (u > v) ? (*G).E[ u*(u-1)/2 + v-1 ].flag : (*G).E[ v*(v-1)/2 + u-1 ].flag;
   }
   else {
-    printf("error: graph_adjacent_nodes\n");
+    printf("error: graph_adjacent_nodes: %d\n", v);
     exit(EXIT_FAILURE);
   }
 }

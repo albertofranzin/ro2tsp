@@ -12,8 +12,11 @@ int cpx_mark_subtours(cpx_table* hash_table, int* edge_indexes, int* edge_marks,
     second_neighbour[i] = 0;
   }
 
-  for (i = 0; i < n; i++) { // per ogni nodo memorizzo i 2 nodi vicini (nota che i lati i cui indici (di var. cplex) sono contenuti in edge_indexes, formano un insieme di subtour)
-    
+  for (i = 0; i < n; i++) {
+    // per ogni nodo memorizzo i 2 nodi vicini
+    // (nota che i lati i cui indici (di var. cplex) sono contenuti
+    // in edge_indexes, formano un insieme di subtour)
+
     pos = edge_indexes[i];
     vertices_from_pos(hash_table, &x, &y, pos);
 
@@ -62,8 +65,8 @@ int cpx_mark_subtours(cpx_table* hash_table, int* edge_indexes, int* edge_marks,
     start_vertex = 0;
     for (i = 0; i < n; i++) {
       if(vertex_marks[i] == 0) {
-	start_vertex = i+1;
-	break;
+        start_vertex = i+1;
+        break;
       }
     }
 
@@ -86,8 +89,3 @@ int cpx_mark_subtours(cpx_table* hash_table, int* edge_indexes, int* edge_marks,
 
   return num_of_subtours;
 }
-
-
-
-
-

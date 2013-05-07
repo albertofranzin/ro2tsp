@@ -165,11 +165,11 @@ parameters *getParameters() {
 
           case 8 :
             if (strcmp(p2, "NEAREST_NEIGHBOUR") == 0) {
-              pars->solver = NEAREST_NEIGHBOUR;
+              pars->heuristic_algo = NEAREST_NEIGHBOUR;
             } else if (strcmp(p2, "NEAREST_NEIGHBOUR_2_OPT") == 0) {
-              pars->solver = NEAREST_NEIGHBOUR_2_OPT;
+              pars->heuristic_algo = NEAREST_NEIGHBOUR_2_OPT;
             } else if (strcmp(p2, "RANDOM_CYCLE") == 0) {
-              pars->solver = RANDOM_CYCLE;
+              pars->heuristic_algo = RANDOM_CYCLE;
             }
 
           default:
@@ -472,7 +472,11 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                 tok = strtok(line, delimiters);
 
                                 while (tok != NULL) {
-                                  egraph_insert_edge(G, row+1, pos+1, atof(tok));
+                                  if (row != pos                  &&
+                                      row < pars->number_of_nodes &&
+                                      pos < pars->number_of_nodes    ) {
+                                    egraph_insert_edge(G, row+1, pos+1, atof(tok));
+                                  }
                                   pos++;
                                   if (atof(tok) == 0.) {
                                     row++;
