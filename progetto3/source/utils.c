@@ -597,7 +597,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
     egraph_print(G);
 
-}
+} // read_tsp_from_file
 
 
 
@@ -655,4 +655,17 @@ void print_helper_menu() {
   printf("                    will be ignored, if present.\n");
   printf("  -h [--help]     : printf this menu and exit.\n");
   printf("\n\n");
-}
+} // end print_helper_menu
+
+/*
+ * free_and_null
+ * - char ** : pointer to the list
+ *
+ * empty a char** and set the pointer to NULL
+ */
+void free_and_null(char **ptr) {
+  if (*ptr != NULL) {
+    free(*ptr);
+    *ptr = NULL;
+  }
+} // END free_and_null

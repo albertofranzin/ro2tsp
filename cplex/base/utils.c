@@ -608,10 +608,10 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
         tentative_cost_1 = sqrt((x-x3)*(x-x3) + (y-y3)*(y-y3));
         tentative_cost_2 = sqrt((x-x3)*(x-x3) + (-y-y3)*(-y-y3));
 
-        printf("3, %d, %f (%f) %f \n", i, 
+        /*printf("3, %d, %f (%f) %f \n", i, 
             sqrt((x-x3)*(x-x3) + (y-y3)*(y-y3)),
             sqrt((x-x3)*(x-x3) + (-y-y3)*(-y-y3)),
-            egraph_get_edge_cost(G, 3, i));
+            egraph_get_edge_cost(G, 3, i));*/
         if (fabs(tentative_cost_1 - egraph_get_edge_cost(G, 3, i)) > 
             fabs(tentative_cost_2 - egraph_get_edge_cost(G, 3, i))) {
           y = -y;

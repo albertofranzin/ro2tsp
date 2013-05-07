@@ -117,4 +117,12 @@ int sebwComp ( const void *, const void *);
  */
 void print_helper_menu();
 
+/*
+ * free_and_null
+ * - char ** : pointer to the list
+ *
+ * empty a char** and set the pointer to NULL
+ */
+void free_and_null(char **ptr);
+
 #endif

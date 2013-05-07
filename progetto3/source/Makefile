@@ -27,46 +27,46 @@ buildLib: list.o edgelist.o graph.o egraph.o tree.o onetree.o compute_mst.o \
 #	rm *.o
 
 list.o: list.h list.c
-	gcc -g -c list.c
+	gcc $(PAR) -c list.c
 
 edgelist.o: edge.h edgelist.h edgelist.c
-	gcc -g -c edgelist.c
+	gcc $(PAR) -c edgelist.c
 
 graph.o: graph.h graph.c
-	gcc -g -c graph.c
+	gcc $(PAR) -c graph.c
 
 egraph.o: egraph.h egraph.c
-	gcc -g -c egraph.c
+	gcc $(PAR) -c egraph.c
 
 tree.o: tree.h tree.c
-	gcc -g -c tree.c
+	gcc $(PAR) -c tree.c
 
 onetree.o: onetree.h onetree.c
-	gcc -g -c onetree.c
+	gcc $(PAR) -c onetree.c
 
 compute_mst.o: compute_mst.h compute_mst.c
-	gcc -g -c compute_mst.c
+	gcc $(PAR) -c compute_mst.c
 
 compute_ot.o: compute_ot.h compute_ot.c
-	gcc -g -c compute_ot.c
+	gcc $(PAR) -c compute_ot.c
 
 compute_nearest_neighbour.o: compute_nearest_neighbour.h compute_nearest_neighbour.c
-	gcc -g -c compute_nearest_neighbour.c
+	gcc $(PAR) -c compute_nearest_neighbour.c
 
 compute_upper_bound.o: compute_upper_bound.h compute_upper_bound.c
-	gcc -g -c compute_upper_bound.c
+	gcc $(PAR) -c compute_upper_bound.c
 
 compute_lagrange.o: compute_lagrange.h compute_lagrange.c
-	gcc -g -c compute_lagrange.c
+	gcc $(PAR) -c compute_lagrange.c
 
 solve_tsp.o: solve_tsp.h solve_tsp.c
-	gcc -g -c solve_tsp.c
+	gcc $(PAR) -c solve_tsp.c
 
 utils.o: utils.h utils.c
-	gcc -g -c utils.c
+	gcc $(PAR) -c utils.c
 
 cycle.o: cycle.h cycle.c
-	gcc -g -c cycle.c
+	gcc $(PAR) -c cycle.c
 
 clean:
 	clear

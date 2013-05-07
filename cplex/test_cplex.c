@@ -2,6 +2,7 @@
 #include "solvers/cplex_solver.h"
 #include "algos/compute_upper_bound.h"
 #include "data/cycle.h"
+#include "data/onetree.h"
 
 
 int main (int argc, char *argv[]) {
@@ -41,30 +42,28 @@ int main (int argc, char *argv[]) {
   heuristic_upper_bound = compute_upper_bound(&G, &C, pars->heuristic_algo);
   printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound);
 
-  /////////////////////////////////////////////////////////////////
   //
-  //   let the cplex part begin
+  // solve
   //
-  /////////////////////////////////////////////////////////////////
-
 
   double incumbent;
+  double z;
+
+  incumbent = heuristic_upper_bound + 1;
+  printf("heuristic_upper_bound = %.30f,\n", heuristic_upper_bound);
+  printf("            incumbent = %.30f\n",  incumbent);
+  onetree ONE_TREE;
+  onetree_init(&ONE_TREE, 1);
+
+  z = compute_lagrange(&G, &ONE_TREE, incumbent);
+
+  printf("gap = %f %%\n", 100 * (heuristic_upper_bound - z) / heuristic_upper_bound);
 
   switch(pars->solver) {
+  onetree H;
+  onetree_init(&H, 1);
 
     case BRANCH_AND_BOUND :
-        incumbent = heuristic_upper_bound + EPSILON;
-        printf("heuristic_upper_bound = %.30f,\n", heuristic_upper_bound);
-        printf("            incumbent = %.30f\n",  incumbent);
-        onetree H;
-        onetree_init(&H, 1);
-
-        onetree ONE_TREE;
-        onetree_init(&ONE_TREE, 1);
-
-        double z;
-
-        z = compute_lagrange(&G, &ONE_TREE, incumbent);
 
         if (is_cycle(&ONE_TREE) == 1) {
           printf("lagrangiano FTW!\n");
@@ -86,7 +85,8 @@ int main (int argc, char *argv[]) {
         break;
 
     case CPLEX :
-        cplex_solve_problem(&G, &EG, &incumbent);
+        // cplex_solve_problem(&G, &EG, &incumbent);
+        solve_kruskal(&G, &EG, &incumbent);
         break;
 
   }
