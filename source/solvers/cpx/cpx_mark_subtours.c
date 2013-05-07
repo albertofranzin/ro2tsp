@@ -3,7 +3,7 @@
 int cpx_mark_subtours(cpx_table* hash_table, int* edge_indexes, int* edge_marks, int n) {
   int i, x, y, pos, start_vertex, next_vertex, mark, termination, num_of_subtours; 
 
-  int* vertex_marks[n];
+  int vertex_marks[n];
   int first_neighbour[n];
   int second_neighbour[n];
 

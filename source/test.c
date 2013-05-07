@@ -75,7 +75,16 @@ int main (int argc, char *argv[]) {
 
     case CPLEX :
       {
-	cpx_solver(&G, &EG);
+	graph H;
+	graph_init(&H, 1);
+
+	cpx_solver(&G, &H);
+
+	egraph EG_CPX;
+	egraph_init(&EG_CPX, 1);
+	egraph_copy(&EG, &EG_CPX);
+	graph_to_egraph(&H, &EG_CPX);
+	egraph_plot(&EG, &EG_CPX);
       }
         break;
 

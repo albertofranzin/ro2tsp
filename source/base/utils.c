@@ -433,7 +433,9 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                   cumulative_counter %= pars->number_of_nodes;
 
                                   for (j = 0; j < row; ++j) {
-                                    egraph_insert_edge(G, row, j+1, atof(tokens[j]));
+				    if (row != j+1) {
+				      egraph_insert_edge(G, row, j+1, atof(tokens[j]));
+				    }
                                   }
                                 }
 
