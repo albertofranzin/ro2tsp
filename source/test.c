@@ -39,11 +39,12 @@ int main (int argc, char *argv[]) {
   printf("cycle created\n");
 
   double heuristic_upper_bound;
-  heuristic_upper_bound = compute_upper_bound(&G, &C, pars->heuristic_algo);
-  printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound);
-
   onetree NN;
   onetree_init(&NN, pars->number_of_nodes);
+  //heuristic_upper_bound = compute_upper_bound(&G, &C, pars->heuristic_algo);
+  heuristic_upper_bound = compute_upper_bound(&G, &NN, pars->heuristic_algo);
+  printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound);
+
   double lagr_lower_bound;
   lagr_lower_bound = compute_lagrange(&G, &NN, heuristic_upper_bound);
 
@@ -56,9 +57,9 @@ int main (int argc, char *argv[]) {
 
     case BRANCH_AND_BOUND :
       {
-        /*onetree_delete(&NN);
+        onetree_delete(&NN);
         onetree_init(&NN, pars->number_of_nodes);
-        heuristic_upper_bound = compute_upper_bound(&G, &NN, pars->heuristic_algo);*/
+        heuristic_upper_bound = compute_upper_bound(&G, &NN, pars->heuristic_algo);
 
         bb_input input;
         bb_input_init(&input, pars->number_of_nodes);

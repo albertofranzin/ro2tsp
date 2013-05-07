@@ -13,8 +13,8 @@
 #define SMALL -50000.0
 
 // per tentare di eliminare effetti errori arrotondamento
-#define EPSILON 0.0
-//#define EPSILON 0.0000001
+//#define EPSILON 0.0
+#define EPSILON 0.0000001
 
 // parametri usati per algoritmo subgradiente - lagrange
 #define MAX_NUM_ITERATIONS 30000
