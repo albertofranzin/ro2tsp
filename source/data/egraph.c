@@ -128,6 +128,7 @@ void egraph_insert_edge(egraph* EG, int u, int v, double cost) {
     printf("error: egraph_insert_edge\n");
     exit(EXIT_FAILURE);
   }
+      
 }
 
 void egraph_remove_edge(egraph* EG, int u, int v) {
@@ -186,6 +187,7 @@ int egraph_adjacent_nodes(egraph* EG, int u, int v) {
     printf("error: egraph_adjacent_nodes\n");
     exit(EXIT_FAILURE);
   }
+ 
 }
 
 double egraph_get_cost(egraph* EG) {
@@ -233,7 +235,7 @@ void egraph_plot(egraph* EG1, egraph* EG2) {
   FILE* pipe = popen("gnuplot -persist", "w");
 
   fprintf(pipe, "set multiplot\n");
-  fprintf(pipe, "set size square\n");
+  //fprintf(pipe, "set size square\n");
   fprintf(pipe, "set xrange [%.3f:%.3f]\n", EG1->min_x, EG1->max_x);
   fprintf(pipe, "set yrange [%.3f:%.3f]\n", EG1->min_y, EG1->max_y);
   fprintf(pipe, "set xlabel 'X'\n");
