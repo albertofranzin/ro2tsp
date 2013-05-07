@@ -1,6 +1,6 @@
 #include "cpx_solver.h"
 
-void cpx_solver(graph* G, graph* H) {
+void cpx_solver(graph* G, graph* H, double *incumbent) {
   int i, j, k, pos;
 
   int status;
@@ -47,11 +47,13 @@ void cpx_solver(graph* G, graph* H) {
     status  = CPXgetobjval(env, lp, &objval);
     status = CPXgetx(env, lp, x, 0, cur_numcols-1);
 
+    *incumbent = objval;
+
     k = 0;
     for (i = 0; i < cur_numcols; i++) {
       if (x[i] > 0.9) { // oppure x[i] == 1.0 dopo aver arrotondato le x[i] all'intero più vicino
-	edge_indexes[k] = i+1;
-	k++;
+        edge_indexes[k] = i+1;
+        k++;
       }
     }
 
