@@ -36,8 +36,6 @@ void cpx_solver(graph* G, egraph* EG) {
   int edge_indexes[n];
   int edge_marks[n];
 
-
-
   num_of_subtours = n;
   while (num_of_subtours > 1) {
 
@@ -51,7 +49,7 @@ void cpx_solver(graph* G, egraph* EG) {
 
     k = 0;
     for (i = 0; i < cur_numcols; i++) {
-      if (x[i] == 1.0) { // oppure x[i] > 0.0
+      if (x[i] > 0.9) { // oppure x[i] == 1.0 dopo aver arrotondato le x[i] all'intero più vicino
 	edge_indexes[k] = i+1;
 	k++;
       }
