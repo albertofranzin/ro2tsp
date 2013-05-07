@@ -13,7 +13,7 @@ void egraph_init(egraph* EG, int n) {
     EG->min_y = Y_MIN;
   }
   else {
-    printf("error: egraph_init: %d\n", n);
+    printf("error: egraph_init\n");
     exit(EXIT_FAILURE);
   }
 }
@@ -65,8 +65,8 @@ void egraph_random(egraph* EG) {
     }
   }
 
-  EG->max_x =  1.1;
-  EG->max_y =  1.1;
+  EG->max_x = 1.1;
+  EG->max_y = 1.1;
   EG->min_x = -0.1;
   EG->min_y = -0.1;
 }
@@ -77,7 +77,7 @@ void egraph_set_node_x(egraph* EG, int v, double x) {
     (*EG).V[v-1].x = x;
   }
   else {
-    printf("error: egraph_set_node_x: %d\n", v);
+    printf("error: egraph_set_node_x\n");
     exit(EXIT_FAILURE);
   }
 }
@@ -88,7 +88,7 @@ void egraph_set_node_y(egraph* EG, int v, double y) {
     (*EG).V[v-1].y = y;
   }
   else {
-    printf("error: egraph_set_node_y: %d\n", v);
+    printf("error: egraph_set_node_y\n");
     exit(EXIT_FAILURE);
   }
 }
@@ -99,7 +99,7 @@ double egraph_get_node_x(egraph* EG, int v) {
     return (*EG).V[v-1].x;
   }
   else {
-    printf("error: egraph_get_node_x: %d\n", v);
+    printf("error: egraph_get_node_x\n");
     exit(EXIT_FAILURE);
   }
 }
@@ -110,20 +110,22 @@ double egraph_get_node_y(egraph* EG, int v) {
     return (*EG).V[v-1].y;
   }
   else {
-    printf("error: egraph_get_node_y: %d\n", v);
+    printf("error: egraph_get_node_y\n");
     exit(EXIT_FAILURE);
   }
 }
 
 void egraph_insert_edge(egraph* EG, int u, int v, double cost) {
-  // printf("%d %d\n", u, v);
-  if (!egraph_adjacent_nodes(EG, u, v)) {
-    (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].flag = 1 )    : ( (*EG).E[ v*(v-1)/2 + u-1].flag = 1 );
-    (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*EG).E[ v*(v-1)/2 + u-1].cost = cost );
-    (*EG).V[u-1].deg++;
-    (*EG).V[v-1].deg++;
-  } else {
-    printf("error: egraph_insert_edge: (%d, %d)\n", u, v);
+
+  if ( u >= 1 && v >= 1 && u <= (*EG).n && v <= (*EG).n && u != v && !egraph_adjacent_nodes(EG, u, v))
+    {
+      (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].flag = 1 ) : ( (*EG).E[ v*(v-1)/2 + u-1].flag = 1 );
+      (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*EG).E[ v*(v-1)/2 + u-1].cost = cost );
+      (*EG).V[u-1].deg++;
+      (*EG).V[v-1].deg++;
+    }
+  else {
+    printf("error: egraph_insert_edge\n");
     exit(EXIT_FAILURE);
   }
 }
@@ -137,7 +139,7 @@ void egraph_remove_edge(egraph* EG, int u, int v) {
     (*EG).V[v-1].deg--;
   }
   else {
-    printf("error: egraph_remove_edge : (%d, %d)\n", u, v);
+    printf("error: egraph_remove_edge\n");
     exit(EXIT_FAILURE);
   }
 }
@@ -148,7 +150,7 @@ void egraph_set_edge_cost(egraph* EG, int u, int v, double cost) {
     (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*EG).E[ v*(v-1)/2 + u-1 ].cost = cost );
   }
   else {
-    printf("error: egraph_set_edge_cost : (%d, %d)\n", u, v);
+    printf("error: egraph_set_edge_cost\n");
     exit(EXIT_FAILURE);
   }
 }
@@ -159,7 +161,7 @@ double egraph_get_edge_cost(egraph* EG, int u, int v) {
     return (u > v) ? (*EG).E[ u*(u-1)/2 + v-1 ].cost : (*EG).E[ v*(v-1)/2 + u-1 ].cost;
   }
   else {
-    printf("error: egraph_get_edge_cost: (%d, %d)\n", u, v);
+    printf("error: egraph_get_edge_cost\n");
     exit(EXIT_FAILURE);
   }
 }
@@ -170,13 +172,20 @@ int egraph_get_node_deg(egraph* EG, int v) {
     return (*EG).V[v-1].deg;
   }
   else {
-    printf("error: egraph_get_node_deg: %d\n", v);
+    printf("error: egraph_get_node_deg\n");
     exit(EXIT_FAILURE);
   }
 }
 
 int egraph_adjacent_nodes(egraph* EG, int u, int v) {
-  return (u > v) ? (*EG).E[ u*(u-1)/2 + v-1 ].flag : (*EG).E[ v*(v-1)/2 + u-1 ].flag;
+
+  if (u >= 1 && v >= 1 && u <= (*EG).n && v <= (*EG).n && u != v) {
+    return (u > v) ? (*EG).E[ u*(u-1)/2 + v-1 ].flag : (*EG).E[ v*(v-1)/2 + u-1 ].flag;
+  }
+  else {
+    printf("error: egraph_adjacent_nodes\n");
+    exit(EXIT_FAILURE);
+  }
 }
 
 double egraph_get_cost(egraph* EG) {
@@ -207,16 +216,16 @@ void egraph_plot(egraph* EG1, egraph* EG2) {
   if (n1 > 0) {
     for (i = 0; i < n1 * (n1 + 1) / 2; i++) {
       if ((*EG1).E[i].flag == 1) {
-        eg1_has_some_edge = 1;
-        break;
+	eg1_has_some_edge = 1;
+	break;
       }
     }
   }
   if (n2 > 0) {
     for (i = 0; i < n2 * (n2 + 1) / 2; i++) {
       if ((*EG2).E[i].flag == 1) {
-        eg2_has_some_edge = 1;
-        break;
+	eg2_has_some_edge = 1;
+	break;
       }
     }
   }
