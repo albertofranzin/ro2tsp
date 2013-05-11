@@ -7,7 +7,7 @@ void onetree_init(onetree* OT, int n) {
     (*OT).V = (tree_node*)calloc(n, sizeof(tree_node));
   }
   else {
-    printf("error: onetree_init\n");
+    printf("error: onetree_init: %d\n", n);
     exit(EXIT_FAILURE);
   }
 }
@@ -38,7 +38,7 @@ int onetree_get_pred(onetree* OT, int v) {
     return (*OT).V[v-1].pred;
   }
   else {
-    printf("error: onetree_get_pred\n");
+    printf("error: onetree_get_pred: %d\n", v);
     exit(EXIT_FAILURE);
   }
 }
@@ -52,7 +52,7 @@ void onetree_insert_edge(onetree* OT, int u, int v, double cost) {
     (*OT).V[u-1].deg++;
   }
   else {
-    printf("error: onetree_insert_edge\n");
+    printf("error: onetree_insert_edge: %d %d\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -74,7 +74,7 @@ void onetree_remove_edge(onetree* OT, int u, int v) {
     }
   }
   else {
-    printf("error: onetree_remove_edge\n");
+    printf("error: onetree_remove_edge: %d %d\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -90,7 +90,7 @@ void onetree_set_edge_cost(onetree* OT, int u, int v, double cost) {
     }
   }
   else  {
-    printf("error: onetree_set_edge_cost\n");
+    printf("error: onetree_set_edge_cost: %d %d\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -106,7 +106,7 @@ double onetree_get_edge_cost(onetree* OT, int u, int v) {
     }
   }
   else {
-    printf("error: onetree_get_edge_cost\n");
+    printf("error: onetree_get_edge_cost: %d %d\n", u, v);
     return;
   }
 }
@@ -117,7 +117,7 @@ int onetree_get_node_deg(onetree* OT, int v) {
     return (*OT).V[v-1].deg;
   }
   else {
-    printf("error: onetree_get_node_deg\n");
+    printf("error: onetree_get_node_deg: %d\n", v);
     exit(EXIT_FAILURE);
   }  
 }
@@ -128,7 +128,7 @@ int onetree_adjacent_nodes(onetree* OT, int u, int v) {
     return (((*OT).V[v-1].pred == u) || (*OT).V[u-1].pred == v);
   }
   else {
-    printf("error: onetree_adjacent_nodes\n");
+    printf("error: onetree_adjacent_nodes: %d %d\n", u, v);
     exit(EXIT_FAILURE);
   }
 }

@@ -8,6 +8,7 @@
 #include <float.h>
 #include <math.h>
 #include <time.h>
+
 #include "../data/graph.h"
 #include "../data/egraph.h"
 #include "../data/onetree.h"
@@ -24,6 +25,7 @@
  * long          seed                    : seed
  * int           tsp_file_option         : use a TSPLIB(-like) instance?
  * char         *tsp_file                : TSPLIB path/filename
+ * int           tsp_file_format         : TSPLIB file format
  * unsigned int  heuristic_algo          : heuristic algorithm
  * unsigned int  heuristic_trials        : number of trials of the heuristic algo
  */
@@ -36,6 +38,7 @@ typedef struct _parameters {
   long          seed;
   int           tsp_file_option;
   char         *tsp_file;
+  int           tsp_file_format;
   unsigned int  heuristic_algo;
   unsigned int  heuristic_trials;
 
@@ -62,11 +65,16 @@ parameters *getParameters(void);
  *  2 : parName = 'COMMENT'
  *  3 : parName = 'DIMENSION'
  *
- * 41 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EUD_2D')
+ * 41 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EUC_2D')
  * 42 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'MAN_2D')
  * 43 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'CEIL_2D')
- * 44 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'GEO')
- * 45 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EXPLICIT')
+ * 44 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EXPLICIT')
+ * 45 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'GEO')
+ * 48 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'ATT')
+ *
+ * 423 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EUC_3D')
+ * 433 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'MAN_3D')
+ *
  * 46 : (parName, parValue) = ('EDGE_WEIGHT_FORMAT', 'FULL_MATRIX')
  * 47 : (parName, parValue) = ('EDGE_WEIGHT_FORMAT', 'LOWER_DIAG_ROW')
  *
