@@ -125,7 +125,7 @@ void egraph_insert_edge(egraph* EG, int u, int v, double cost) {
       (*EG).V[v-1].deg++;
     }
   else {
-    printf("error: egraph_insert_edge\n");
+    printf("error: egraph_insert_edge: %d %d\n", u, v);
     exit(EXIT_FAILURE);
   }
       
@@ -140,7 +140,7 @@ void egraph_remove_edge(egraph* EG, int u, int v) {
     (*EG).V[v-1].deg--;
   }
   else {
-    printf("error: egraph_remove_edge\n");
+    printf("error: egraph_remove_edge: %d %d\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -151,7 +151,7 @@ void egraph_set_edge_cost(egraph* EG, int u, int v, double cost) {
     (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*EG).E[ v*(v-1)/2 + u-1 ].cost = cost );
   }
   else {
-    printf("error: egraph_set_edge_cost\n");
+    printf("error: egraph_set_edge_cost: %d %d\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -162,7 +162,7 @@ double egraph_get_edge_cost(egraph* EG, int u, int v) {
     return (u > v) ? (*EG).E[ u*(u-1)/2 + v-1 ].cost : (*EG).E[ v*(v-1)/2 + u-1 ].cost;
   }
   else {
-    printf("error: egraph_get_edge_cost\n");
+    printf("error: egraph_get_edge_cost: %d %d\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -184,7 +184,7 @@ int egraph_adjacent_nodes(egraph* EG, int u, int v) {
     return (u > v) ? (*EG).E[ u*(u-1)/2 + v-1 ].flag : (*EG).E[ v*(v-1)/2 + u-1 ].flag;
   }
   else {
-    printf("error: egraph_adjacent_nodes\n");
+    printf("error: egraph_adjacent_nodes: %d %d\n", u, v);
     exit(EXIT_FAILURE);
   }
  
@@ -392,3 +392,18 @@ void onetree_to_egraph(onetree* OT, egraph* EG) {
       egraph_insert_edge(EG, (*OT).V[i].pred, i+1, (*OT).V[i].cost);
   }
 }
+
+
+/*
+ * print egraph as (diagonal) matrix of costs
+ */
+void egraph_print(egraph *EG) {
+  int i, j;
+  for (i = 1; i <= EG->n; ++i) {
+    for (j = 1; j < i; ++j) {
+     printf("%f ", egraph_get_edge_cost(EG, i, j));
+    }
+    printf("\n");
+  }
+}
+

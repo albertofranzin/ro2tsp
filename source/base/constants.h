@@ -8,9 +8,13 @@
 #define Y 1
 #define N 0
 
+// some math for computing 'GEO' distances
+#define PI           3.141592
+#define EARTH_RADIUS 6378.388
+
 // valori convenzionali per i costi +infinito e -infinito dei lati 
-#define BIG    50000.0
-#define SMALL -50000.0
+#define BIG    500000000.0
+#define SMALL -500000000.0
 
 // per tentare di eliminare effetti errori arrotondamento
 #define EPSILON 0.0
@@ -43,6 +47,8 @@
 
 #define DEFAULT_TSP_FILE_OPTION 0 // -> FALSE
 #define DEFAULT_TSP_FILE        NULL
+
+#define DEFAULT_TSP_FILE_FORMAT 0 // non-valid, I can't assign a fixed one
 
 #define DEFAULT_HEURISTIC_ALGO   NEAREST_NEIGHBOUR_2_OPT
 #define DEFAULT_HEURISTIC_TRIALS 1

@@ -8,7 +8,8 @@ struct bb_input {
 
   graph G; // grafo completo dell'istanza TSP
   onetree H; // un tour in G
-  double ub; // upper bound del costo del tour ottimo in G (e.g. il costo di H) 
+  double ub; // upper bound del costo del tour ottimo in G (e.g. il costo di H)
+  double lb; //lower bound
 };
 
 typedef struct bb_input bb_input;

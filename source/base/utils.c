@@ -52,6 +52,7 @@ parameters *getParameters() {
   pars->seed                   = DEFAULT_SEED;
   pars->tsp_file_option        = DEFAULT_TSP_FILE_OPTION;
   pars->tsp_file               = DEFAULT_TSP_FILE;
+  pars->tsp_file_format        = DEFAULT_TSP_FILE_FORMAT;
   pars->heuristic_trials       = DEFAULT_HEURISTIC_TRIALS;
   pars->heuristic_algo         = DEFAULT_HEURISTIC_ALGO;
 
@@ -222,10 +223,16 @@ short tspHash(char *parName, char *parValue) {
             return 42;
         } else if (strcmp(parValue, "CEIL_2D") == 0) {
             return 43;
-        } else if (strcmp(parValue, "GEO") == 0) {
-            return 44;
         } else if (strcmp(parValue, "EXPLICIT") == 0) {
-          return 45;
+            return 44;
+        } else if (strcmp(parValue, "GEO") == 0) {
+            return 45;
+        } else if (strcmp(parValue, "EUC_3D") == 0) {
+            return 423;
+        } else if (strcmp(parValue, "MAN_3D") == 0) {
+            return 433;
+        } else if (strcmp(parValue, "ATT") == 0) {
+            return 48;
         } else {
             return -1;
         }
@@ -291,7 +298,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     egraph_delete(G);
 
     if (tspFile != NULL) {
-        while( fgets(line, sizeof line, tspFile) != NULL ) {
+        while(fgets(line, sizeof line, tspFile) != NULL) {
             lineLen = strlen(line)-1;
 
             // skip empty lines
@@ -323,16 +330,31 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                 case 3 : pars->number_of_nodes = atoi(p2);
                          break;
 
-                // 41 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EUD_2D')
+                // 41 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EUC_2D')
+                case 41: pars->tsp_file_format = 41;
+                         break;
                 // 42 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'MAN_2D')
+                case 42: pars->tsp_file_format = 42;
+                         break;
                 // 43 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'CEIL_2D')
-                // 44 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'GEO')
-                // 45 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EXPLICIT')
-                case 41: // ?
-                case 42: // what to do?
-                case 43: // nothing, for now
-                case 44: //
-                case 45: break;
+                case 43: pars->tsp_file_format = 43;
+                         break;
+                // 44 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EXPLICIT')
+                case 44: pars->tsp_file_format = 44;
+                         break;
+                // 45 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'GEO')
+                case 45: pars->tsp_file_format = 45;
+                         break;
+                // 48 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'ATT')
+                case 48: pars->tsp_file_format = 48;
+                         break;
+
+                // 423 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'EUC_3D')
+                case 423: pars->tsp_file_format = 423;
+                          break;
+                // 433 : (parName, parValue) = ('EDGE_WEIGHT_TYPE', 'MAN_3D')
+                case 433: pars->tsp_file_format = 433;
+                          break;
 
                 // (parName, parValue) = ('EDGE_WEIGHT_FORMAT', 'FULL_MATRIX')
                 case 46: matrix_type = 46;
@@ -432,9 +454,10 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                   cumulative_counter %= pars->number_of_nodes;
 
                                   for (j = 0; j < row; ++j) {
-				    if (row != j+1 && row <= pars->number_of_nodes && j < pars->number_of_nodes) {
-				      egraph_insert_edge(G, row, j+1, atof(tokens[j]));
-				    }
+                                    if (row != j+1 && row <= pars->number_of_nodes &&
+                                      j < pars->number_of_nodes) {
+                                      egraph_insert_edge(G, row, j+1, atof(tokens[j]));
+                                    }
                                   }
                                 }
 
@@ -471,9 +494,11 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                 tok = strtok(line, delimiters);
 
                                 while (tok != NULL) {
-				  if (row != pos && row < pars->number_of_nodes && pos < pars->number_of_nodes) { // <- eliminare i controlli row,pos<number_of_nodes ?
-				    egraph_insert_edge(G, row+1, pos+1, atof(tok));
-				  }
+                                  if (row != pos && row < pars->number_of_nodes &&
+                                      pos < pars->number_of_nodes) {
+                                      // <- eliminare i controlli row,pos<number_of_nodes ?
+                                    egraph_insert_edge(G, row+1, pos+1, atof(tok));
+                                  }
                                   pos++;
                                   if (atof(tok) == 0.0) {
                                     row++;
@@ -502,32 +527,113 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
     //printf("graph filled, exiting\n");
 
-    double x, y;
+    double x, y, x2, y2;
 
     double min_x,
            max_x,
            min_y,
            max_y;
 
+
     if (haveCoords) {
+
+      double q1, // intermediate values for the 'GEO' distances
+             q2,
+             q3,
+             fract,
+             latitude1,
+             longitude1,
+             latitude2,
+             longitude2;
+
       // TSPLIB file contains node coordinates
       // for each edge, compute the distance (= the cost)
       min_x = egraph_get_node_x(G, 1);
       max_x = min_x;
       min_y = egraph_get_node_y(G, 1);
       max_y = min_y;
+
       for (i = 1; i <= pars->number_of_nodes; i++) {
+
         x = egraph_get_node_x(G, i);
         y = egraph_get_node_y(G, i);
-        for (j = i+1; j <= pars->number_of_nodes; j++) {
-          egraph_insert_edge(G, i, j,
-			     rint(sqrt(
-              pow(x - egraph_get_node_x(G, j), 2)
-              +
-              pow(y - egraph_get_node_y(G, j), 2))
-				       )
-          );
+
+        if (pars->tsp_file_format == 45) {
+          // 'GEO' distances
+          fract      = x - (int)x;
+          latitude1  = PI * ((int)x + 5.0 * fract / 3.0) / 180.0;
+          fract      = y - (int)y;
+          longitude1 = PI * ((int)y + 5.0 * fract / 3.0) / 180.0;
         }
+
+        for (j = i+1; j <= pars->number_of_nodes; j++) {
+
+          x2 = egraph_get_node_x(G, j);
+          y2 = egraph_get_node_y(G, j);
+
+          // choose right function to compute distance
+          if (pars->tsp_file_format == 41) {
+
+            // euclidean 2D distance, or boh
+            egraph_insert_edge(G, i, j,
+              nearbyint(sqrt(pow(x - x2, 2) + pow(y - y2, 2)))
+            );
+
+          } else if (pars->tsp_file_format == 45) {
+
+            // 'GEO' distances
+            fract      = x2 -  (int)x2;
+            latitude2  = PI * ((int)x2 + 5.0 * fract / 3.0) / 180.0;
+            fract      = y2 -  (int)y2;
+            longitude2 = PI * ((int)y2 + 5.0 * fract / 3.0) / 180.0;
+
+            q1 = cosf(longitude1 - longitude2);
+            q2 = cosf(latitude1  - latitude2);
+            q3 = cosf(latitude1  + latitude2);
+
+            egraph_insert_edge(G, i, j,
+                (int)(EARTH_RADIUS * acosf(0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0)
+            );
+
+          // end else-if 'GEO'
+          } else if (pars->tsp_file_format == 42) {
+
+            // manhattan distance 2D
+            egraph_insert_edge(G, i, j,
+              (int)(fabs(x - x2) + fabs(y - y2))
+            );
+
+          } else if (pars->tsp_file_format == 43) {
+
+            // ceil 2D
+            egraph_insert_edge(G, i, j,
+              ceil(sqrt(pow(x - x2, 2) + pow(y - y2, 2)))
+            );
+
+          } else if (pars->tsp_file_format == 48) {
+
+            // att pseudo-Euclidean
+            double xd  = x - x2,
+                   yd  = y - y2,
+                   rij = sqrt((xd*xd + yd*yd) / 10.0),
+                   tij = nearbyint(rij);
+
+            if (tij < rij) {
+              tij = tij + 1;
+            }
+
+            egraph_insert_edge(G, i, j, tij);
+
+          } else if (pars->tsp_file_format == 423 ||
+                     pars->tsp_file_format == 433   ) {
+
+            printf("HOUSTON... 3D, we don't cover this...\n");
+            exit(1);
+
+          }
+
+
+        } // end for j
 
         // look for updated bounds
         if (x < min_x) {
@@ -609,10 +715,6 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
         tentative_cost_1 = sqrt((x-x3)*(x-x3) + (y-y3)*(y-y3));
         tentative_cost_2 = sqrt((x-x3)*(x-x3) + (-y-y3)*(-y-y3));
 
-        /*printf("3, %d, %f (%f) %f \n", i, 
-            sqrt((x-x3)*(x-x3) + (y-y3)*(y-y3)),
-            sqrt((x-x3)*(x-x3) + (-y-y3)*(-y-y3)),
-            egraph_get_edge_cost(G, 3, i));*/
         if (fabs(tentative_cost_1 - egraph_get_edge_cost(G, 3, i)) > 
             fabs(tentative_cost_2 - egraph_get_edge_cost(G, 3, i))) {
           y = -y;

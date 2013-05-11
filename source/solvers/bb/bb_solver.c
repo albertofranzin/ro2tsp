@@ -14,7 +14,7 @@ void bb_solver(bb_input* input, bb_output* output, bb_status* status, bb_stats* 
 
     graph_copy(&(*input).G, G_curr);
     onetree_copy(&(*input).H, &(*status).H_best);
-    (*status).z_best = onetree_get_cost(&(*input).H);
+    (*status).z_best = input->ub;//onetree_get_cost(&(*input).H);
     onetree_copy(&(*input).H, &(*output).H_opt);
     (*output).z_opt = (*input).ub;
 
@@ -38,6 +38,8 @@ void bb_solver(bb_input* input, bb_output* output, bb_status* status, bb_stats* 
   if ((*status).z_curr >= (*status).z_best) { // >= (*status).z_best +EPSILON ? 
     return;
   }
+
+  printf("node: %d\n", status->current_call);
 
   if (onetree_is_cycle(OT_curr)) {
     onetree_copy(OT_curr, &(*status).H_best);
