@@ -49,7 +49,7 @@ void cpx_table_delete(cpx_table* CPX_TAB);
  *
  * hash (v1, v2)->(pos)
  *
- * cpx_table * : hash table
+ * cpx_table *   : hash table
  * int *         : pointer to index of vertex 1 (not modified)
  * int *         : pointer to index of vertex 2 (not modified)
  * int *         : pointer to index of position (to be modified)
@@ -66,7 +66,7 @@ void cpx_table_populate(cpx_table* CPX_TAB, graph* G);
  *
  * hash (pos)->(v1, v2)
  *
- * cpx_table * : hash table
+ * cpx_table *   : hash table
  * int *         : pointer to index of vertex 1 (to be modified)
  * int *         : pointer to index of vertex 2 (to be modified)
  * int           : index of position (not modified)
@@ -78,7 +78,7 @@ void vertices_from_pos(cpx_table* CPX_TAB, int* x, int* y, int pos);
  *
  * hash (pos)<-(v1, v2)
  *
- * cpx_table * : hash table
+ * cpx_table *   : hash table
  * int           : index of vertex 1 (not modified)
  * int           : index of vertex 2 (not modified)
  * int *         : pointer to index of position (to be modified)

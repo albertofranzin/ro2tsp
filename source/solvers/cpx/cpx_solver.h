@@ -14,7 +14,13 @@
 #include "cpx_setup_problem.h"
 #include "cpx_add_sec.h"
 #include "cpx_mark_subtours.h"
+#include "cpx_callbacks.h"
 
-void cpx_solver(graph* G, graph* H);
+/**
+ * [cpx_solver description]
+ * @param G input graph of the problem
+ * @param H output graph containing the optimal tour
+ */
+void cpx_solver(graph *G, graph *H);
 
 #endif

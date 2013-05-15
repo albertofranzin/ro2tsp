@@ -36,7 +36,7 @@ buildLib: list.o elist.o vector.o lvector.o tree.o onetree.o graph.o egraph.o cy
 	compute_mst.o compute_ot.o compute_lagrange.o compute_upper_bound.o \
 	bb_input.o bb_output.o bb_stats.o bb_status.o bb_backup.o bb_constraints.o bb_select_node.o bb_select_edges.o bb_solver.o \
 	cpx_table.o cpx_create_problem.o cpx_setup_problem.o cpx_add_sec.o cpx_mark_subtours.o cpx_solver.o \
-	base.o utils.o
+	base.o utils.o cpx_callbacks.o
 	ar r libro2ds.a *.o
 	rm *.o
 
@@ -130,6 +130,8 @@ cpx_mark_subtours.o: solvers/cpx/cpx_mark_subtours.h solvers/cpx/cpx_mark_subtou
 cpx_solver.o: solvers/cpx/cpx_solver.h solvers/cpx/cpx_solver.c
 	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_solver.c
 
+cpx_callbacks.o: solvers/cpx/cpx_callbacks.h solvers/cpx/cpx_callbacks.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_callbacks.c
 
 # base (common utilities)
 base.o: base/base.h base/base.c

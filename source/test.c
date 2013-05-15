@@ -97,6 +97,7 @@ int main (int argc, char *argv[]) {
           printf("took branches these times: %d %d %d %d %d\n",
               stats.took1, stats.took2, stats.took3, stats.took4, stats.took5);
 #endif
+
           egraph EG_BB;
           egraph_init(&EG_BB, 1);
           egraph_copy(&EG, &EG_BB);
