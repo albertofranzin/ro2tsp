@@ -68,9 +68,9 @@ parameters *base_problem_setup(int argc, char **argv) {
   }
 
   if (pars->random_seed_option == FALSE || pars->seed >= 0) {
-      srand(pars->seed);
+    srand(pars->seed);
   } else {
-      srand(time(NULL));
+    srand(time(NULL));
   }
 
   return pars;

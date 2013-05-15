@@ -5,6 +5,25 @@
 #include <assert.h>
 #include <ilcplex/cplex.h>
 
-int cpx_add_sec(CPXENVptr env, CPXLPptr lp, int* edge_indexes, int* edge_marks, int n, int my_mark);
+/**
+ * Add a new subtour elimination constraint to the model
+ * @param  env          CPLEX environment
+ * @param  lp           problem
+ * @param  cbdata
+ * @param  wherefrom
+ * @param  edge_indices array of edge indices
+ * @param  edge_marks   array of edge marks
+ * @param  n            number of elements in the arrays
+ * @param  my_mark      mark to identify the subtour
+ * @return              status of the operation
+ */
+int cpx_add_sec(CPXENVptr  env,
+                CPXLPptr   lp,
+                void      *cbdata,
+                int        wherefrom,
+                int       *edge_indices,
+                int       *edge_marks,
+                int        n,
+                int        my_mark);
 
 #endif

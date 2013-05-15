@@ -432,7 +432,6 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                 }
                                 char *tokens[pars->number_of_nodes], *tok;
 
-                                int count = 0;
                                 tok = strtok(line, delimiters);
 
                                 // very dirty
@@ -738,10 +737,10 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     } // end if-else
 
     // set bounds and add some padding
-    G->min_x = min_x - (max_x - min_x) / 50;
-    G->max_x = max_x + (max_x - min_x) / 50;
-    G->min_y = min_y - (max_y - min_y) / 50;
-    G->max_y = max_y + (max_y - min_y) / 50;
+    G->min_x = min_x - (max_x - min_x) / 50.;
+    G->max_x = max_x + (max_x - min_x) / 50.;
+    G->min_y = min_y - (max_y - min_y) / 50.;
+    G->max_y = max_y + (max_y - min_y) / 50.;
 
 #ifdef DEBUG
     printf("area bounds\n");
