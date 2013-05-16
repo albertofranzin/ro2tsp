@@ -100,6 +100,8 @@ void bb_solver(bb_env* env, bb_stats* stats) {
 	(*env).incumbent = (*env).z_opt = ub;
 
 	(*stats).init_ub = ub;
+	printf("# node %d : initial upper bound           = %f\n", (*env).curr_call, (*stats).init_ub);
+
 	//printf("# node %d : initial incumbent             = %f\n", (*env).curr_call, (*stats).init_ub);
 
 	// ... and the optimal solution TOUR_OPT equal to the tour just computed.
