@@ -56,18 +56,21 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
     for (i = 1; i <= n; i++) {
 
       status = heur_nearest_neighbour(G, &C_tmp, i, &tour_cost); // always returns successfully if this case is executed at the root node
-      if (i == 1) {
-	status = heur_2_opt(G, &C_tmp, tour_cost, &tour_cost); // always returns successfully
-      }
 
-      if (flag == 0 && status == SUCCESS) {
-	cycle_copy(&C_tmp, C);
-	min = tour_cost;
-	flag = 1;
-      }
-      else if (flag == 1 && status == SUCCESS && tour_cost < min) {
-	cycle_copy(&C_tmp, C);
-	min = tour_cost;
+      if (status == 1) {
+
+	status = heur_2_opt(G, &C_tmp, tour_cost, &tour_cost); // always returns successfully
+      
+	if (flag == 0 && status == SUCCESS) {
+	  cycle_copy(&C_tmp, C);
+	  min = tour_cost;
+	  flag = 1;
+	}
+	else if (flag == 1 && status == SUCCESS && tour_cost < min) {
+	  cycle_copy(&C_tmp, C);
+	  min = tour_cost;
+	}
+
       }
 
     }
@@ -138,18 +141,21 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
     for (i = 1; i <= NUM_TRIALS_RANDOM_CYCLES_2OPT; i++) {
 
       status = generate_random_cycle(G, &C_tmp, &tour_cost); // always returns successfully
-      if (i == 1) {
-	status = heur_2_opt(G, &C_tmp, tour_cost, &tour_cost); // always returns successfully
-      }
 
-      if (flag == 0 && status == SUCCESS) {
-	cycle_copy(&C_tmp, C);
-	min = tour_cost;
-	flag = 1;
-      }
-      else if (flag == 1 && status == SUCCESS && tour_cost < min) {
-	cycle_copy(&C_tmp, C);
-	min = tour_cost;
+      if (status == 1) {
+
+	status = heur_2_opt(G, &C_tmp, tour_cost, &tour_cost); // always returns successfully
+
+	if (flag == 0 && status == SUCCESS) {
+	  cycle_copy(&C_tmp, C);
+	  min = tour_cost;
+	  flag = 1;
+	}
+	else if (flag == 1 && status == SUCCESS && tour_cost < min) {
+	  cycle_copy(&C_tmp, C);
+	  min = tour_cost;
+	}
+
       }
 
     }

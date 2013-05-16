@@ -89,7 +89,7 @@
 #define RANDOM_CYCLES_2OPT       4
 
 #define NUM_TRIALS_RANDOM_CYCLES          1000000
-#define NUM_TRIALS_RANDOM_CYCLES_2OPT     100000
+#define NUM_TRIALS_RANDOM_CYCLES_2OPT     1000
 
 //------------------------------------------------------
 
