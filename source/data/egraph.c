@@ -1,7 +1,13 @@
 #include "egraph.h"
 
 void egraph_init(egraph* EG, int n) {
-  if (n >= 1) {
+
+  if (n == 0) {
+    (*EG).n = 0;
+    (*EG).V = NULL;
+    (*EG).E = NULL;
+  }
+  else if (n >= 1) {
     (*EG).n = n;
     (*EG).V = (egraph_node*)calloc(n, sizeof(egraph_node));
     (*EG).E = (egraph_edge*)calloc(n * (n + 1) / 2, sizeof(egraph_edge));
@@ -205,7 +211,7 @@ double egraph_get_cost(egraph* EG) {
   return c;
 }
 
-void egraph_plot(egraph* EG1, egraph* EG2) {
+void egraph_plot(egraph* EG1, egraph* EG2, char* title) {
   int i, j, v, n1, n2, eg1_has_some_edge, eg2_has_some_edge;
 
   n1 = n2 = 0;
@@ -236,6 +242,7 @@ void egraph_plot(egraph* EG1, egraph* EG2) {
 
   fprintf(pipe, "set multiplot\n");
   //fprintf(pipe, "set size square\n");
+  if (title != NULL) fprintf(pipe, "set title \"%s\"\n", title);
   fprintf(pipe, "set xrange [%.3f:%.3f]\n", EG1->min_x, EG1->max_x);
   fprintf(pipe, "set yrange [%.3f:%.3f]\n", EG1->min_y, EG1->max_y);
   fprintf(pipe, "set xlabel 'X'\n");
@@ -343,11 +350,16 @@ void egraph_to_graph(egraph* EG, graph* G) {
   for (i = 0; i < n * (n + 1) / 2; i++) {
     (*G).E[i].flag = (*EG).E[i].flag;
     (*G).E[i].cost = (*EG).E[i].cost;
+    (*G).E[i].constr = FREE;
   }
 }
 
 void graph_to_egraph(graph* G, egraph* EG) {
   int i;
+  if ((*G).n != (*EG).n) {
+    printf("error: graph_to_egraph\n");
+    exit(EXIT_FAILURE);
+  }
 
   int n = (*G).n;
   for (i = 0; i < n * (n + 1) / 2; i++) {
@@ -360,6 +372,24 @@ void graph_to_egraph(graph* G, egraph* EG) {
   for (i = 0; i < n * (n + 1) / 2; i++) {
     (*EG).E[i].flag = (*G).E[i].flag;
     (*EG).E[i].cost = (*G).E[i].cost;
+  }
+}
+
+void cycle_to_egraph(cycle* C, egraph* EG) {
+  int i;
+
+  if ((*C).n != (*EG).n) {
+    printf("error: cycle_to_egraph\n");
+    exit(EXIT_FAILURE);
+  }
+
+  int n = (*C).n;
+  for (i = 0; i < n * (n + 1) / 2; i++) {
+    (*EG).E[i].flag = 0;
+    (*EG).E[i].cost = 0;
+  }
+  for (i = 0; i < n; i++) {
+    egraph_insert_edge(EG, (*C).nodes[i], (*C).nodes[(i+1)%n], (*C).costs[i]);
   }
 }
 
@@ -393,6 +423,38 @@ void onetree_to_egraph(onetree* OT, egraph* EG) {
   }
 }
 
+void graph_plot(graph* G, egraph* EG, char* title) {
+
+  egraph EG_TMP;
+  egraph_init(&EG_TMP, 0);
+  egraph_copy(EG, &EG_TMP);
+  graph_to_egraph(G, &EG_TMP);
+  egraph_plot(EG, &EG_TMP, title);
+  egraph_delete(&EG_TMP);
+
+}
+
+void onetree_plot(onetree* OT, egraph* EG, char* title) {
+
+  egraph EG_TMP;
+  egraph_init(&EG_TMP, 0);
+  egraph_copy(EG, &EG_TMP);
+  onetree_to_egraph(OT, &EG_TMP);
+  egraph_plot(EG, &EG_TMP, title);
+  egraph_delete(&EG_TMP);
+
+}
+ 
+void cycle_plot(cycle* C, egraph* EG, char* title) {
+
+  egraph EG_TMP;
+  egraph_init(&EG_TMP, 0);
+  egraph_copy(EG, &EG_TMP);
+  cycle_to_egraph(C, &EG_TMP);
+  egraph_plot(EG, &EG_TMP, title);
+  egraph_delete(&EG_TMP);
+
+}
 
 /*
  * print egraph as (diagonal) matrix of costs

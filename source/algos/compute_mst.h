@@ -9,6 +9,6 @@
 // Hp: G, T inizializzati
 // Hp: 1 <= r <= n dove n = numero nodi di G
 
-void compute_mst(graph* G, tree* T, int r);
+int compute_mst(graph* G, tree* T, int root);
 
 #endif

@@ -89,3 +89,72 @@ void list_remove(list* L, list_node* node) {
     exit(EXIT_FAILURE);
   }
 }
+
+void list_sort(list* L) {
+
+  int i, j, min, distance, curr_distance;
+  list_node *curr_node, *tmp_node, *min_node, *min_search_node, *prev1, *next1, *prev2, *next2;
+
+  int n = (*L).size;
+
+  curr_node = list_get_first(L);
+
+  for (i = 0; i < n; i++) {
+
+    min_node = curr_node;
+    min = (*curr_node).data;
+
+    min_search_node = list_get_next(L, curr_node);
+
+    distance = 0;
+    curr_distance = 0;
+    for (j = i+1; j < n; j++) {
+
+      curr_distance++;
+
+      if ((*min_search_node).data < min) {
+	distance = curr_distance;
+	min_node = min_search_node;
+	min = (*min_search_node).data;
+
+      }
+
+      min_search_node = list_get_next(L, min_search_node);
+
+    }
+
+    if (distance == 0) { // Do nothing, current_node already contains the minimum
+      ; 
+    }
+    else if (distance == 1) { // min_node is the node immediately after current_node
+      prev1 = (*curr_node).prev;
+      next2 = (*min_node).next;
+      (*prev1).next = min_node;
+      (*min_node).prev = prev1;
+      (*next2).prev = curr_node;
+      (*curr_node).next = next2;
+
+      (*curr_node).prev = min_node;
+      (*min_node).next = curr_node;
+    }
+    else if (distance > 1) {
+      prev1 = (*curr_node).prev;
+      next1 = (*curr_node).next;
+      prev2 = (*min_node).prev;
+      next2 = (*min_node).next;
+
+      (*prev1).next = min_node;
+      (*min_node).prev = prev1;
+      (*min_node).next = next1;
+      (*next1).prev = min_node;
+
+      (*prev2).next = curr_node;
+      (*curr_node).prev = prev2;
+      (*curr_node).next = next2;
+      (*next2).prev = curr_node;
+    }
+
+    curr_node = list_get_next(L, min_node); // Note that now min_node is in the position where it was curr_node: so we call list_get_next(L, min_node) instead of list_get_next(L, curr_node).
+
+  }
+}

@@ -3,10 +3,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "../base/constants.h"
 
 // nodo del grafo
 struct graph_node {
   int deg; // grado del nodo
+  int deg_forced;
+  int deg_forbidden;
 };
 
 typedef struct graph_node graph_node;
@@ -15,6 +18,8 @@ typedef struct graph_node graph_node;
 struct graph_edge {
   int flag; // flag=1 se il lato è presente, flag=0 altrimenti
   double cost; // costo del lato
+  int constr; // vincolo sul lato
+  double delta; // See Helsgaun computation of alpha-nearness
 };
 
 typedef struct graph_edge graph_edge;
@@ -54,7 +59,7 @@ void graph_copy(graph* FROM, graph* TO);
 // Hp: 1 <= u, v <= n *
 // Hp: u != v *
 // Hp: u e v non sono adiacenti *
-void graph_insert_edge(graph* G, int u, int v, double cost);
+void graph_insert_edge(graph* G, int u, int v, double cost, int constr);
 
 // elimina un lato
 // elimina il lato {u, v}
@@ -64,6 +69,8 @@ void graph_insert_edge(graph* G, int u, int v, double cost);
 // Hp: u e v sono adiacenti *
 void graph_remove_edge(graph* G, int u, int v);
 
+void graph_set_edge_delta(graph* G, int u, int v, double delta);
+
 // imposta il costo di un lato
 // imposta c({u, v})=cost
 // Hp: G inizializzato
@@ -71,6 +78,16 @@ void graph_remove_edge(graph* G, int u, int v);
 // Hp: u != v *
 // Hp: u e v sono adiacenti *
 void graph_set_edge_cost(graph* G, int u, int v, double cost);
+
+// imposta il vincolo di un lato
+// imposta c({u, v})=cost
+// Hp: G inizializzato
+// Hp: 1 <= u, v <= n *
+// Hp: u != v *
+// Hp: u e v sono adiacenti *
+void graph_set_edge_constr(graph* G, int u, int v, int constr);
+
+double graph_get_edge_delta(graph* G, int u, int v);
 
 // ritorna il costo di un lato
 // ritorna c({u, v})
@@ -80,10 +97,21 @@ void graph_set_edge_cost(graph* G, int u, int v, double cost);
 // Hp: u e v sono adiacenti *
 double graph_get_edge_cost(graph* G, int u, int v);
 
+// ritorna il vincolo di un lato
+// ritorna c({u, v})
+// Hp: G inizializzato
+// Hp: 1 <= u, v <= n *
+// Hp: u != v *
+// Hp: u e v sono adiacenti *
+int graph_get_edge_constr(graph* G, int u, int v);
+
 // ritorna il grado di un nodo
 // Hp: G inizializzato
 // Hp: 1 <= v <= n *
 int graph_get_node_deg(graph* G, int v);
+int graph_get_node_deg_forced(graph* G, int v);
+int graph_get_node_deg_forbidden(graph* G, int v);
+
 
 // ritorna TRUE se c'è un lato tra i due nodi, ritorna FALSE altrimenti
 // Hp: G inizializzato

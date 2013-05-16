@@ -12,9 +12,9 @@ CFLAGS =
 CHECK = -Winline -Wall
 # -Winline : warn if any problem in including inline functions occurs
 
-CPLEX_COMPILER_OPT = -I/opt/ibm/ILOG/CPLEX_Studio125/cplex/include -DIL_STD
+CPLEX_COMPILER_OPT = -I/home/ludo/Programmi/ibm/ILOG/CPLEX_Studio125/cplex/include -DIL_STD
 
-CPLEX_LINKER_OPT = -L/opt/ibm/ILOG/CPLEX_Studio125/cplex/lib/x86-64_sles10_4.1/static_pic -lcplex -lm -lpthread
+CPLEX_LINKER_OPT = -L/home/ludo/Programmi/ibm/ILOG/CPLEX_Studio125/cplex/lib/x86-64_sles10_4.1/static_pic -lcplex -lm -lpthread
 
 all: clean test
 
@@ -32,9 +32,9 @@ debug: clean test
 
 
 # link libraries
-buildLib: list.o elist.o vector.o lvector.o tree.o onetree.o graph.o egraph.o cycle.o \
-	compute_mst.o compute_ot.o compute_lagrange.o compute_upper_bound.o \
-	bb_input.o bb_output.o bb_stats.o bb_status.o bb_backup.o bb_constraints.o bb_select_node.o bb_select_edges.o bb_solver.o \
+buildLib: list.o clist.o elist.o tree.o onetree.o graph.o egraph.o cycle.o \
+	compute_mst.o compute_ot.o compute_lagrange.o compute_upper_bound.o compute_deltas.o \
+	bb_env.o bb_stats.o bb_bkp.o bb_select_node.o bb_select_edges.o bb_propagate.o bb_remove_fat_edges.o bb_solver.o \
 	cpx_table.o cpx_create_problem.o cpx_setup_problem.o cpx_add_sec.o cpx_mark_subtours.o cpx_solver.o \
 	base.o utils.o cpx_callbacks.o
 	ar r libro2ds.a *.o
@@ -44,14 +44,11 @@ buildLib: list.o elist.o vector.o lvector.o tree.o onetree.o graph.o egraph.o cy
 list.o: data/list.h data/list.c
 	gcc $(CFLAGS) $(PAR) -c data/list.c
 
+clist.o: data/cnstr.h data/clist.h data/clist.c
+	gcc $(CFLAGS) $(PAR) -c data/clist.c
+
 elist.o: data/edge.h data/elist.h data/elist.c
 	gcc $(CFLAGS) $(PAR) -c data/elist.c
-
-vector.o: data/vector.h data/vector.c
-	gcc $(CFLAGS) $(PAR) -c data/vector.c
-
-lvector.o: data/lvector.h data/lvector.c
-	gcc $(CFLAGS) $(PAR) -c data/lvector.c
 
 tree.o: data/tree.h data/tree.c
 	gcc $(CFLAGS) $(PAR) -c data/tree.c
@@ -81,22 +78,19 @@ compute_lagrange.o: algos/compute_lagrange.h algos/compute_lagrange.c
 compute_upper_bound.o: algos/compute_upper_bound.h algos/compute_upper_bound.c
 	gcc $(CFLAGS) $(PAR) -c algos/compute_upper_bound.c
 
+compute_deltas.o: algos/compute_deltas.h algos/compute_deltas.c
+	gcc $(CFLAGS) $(PAR) -c algos/compute_deltas.c
+
 # solvers: bb
 
-bb_input.o: solvers/bb/bb_input.h solvers/bb/bb_input.c
-	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_input.c
-
-bb_output.o: solvers/bb/bb_output.h solvers/bb/bb_output.c
-	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_output.c
+bb_env.o: solvers/bb/bb_env.h solvers/bb/bb_env.c
+	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_env.c
 
 bb_stats.o: solvers/bb/bb_stats.h solvers/bb/bb_stats.c
 	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_stats.c
 
-bb_status.o: solvers/bb/bb_status.h solvers/bb/bb_status.c
-	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_status.c
-
-bb_backup.o: solvers/bb/bb_backup.h solvers/bb/bb_backup.c
-	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_backup.c
+bb_bkp.o: solvers/bb/bb_bkp.h solvers/bb/bb_bkp.c
+	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_bkp.c
 
 bb_select_node.o: solvers/bb/bb_select_node.h solvers/bb/bb_select_node.c
 	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_select_node.c
@@ -104,8 +98,11 @@ bb_select_node.o: solvers/bb/bb_select_node.h solvers/bb/bb_select_node.c
 bb_select_edges.o: solvers/bb/bb_select_edges.h solvers/bb/bb_select_edges.c
 	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_select_edges.c
 
-bb_constraints.o: solvers/bb/bb_constraints.h solvers/bb/bb_constraints.c
-	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_constraints.c
+bb_propagate.o: solvers/bb/bb_propagate.h solvers/bb/bb_propagate.c
+	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_propagate.c
+
+bb_remove_fat_edges.o: solvers/bb/bb_remove_fat_edges.h solvers/bb/bb_remove_fat_edges.c
+	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_remove_fat_edges.c
 
 bb_solver.o: solvers/bb/bb_solver.h solvers/bb/bb_solver.c
 	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_solver.c

@@ -48,7 +48,7 @@ parameters *base_problem_setup(int argc, char **argv) {
         pars->heuristic_algo = NEAREST_NEIGHBOUR_2_OPT;
       } else if (strcmp(argv[i+1], "RANDOM_CYCLE") == 0 ||
                  strcmp(argv[i+1], "rc") == 0             ) {
-        pars->heuristic_algo = RANDOM_CYCLE;
+        pars->heuristic_algo = RANDOM_CYCLES;
       }
       i++;
     }

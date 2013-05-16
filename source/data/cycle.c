@@ -7,10 +7,17 @@
  *
  * initializes a cycle, with n nodes
  */
-void cycle_init(cycle *C, const int n) {
-  C->n = n;
-  C->node = calloc(n, sizeof(n));
-  C->costs = calloc(n, sizeof(double));
+void cycle_init(cycle *C, int n) {
+  if (n == 0) {
+    C->n = 0;
+    C->nodes = NULL;
+    C->costs = NULL;
+  }
+  else {
+    C->n = n;
+    C->nodes = (int*)calloc(n, sizeof(int));
+    C->costs = (double*)calloc(n, sizeof(double));
+  }
 }
 
 /*
@@ -20,15 +27,11 @@ void cycle_init(cycle *C, const int n) {
  * delete a cycle
  */
 void cycle_delete(cycle *C) {
-  //printf("%d\n", C->n);
   C->n = 0;
-  //printf("erased counter\n");
-  free(C->node);
-  //printf("nodes deleted\n");
+  free(C->nodes);
   free(C->costs);
-  //printf("costs deleted\n");
-  //free(C); // <<-- error here!
-  //printf("ev'rything done\n");
+  C->nodes = NULL;
+  C->costs = NULL;
 }
 
 /*
@@ -41,10 +44,10 @@ void cycle_delete(cycle *C) {
  */
 double cycle_get_cost(cycle *C) {
   int i;
+  int n = C->n;
   double cost = 0.;
-  for (i = 0; i < C->n; ++i) {
+  for (i = 0; i < n; ++i) {
     cost += C->costs[i];
-    //printf("cost = %f\n", cost);
   }
   return cost;
 }
@@ -57,10 +60,14 @@ double cycle_get_cost(cycle *C) {
  * copy cycle FROM into cycle TO
  */
 void cycle_copy(cycle *FROM, cycle *TO) {
+  int i;
+  int n = FROM->n;
   cycle_delete(TO);
-  cycle_init(TO, FROM->n);
-  memcpy(TO->node, FROM->node, sizeof(FROM->node[0]) * FROM->n);
-  memcpy(TO->costs, FROM->costs, sizeof(FROM->costs[0]) * FROM->n);
+  cycle_init(TO, n);
+  for (i = 0; i < n; i++) {
+    TO->nodes[i] = FROM->nodes[i];
+    TO->costs[i] = FROM->costs[i];
+  }
 }
 
 /*
@@ -71,11 +78,11 @@ void cycle_copy(cycle *FROM, cycle *TO) {
  */
 void cycle_print(cycle *C) {
   int i;
+  int n = C->n;
   double sum = 0.;
-  for (i = 0; i < C->n; ++i) {
+  for (i = 0; i < n; ++i) {
     sum += C->costs[i];
-    printf("(%d, %f (%f)) ", C->node[i], C->costs[i], sum);
+    printf("(%d, %f (%f)) ", C->nodes[i], C->costs[i], sum);
   }
   printf("\n");
 }
-

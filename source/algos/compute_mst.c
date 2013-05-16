@@ -1,84 +1,210 @@
+// NOTA: si assume G grafo completo
+
 #include "compute_mst.h"
 
-void compute_mst(graph* G, tree* T, int r) {
-  int i, j, u, v, m;
-  double min;
-  list_node* current_node;
-  list_node* chosen_node;
-
+int compute_mst(graph* G, tree* T, int root) {
+  int i, k, v, v_min, new_constr, old_constr, flag, some_forced_edges;
+  double cost_min, new_cost, old_cost; 
+  list_node* node_curr;
+  list_node* node_min;
   int n = (*G).n;
-  int pred[n];
-  double cost[n];
 
-  list not_visited;
+
+
+  int pred[n];      // If vertex v has been visited, then pred[v] is the predecessor of v in the solution (spanning tree);
+		    // otherwise, pred[v] it is the vertex among all visited vertices connected to v through a free or forced edge, such that the edge from pred[v] to v has minimum cost.
+		    // In the presence of forced edges from the set of visited vertices to vertex v, the choice of pred[v] will be done among all visited vertices adjacent to v through a forced edge.
+
+  double cost[n];   // cost[v] is the cost of the edge from pred[v] to v.
+
+
+
+  list not_visited; // This list will contain all vertices not yet visited.
+
+
+
   list_init(&not_visited);
-
   tree_delete(T);
-  tree_init(T, n, r);
+  tree_init(T, n, root);
 
-  // pongo uguale a r il predecessore dei nodi direttamente connessi alla radice
-  // pongo uguale a 0 il predecessore della radice e dei nodi non direttamente connessi alla radice: si tratta di nodi di cui al momento non conosciamo la raggiungibilità (dalla radice r)
-  // inserisco nella lista not_visited tutti i nodi eccetto la radice
-  for (j = 1; j <= n; j++) {
-    if (j == r) {
-      pred[r-1] = 0;
+
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // At the beginning, the set of visited vertices contains only the root; the root is marked as visited; its predecessor is set equal to 0 since the root cannot have any predecessor.
+  // All other vertices are marked as not-visited and added to the list not_visited.
+  // For all vertices v which are not yet visited and are connected to the root through a free or forced edge, pred[v] is set equal to the root.
+  // The predecessor of all other vertices that are connected to the root through a forbidden edge, is set equal to 0.
+  for (v = 1; v <= n; v++) {
+
+    if (v == root) {
+
+      pred[root-1] = 0;
+
     }
     else {
-      list_push_last(&not_visited, j);
-      if (graph_adjacent_nodes(G, r, j)) {
-        pred[j-1] = r;
-        cost[j-1] = graph_get_edge_cost(G, r, j);
+
+      list_push_last(&not_visited, v);
+
+      if (graph_get_edge_constr(G, root, v) != FORBIDDEN) {
+	pred[v-1] = root;
+	cost[v-1] = graph_get_edge_cost(G, root, v);
       }
+
       else {
-        pred[j-1] = 0;
+        pred[v-1] = 0;
       }
+
     }
+
   }
 
-  // loop principale di n-1 cicli
-  // se G è connesso, ad ogni ciclo viene aggiunto un nuovo lato
-  // se G non è connesso, è possibile che negli ultimo n-k-1 cicli non venga aggiunto alcun lato, dove k è il numero di nodi del sottografo connesso al quale appartiene r
-  while (!list_is_empty(&not_visited)) {
-    m = list_get_size(&not_visited);
 
-    // ricerca nella lista not_visited il miglior candidato per estendere la regione dei nodi già ricoperti dall'albero
-    current_node = list_get_first(&not_visited);
-    chosen_node = current_node;
-    v = (*chosen_node).data;
-    min = cost[v-1];
-    for (j = 0; j < m-1; j++) {
-      current_node = list_get_next(&not_visited, current_node);
-      u = (*current_node).data;
-      if (pred[u-1] > 0 && cost[u-1] < min) {
-	chosen_node = current_node;
-	v = u;
-	min = cost[v-1];
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+  // ----------------------------------------------------------------------------------------------------------------------------------------
+
+  // This is the main loop. At each iteration, one vertex is selected and removed from the list not_visited, and an edge is added to the solution (spanning tree).
+  // The number of iterations is no more than n-1, where n is the number of vertices of G.
+  // If there is a portion of G which is isolated with respect to the rest because of some forbidden edge, then the loop will be exited before the completion of all n-1 iterations;
+  // in this case the solution will not be a spanning tree on the entire graph, but a spanning tree on the connected region containing the root.
+
+  for (k = 0; k < n-1; k++) {
+
+    // ------------------------------------------
+
+    // Now we try to extend the region of visited vertices. 
+    // Intuitively, it shall be selected the vertex among all vertices not yet visited which is the "closest" to the visited region.
+    // Since pred[v] is the vertex among all visited vertices connected to v through a free or forced edge, such that the edge from pred[v] to v has minimum cost cost[v],
+    // then it suffices to chose v such that pred[v] > 0 and cost[v] is minimum.
+    // Moreover, any forced edge will take priority on any other free edge, independently of their costs; 
+    // so if there is some vertex v such that (pred[v], v) is a forced edge, then the search will be restricted to the vertices v such that (pred[v], v) is a forced edge.
+    // Eventually, it can be possibile that no free or forced edge exists from the visited region to the not-visited one: in this case we cannot extend the visited region, so we exit the loop.
+
+    // Check if there is some vertex v such that (pred[v], v) is a forced edge.
+    some_forced_edges = 0;
+    node_curr = list_get_first(&not_visited);
+    for (i = 0; i < n-k-1; i++) {
+      v = (*node_curr).data;
+      if (pred[v-1] >  0 && graph_get_edge_constr(G, pred[v-1], v) == FORCED) {
+	some_forced_edges = 1;
+	break;
       }
+      node_curr = list_get_next(&not_visited, node_curr);
     }
 
-    // segna il miglior nodo candidato appena trovato come visitato;
-    list_remove(&not_visited, chosen_node);
 
-    // inserisci un nuovo lato
-    tree_insert_edge(T, pred[v-1], v, graph_get_edge_cost(G, pred[v-1], v));
+    // Case #1: no vertex v exists such that (pred[v], v) is a forced edge.
+    if (some_forced_edges == 0) {
 
-    // aggiorna i costi di raggiungibilità dei nodi non ancora ricoperti e raggiungibili direttamente dal nodo appena ricoperto;
-    if (!list_is_empty(&not_visited)) {
-      m = list_get_size(&not_visited);
-      current_node = list_get_first(&not_visited);
-      u = (*current_node).data;
-      if (graph_adjacent_nodes(G, v, u) && (pred[u-1] == 0 || (pred[u-1] > 0 && graph_get_edge_cost(G, v, u) < cost[u-1]))) {
-	pred[u-1] = v;
-	cost[u-1] = graph_get_edge_cost(G, v, u);
-      }
-      for (j = 0; j < m-1; j++) {
-	current_node = list_get_next(&not_visited, current_node);
-	u = (*current_node).data;
-	if (graph_adjacent_nodes(G, v, u) && (pred[u-1] == 0 || (pred[u-1] > 0 && graph_get_edge_cost(G, v, u) < cost[u-1]))) {
-	  pred[u-1] = v;
-	  cost[u-1] = graph_get_edge_cost(G, v, u);
+      flag = 0;
+      v_min = 0;
+      node_curr = list_get_first(&not_visited);
+      for (i = 0; i < n-k-1; i++) {
+	v = (*node_curr).data;
+
+	if (flag == 0 && pred[v-1] > 0) {
+	  v_min = v;
+	  cost_min = cost[v-1];
+	  node_min = node_curr;
+	  flag = 1;
 	}
+
+	else if (flag == 1 && pred[v-1] > 0 && cost[v-1] < cost_min) {
+	  v_min = v;
+	  cost_min = cost[v-1];
+	  node_min = node_curr;
+	}
+
+	node_curr = list_get_next(&not_visited, node_curr);
       }
+
     }
+      
+
+    // Case #2: at least one vertex v exists such that (pred[v], v) is a forced edge.
+    else {
+
+      flag = 0;
+      v_min = 0;
+      node_curr = list_get_first(&not_visited);
+      for (i = 0; i < n-k-1; i++) {
+	v = (*node_curr).data;
+
+	if (flag == 0 && pred[v-1] > 0 && graph_get_edge_constr(G, pred[v-1], v) == FORCED) {
+	  v_min = v;
+	  cost_min = cost[v-1];
+	  node_min = node_curr;
+	  flag = 1;
+	}
+
+	else if (flag == 1 && pred[v-1] > 0 && graph_get_edge_constr(G, pred[v-1], v) == FORCED && cost[v-1] < cost_min) {
+	  v_min = v;
+	  cost_min = cost[v-1];
+	  node_min = node_curr;
+	}
+
+	node_curr = list_get_next(&not_visited, node_curr);
+      }
+
+    }
+
+    if (v_min == 0) { // If no free or forced edge exists from the visited region to the not-visited one, then exit the main loop.
+      break;
+    }
+
+
+    // ------------------------------------------
+
+    // Remove the selected vertex from the list of not-visited vertices.
+    // Insert the edge (pred[v-1], v) in the solution.
+    list_remove(&not_visited, node_min);
+    tree_insert_edge(T, pred[v_min-1], v_min, graph_get_edge_cost(G, pred[v_min-1], v_min));
+
+ 
+    // ------------------------------------------
+
+    // For each not-visited vertex v, update pred[v] and cost[v].
+
+    if (n-k-2 > 0) { // The list contains one less vertex than before, and it may be empty if we are done.
+
+      node_curr = list_get_first(&not_visited);
+      for (i = 0; i < n-k-2; i++) {
+	v = (*node_curr).data;
+	new_cost = graph_get_edge_cost(G, v_min, v);
+	new_constr = graph_get_edge_constr(G, v_min, v);
+
+	if (new_constr != FORBIDDEN) {
+
+	  if (pred[v-1] == 0) { // Vertex v has no predecessor.
+
+	    pred[v-1] = v_min;
+	    cost[v-1] = new_cost;
+
+	  }
+
+	  else { // Vertex v has already a predecessor pred[v].
+
+	    old_cost = graph_get_edge_cost(G, pred[v-1], v);
+	    old_constr = graph_get_edge_constr(G, pred[v-1], v);
+
+	    if ( (new_constr == FORCED && old_constr == FREE) ||
+		 (new_constr == FREE && old_constr == FREE && new_cost < old_cost) ||
+		 (new_constr == FORCED && old_constr == FORCED && new_cost < old_cost) ) {
+
+        	      pred[v-1] = v_min;
+ 	              cost[v-1] = new_cost;
+	      
+	    }
+	  }
+	}
+
+	node_curr = list_get_next(&not_visited, node_curr);
+      }
+
+    }
+
+
+
   }
 }

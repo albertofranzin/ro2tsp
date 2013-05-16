@@ -5,6 +5,8 @@
 #include <math.h>
 #include "../base/constants.h"
 #include "../data/graph.h"
+#include "../data/edge.h"
+#include "../data/elist.h"
 #include "../data/onetree.h"
 
 // calcola e ritorna un lower bound del costo di un tour ottimo su G cercando di risolvere il duale lagrangiano del problema TSP su G con un algoritmo subgradiente
@@ -13,6 +15,7 @@
 // Hp: G, OT inizializzati
 // Hp: ub è un upper bound del costo ottimo di un tour su G
 
-double compute_lagrange(graph* G, onetree* OT, double ub);
+int compute_lagrange(graph* G, onetree* OT, double ub, double* lb);
+int compute_incremental_lagrange(graph* G, onetree* OT, double ub, double* lb);
 
 #endif
