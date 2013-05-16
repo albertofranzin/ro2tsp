@@ -186,7 +186,7 @@ void cpx_solver(graph* G, graph* H) {
 #ifdef DEBUG
       printf("(%d,%d)\n", i, j);
 #endif
-      graph_insert_edge(H, i, j, graph_get_edge_cost(G, i, j));
+      graph_insert_edge(H, i, j, graph_get_edge_cost(G, i, j), FREE);
     }
   }
 

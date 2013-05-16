@@ -6,6 +6,7 @@
 #include <math.h>
 #include "../base/constants.h"
 #include "graph.h"
+#include "cycle.h"
 #include "tree.h"
 #include "onetree.h"
 #include "egraph.h"
@@ -144,13 +145,15 @@ double egraph_get_cost(egraph* EG);
 // se EG1 != NULL e EG2 != NULL il secondo grafo euclideo è disegnato sopra il primo
 // Hp: EG1 inizializzato
 // Hp: EG2 inizializzato
-void egraph_plot(egraph* EG1, egraph* EG2);
+void egraph_plot(egraph* EG1, egraph* EG2, char* title);
 
 // memorizza un grafo come grafo euclideo
 // nota: l'informazione sulle coordinate dei punti non è presente in G quindi dev'essere caricata a parte in EG oppure già presente in EG
 // Hp: G inizializzato
 // Hp: EG inizializzato
 void graph_to_egraph(graph* G, egraph* EG);
+
+void cycle_to_egraph(cycle* C, egraph* EG);
 
 // memorizza un grafo euclideo come grafo
 // Hp: EG inizializzato
@@ -171,5 +174,12 @@ void onetree_to_egraph(onetree* OT, egraph* EG);
  * print egraph as (diagonal) matrix of costs
  */
 void egraph_print(egraph *EG);
+
+
+void graph_plot(graph* G, egraph* EG, char* title);
+
+void onetree_plot(onetree* OT, egraph* EG, char* title);
+
+void cycle_plot(cycle* C, egraph* EG, char* title);
 
 #endif

@@ -1,35 +1,43 @@
 #include "bb_select_edges.h"
 
-void bb_select_edges(bb_status* status, int* w, int* v, int* u) {
-  onetree* OT_curr = &(*status).OT_curr;
-  graph* G_curr = &(*status).G_curr;
-  double c;
-  int n = (*OT_curr).n;
-  int i;
+int bb_select_edges(bb_env* env, int* w, int* v, int* u, int opt) {
+  onetree* OT_CURR = &(*env).OT_CURR;
+  graph* G_CURR = &(*env).G_CURR;
 
-  int k = 0;
-  // seleziona il primo lato non vietato e non forzato incidente su w
-  for (i = 1; i <= n; i++) {
-    if (i != *w && onetree_adjacent_nodes(OT_curr, *w, i)) {
-      c = graph_get_edge_cost(G_curr, *w, i);
-      if (c > SMALL && c < BIG) {
+  int n = (*OT_CURR).n;
+  int i, k, h;
+
+  if (opt == DEFAULT) {
+    // Select the first edge incident to w which is free.
+    k = 0;
+    for (i = 1; i <= n; i++) {
+      if (i != *w && onetree_adjacent_nodes(OT_CURR, *w, i) && onetree_get_edge_constr(OT_CURR, *w, i) == FREE) {
 	k = i;
 	break;
       }
     }
-  }
-  int h = 0;
-  // seleziona il secondo lato non vietato e non forzato incidente su w
-  for (i = 1; i <= n; i++) {
-    if (i != *w && i != k && onetree_adjacent_nodes(OT_curr, *w, i)) {
-      c = graph_get_edge_cost(G_curr, *w, i);
-      if (c > SMALL && c < BIG) {
+
+    if (k == 0) {
+      return FAILURE;
+    }
+
+    // Select the second edge incident to w which is free.
+    h = 0;
+    for (i = 1; i <= n; i++) {
+      if (i != *w && i != k && onetree_adjacent_nodes(OT_CURR, *w, i) && onetree_get_edge_constr(OT_CURR, *w, i) == FREE) {
 	h = i;
 	break;
       }
     }
+
+    if (h == 0) {
+      return FAILURE;
+    } 
+
   }
 
   *v = k;
   *u = h;
+
+  return SUCCESS;
 }

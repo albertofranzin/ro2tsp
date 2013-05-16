@@ -73,4 +73,6 @@ list_node* list_get_next(list* L, list_node* node);
 // Hp: il nodo non è il nodo tail *
 void list_remove(list* L, list_node* node);
 
+void list_sort(list* L);
+
 #endif

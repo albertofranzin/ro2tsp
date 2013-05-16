@@ -12,10 +12,13 @@ typedef struct _cycle {
   // i.e. cycle closes on first node, without need to store it twice
   int n;
   // sequence of nodes
-  int *node;
+  int *nodes;
   // list of edge costs
   // costs[i] = cost of edge (node[i], node[i%n])
   double *costs; 
+
+  // list of edge constraints
+  // constr[i] = constraint of edge (node[i], node[i%n])
 } cycle;
 
 /*

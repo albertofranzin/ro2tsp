@@ -169,8 +169,8 @@ parameters *getParameters() {
               pars->heuristic_algo = NEAREST_NEIGHBOUR;
             } else if (strcmp(p2, "NEAREST_NEIGHBOUR_2_OPT") == 0) {
               pars->solver = NEAREST_NEIGHBOUR_2_OPT;
-            } else if (strcmp(p2, "RANDOM_CYCLE") == 0) {
-              pars->solver = RANDOM_CYCLE;
+            } else if (strcmp(p2, "RANDOM_CYCLES") == 0) {
+              pars->solver = RANDOM_CYCLES;
             }
 
           default:
