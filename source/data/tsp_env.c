@@ -3,6 +3,7 @@
 void tsp_env_init(tsp_env* env) {
 
   graph_init(&env->G_INPUT, 0);
+  graph_init(&env->G_OUTPUT, 0);
 
   egraph_init(&env->EG_INPUT, 0);
 

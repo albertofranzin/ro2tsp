@@ -1,32 +1,41 @@
 #include "cpx_add_sec.h"
 
-int cpx_add_sec(CPXENVptr  env,
-                CPXLPptr   lp,
-                void      *cbdata,
-                int        wherefrom,
-                int       *edge_indices,
-                int       *edge_marks,
-                int        n,
-                int        my_mark)
+int cpx_add_sec(CPXENVptr   env,
+                CPXLPptr    lp,
+                void       *cbdata,
+                int         wherefrom,
+                int        *edge_indices,
+                int        *edge_marks,
+                int         n,
+                int         my_mark,
+                parameters *pars)
 {
   int i, k, status, subtour_length;
 
 #ifdef DEBUG
-  printf("\nTour has:\n");
+  if (pars->verbosity >= USEFUL) {
+    printf("\nTour has:\n");
+  }
 #endif
+
   subtour_length = 0;
   for (i = 0; i < n; i++) {
     if (edge_marks[i] == my_mark) {
       subtour_length++;
 
 #ifdef DEBUG
-      printf("%d ", i);
+      if (pars->verbosity >= USEFUL) {
+        printf("%d ", i);
+      }
 #endif
 
     }
   }
+
 #ifdef DEBUG
-  printf("\n");
+  if (pars->verbosity >= USEFUL) {
+    printf("\n");
+  }
 #endif
 
 
@@ -61,6 +70,12 @@ int cpx_add_sec(CPXENVptr  env,
                       rhs, sense, rmatbeg, rmatind, rmatval,
                       NULL, NULL);*/
 
+#ifdef DEBUG
+  if (pars->verbosity >= USEFUL) {
+    printf("Adding constraint...\n");
+  }
+#endif
+
   status = CPXcutcallbackadd(env, cbdata, wherefrom, subtour_length,
                              rhs[0], sense[0], rmatind, rmatval, 1);
   // Last 1 is purgeable value. See CPXcutcallbackadd documentation.
@@ -69,6 +84,14 @@ int cpx_add_sec(CPXENVptr  env,
     fprintf(stderr, " CPXcutcallbackadd : %d\n", status);
     fprintf(stderr, "Error while inserting a new constraint.\n");
     exit(1);
+  } else {
+
+#ifdef DEBUG
+    if (pars->verbosity >= USEFUL) {
+      printf("done \n");
+    }
+#endif
+
   }
 
   return status;

@@ -7,12 +7,14 @@
  * @param  edge_indices array of edge indices
  * @param  edge_marks   array of edge marks
  * @param  n            number of elements in the arrays
+ * @param  pars         user parameters
  * @return              number of subtours found
  */
-int cpx_mark_subtours(cpx_table *hash_table,
-                      int       *edge_indices,
-                      int       *edge_marks,
-                      int        n)
+int cpx_mark_subtours(cpx_table  *hash_table,
+                      int        *edge_indices,
+                      int        *edge_marks,
+                      int         n,
+                      parameters *pars)
 {
   // iteration controls, vertex coordinates
   int i, x, y, pos,
@@ -60,20 +62,31 @@ int cpx_mark_subtours(cpx_table *hash_table,
     num_of_subtours = mark;
 
     // marca il secondo vertice del subtour
-    next_vertex = first_neighbour[start_vertex-1];
+    next_vertex                 = first_neighbour[start_vertex-1];
     vertex_marks[next_vertex-1] = mark;
 
     // marca il terzo vertice del subtour
-    next_vertex = (first_neighbour[next_vertex-1] != start_vertex) ? first_neighbour[next_vertex-1] : second_neighbour[next_vertex-1];
+    next_vertex =
+          (first_neighbour[next_vertex-1] != start_vertex) ?
+          first_neighbour[next_vertex-1] :
+          second_neighbour[next_vertex-1];
+
     vertex_marks[next_vertex-1] = mark;
 
 
 
     // marca i vertici successivi
-    next_vertex = (vertex_marks[ first_neighbour[next_vertex-1]-1 ] == 0) ? first_neighbour[next_vertex-1] : second_neighbour[next_vertex-1];
+    next_vertex =
+          (vertex_marks[ first_neighbour[next_vertex-1]-1 ] == 0) ?
+          first_neighbour[next_vertex-1] :
+          second_neighbour[next_vertex-1];
+
     while(next_vertex != start_vertex) { //marco i vertici successivi
       vertex_marks[next_vertex-1] = mark;
-      next_vertex = (vertex_marks[ first_neighbour[next_vertex-1]-1 ] == 0) ? first_neighbour[next_vertex-1] : second_neighbour[next_vertex-1];
+      next_vertex =
+          (vertex_marks[ first_neighbour[next_vertex-1]-1 ] == 0) ?
+          first_neighbour[next_vertex-1] :
+          second_neighbour[next_vertex-1];
     }
 
     // marca il primo vertice del subtour
@@ -118,13 +131,15 @@ int cpx_mark_subtours(cpx_table *hash_table,
  * @param  hash_table   hash table to retrieve edge position in the arrays
  *                        given their nodes, and viceversa
  * @param  n            number of elements in the arrays
+ * @param  pars         user parameters
  * @return              number of subtours found
  */
-int cpx_mark_subtours_the_kruskal_way(CPXENVptr  env,
-                                      CPXLPptr   lp,
-                                      graph     *G,
-                                      cpx_table *hash_table,
-                                      int        n)
+int cpx_mark_subtours_the_kruskal_way(CPXENVptr   env,
+                                      CPXLPptr    lp,
+                                      graph      *G,
+                                      cpx_table  *hash_table,
+                                      int         n,
+                                      parameters *pars)
 {
   // iteration controls, coordinates, marks
   int i,
@@ -176,11 +191,17 @@ int cpx_mark_subtours_the_kruskal_way(CPXENVptr  env,
                       &edge_indices[i]);
 
 #ifdef DEBUG
-    printf("%d ", edge_indices[i]);
+    if (pars->verbosity >= USEFUL) {
+      printf("%d ", edge_indices[i]);
+    }
 #endif
   }
 
-  printf("\n");
+#ifdef DEBUG
+  if (pars->verbosity >= USEFUL) {
+    printf(" \n");
+  }
+#endif
 
   for(i = 1 ; i <= OT.n - 2 ; i++) {
     //memset(marked, 0, sizeof(marked));
@@ -304,8 +325,8 @@ int cpx_mark_subtours_the_kruskal_way(CPXENVptr  env,
                             NULL, NULL);*/
 
         status = CPXaddrows(env, lp, 0, 1, subtour_length,
-                                   &rhs, &sense, &rmatbeg, &rmatind,
-                                   &rmatval, NULL, NULL);
+                                   rhs, sense, rmatbeg, rmatind,
+                                   rmatval, NULL, NULL);
         if (status) {
           fprintf(stderr, "Fatal error in solvers/cpx/cpx_add_sec.c ::\n");
           fprintf(stderr, " CPXcutcallbackadd : %d\n", status);

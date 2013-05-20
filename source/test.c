@@ -126,14 +126,14 @@ int main (int argc, char *argv[]) {
 
       start = clock();
 
-      cpx_solver(&G, &H, &te, &ts);
+      cpx_solver(&te, &ts, pars);
 
       end = clock();
 
       printf("# cost of the optimal solution = %f\n", graph_get_cost(&H));
       tsp_stats_print(&ts);
 
-      graph_plot(&H, &EG, "OPT TOUR");
+      graph_plot(&te.G_OUTPUT, &EG, "OPT TOUR");
 
       printf("# quality of bounds:\n");
       printf("- best heur. upper bound  = %f\n",

@@ -55,6 +55,7 @@ parameters *getParameters() {
   pars->tsp_file_format        = DEFAULT_TSP_FILE_FORMAT;
   pars->heuristic_trials       = DEFAULT_HEURISTIC_TRIALS;
   pars->heuristic_algo         = DEFAULT_HEURISTIC_ALGO;
+  pars->verbosity              = USEFUL;
 
 
   //pars->plot = 1;

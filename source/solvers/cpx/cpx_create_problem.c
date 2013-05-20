@@ -1,6 +1,9 @@
 #include "cpx_create_problem.h"
 
-int cpx_create_problem(CPXENVptr *env, CPXLPptr *lp, char *probname) {
+int cpx_create_problem(CPXENVptr  *env,
+                       CPXLPptr   *lp,
+                       char       *probname,
+                       parameters *pars) {
   int status;
 
   *env = CPXopenCPLEX(&status);

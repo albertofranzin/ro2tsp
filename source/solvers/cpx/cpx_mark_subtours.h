@@ -5,6 +5,7 @@
 #include <ilcplex/cplex.h>
 
 #include "../../base/constants.h"
+#include "../../base/utils.h"
 
 #include "../../data/onetree.h"
 
@@ -18,12 +19,14 @@
  * @param  edge_indices array of edge indices
  * @param  edge_marks   array of edge marks
  * @param  n            number of elements in the arrays
+ * @param  pars         user parameters
  * @return              number of subtours found
  */
-int cpx_mark_subtours(cpx_table *hash_table,
-                      int       *edge_indices,
-                      int       *edge_marks,
-                      int        n);
+int cpx_mark_subtours(cpx_table  *hash_table,
+                      int        *edge_indices,
+                      int        *edge_marks,
+                      int         n,
+                      parameters *pars);
 
 /**
  * mark every subtour with a different label,
@@ -34,12 +37,14 @@ int cpx_mark_subtours(cpx_table *hash_table,
  * @param  hash_table   hash table to retrieve edge position in the arrays
  *                        given their nodes, and viceversa
  * @param  n            number of elements in the arrays
+ * @param  pars         user parameters
  * @return              number of subtours found
  */
 int cpx_mark_subtours_the_kruskal_way(CPXENVptr   env,
                                       CPXLPptr    lp,
                                       graph      *G,
                                       cpx_table  *hash_table,
-                                      int         n);
+                                      int         n,
+                                      parameters *pars);
 
 #endif

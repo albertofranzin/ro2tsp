@@ -10,6 +10,7 @@
 typedef struct _tsp_env {
 
   graph G_INPUT;          // Input graph (mandatory).
+  graph G_OUTPUT;
 
   egraph EG_INPUT;
 
