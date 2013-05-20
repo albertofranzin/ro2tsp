@@ -3,10 +3,10 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "../base/constants.h"
 #include "tree.h"
 #include "cycle.h"
-#include "graph.h"
 
 // nodo dell'1-albero
 struct onetree_node {
@@ -117,8 +117,6 @@ double onetree_get_cost(onetree* OT);
 // Hp: OT inizializzato
 // nota: in particolare l'oggetto memorizzato in OT deve effettivamente corrispondere ad un grafo connesso; sotto tale ipotesi, il grafo è un ciclo sse tutti i nodi hanno grado 2
 int onetree_is_cycle(onetree* OT);
-
-void onetree_to_graph(onetree* OT, graph* G);
 
 void cycle_to_onetree(cycle* C, onetree* OT);
 

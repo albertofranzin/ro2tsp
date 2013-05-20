@@ -1,37 +1,41 @@
 #include "bb_propagate.h"
 
 
-int bb_apply_and_check(int w, int v, int u, double constr_wv, double constr_wu, bb_env* env, bb_bkp* bkp, bb_bkp* update, int mode) {
+int bb_apply_and_check(int       w,
+                       int       v,
+                       int       u,
+                       double    constr_wv,
+                       double    constr_wu,
+                       tsp_env  *env,
+                       bb_bkp   *bkp,
+                       bb_bkp   *update,
+                       int       mode) {
 
-  graph* G_CURR = &(*env).G_CURR;
+  graph* G_CURR = &env->G_CURR;
   int n = (*G_CURR).n;
 
 
-  bb_bkp_save_constraint(bkp, w, v, graph_get_edge_constr(G_CURR, w, v)); // In fact when we apply this procedure we know for sure that (w, v) is a free edge
-                                                                          // so it is not necessary to call graph_get_constr.
+  bb_bkp_save_constraint(bkp, w, v, graph_get_edge_constr(G_CURR, w, v));
+  // In fact when we apply this procedure we know for sure that (w, v) is
+  // a free edge so it is not necessary to call graph_get_constr.
 
   graph_set_edge_constr(G_CURR, w, v, constr_wv);
 
-
   if (mode == FC_MODE) {
-
     bb_bkp_save_constraint(update, w, v, constr_wv);
-
   }
 
 
   if (u > 0) {
 
-    bb_bkp_save_constraint(bkp, w, u, graph_get_edge_constr(G_CURR, w, u)); // In fact when we apply this procedure we know for sure that (w, v) is a free edge
-                                                                            // so it is not necessary to call graph_get_constr.
+    bb_bkp_save_constraint(bkp, w, u, graph_get_edge_constr(G_CURR, w, u));
+    // In fact when we apply this procedure we know for sure that (w, v) is
+    // a free edge so it is not necessary to call graph_get_constr.
 
     graph_set_edge_constr(G_CURR, w, u, constr_wu);
 
-
     if (mode == FC_MODE) {
-
       bb_bkp_save_constraint(update, w, u, constr_wu);
-    
     }
 
   }
@@ -51,8 +55,8 @@ int bb_apply_and_check(int w, int v, int u, double constr_wv, double constr_wu, 
 /* An implementation of bb_propagate_and_check */
 /*
 int bb_propagate_and_check(int w, int v, int u, int constr_wv, int constr_wu, bb_env* env, bb_bkp* bkp, bb_bkp* update, int mode) {
-  graph* G_CURR = &(*env).G_CURR;
-  int n = (*env).G_CURR.n;
+  graph* G_CURR = env->G_CURR;
+  int n = env->G_CURR.n;
   int i, status;
 
   status = bb_apply_and_check(w, v, u, constr_wv, constr_wu, env, bkp, update, mode);
@@ -157,10 +161,18 @@ int bb_propagate_and_check(int w, int v, int u, int constr_wv, int constr_wu, bb
 
 /* This is another implementation of bb_propagate_and_check */
 
-int bb_propagate_and_check(int w, int v, int u, int constr_wv, int constr_wu, bb_env* env, bb_bkp* bkp, bb_bkp* update, int mode) {
+int bb_propagate_and_check(int      w,
+                           int      v,
+                           int      u,
+                           int      constr_wv,
+                           int      constr_wu,
+                           tsp_env *env,
+                           bb_bkp  *bkp,
+                           bb_bkp  *update,
+                           int      mode) {
 
-  graph* G_CURR = &(*env).G_CURR;
-  int n = (*env).G_CURR.n;
+  graph* G_CURR = &env->G_CURR;
+  int n = env->G_CURR.n;
 
   int i, status;
 

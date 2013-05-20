@@ -1,15 +1,24 @@
 #include "base/constants.h"
 #include "base/base.h"
 
+#include "algos/preprocessing.h"
+
 #include "data/graph.h"
 #include "data/egraph.h"
+#include "data/tsp_env.h"
+#include "data/tsp_stats.h"
 
 #include "solvers/cpx/cpx_solver.h"
 #include "solvers/bb/bb_solver.h"
-#include "solvers/bb/bb_env.h"
-#include "solvers/bb/bb_stats.h"
+//#include "solvers/bb/bb_env.h"
+//#include "solvers/bb/bb_stats.h"
+
+#include <stdio.h>
+#include <time.h>
 
 int main (int argc, char *argv[]) {
+
+  clock_t start = 0, end = 0;
 
   parameters* pars = base_problem_setup(argc, argv);
 
@@ -33,7 +42,8 @@ int main (int argc, char *argv[]) {
   else if (pars->random_instance_option == TRUE) {
     egraph_random(&EG);
     egraph_to_graph(&EG, &G);
-    printf("@ Euclidean TSP\n# random instance\n# number of nodes = %d\n# seed = %ld\n\n", pars->number_of_nodes, pars->seed);
+    printf("@ Euclidean TSP\n# random instance\n# number of nodes = %d\n# seed = %ld\n\n",
+                pars->number_of_nodes, pars->seed);
   }
 
   /*
@@ -58,40 +68,50 @@ int main (int argc, char *argv[]) {
   double incumbent = heuristic_upper_bound;
   */
 
+  tsp_env te;
+  tsp_env_init(&te);
+  graph_copy(&G, &te.G_INPUT);
+  egraph_copy(&EG, &te.EG_INPUT);
+
+  tsp_stats ts;
+  tsp_stats_init(&ts);
+
+  preprocessing(&G, pars, &te, &ts);
+
   switch(pars->solver) {
 
     case BRANCH_AND_BOUND :
       {
 
-	bb_env env;
-	bb_env_init(&env);
+        /*bb_env env;
+        bb_env_init(&env);
 
-	graph_copy(&G, &env.G_INPUT);
-	egraph_copy(&EG, &env.EG_INPUT);
+        graph_copy(&G, &env.G_INPUT);
+        egraph_copy(&EG, &env.EG_INPUT);
 
-	bb_stats stats;
-	bb_stats_init(&stats);
+        bb_stats stats;
+        bb_stats_init(&stats);*/
 
 
-	bb_solver(&env, &stats);
+        // bb_solver(&env, &stats);
 
-	printf("----------------------------------------------------------------------\n");
-	printf("# cost of the optimal solution = %f\n", env.z_opt);
-	bb_stats_print(&stats);
+        start = clock();
 
-	cycle_plot(&env.TOUR_OPT, &EG, "OPT TOUR");
+        bb_solver(&te, &ts);
 
-#ifdef DEBUG
-	/*
-          printf("pruned branches: %d\n", stats.pruned_branches);
-          printf("took branches these times: %d %d %d %d %d\n",
-              stats.took1, stats.took2, stats.took3, stats.took4, stats.took5);
-	*/
-#endif
+        end = clock();
 
-	printf("# quality of bounds:\n");
-	printf("- best heur. upper bound  = %f\n", stats.init_ub / env.z_opt );
-	printf("- lagr. lower bound       = %f\n", stats.init_lb / env.z_opt);
+        printf("--------------------------------------------------------------\n");
+        printf("# cost of the optimal solution = %f\n", te.z_opt);
+        tsp_stats_print(&ts);
+
+        cycle_plot(&te.TOUR_OPT, &EG, "OPT TOUR");
+
+        printf("# quality of bounds:\n");
+        printf("- best heur. upper bound  = %f\n",
+                  ts.init_ub / te.z_opt );
+        printf("- lagr. lower bound       = %f\n",
+                  ts.init_lb / te.z_opt);
 
       }
         break;
@@ -99,19 +119,35 @@ int main (int argc, char *argv[]) {
     case CPLEX :
       {
 
-	graph H;
-	graph_init(&H, 1);
+      graph H;
+      graph_init(&H, 1);
 
-	cpx_solver(&G, &H);
+      printf("upper bound: %f\n", te.input_ub);
 
-	printf("# cost of the optimal solution = %f\n", graph_get_cost(&H));
+      start = clock();
 
-	graph_plot(&H, &EG, "OPT TOUR");
+      cpx_solver(&G, &H, &te, &ts);
+
+      end = clock();
+
+      printf("# cost of the optimal solution = %f\n", graph_get_cost(&H));
+      tsp_stats_print(&ts);
+
+      graph_plot(&H, &EG, "OPT TOUR");
+
+      printf("# quality of bounds:\n");
+      printf("- best heur. upper bound  = %f\n",
+                ts.init_ub / te.z_opt );
+      printf("- lagr. lower bound       = %f\n",
+                ts.init_lb / te.z_opt);
 
       }
         break;
 
   }
+
+  printf("time spent in actual solving: %f s\n",
+        ((double) (end - start)) / CLOCKS_PER_SEC);
 
 /*
   printf("Optimal cost: %f\n", incumbent);

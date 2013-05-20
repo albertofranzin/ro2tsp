@@ -1,6 +1,13 @@
 #include "cpx_solver.h"
 
-void cpx_solver(graph* G, graph* H) {
+/**
+ * [cpx_solver description]
+ * @param G  input graph of the problem
+ * @param H  output graph containing the optimal tour
+ * @param te problem environment
+ * @param ts problem stats
+ */
+void cpx_solver(graph *G, graph *H, tsp_env *te, tsp_stats *ts) {
   int i, j, k, pos;
 
   int status;
@@ -16,7 +23,7 @@ void cpx_solver(graph* G, graph* H) {
   status = CPXsetintparam (env, CPX_PARAM_SCRIND, CPX_ON);
   if ( status != 0 ) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c:\n");
-    fprintf (stderr, "Failure to turn on screen indicator, error %d.\n", status);
+    fprintf (stderr, "Failed to turn on screen indicator, error %d.\n", status);
     exit(1);
   }
 #endif
@@ -25,6 +32,22 @@ void cpx_solver(graph* G, graph* H) {
   //status = CPXsetintparam (env, CPX_PARAM_SCRIND, CPX_ON);
   /* Turn on data checking */
   //status = CPXsetintparam (env, CPX_PARAM_DATACHECK, CPX_ON);
+
+  printf("Set upper bound to CPLEX: %f\n", te->input_ub);
+  status = CPXsetdblparam(env, CPX_PARAM_CUTUP, te->input_ub);
+  if ( status != 0 ) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c:\n");
+    fprintf (stderr, "Failed to set the upper cutoff, error %d.\n", status);
+    exit(1);
+  }
+
+  printf("Set lower bound to CPLEX: %f\n", ts->init_lb);
+  status = CPXsetdblparam(env, CPX_PARAM_CUTLO, ts->init_lb);
+  if ( status != 0 ) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c:\n");
+    fprintf (stderr, "Failed to set the lower cutoff, error %d.\n", status);
+    exit(1);
+  }
 
   int n = G->n;
   int numcols = n * (n - 1) / 2;
@@ -86,7 +109,7 @@ void cpx_solver(graph* G, graph* H) {
   // This does not happen with setusercutcallbackfunc, which can be called
   // when there is a non-integer-feasible solution, thus not allowing us
   // to solve the problem.
-  status = CPXsetlazyconstraintcallbackfunc(env, cpx_cut_callback, &ci);
+  status = CPXsetlazyconstraintcallbackfunc(env, cpx_subtour_callback, &ci);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: \n");
     fprintf(stderr, "CPXsetlazyconstraintcallbackfunc : %d\n", status);
@@ -95,8 +118,8 @@ void cpx_solver(graph* G, graph* H) {
   }
 
   // add Kruskal-like constraints
-  /*status = cpx_mark_subtours_the_kruskal_way(env, lp, G, &hash_table, n);
-  assert(status == 0);*/
+  //status = cpx_mark_subtours_the_kruskal_way(env, lp, G, &hash_table, n);
+  //assert(status == 0);
 
   // CPXsetlazyconstraintcallbackfunc(env, cpx_cut_callback, &ci);
   // if (status) exit(1);
@@ -128,7 +151,7 @@ void cpx_solver(graph* G, graph* H) {
   solstat = CPXgetstat (env, lp);
   // 101 == CPXMIP_OPTIMAL
   // 102 == CPXMIP_OPTIMAL_TOL
-  assert(solstat == 101 || solstat == 102);
+  //assert(solstat == 101 || solstat == 102);
 
 #ifdef DEBUG
   printf ("Solution status %f.\n", solstat);

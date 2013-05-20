@@ -6,7 +6,8 @@
 #include "../../data/onetree.h"
 #include "../../data/cnstr.h"
 #include "../../data/clist.h"
-#include "bb_env.h"
+#include "../../data/tsp_env.h"
+//#include "bb_env.h"
 
 struct bb_bkp {
 
@@ -34,8 +35,8 @@ void bb_bkp_delete(bb_bkp* bkp);
 
 void bb_bkp_save_constraint(bb_bkp* bkp, int x, int y, int constr);
 
-void bb_bkp_save(bb_bkp* bkp, bb_env* env);
+void bb_bkp_save(bb_bkp* bkp, tsp_env* env);
 
-void bb_bkp_restore(bb_bkp* bkp, bb_env* env);
+void bb_bkp_restore(bb_bkp* bkp, tsp_env* env);
 
 #endif

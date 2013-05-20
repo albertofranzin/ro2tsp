@@ -3,35 +3,18 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "../base/constants.h"
 
-// nodo del grafo
-struct graph_node {
-  int deg; // grado del nodo
-  int deg_forced;
-  int deg_forbidden;
-};
+#include "type_graph.h"
+#include "onetree.h"
+#include "clist.h"
+#include "cnstr.h"
 
-typedef struct graph_node graph_node;
+#include "../algos/compute_ot.h"
+#include "../algos/compute_deltas.h"
 
-// lato del grafo
-struct graph_edge {
-  int flag; // flag=1 se il lato è presente, flag=0 altrimenti
-  double cost; // costo del lato
-  int constr; // vincolo sul lato
-  double delta; // See Helsgaun computation of alpha-nearness
-};
 
-typedef struct graph_edge graph_edge;
-
-// grafo
-struct graph {
-  int n; // numero di nodi del grafo;
-  graph_node* V; // array di nodi del grafo
-  graph_edge* E; // array di lati del grafo
-};
-
-typedef struct graph graph;
 
 // nota: anche se la struttura del grafo prevede la presenza di loop, i controlli nelle funzioni escludono la creazione di loop
 
@@ -122,5 +105,9 @@ int graph_adjacent_nodes(graph* G, int u, int v);
 // ritorna il costo del grafo
 // Hp: G inizializzato
 double graph_get_cost(graph* G);
+
+int graph_remove_fat_edges(graph *G, onetree *OT, double ub);
+
+void onetree_to_graph(onetree* OT, graph* G);
 
 #endif

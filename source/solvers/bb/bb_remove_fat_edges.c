@@ -19,8 +19,8 @@ void bb_remove_fat_edges(bb_env* env, bb_stats* stats, double ub) {
   for (i = 1; i <= n; i++) {
     for (j = i+1; j <= n; j++) {
       if (lb + graph_get_edge_delta(G_CURR, i, j) > ub) {
-	graph_set_edge_constr(G_CURR, i, j, FORBIDDEN);
-	(*stats).num_fat_edges++;
+        graph_set_edge_constr(G_CURR, i, j, FORBIDDEN);
+        (*stats).num_fat_edges++;
       }
     }
   }

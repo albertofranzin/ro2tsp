@@ -13,7 +13,7 @@
 #define Y 1
 
 #define DISABLED 0
-#define ENABLED 1
+#define ENABLED  1
 
 #define DEFAULT 0
 
@@ -26,23 +26,23 @@
 // Branch and Bound
 
 // - edge constraints.
-#define FREE 0
+#define FREE       0
 #define FORBIDDEN -1
-#define FORCED 1
+#define FORCED     1
 
 // - backup modes
-#define BASIC 0
+#define BASIC   0
 #define SAVE_OT 1
 
 // - propagate modes
 #define NOFC_MODE 0
-#define FC_MODE 1
+#define FC_MODE   1
 
 // - parameter used when rounding the current solution to the ceiling 
 #define SAFE_ROUNDING_THRESHOLD 0.00001
 
 
-#define INTEGER_ROUNDING_OPT DISABLED
+#define INTEGER_ROUNDING_OPT ENABLED
 #define FORWARD_CHECKING_OPT ENABLED
 #define FAT_EDGES_OPT        DISABLED
 #define SELECT_NODE_OPT      DEFAULT
@@ -55,10 +55,10 @@
 
 // compute_lagrange
 
-#define MAX_NUM_ITERATIONS 30000
+#define MAX_NUM_ITERATIONS           30000
 #define MAX_NUM_ITERATIONS_NO_IMPROV 100
-#define ALPHA 2.0
-#define ALPHA_HALVING_TIME 5
+#define ALPHA                        2.0
+#define ALPHA_HALVING_TIME           5
 
 /*
 #define MAX_NUM_ITERATIONS 30000
@@ -89,7 +89,7 @@
 #define RANDOM_CYCLES_2OPT       4
 
 #define NUM_TRIALS_RANDOM_CYCLES          1000000
-#define NUM_TRIALS_RANDOM_CYCLES_2OPT     1000
+#define NUM_TRIALS_RANDOM_CYCLES_2OPT     100
 
 //------------------------------------------------------
 
@@ -113,7 +113,7 @@
 #define DEFAULT_TSP_FILE_OPTION 0 // -> FALSE
 #define DEFAULT_TSP_FILE        NULL
 
-#define DEFAULT_TSP_FILE_FORMAT 0 // non-valid, I can't assign a fixed one
+#define DEFAULT_TSP_FILE_FORMAT 41
 
 #define DEFAULT_HEURISTIC_ALGO   NEAREST_NEIGHBOUR_2_OPT
 #define DEFAULT_HEURISTIC_TRIALS 1

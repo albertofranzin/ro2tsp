@@ -2,9 +2,9 @@
 #define COMPUTE_OT_H_
 
 #include "../base/constants.h"
-#include "../data/graph.h"
 #include "../data/onetree.h"
 #include "../data/list.h"
+#include "../data/graph.h"
 
 // calcola l'1-albero di G di costo minimo e memorizza il risultato in OT
 // Hp: G, OT inizializzati

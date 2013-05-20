@@ -1,10 +1,10 @@
 #include "cpx_callbacks.h"
 
-int CPXPUBLIC cpx_cut_callback (CPXCENVptr  env,
-                                void       *cbdata,
-                                int         wherefrom,
-                                void       *cbhandle,
-                                int        *useraction_p)
+int CPXPUBLIC cpx_subtour_callback(CPXCENVptr  env,
+                                   void       *cbdata,
+                                   int         wherefrom,
+                                   void       *cbhandle,
+                                   int        *useraction_p)
 {
 
   int status = 0;
@@ -127,3 +127,24 @@ int CPXPUBLIC cpx_cut_callback (CPXCENVptr  env,
   return (status);
 
 } // end cpx_cut_callback
+
+
+/**
+ * [cpx_flow_callback description]
+ * @param  env          [description]
+ * @param  cbdata       [description]
+ * @param  wherefrom    [description]
+ * @param  cbhandle     [description]
+ * @param  useraction_p [description]
+ * @return              [description]
+ */
+int CPXPUBLIC cpx_flow_callback(CPXCENVptr  env,
+                                void       *cbdata,
+                                int         wherefrom,
+                                void       *cbhandle,
+                                int        *useraction_p)
+{
+  int status = 0;
+
+  return status;
+}
