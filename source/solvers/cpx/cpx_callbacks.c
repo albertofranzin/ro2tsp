@@ -14,6 +14,8 @@ int CPXPUBLIC cpx_subtour_callback(CPXCENVptr  env,
   cpx_table hash_table = ci->hash_table;
   CPXLPptr  lp         = ci->lp;
 
+  parameters *pars     = ci->pars;
+
   int      numcols  = ci->numcols;
   int      numcuts  = ci->num;
   double  *x        = ci->x;
@@ -63,14 +65,18 @@ int CPXPUBLIC cpx_subtour_callback(CPXCENVptr  env,
       k++;
 
 #ifdef DEBUG
-      printf("%d ", k);
+      if (pars->verbosity >= USEFUL) {
+        printf("%d ", k);
+      }
 #endif
 
     }
   }
 
 #ifdef DEBUG
-  printf("\n");
+  if (pars->verbosity >= USEFUL) {
+    printf("\n");
+  }
 #endif
 
   //numcols = CPXgetnumcols(env, lp);
@@ -81,26 +87,34 @@ int CPXPUBLIC cpx_subtour_callback(CPXCENVptr  env,
     vertices_from_pos(&hash_table, &x, &y, edge_indices[i]);
 
 #ifdef DEBUG
+  if (pars->verbosity >= USEFUL) {
     printf("%d: %d (%d %d)\n", i+1, edge_indices[i], x, y);
+  }
 #endif
 
   }
 
 #ifdef DEBUG
-  printf("\n");
-  printf("looking for subcycles\n");
+  if (pars->verbosity >= USEFUL) {
+    printf("\n");
+    printf("looking for subcycles\n");
+  }
 #endif
 
   // RICERCA SOTTOCICLI
   num_of_subtours = cpx_mark_subtours(&hash_table, edge_indices,
-                                      edge_marks, n);
+                                      edge_marks, n, pars);
 
 #ifdef DEBUG
-  printf("# of subtours found : %d\nmarks:\n", num_of_subtours);
-  for (i = 0; i < n; ++i) {
-    printf("%d ", edge_marks[i]);
+  if (pars->verbosity >= ESSENTIAL) {
+    printf("# of subtours found : %d\nmarks:\n", num_of_subtours);
   }
-  printf("\n--\n");
+  if (pars->verbosity >= USEFUL) {
+    for (i = 0; i < n; ++i) {
+      printf("%d ", edge_marks[i]);
+    }
+    printf("\n--\n");
+  }
 #endif
 
   // if the current solution has subcycles, add relative constraints
@@ -110,12 +124,16 @@ int CPXPUBLIC cpx_subtour_callback(CPXCENVptr  env,
     for (my_mark = 1; my_mark <= num_of_subtours; my_mark++) {
 
       status = cpx_add_sec(env, lp, cbdata, wherefrom,
-                           edge_indices, edge_marks, n, my_mark);
+                           edge_indices, edge_marks, n, my_mark, pars);
       assert(status == 0);
 
     }
 
-    printf("# number of new SECs added = %d\n", num_of_subtours);/**/
+#ifdef DEBUG
+    if (pars->verbosity >= USEFUL) {
+      printf("# number of new SECs added = %d\n", num_of_subtours);/**/
+    }
+#endif
 
     // Tell CPLEX that cuts have been created
     *useraction_p = CPX_CALLBACK_SET;

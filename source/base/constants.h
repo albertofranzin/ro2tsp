@@ -128,4 +128,14 @@
 #define Y_MIN -0.010
 #define Y_MAX  1.010
 
+// ----------------------------------------------------------
+
+// when debugging, show the desidered amount of informations
+// fatal errors are shown always
+#define SILENT     0 // say nothing
+#define ESSENTIAL  1 // say something
+#define USEFUL     2 // say a lot
+#define VERBOSE    3 // save log files
+#define ANNOYING   4 // getchars here and there
+
 #endif

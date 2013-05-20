@@ -28,6 +28,7 @@
  * int           tsp_file_format         : TSPLIB file format
  * unsigned int  heuristic_algo          : heuristic algorithm
  * unsigned int  heuristic_trials        : number of trials of the heuristic algo
+ * unsigned int  verbosity               : amount of infos when debugging
  */
 typedef struct _parameters {
 
@@ -41,6 +42,7 @@ typedef struct _parameters {
   int           tsp_file_format;
   unsigned int  heuristic_algo;
   unsigned int  heuristic_trials;
+  unsigned int  verbosity;
 
 } parameters;
 

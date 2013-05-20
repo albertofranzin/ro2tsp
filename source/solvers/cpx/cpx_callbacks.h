@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../../base/utils.h"
+
 #include "cpx_solver.h"
 #include "cpx_mark_subtours.h"
 #include "cpx_add_sec.h"
@@ -16,16 +18,17 @@
  * parameters passed to the callback
  */
 typedef struct _cutinfo {
-  CPXLPptr   lp;
-  int        numcols;
-  int        num;
-  double    *x;
-  int       *beg;
-  int       *ind;
-  double    *val;
-  double    *rhs;
-  cpx_table  hash_table;
-  int        number_of_nodes;
+  CPXLPptr    lp;
+  int         numcols;
+  int         num;
+  double     *x;
+  int        *beg;
+  int        *ind;
+  double     *val;
+  double     *rhs;
+  cpx_table   hash_table;
+  int         number_of_nodes;
+  parameters *pars;
 } cutinfo;
 
 /**

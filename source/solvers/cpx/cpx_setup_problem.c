@@ -3,7 +3,8 @@
 int cpx_setup_problem(CPXENVptr   env,
                       CPXLPptr    lp,
                       graph      *G,
-                      cpx_table  *hash_table)
+                      cpx_table  *hash_table,
+                      parameters *pars)
 {
   int i, j, k,
       pos, status;

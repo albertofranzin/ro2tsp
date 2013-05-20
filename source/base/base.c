@@ -65,6 +65,31 @@ parameters *base_problem_setup(int argc, char **argv) {
       i++;
     }
 
+    if (strcmp(opt, "--verb") == 0) {
+      if (strcmp(argv[i+1], "SILENT") == 0 ||
+          strcmp(argv[i+1], "silent") == 0 ||
+          strcmp(argv[i+1], "0") == 0        ) {
+        pars->verbosity = SILENT;
+      } else if (strcmp(argv[i+1], "ESSENTIAL") == 0 ||
+                 strcmp(argv[i+1], "essential") == 0 ||
+                 strcmp(argv[i+1], "1") == 0           ) {
+        pars->verbosity = ESSENTIAL;
+      } else if (strcmp(argv[i+1], "USEFUL") == 0 ||
+                 strcmp(argv[i+1], "useful") == 0 ||
+                 strcmp(argv[i+1], "2") == 0        ) {
+        pars->verbosity = USEFUL;
+      } else if (strcmp(argv[i+1], "VERBOSE") == 0 ||
+                 strcmp(argv[i+1], "verbose") == 0 ||
+                 strcmp(argv[i+1], "3") == 0         ) {
+        pars->verbosity = VERBOSE;
+      } else if (strcmp(argv[i+1], "ANNOYING") == 0 ||
+                 strcmp(argv[i+1], "annoying") == 0 ||
+                 strcmp(argv[i+1], "4") == 0          ) {
+        pars->verbosity = ANNOYING;
+      }
+      i++;
+    }
+
   }
 
   if (pars->random_seed_option == FALSE || pars->seed >= 0) {
@@ -105,13 +130,21 @@ void print_helper_menu() {
   printf("                    will be ignored, if present.\n");
   printf("  --solver x      : choose the solver method for the problem\n");
   printf("                    x can be:\n");
-  printf("                    - BRANCH_AND_BOUND / branch_and_bound / bb\n");
-  printf("                    - CPLEX / cplex\n");
+  printf("                    - BRANCH_AND_BOUND | branch_and_bound | bb\n");
+  printf("                    - CPLEX | cplex\n");
   printf("  --heur x        : choose the heuristic algorithm for an upper bound\n");
   printf("                    x can be:\n");
-  printf("                    - NEAREST_NEIGHBOUR / nn\n");
-  printf("                    - NEAREST_NEIGHBOUR_2_OPT / nn2opt / 2opt\n");
-  printf("                    - RANDOM_CYCLE / rc\n");
+  printf("                    - NEAREST_NEIGHBOUR | nn\n");
+  printf("                    - NEAREST_NEIGHBOUR_2_OPT | nn2opt | 2opt\n");
+  printf("                    - RANDOM_CYCLE | rc\n");
+  printf("  --verb x        : set the verbosity level of infos when debugging\n");
+  printf("                    Has no effect in release mode.\n");
+  printf("                    x can be:\n");
+  printf("                    - SILENT | silent 0         : no infos printed\n");
+  printf("                    - ESSENTIAL | essential | 1 : some infos\n");
+  printf("                    - USEFUL | useful | 2       : more infos\n");
+  printf("                    - VERBOSE | verbose | 3     : log files\n");
+  printf("                    - ANNOYING | annoying | 4   : getchars too\n");
   printf("  -h [--help]     : printf this menu and exit.\n");
   printf("\n\n");
 }

@@ -11,6 +11,8 @@
 #include "../../data/tsp_env.h"
 #include "../../data/tsp_stats.h"
 
+#include "../../base/utils.h"
+
 #include "cpx_table.h"
 #include "cpx_create_problem.h"
 #include "cpx_setup_problem.h"
@@ -20,11 +22,11 @@
 
 /**
  * [cpx_solver description]
- * @param G  input graph of the problem
- * @param H  output graph containing the optimal tour
- * @param te problem environment
- * @param ts problem stats
+ *
+ * @param te    problem environment
+ * @param ts    problem stats
+ * @param pars  user parameters
  */
-void cpx_solver(graph *G, graph *H, tsp_env *te, tsp_stats *ts);
+void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars);
 
 #endif

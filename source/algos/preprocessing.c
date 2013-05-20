@@ -129,7 +129,10 @@ int preprocessing(graph      *G,
   printf("upper bound: %f\n", te->input_ub);
 
   printf("gap = %f %%\n", (ub - lb)/lb * 100);
+
+#ifdef DEBUG
   //char ch = getchar();
+#endif
 
   return status;
 }
