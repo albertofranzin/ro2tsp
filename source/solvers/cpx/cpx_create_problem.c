@@ -19,12 +19,12 @@ int cpx_create_problem(CPXENVptr *env, CPXLPptr *lp, char *probname) {
     exit(1);
   }
 
-  status = CPXsetintparam(*env, CPX_PARAM_LPMETHOD, CPX_ALG_AUTOMATIC);
+  /**/status = CPXsetintparam(*env, CPX_PARAM_LPMETHOD, CPX_ALG_AUTOMATIC);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_create_problem.c:\n");
     fprintf(stderr, "Error while setting lp algorithm, exiting.\n");
     exit(1);
-  }
+  }/**/
 
   return status;
 }

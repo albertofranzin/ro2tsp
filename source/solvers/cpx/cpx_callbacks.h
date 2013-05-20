@@ -29,7 +29,7 @@ typedef struct _cutinfo {
 } cutinfo;
 
 /**
- * [cpx_cut_callback description]
+ * [cpx_subtour_callback description]
  * @param  env          CPLEX environment
  * @param  lp           problem
  * @param  cbdata       pointer to callback parameters
@@ -39,10 +39,26 @@ typedef struct _cutinfo {
  * @param  useraction_p action to be taken on callback completion
  * @return              status of the operation performed
  */
-int CPXPUBLIC cpx_cut_callback(CPXCENVptr  env,
-                               void       *cbdata,
-                               int         wherefrom,
-                               void       *cbhandle,
-                               int        *useraction_p);
+int CPXPUBLIC cpx_subtour_callback(CPXCENVptr  env,
+                                   void       *cbdata,
+                                   int         wherefrom,
+                                   void       *cbhandle,
+                                   int        *useraction_p);
+
+
+/**
+ * [cpx_flow_callback description]
+ * @param  env          [description]
+ * @param  cbdata       [description]
+ * @param  wherefrom    [description]
+ * @param  cbhandle     [description]
+ * @param  useraction_p [description]
+ * @return              [description]
+ */
+int CPXPUBLIC cpx_flow_callback(CPXCENVptr  env,
+                                void       *cbdata,
+                                int         wherefrom,
+                                void       *cbhandle,
+                                int        *useraction_p);
 
 #endif

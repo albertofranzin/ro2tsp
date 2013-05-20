@@ -3,9 +3,10 @@
 
 #include "../../base/constants.h"
 #include "../../data/onetree.h"
-#include "bb_env.h"
+#include "../../data/tsp_env.h"
+//#include "bb_env.h"
 
 // seleziona un nodo w dell'1-albero OT_curr in status
-int bb_select_node(bb_env* env, int* w, int opt);
+int bb_select_node(tsp_env* env, int* w, int opt);
 
 #endif

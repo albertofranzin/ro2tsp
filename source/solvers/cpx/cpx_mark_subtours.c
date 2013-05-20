@@ -183,6 +183,7 @@ int cpx_mark_subtours_the_kruskal_way(CPXENVptr  env,
   printf("\n");
 
   for(i = 1 ; i <= OT.n - 2 ; i++) {
+    //memset(marked, 0, sizeof(marked));
 
 #ifdef DEBUG
     printf("i = %d\n", i);
@@ -196,7 +197,7 @@ int cpx_mark_subtours_the_kruskal_way(CPXENVptr  env,
       // printf("-- j = %d\n", j);
       if (i != j && marked[j-1] == 0) {
         /**/printf("%d ", j);fflush(stdout);
-        printf("%d \n", onetree_get_pred(&OT, j));/**/
+        printf("%d, %d,%d \n", onetree_get_pred(&OT, j), vertex_marks[j-1], vertex_marks[onetree_get_pred(&OT, j)-1]);/**/
         cost = onetree_get_edge_cost(&OT, j, onetree_get_pred(&OT, j));
         // printf("cost of edge (%d, %d): %f\n", j, onetree_get_pred(OT, j), cost);
         if (cost < min) {
@@ -210,10 +211,10 @@ int cpx_mark_subtours_the_kruskal_way(CPXENVptr  env,
     marked[min_index - 1] = 1;
     //vertex_marks[min_index - 1] = mark;
     mark1 = vertex_marks[min_index - 1];
-    mark2 = vertex_marks[onetree_get_pred(&OT, min_index)];
+    mark2 = vertex_marks[onetree_get_pred(&OT, min_index)-1];
     for (j = 0; j < n; ++j) {
       if (vertex_marks[j] == mark2) {
-        //printf("node %d has just changed its mark from %d to %d\n", j, mark1, mark2);
+        printf("node %d has just changed its mark from %d to %d\n", j, mark1, mark2);
         vertex_marks[j] = mark1;
 
 #ifdef DEBUG
@@ -224,6 +225,7 @@ int cpx_mark_subtours_the_kruskal_way(CPXENVptr  env,
         printf("\n");
 #endif
 
+        char ch = getchar();
       }
     }
 
@@ -236,81 +238,85 @@ int cpx_mark_subtours_the_kruskal_way(CPXENVptr  env,
       edge_marks[j] = vertex_marks[x-1];
     }
 
-    memset(marked, 0, sizeof(marked));
+    // memset(marked, 0, sizeof(marked));
 
-    for (i = 0; i < n; ++i) {
-      if (marked[vertex_marks[i]] != 0) {
+    for (k = 0; k < n; ++k) {
+      if (marked[vertex_marks[k]] != 0) {
         continue;
       } else {
-        marked[vertex_marks[i]]++;
+        marked[vertex_marks[k]]++;
       }
 
 #ifdef DEBUG
-      printf("mark = %d\n", vertex_marks[i]);
+      printf("mark = %d\n", vertex_marks[k]);
 #endif
 
 /////////////////////////////////////////////////
-int subtour_length, my_mark = vertex_marks[i];
-#ifdef DEBUG
-  printf("\nTour has:\n");
-#endif
-  subtour_length = 0;
-  for (j = 0; j < n; j++) {
-    if (edge_marks[j] == my_mark) {
-      subtour_length++;
+    int subtour_length, my_mark =vertex_marks[k];
+    #ifdef DEBUG
+      printf("\nTour has:\n");
+    #endif
+      subtour_length = 0;
+      for (j = 0; j < n; j++) {
+        if (edge_marks[j] == my_mark) {
+          subtour_length++;
 
-#ifdef DEBUG
-      printf("%d ", j);
-#endif
+    #ifdef DEBUG
+          printf("%d ", j);
+    #endif
 
-    }
-  }
-#ifdef DEBUG
-  printf("\n");
-#endif
+        }
+      }
+    #ifdef DEBUG
+      printf("\n");
+    #endif
+
+      if (subtour_length > 2) {
+        int rmatind[subtour_length];
+        int kk = 0;
+        for (j = 0; j < n; j++) {
+          // aggiungo al sec solo i lati con mark uguale a my_mark
+          // (cioè i lati appartenenti al subtour associato a my_mark)
+          if (edge_marks[j] == my_mark) {
+            rmatind[kk] = edge_indices[j]-1;
+            // indici dei lati partono da 0 dentro cplex
+            kk++;
+          }
+        }
 
 
-  int rmatind[subtour_length];
-  k = 0;
-  for (j = 0; j < n; j++) {
-    // aggiungo al sec solo i lati con mark uguale a my_mark
-    // (cioè i lati appartenenti al subtour associato a my_mark)
-    if (edge_marks[j] == my_mark) {
-      rmatind[k] = edge_indices[j]-1;
-      // indici dei lati partono da 0 dentro cplex
-      k++;
-    }
-  }
+        double rmatval[subtour_length];
+        for (j = 0; j < subtour_length; j++) {
+          rmatval[j] = 1.0;
+        }
 
+        int rmatbeg[1];
+        rmatbeg[0] = 0;
 
-  double rmatval[subtour_length];
-  for (j = 0; j < subtour_length; j++) {
-    rmatval[j] = 1.0;
-  }
+        double rhs[1];
+        rhs[0] = subtour_length-1;
 
-  int rmatbeg[1];
-  rmatbeg[0] = 0;
+        char sense[1];
+        sense[0] = 'L';
 
-  double rhs[1];
-  rhs[0] = subtour_length-1;
+        /*status = CPXaddrows(env, lp, 0, 1, subtour_length,
+                            rhs, sense, rmatbeg, rmatind, rmatval,
+                            NULL, NULL);*/
 
-  char sense[1];
-  sense[0] = 'L';
+        status = CPXaddrows(env, lp, 0, 1, subtour_length,
+                                   &rhs, &sense, &rmatbeg, &rmatind,
+                                   &rmatval, NULL, NULL);
+        if (status) {
+          fprintf(stderr, "Fatal error in solvers/cpx/cpx_add_sec.c ::\n");
+          fprintf(stderr, " CPXcutcallbackadd : %d\n", status);
+          fprintf(stderr, "Error while inserting a new constraint.\n");
+          exit(1);
+        } else {
+          printf("CONSTRAINT ADDED\n");
+          char ch = getchar();
+        }
 
-  /*status = CPXaddrows(env, lp, 0, 1, subtour_length,
-                      rhs, sense, rmatbeg, rmatind, rmatval,
-                      NULL, NULL);*/
-
-  status = CPXaddrows(env, lp, 0, 1, subtour_length,
-                             &rhs, &sense, &rmatbeg, &rmatind,
-                             &rmatval, NULL, NULL);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_add_sec.c ::\n");
-    fprintf(stderr, " CPXcutcallbackadd : %d\n", status);
-    fprintf(stderr, "Error while inserting a new constraint.\n");
-    exit(1);
-  }
-
+      }
   ////////////////////////////////////////////////////////////////
     }
 

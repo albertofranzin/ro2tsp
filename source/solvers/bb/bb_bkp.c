@@ -39,7 +39,7 @@ void bb_bkp_save_constraint(bb_bkp* bkp, int x, int y, int constr) {
 
 }
 
-void bb_bkp_save(bb_bkp* bkp, bb_env* env) {
+void bb_bkp_save(bb_bkp* bkp, tsp_env* env) {
 
   (*bkp).curr_call = (*env).curr_call;
 
@@ -55,7 +55,7 @@ void bb_bkp_save(bb_bkp* bkp, bb_env* env) {
 
 }
 
-void bb_bkp_restore(bb_bkp* bkp, bb_env* env) {
+void bb_bkp_restore(bb_bkp* bkp, tsp_env* env) {
   int i;
   cnstr c;
 

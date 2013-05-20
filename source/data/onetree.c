@@ -1,4 +1,5 @@
 #include "onetree.h"
+#include "graph.h"
 
 void onetree_init(onetree* OT, int n) {
 
@@ -304,20 +305,6 @@ int onetree_is_cycle(onetree* OT) {
       return 0;
   }
   return 1;
-}
-
-void onetree_to_graph(onetree* OT, graph* G) {
-  int i;
-
-  int n = (*OT).n;
-
-  graph_delete(G);
-  graph_init(G, n);
-
-  for (i = 0; i < n; i++) {
-    if ((*OT).V[i].pred > 0)
-      graph_insert_edge(G, (*OT).V[i].pred, i+1, (*OT).V[i].cost, (*OT).V[i].constr);
-  }
 }
 
 void onetree_to_cycle(onetree* OT, cycle* C) {

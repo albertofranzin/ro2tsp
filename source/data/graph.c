@@ -43,7 +43,7 @@ void graph_copy(graph* FROM, graph* TO) {
     (*TO).E[i].flag = (*FROM).E[i].flag;
     (*TO).E[i].cost = (*FROM).E[i].cost;
     (*TO).E[i].constr = (*FROM).E[i].constr;
-    (*TO).E[i].delta = (*FROM).E[i].delta;   
+    (*TO).E[i].delta = (*FROM).E[i].delta;
   }
 
 }
@@ -109,7 +109,7 @@ void graph_set_edge_delta(graph* G, int u, int v, double delta) {
     (u > v) ? ( (*G).E[ u*(u-1)/2 + v-1 ].delta = delta ) : ( (*G).E[ v*(v-1)/2 + u-1 ].delta = delta );
   }
   else {
-    printf("error: graph_set_edge_delta\n");
+    printf("error: graph_set_edge_delta: %d %d\n", u, v);
     exit(EXIT_FAILURE);
   }
 }
@@ -245,3 +245,40 @@ double graph_get_cost(graph* G) {
   return c;
 }
 
+
+int graph_remove_fat_edges(graph *G, onetree *OT, double ub) {
+
+  int i, j, removed = 0;
+
+  int n = G->n;
+
+  compute_deltas(G, OT);
+
+  double lb = onetree_get_cost(OT);
+
+  for (i = 1; i <= n; i++) {
+    for (j = i+1; j <= n; j++) {
+      if (lb + graph_get_edge_delta(G, i, j) > ub) {
+        graph_set_edge_constr(G, i, j, FORBIDDEN);
+        removed++;
+      }
+    }
+  }
+
+  return removed;
+}
+
+
+void onetree_to_graph(onetree* OT, graph* G) {
+  int i;
+
+  int n = (*OT).n;
+
+  graph_delete(G);
+  graph_init(G, n);
+
+  for (i = 0; i < n; i++) {
+    if ((*OT).V[i].pred > 0)
+      graph_insert_edge(G, (*OT).V[i].pred, i+1, (*OT).V[i].cost, (*OT).V[i].constr);
+  }
+}

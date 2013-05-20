@@ -18,13 +18,13 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
 
       status = heur_nearest_neighbour(G, &C_tmp, i, &tour_cost);
       if (flag == 0 && status == SUCCESS) {
-	cycle_copy(&C_tmp, C);
-	min = tour_cost;
-	flag = 1;
+        cycle_copy(&C_tmp, C);
+        min = tour_cost;
+        flag = 1;
       }
       else if (flag == 1 && status == SUCCESS && tour_cost < min) {
-	cycle_copy(&C_tmp, C);
-	min = tour_cost;
+        cycle_copy(&C_tmp, C);
+        min = tour_cost;
       }
 
     }
@@ -55,21 +55,24 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
     flag = 0;
     for (i = 1; i <= n; i++) {
 
-      status = heur_nearest_neighbour(G, &C_tmp, i, &tour_cost); // always returns successfully if this case is executed at the root node
+      status = heur_nearest_neighbour(G, &C_tmp, i, &tour_cost);
+      // always returns successfully if this case is executed
+      // at the root node
 
       if (status == 1) {
 
-	status = heur_2_opt(G, &C_tmp, tour_cost, &tour_cost); // always returns successfully
-      
-	if (flag == 0 && status == SUCCESS) {
-	  cycle_copy(&C_tmp, C);
-	  min = tour_cost;
-	  flag = 1;
-	}
-	else if (flag == 1 && status == SUCCESS && tour_cost < min) {
-	  cycle_copy(&C_tmp, C);
-	  min = tour_cost;
-	}
+        status = heur_2_opt(G, &C_tmp, tour_cost, &tour_cost);
+        // always returns successfully
+
+        if (flag == 0 && status == SUCCESS) {
+          cycle_copy(&C_tmp, C);
+          min = tour_cost;
+          flag = 1;
+        }
+        else if (flag == 1 && status == SUCCESS && tour_cost < min) {
+          cycle_copy(&C_tmp, C);
+          min = tour_cost;
+        }
 
       }
 
@@ -101,16 +104,17 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
     flag = 0;
     for (i = 1; i <= NUM_TRIALS_RANDOM_CYCLES; i++) {
 
-      status = generate_random_cycle(G, &C_tmp, &tour_cost); // always returns successfully
+      status = generate_random_cycle(G, &C_tmp, &tour_cost);
+      // always returns successfully
 
       if (flag == 0 && status == SUCCESS) {
-	cycle_copy(&C_tmp, C);
-	min = tour_cost;
-	flag = 1;
+        cycle_copy(&C_tmp, C);
+        min = tour_cost;
+        flag = 1;
       }
       else if (flag == 1 && status == SUCCESS && tour_cost < min) {
-	cycle_copy(&C_tmp, C);
-	min = tour_cost;
+        cycle_copy(&C_tmp, C);
+        min = tour_cost;
       }
 
     }
@@ -140,21 +144,23 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
     flag = 0;
     for (i = 1; i <= NUM_TRIALS_RANDOM_CYCLES_2OPT; i++) {
 
-      status = generate_random_cycle(G, &C_tmp, &tour_cost); // always returns successfully
+      status = generate_random_cycle(G, &C_tmp, &tour_cost);
+      // always returns successfully
 
       if (status == 1) {
 
-	status = heur_2_opt(G, &C_tmp, tour_cost, &tour_cost); // always returns successfully
+        status = heur_2_opt(G, &C_tmp, tour_cost, &tour_cost);
+        // always returns successfully
 
-	if (flag == 0 && status == SUCCESS) {
-	  cycle_copy(&C_tmp, C);
-	  min = tour_cost;
-	  flag = 1;
-	}
-	else if (flag == 1 && status == SUCCESS && tour_cost < min) {
-	  cycle_copy(&C_tmp, C);
-	  min = tour_cost;
-	}
+        if (flag == 0 && status == SUCCESS) {
+          cycle_copy(&C_tmp, C);
+          min = tour_cost;
+          flag = 1;
+        }
+        else if (flag == 1 && status == SUCCESS && tour_cost < min) {
+          cycle_copy(&C_tmp, C);
+          min = tour_cost;
+        }
 
       }
 
@@ -172,9 +178,7 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
   }
   
   else if (algo == DUMB) { 
-
     dumb_upper_bound(G, ub);
-
   }
 
 }
@@ -196,23 +200,23 @@ int dumb_upper_bound(graph *G, double* ub) {
     flag = 0;
     for (i = 1; i <= n; i++) {
       for (j = i+1; j <= n; j++) {
-	if (i != j && selected[ j*(j-1)/2 + i-1] == 0) {
+        if (i != j && selected[ j*(j-1)/2 + i-1] == 0) {
 
-	  cost = graph_get_edge_cost(G, i, j);
+          cost = graph_get_edge_cost(G, i, j);
 
-	  if (flag == 0) {
-	    max = cost;
-	    i_max = i;
-	    j_max = j;
-	    flag = 1;
-	  }
-	  else if (flag == 1 && cost > max) {
-	    max = cost;
-	    i_max = i;
-	    j_max = j;
-	  }
+          if (flag == 0) {
+            max = cost;
+            i_max = i;
+            j_max = j;
+            flag = 1;
+          }
+          else if (flag == 1 && cost > max) {
+            max = cost;
+            i_max = i;
+            j_max = j;
+          }
 
-	}
+        }
       }
     }
 
@@ -235,24 +239,28 @@ int heur_nearest_neighbour(graph *G, cycle* C, int start_node, double* ub) {
   cycle_init(C, n);
 
 
-  int* visited = (int*)calloc(n, sizeof(int)); // visited[v] is equal to 1 if the vertex v has been visited, otherwise visited[v] is equal to 0
+  int* visited = (int*)calloc(n, sizeof(int));
+  // visited[v] is equal to 1 if the vertex v has been visited,
+  // otherwise visited[v] is equal to 0
 
   curr = start_node;
   visited[start_node-1] = 1;
 
 
-  // Main loop: at each step a new vertex is visited and a new edge is added to the solution.
+  // Main loop: at each step a new vertex is visited and a new edge
+  // is added to the solution.
   // Forced edges take priority on free edges, independently of their costs.
   // Forbidden edges cannot be chosen.
-  // If at some certain point there is no possibility than choose a forbidden edge, then the procedure stops and returns FAILURE.
+  // If at some certain point there is no possibility than choose
+  // a forbidden edge, then the procedure stops and returns FAILURE.
   for (k = 0; k < n-1; k++) {
 
     some_forced_edges = 0;
     for (i = 1; i <= n; i++) {
       if (visited[i-1] == 0) {
-	if (graph_get_edge_constr(G, curr, i) == FORCED) {
-	  some_forced_edges = 1;
-	}
+        if (graph_get_edge_constr(G, curr, i) == FORCED) {
+          some_forced_edges = 1;
+        }
       }
     }
 
@@ -261,18 +269,19 @@ int heur_nearest_neighbour(graph *G, cycle* C, int start_node, double* ub) {
       flag = 0;
       v_min = 0;
       for (i = 1; i <= n; i++) {
-	if (visited[i-1] == 0 && graph_get_edge_constr(G, curr, i) != FORBIDDEN) {
-	  cost = graph_get_edge_cost(G, curr, i);
-	  if (flag == 0) {
-	    v_min = i;
-	    min = cost;
-	    flag = 1;
-	  }
-	  else if (flag == 1 && cost < min) {
-	    v_min = i;
-	    min = cost;
-	  }
-	}
+        if (visited[i-1] == 0                              &&
+            graph_get_edge_constr(G, curr, i) != FORBIDDEN   ) {
+          cost = graph_get_edge_cost(G, curr, i);
+          if (flag == 0) {
+            v_min = i;
+            min = cost;
+            flag = 1;
+          }
+          else if (flag == 1 && cost < min) {
+            v_min = i;
+            min = cost;
+          }
+        }
       }
 
     }
@@ -280,18 +289,18 @@ int heur_nearest_neighbour(graph *G, cycle* C, int start_node, double* ub) {
       flag = 0;
       v_min = 0;
       for (i = 1; i <= n; i++) {
-	if (visited[i-1] == 0 && graph_get_edge_constr(G, curr, i) == FORCED) {
-	  cost = graph_get_edge_cost(G, curr, i);
-	  if (flag == 0) {
-	    v_min = i;
-	    min = cost;
-	    flag = 1;
-	  }
-	  else if (flag == 1 && cost < min) {
-	    v_min = i;
-	    min = cost;
-	  }
-	}
+        if (visited[i-1] == 0 && graph_get_edge_constr(G, curr, i) == FORCED) {
+          cost = graph_get_edge_cost(G, curr, i);
+          if (flag == 0) {
+            v_min = i;
+            min = cost;
+            flag = 1;
+          }
+          else if (flag == 1 && cost < min) {
+            v_min = i;
+            min = cost;
+          }
+        }
       }
 
     }
@@ -332,7 +341,11 @@ int heur_nearest_neighbour(graph *G, cycle* C, int start_node, double* ub) {
     C->costs[i] = graph_get_edge_cost(G, C->nodes[i], C->nodes[(i+1)%n]);
   }
 
-  if (v1 > v2) { // We do this only to take into account some possibile rounding errors /comparison errors with respect to the costs of the 1-trees computed by compute_ot... maybe this is not necessary.
+  if (v1 > v2) {
+    // We do this only to take into account some possibile
+    // rounding errors /comparison errors with respect to the costs
+    // of the 1-trees computed by compute_ot...
+    // maybe this is not necessary.
     // compute the cost of the revese cycle
     *ub = 0.0;
     for (i = 0; i < n; i++) {
@@ -381,46 +394,52 @@ int heur_2_opt(graph *G, cycle *C, double ccost, double* ub) {
 
     for (i = 0; i < n ; i++) {
 
-      for (j = i+2; j < n; j++) { // i+2: We don't want something like i-->i+1=j-->j+1
+      for (j = i+2; j < n; j++) {
+        // i+2: We don't want something like i-->i+1=j-->j+1
 
-	if ((j+1) % n != i) {     // We don't want something like j-->j+1=i-->i+1 (this happens only if i=0 and j=n-1 so that n-1-->0-->1).
+        if ((j+1) % n != i) {
+          // We don't want something like j-->j+1=i-->i+1
+          // (this happens only if i=0 and j=n-1 so that n-1-->0-->1).
 
-	  v = C->nodes[i];
-	  z = C->nodes[(i+1) % n];
-	  h = C->nodes[j];
-	  k = C->nodes[(j+1) % n];
+          v = C->nodes[i];
+          z = C->nodes[(i+1) % n];
+          h = C->nodes[j];
+          k = C->nodes[(j+1) % n];
 
-	  // We are guardanteed that v, z, h, k are all different vertices.
-	  delta = graph_get_edge_cost(G, v, h) +
-	          graph_get_edge_cost(G, z, k) -
-	          graph_get_edge_cost(G, v, z) -
-	          graph_get_edge_cost(G, h, k);
+          // We are guaranteed that v, z, h, k are all different vertices.
+          delta = graph_get_edge_cost(G, v, h) +
+                  graph_get_edge_cost(G, z, k) -
+                  graph_get_edge_cost(G, v, z) -
+                  graph_get_edge_cost(G, h, k);
 
 
-	  if (delta < 0.0) {
+          if (delta < 0.0) {
 
-	      cost += delta;
-	      
-	      // Reverse the portion of the cycle which goes from index i+1 to index j;
-	      // From ..., node[i]=v,  node[i+1]=z,  node[i+2]=v_1,  ...,  node[j-1]=v_s,  node[j]=h,  node[j+1]=k, ...
-	      // To   ..., node[i]=v,  node[i+1]=h,  node[i+2]=v_s,  ...,  node[j-1]=v_1,  node[j]=z,  node[j+1]=k, ...
-	      k = 0;
-	      for (l = (i+1)%n; l != (j+1)%n; l = (l+1)%n) {
-		tmp_nodes[k] = C->nodes[l];
-		k++;
-	      }
+              cost += delta;
+              
+              // Reverse the portion of the cycle which goes from
+              // index i+1 to index j;
+              // From ..., node[i]=v,  node[i+1]=z,  node[i+2]=v_1,  ...,
+              //    node[j-1]=v_s,  node[j]=h,  node[j+1]=k, ...
+              // To   ..., node[i]=v,  node[i+1]=h,  node[i+2]=v_s,  ...,
+              //    node[j-1]=v_1,  node[j]=z,  node[j+1]=k, ...
+              k = 0;
+              for (l = (i+1)%n; l != (j+1)%n; l = (l+1)%n) {
+                tmp_nodes[k] = C->nodes[l];
+                k++;
+              }
 
-	      k = k-1;
-	      for (l = (i+1)%n; l != (j+1)%n; l = (l+1)%n) {
-		C->nodes[l] = tmp_nodes[k];
-		k--;
-	      }
+              k = k-1;
+              for (l = (i+1)%n; l != (j+1)%n; l = (l+1)%n) {
+                C->nodes[l] = tmp_nodes[k];
+                k--;
+              }
 
-	      changed = 1;
-	      i = j = n;
+              changed = 1;
+              i = j = n;
 
-	  }
-	}
+          }
+        }
       }
     } // end for
 
@@ -504,8 +523,15 @@ int generate_random_cycle(graph *G, cycle *C, double* ub) {
     }
   }
 
-  if (v1 > v2) { // We do this only to take into account some possibile rounding errors / comparison errors with respect to the costs of the 1-trees computed by compute_ot... maybe this is not necessary.
-    // revese the two nodes, normally we would reverse the entire cycle but here the cycle is random generated so we only care that the successor of vertex 1 has index less than the index of its predecessor
+  if (v1 > v2) {
+    // We do this only to take into account some possibile
+    // rounding errors / comparison errors with respect to the costs
+    // of the 1-trees computed by compute_ot...
+    // maybe this is not necessary.
+    // reverse the two nodes, normally we would reverse the entire cycle
+    // but here the cycle is random generated so we only care that
+    // the successor of vertex 1 has index less than the index
+    // of its predecessor
     C->nodes[(index_1 + 1) % n] = v2;
     C->nodes[(index_1 - 1 + n) % n] = v1;
   }
