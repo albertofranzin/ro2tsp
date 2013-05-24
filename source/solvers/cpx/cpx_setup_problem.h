@@ -5,8 +5,7 @@
 #include <assert.h>
 #include <ilcplex/cplex.h>
 
-#include "../../base/utils.h"
-
+#include "../../base/constants.h"
 #include "../../data/graph.h"
 #include "cpx_table.h"
 
@@ -18,13 +17,11 @@
  * @param  G          graph of the instance
  * @param  hash_table hash table for retrieving edges from their position
  *                    in the list, and viceversa
- * @param  pars       user parameters
  * @return            status of the operation
  */
-int cpx_setup_problem(CPXENVptr   env,
-                      CPXLPptr    lp,
-                      graph      *G,
-                      cpx_table  *hash_table,
-                      parameters *pars);
+int cpx_setup_problem(CPXENVptr  env,
+                      CPXLPptr   lp,
+                      graph     *G,
+                      cpx_table *hash_table);
 
 #endif

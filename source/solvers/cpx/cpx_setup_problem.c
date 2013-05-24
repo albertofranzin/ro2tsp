@@ -3,29 +3,30 @@
 int cpx_setup_problem(CPXENVptr   env,
                       CPXLPptr    lp,
                       graph      *G,
-                      cpx_table  *hash_table,
-                      parameters *pars)
+                      cpx_table  *hash_table)
 {
   int i, j, k,
-      pos, status;
+      ind, status;
 
   int    n    = G->n,
          ccnt = n * (n - 1) / 2;
+
   double obj[ccnt];
   double lb[ccnt];
   double ub[ccnt];
   char   xtype[ccnt];
 
-  // funzione obiettivo
+  CPXchgprobtype(env, lp, CPXPROB_MILP); // forse non serve
+
+  // Objective function.
   for (i = 1; i <= n; i++) {
     for (j = i+1; j <= n; j++) {
-      pos_from_vertices(hash_table, i, j, &pos);
-      obj[pos-1] = graph_get_edge_cost(G, i, j);
+      indx_from_vertices(hash_table, i, j, &ind);
+      obj[ind-1] = graph_get_edge_cost(G, i, j);
     }
   }
 
-  // bounds (visto che saranno variabili binarie, si può in teoria saltare)
-  // tipo di variabili
+  // Type of variables.
   for (i = 0; i < ccnt; i++) {
     lb[i]    = 0.0;
     ub[i]    = 1.0;
@@ -48,7 +49,7 @@ int cpx_setup_problem(CPXENVptr   env,
     exit(1);
   }
 
-  // constraints
+  // Add constraints.
   int     rcnt = n;
   int     nzcnt = n * (n - 1);
   double  rhs[rcnt];
@@ -67,8 +68,8 @@ int cpx_setup_problem(CPXENVptr   env,
     k = 0;
     for (j = 0; j < n; j++) {
       if (j != i) {
-        pos_from_vertices(hash_table, i+1, j+1, &pos);
-        rmatind[i * (n-1) + k] = pos-1;
+        indx_from_vertices(hash_table, i+1, j+1, &ind);
+        rmatind[i * (n-1) + k] = ind-1;
         // attenzione: gli indici delle variabili passati con questo metodo
         // si assumono numerati a partire da 0
         k++;
