@@ -71,7 +71,7 @@ void cpx_table_populate(cpx_table* CPX_TAB, graph* G);
  * int *         : pointer to index of vertex 2 (to be modified)
  * int           : index of position (not modified)
  */
-void vertices_from_pos(cpx_table* CPX_TAB, int* x, int* y, int pos);
+void vertices_from_indx(cpx_table* CPX_TAB, int* x, int* y, int ind);
 
 /*
  * pos_from_vertices
@@ -83,7 +83,7 @@ void vertices_from_pos(cpx_table* CPX_TAB, int* x, int* y, int pos);
  * int           : index of vertex 2 (not modified)
  * int *         : pointer to index of position (to be modified)
  */
-void pos_from_vertices(cpx_table* CPX_TAB, int x, int y, int* pos);
+void indx_from_vertices(cpx_table* CPX_TAB, int x, int y, int* ind);
 
 
 #endif

@@ -59,7 +59,7 @@ void cpx_table_populate(cpx_table* CPX_TAB, graph* G) {
   }
   // assert(CPX_TAB->size == G->n * (G->n - 1)) / 2);
 
-  int i, j, pos;
+  int i, j, ind;
   int n = (*G).n;
 
   (*CPX_TAB).n = n;
@@ -71,10 +71,10 @@ void cpx_table_populate(cpx_table* CPX_TAB, graph* G) {
   // pos = 1 + n * i ((i * (i - 1)) / 2) - n + j - i - 1
   for (i = 1; i <= n; i++) {
     for (j = i+1; j <= n; j++) {
-      pos = n * i - ((i * (i - 1)) / 2) - n + j - i;
-      (*CPX_TAB).entries[pos-1][0] = i;
-      (*CPX_TAB).entries[pos-1][1] = j;
-      (*CPX_TAB).entries[pos-1][2] = pos;
+      ind = n * i - ((i * (i - 1)) / 2) - n + j - i;
+      (*CPX_TAB).entries[ind-1][0] = i;
+      (*CPX_TAB).entries[ind-1][1] = j;
+      (*CPX_TAB).entries[ind-1][2] = ind;
     }
 
   }
@@ -91,15 +91,15 @@ void cpx_table_populate(cpx_table* CPX_TAB, graph* G) {
  * int *         : pointer to index of vertex 2 (to be modified)
  * int           : index of position (not modified)
  */
-void vertices_from_pos(cpx_table* CPX_TAB, int* x, int* y, int pos) {
-  if (pos < 1 || pos > CPX_TAB->size) {
-    fprintf(stderr, "error: vertices_from_pos\n");
-    fprintf(stderr, "pos = %d, size = %d\n", pos, CPX_TAB->size);
+void vertices_from_indx(cpx_table* CPX_TAB, int* x, int* y, int ind) {
+  if (ind < 1 || ind > CPX_TAB->size) {
+    fprintf(stderr, "error: vertices_from_indx\n");
+    fprintf(stderr, "ind = %d, size = %d\n", ind, CPX_TAB->size);
     exit(EXIT_FAILURE);
   }
 
-  *x = CPX_TAB->entries[pos-1][0];
-  *y = CPX_TAB->entries[pos-1][1];
+  *x = CPX_TAB->entries[ind-1][0];
+  *y = CPX_TAB->entries[ind-1][1];
 }
 
 /*
@@ -112,18 +112,18 @@ void vertices_from_pos(cpx_table* CPX_TAB, int* x, int* y, int pos) {
  * int           : index of vertex 2 (not modified)
  * int *         : pointer to index of position (to be modified)
  */
-void pos_from_vertices(cpx_table* CPX_TAB, int x, int y, int* pos) {
+void indx_from_vertices(cpx_table* CPX_TAB, int x, int y, int* ind) {
   //printf("%d %d\n", x, y);
   if (x < 1 || x > CPX_TAB->n ||
       y < 1 || y > CPX_TAB->n ||
       x == y                    ) {
-    fprintf(stderr, "error: pos_from_vertices\n");
+    fprintf(stderr, "error: indx_from_vertices\n");
     printf("x = %d, y = %d, n = %d\n", x, y, CPX_TAB->n);
     exit(EXIT_FAILURE);
   }
   if (x < y) {
-    *pos = CPX_TAB->n * x - ((x * (x - 1)) / 2) - CPX_TAB->n + y - x;
+    *ind = CPX_TAB->n * x - ((x * (x - 1)) / 2) - CPX_TAB->n + y - x;
   } else {
-    *pos = CPX_TAB->n * y - ((y * (y - 1)) / 2) - CPX_TAB->n + x - y;
+    *ind = CPX_TAB->n * y - ((y * (y - 1)) / 2) - CPX_TAB->n + x - y;
   }
 }

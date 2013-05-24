@@ -6,23 +6,28 @@
 #include <assert.h>
 #include <ilcplex/cplex.h>
 
+#include "../../base/constants.h"
+#include "../../base/utils.h"
 #include "../../data/graph.h"
+#include "../../data/cycle.h"
+#include "../../data/onetree.h"
 #include "../../data/egraph.h"
 #include "../../data/tsp_env.h"
 #include "../../data/tsp_stats.h"
 
-#include "../../base/utils.h"
+#include "../../algos/compute_ot.h"
+#include "../../algos/compute_lagrange.h"
+#include "../../algos/compute_upper_bound.h"
+#include "../../algos/compute_deltas.h"
 
 #include "cpx_table.h"
 #include "cpx_create_problem.h"
 #include "cpx_setup_problem.h"
-#include "cpx_add_sec.h"
-#include "cpx_mark_subtours.h"
-#include "cpx_callbacks.h"
+#include "cpx_add_secs.h"
+#include "cpx_add_kruskal_secs.h"
 
 /**
  * [cpx_solver description]
- *
  * @param te    problem environment
  * @param ts    problem stats
  * @param pars  user parameters

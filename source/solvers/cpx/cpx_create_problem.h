@@ -4,11 +4,8 @@
 #include <assert.h>
 #include <ilcplex/cplex.h>
 
-#include "../../base/utils.h"
-
 int cpx_create_problem(CPXENVptr   *env,
                        CPXLPptr    *lp,
-                       char        *probname,
-                       parameters  *pars);
+                       char        *probname);
 
 #endif

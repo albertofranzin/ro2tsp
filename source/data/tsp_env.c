@@ -3,6 +3,7 @@
 void tsp_env_init(tsp_env* env) {
 
   graph_init(&env->G_INPUT, 0);
+
   graph_init(&env->G_OUTPUT, 0);
 
   egraph_init(&env->EG_INPUT, 0);
@@ -21,7 +22,6 @@ void tsp_env_init(tsp_env* env) {
   env->incumbent = 0.0;
 
 
-
   cycle_init(&env->TOUR_OPT, 0);
 
   env->z_opt = 0.0;
@@ -36,6 +36,8 @@ void tsp_env_init(tsp_env* env) {
 void tsp_env_delete(tsp_env* env) {
 
   graph_delete(&env->G_INPUT);
+
+  graph_delete(&env->G_OUTPUT);
 
   egraph_delete(&env->EG_INPUT);
 
