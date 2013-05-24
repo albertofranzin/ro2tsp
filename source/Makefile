@@ -12,33 +12,39 @@ CFLAGS =
 CHECK = -Winline -Wall
 # -Winline : warn if any problem in including inline functions occurs
 
+#CPLEX_COMPILER_OPT = -I/home/ludo/Programmi/CPLEX/cplex/include -DIL_STD
 CPLEX_COMPILER_OPT = -I/opt/ibm/ILOG/CPLEX_Studio125/cplex/include -DIL_STD
 
+#CPLEX_LINKER_OPT = -L/home/ludo/Programmi/CPLEX/cplex/lib/x86-64_sles10_4.1/static_pic -lcplex -lm -lpthread
 CPLEX_LINKER_OPT = -L/opt/ibm/ILOG/CPLEX_Studio125/cplex/lib/x86-64_sles10_4.1/static_pic -lcplex -lm -lpthread
 
 all: clean test
 
-test: cleanComp buildLib $(NOMEFILE)
+test: buildLib $(NOMEFILE)
 	gcc $(NOMEFILE) -o $@ -L. -lro2ds $(CFLAGS) $(CHECK) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR)
+# cleanComp
 
 release: CFLAGS += -O3
 release: clean test
 # -O3 : badass optimization
 
-debug: CFLAGS += -g -DDEBUG
-debug: clean test
+debug: CFLAGS += -g -DDEBUG -O3
+debug:  test
+# clean
 # -g      : debug symbols
 # -DDEBUG : declare DEBUG macro
 
 
 # link libraries
-buildLib: list.o clist.o elist.o tree.o onetree.o graph.o egraph.o cycle.o \
-	compute_mst.o compute_ot.o compute_lagrange.o compute_upper_bound.o compute_deltas.o \
-	bb_env.o bb_stats.o bb_bkp.o bb_select_node.o bb_select_edges.o bb_propagate.o bb_remove_fat_edges.o bb_solver.o \
-	cpx_table.o cpx_create_problem.o cpx_setup_problem.o cpx_add_sec.o cpx_mark_subtours.o cpx_solver.o \
-	base.o utils.o cpx_callbacks.o
+buildLib: list.o clist.o elist.o tree.o graph.o onetree.o egraph.o cycle.o \
+	compute_mst.o compute_ot.o compute_lagrange.o compute_upper_bound.o \
+	compute_deltas.o bb_env.o bb_stats.o bb_bkp.o bb_select_node.o \
+	bb_select_edges.o bb_propagate.o bb_remove_fat_edges.o bb_solver.o \
+	cpx_table.o cpx_create_problem.o cpx_setup_problem.o cpx_add_my_sec.o \
+	cpx_add_secs.o cpx_add_kruskal_secs.o cpx_solver.o base.o utils.o \
+	tsp_env.o tsp_stats.o preprocessing.o # type_graph.o cpx_callbacks.o
 	ar r libro2ds.a *.o
-	rm *.o
+	#rm *.o
 
 # data structures
 list.o: data/list.h data/list.c
@@ -56,6 +62,9 @@ tree.o: data/tree.h data/tree.c
 onetree.o: data/onetree.h data/onetree.c
 	gcc $(CFLAGS) $(PAR) -c data/onetree.c
 
+#type_graph.o: data/type_graph.h data/type_graph.c
+#	gcc $(CFLAGS) $(PAR) -c data/type_graph.c
+
 graph.o: data/graph.h data/graph.c
 	gcc $(CFLAGS) $(PAR) -c data/graph.c
 
@@ -64,6 +73,12 @@ egraph.o: data/egraph.h data/egraph.c
 
 cycle.o: data/cycle.h data/cycle.c
 	gcc $(CFLAGS) $(PAR) -c data/cycle.c
+
+tsp_env.o: data/tsp_env.h data/tsp_env.c
+	gcc $(CFLAGS) $(PAR) -c data/tsp_env.c
+
+tsp_stats.o: data/tsp_stats.h data/tsp_stats.c
+	gcc $(CFLAGS) $(PAR) -c data/tsp_stats.c
 
 # algorithms
 compute_mst.o: algos/compute_mst.h algos/compute_mst.c
@@ -80,6 +95,9 @@ compute_upper_bound.o: algos/compute_upper_bound.h algos/compute_upper_bound.c
 
 compute_deltas.o: algos/compute_deltas.h algos/compute_deltas.c
 	gcc $(CFLAGS) $(PAR) -c algos/compute_deltas.c
+
+preprocessing.o: algos/preprocessing.h algos/preprocessing.c
+	gcc $(CFLAGS) $(PAR) -c algos/preprocessing.c
 
 # solvers: bb
 
@@ -118,11 +136,14 @@ cpx_create_problem.o: solvers/cpx/cpx_create_problem.h solvers/cpx/cpx_create_pr
 cpx_setup_problem.o: solvers/cpx/cpx_setup_problem.h solvers/cpx/cpx_setup_problem.c
 	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_setup_problem.c
 
-cpx_add_sec.o: solvers/cpx/cpx_add_sec.h solvers/cpx/cpx_add_sec.c
-	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_add_sec.c
+cpx_add_my_sec.o: solvers/cpx/cpx_add_my_sec.h solvers/cpx/cpx_add_my_sec.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_add_my_sec.c
 
-cpx_mark_subtours.o: solvers/cpx/cpx_mark_subtours.h solvers/cpx/cpx_mark_subtours.c
-	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_mark_subtours.c
+cpx_add_secs.o: solvers/cpx/cpx_add_secs.h solvers/cpx/cpx_add_secs.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_add_secs.c
+
+cpx_add_kruskal_secs.o: solvers/cpx/cpx_add_kruskal_secs.h solvers/cpx/cpx_add_kruskal_secs.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_add_kruskal_secs.c
 
 cpx_solver.o: solvers/cpx/cpx_solver.h solvers/cpx/cpx_solver.c
 	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_solver.c
