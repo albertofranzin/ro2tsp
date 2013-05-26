@@ -1,11 +1,12 @@
 #include "cpx_add_my_sec.h"
 
-int cpx_add_my_sec(CPXENVptr  env,
-                   CPXLPptr   lp,
-		   cpx_table *hash_table,
-		   int       *vrtx_mrks,
-		   int        n,
-		   int        my_mark)
+int cpx_add_my_sec(CPXENVptr   env,
+                   CPXLPptr    lp,
+                   cpx_table  *hash_table,
+                   int        *vrtx_mrks,
+                   int         n,
+                   int         my_mark,
+                   parameters *pars)
 {
 
   int i, j, numedgs, numvrtx, numcols, ind, status;
@@ -25,11 +26,11 @@ int cpx_add_my_sec(CPXENVptr  env,
 
       if (vrtx_mrks[i-1] == my_mark && vrtx_mrks[j-1] == my_mark) {
 
-	indx_from_vertices(hash_table, i, j, &ind);
+        indx_from_vertices(hash_table, i, j, &ind);
 
-	rmatind[numedgs] = ind-1;
-	rmatval[numedgs] = 1.0;
-	numedgs++;
+        rmatind[numedgs] = ind-1;
+        rmatval[numedgs] = 1.0;
+        numedgs++;
 
       }
     
@@ -58,8 +59,8 @@ int cpx_add_my_sec(CPXENVptr  env,
                       NULL, NULL);
 
   if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_add_my_sec.c ::\n");
-    fprintf(stderr, " CPXaddrows : %d\n", status);
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_add_my_sec.c :: ");
+    fprintf(stderr, "CPXaddrows : %d\n", status);
     fprintf(stderr, "Error while inserting a new constraint.\n");
     exit(1);
   } else {
@@ -72,5 +73,5 @@ int cpx_add_my_sec(CPXENVptr  env,
 
   }
 
-  return status;
+  return SUCCESS;
 }

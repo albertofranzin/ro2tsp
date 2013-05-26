@@ -42,7 +42,7 @@ buildLib: list.o clist.o elist.o tree.o graph.o onetree.o egraph.o cycle.o \
 	bb_select_edges.o bb_propagate.o bb_remove_fat_edges.o bb_solver.o \
 	cpx_table.o cpx_create_problem.o cpx_setup_problem.o cpx_add_my_sec.o \
 	cpx_add_secs.o cpx_add_kruskal_secs.o cpx_solver.o base.o utils.o \
-	tsp_env.o tsp_stats.o preprocessing.o # type_graph.o cpx_callbacks.o
+	tsp_env.o tsp_stats.o preprocessing.o cpx_callbacks.o
 	ar r libro2ds.a *.o
 	#rm *.o
 

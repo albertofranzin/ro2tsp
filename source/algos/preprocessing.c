@@ -35,10 +35,12 @@ int preprocessing(graph      *G,
 
   // Naive.
   status = compute_upper_bound(&te->G_CURR, NULL, DUMB, &ub);
-
+  assert(status == SUCCESS);
   ts->dumb_ub = ub;
-  printf("# node %d : upper bound : dumb            = %f\n",
-          te->curr_call, ts->dumb_ub);
+  if (pars->verbosity >= ESSENTIAL) {
+    printf("# node %d : upper bound : dumb            = %f\n",
+            te->curr_call, ts->dumb_ub);
+  }
 
   // Compute an upper bound of the cost of the optimal tour.
   // The procedure will always successfully returns, since
@@ -46,33 +48,42 @@ int preprocessing(graph      *G,
   // are currently present.
 
   // Random Cycles.
-  status = compute_upper_bound(&te->G_CURR, &CYCLE, RANDOM_CYCLES, &ub);
-
+  //status = compute_upper_bound(&te->G_CURR, &CYCLE, RANDOM_CYCLES, &ub);
+  assert(status == SUCCESS);
   ts->rc_ub = ub;
-  printf("# node %d : upper bound : heur. rc        = %f\n",
-          te->curr_call, ts->rc_ub);
+  if (pars->verbosity >= ESSENTIAL) {
+    printf("# node %d : upper bound : heur. rc        = %f\n",
+            te->curr_call, ts->rc_ub);
+  }
 
   // Random Cycles + 2OPT.
   status = compute_upper_bound(&te->G_CURR, &CYCLE, RANDOM_CYCLES_2OPT, &ub);
-
+  assert(status == SUCCESS);
   ts->rc2opt_ub = ub;
-  printf("# node %d : upper bound : heur. rc + 2opt = %f\n",
-          te->curr_call, ts->rc2opt_ub);
+  if (pars->verbosity >= ESSENTIAL) {
+    printf("# node %d : upper bound : heur. rc + 2opt = %f\n",
+            te->curr_call, ts->rc2opt_ub);
+  }
 
   // Nearest Neighbour.
-  status = compute_upper_bound(&te->G_CURR, &CYCLE, NEAREST_NEIGHBOUR, &ub);
-
+  //status = compute_upper_bound(&te->G_CURR, &CYCLE, NEAREST_NEIGHBOUR, &ub);
+  assert(status == SUCCESS);
   ts->nn_ub = ub;
-  printf("# node %d : upper bound : heur. nn        = %f\n",
-          te->curr_call, ts->nn_ub);
+  if (pars->verbosity >= ESSENTIAL) {
+    printf("# node %d : upper bound : heur. nn        = %f\n",
+            te->curr_call, ts->nn_ub);
+  }
 
   // Nearest Neighbour + 2OPT.
   status = compute_upper_bound(&te->G_CURR, &CYCLE,
                                   NEAREST_NEIGHBOUR_2_OPT, &ub);
-
+  assert(status == SUCCESS);
   ts->nn2opt_ub = ub;
-  printf("# node %d : upper bound : heur. nn + 2opt = %f\n",
-          te->curr_call, ts->nn2opt_ub);
+  if (pars->verbosity >= ESSENTIAL) {
+    printf("# node %d : upper bound : heur. nn + 2opt = %f\n",
+            te->curr_call, ts->nn2opt_ub);
+  }
+
 
   // Set the upper-bound(s)
   te->dumb_ub = ts->dumb_ub;
@@ -85,10 +96,7 @@ int preprocessing(graph      *G,
   // of that tour.
   // We set the initial incumbent equal to the upper bound...
   te->incumbent = te->z_opt = ub;
-
   ts->init_ub = ub;
-  printf("# node %d : initial upper bound           = %f\n",
-          te->curr_call, ts->init_ub);
 
   //printf("# node %d : initial incumbent             = %f\n",
   //      te->curr_call, ts->init_ub);
@@ -100,13 +108,14 @@ int preprocessing(graph      *G,
   // since the graph is complete and no forbidden 
   // (nor forced) edges are currently present.
   status = compute_lagrange(&te->G_CURR, &te->OT_CURR, ub, &lb);
+  assert(status == SUCCESS);
 
   //onetree_plot(OT_CURR, &te->EG_INPUT, "Lagr. 1-tree");
 
 
   // Discard fat edges.
   if (FAT_EDGES_OPT == ENABLED) {
-    //graph_remove_fat_edges(te, ts, ub);
+    // graph_remove_fat_edges(te, ts, ub);
   }
 
   if (INTEGER_ROUNDING_OPT == ENABLED) {
@@ -120,18 +129,25 @@ int preprocessing(graph      *G,
   }
 
   te->z_curr = lb;
-
   ts->init_lb = lb;
+  te->input_ub = ub;
+
+  printf("\n");
+  printf("# node %d : initial upper bound           = %f\n",
+          te->curr_call, ts->init_ub);
   printf("# node %d : initial lower bound           = %f\n",
           te->curr_call, ts->init_lb);
 
-  te->input_ub = ub;
-  printf("upper bound: %f\n", te->input_ub);
-
-  printf("gap = %f %%\n", (ub - lb)/lb * 100);
+  if (pars->verbosity >= ESSENTIAL) {
+    printf("gap = %f %%\n", (ub - lb)/lb * 100);
+  }
+  printf("\n");
 
 #ifdef DEBUG
-  //char ch = getchar();
+  if (pars->verbosity >= ANNOYING) {
+    printf("press 'enter' key to continue...");
+    getchar();
+  }
 #endif
 
   return status;

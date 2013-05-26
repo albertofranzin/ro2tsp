@@ -1,9 +1,10 @@
 #include "cpx_add_secs.h"
 
-int cpx_add_secs(CPXENVptr env,
-                 CPXLPptr  lp,
-                 cpx_table *hash_table,
-		 graph     *G)
+int cpx_add_secs(CPXENVptr   env,
+                 CPXLPptr    lp,
+                 cpx_table  *hash_table,
+                 graph      *G,
+                 parameters *pars)
 {
 
   int n = (*G).n;
@@ -28,8 +29,10 @@ int cpx_add_secs(CPXENVptr env,
 
   int ind, x, y;
 
-  int vrtx_neighbour1[n]; for (i = 0; i < n; i++) vrtx_neighbour1[i] = 0;
-  int vrtx_neighbour2[n]; for (i = 0; i < n; i++) vrtx_neighbour2[i] = 0;
+  int vrtx_neighbour1[n];
+  int vrtx_neighbour2[n];
+  memset(vrtx_neighbour1, 0, sizeof(vrtx_neighbour1));
+  memset(vrtx_neighbour2, 0, sizeof(vrtx_neighbour2));
 
   for (i = 0; i < numedgs; i++) {
 
@@ -47,7 +50,8 @@ int cpx_add_secs(CPXENVptr env,
 
   int vrtx_start, vrtx_curr, my_mark;
 
-  int vrtx_mrks[n]; for (i = 0; i < n; i++) vrtx_mrks[i] = 0;
+  int vrtx_mrks[n];
+  memset(vrtx_mrks, 0, sizeof(vrtx_mrks));
   vrtx_start = 1; my_mark = 1;
 
   int termination = FALSE;
@@ -57,21 +61,23 @@ int cpx_add_secs(CPXENVptr env,
     vrtx_curr = vrtx_neighbour1[vrtx_start-1];
     vrtx_mrks[vrtx_curr-1] = my_mark;
 
-    vrtx_curr = (vrtx_neighbour1[vrtx_curr-1] != vrtx_start) ? vrtx_neighbour1[vrtx_curr-1] : vrtx_neighbour2[vrtx_curr-1];
+    vrtx_curr = (vrtx_neighbour1[vrtx_curr-1] != vrtx_start) ?
+                  vrtx_neighbour1[vrtx_curr-1] :
+                  vrtx_neighbour2[vrtx_curr-1];
     vrtx_mrks[vrtx_curr-1] = my_mark;
 
     while (vrtx_curr != vrtx_start) {
-
-      vrtx_curr = (vrtx_mrks[vrtx_neighbour1[vrtx_curr-1]-1] == 0) ? vrtx_neighbour1[vrtx_curr-1] : vrtx_neighbour2[vrtx_curr-1];
+      vrtx_curr = (vrtx_mrks[vrtx_neighbour1[vrtx_curr-1]-1] == 0) ?
+                  vrtx_neighbour1[vrtx_curr-1] :
+                  vrtx_neighbour2[vrtx_curr-1];
       vrtx_mrks[vrtx_curr-1] = my_mark;
-
     }
 
     vrtx_start = 0;
     for (i = 0; i < n; i++) {
       if (vrtx_mrks[i] == 0) {
-	vrtx_start = i+1;
-	break;
+          vrtx_start = i+1;
+          break;
       }
     }
 
@@ -80,14 +86,14 @@ int cpx_add_secs(CPXENVptr env,
 
   }
 
-  int numsubtrs = my_mark;
 
+  int numsubtrs = my_mark;
 
   if (numsubtrs > 1) {
 
     for (my_mark = 1; my_mark <= numsubtrs; my_mark++) {
 
-      cpx_add_my_sec(env, lp, hash_table, vrtx_mrks, n, my_mark);
+      cpx_add_my_sec(env, lp, hash_table, vrtx_mrks, n, my_mark, pars);
 
     }
 
@@ -98,3 +104,53 @@ int cpx_add_secs(CPXENVptr env,
   return numsubtrs;
 }
 
+
+int cpx_add_cb_secs(CPXCENVptr  env,
+                    CPXLPptr    lp,
+                    cpx_table  *hash_table,
+                    parameters *pars) {
+
+
+
+
+/*#ifdef DEBUG
+  if (pars->verbosity >= ESSENTIAL) {
+    printf("# of subtours found : %d\n", num_of_subtours);
+  }
+  if (pars->verbosity >= USEFUL) {
+    printf("marks: ");
+    for (i = 0; i < n; ++i) {
+      printf("%d ", edge_marks[i]);
+    }
+    printf("\n--\n");
+  }
+#endif
+
+  // if the current solution has subcycles, add relative constraints
+  if (num_of_subtours > 1) {
+    // tried to add the full cycles too, but:
+    // 1. it's useless: since its cost is greater then the optimum,
+    //    further iterations will never find it again
+    // 2. it slooows down cplex.
+    //  AGGIUNTA NUOVI VINCOLI SEC
+    int my_mark;
+    for (my_mark = 1; my_mark <= num_of_subtours; my_mark++) {
+
+      status = cpx_add_sec(env, lp, cbdata, wherefrom,
+                           edge_indices, edge_marks, n, my_mark, pars);
+      assert(status == 0);
+
+    }
+
+#ifdef DEBUG
+    if (pars->verbosity >= USEFUL) {
+      printf("# number of new SECs added = %d\n", num_of_subtours);
+    }
+
+#endif
+
+    // Tell CPLEX that cuts have been created
+    *useraction_p = CPX_CALLBACK_SET;
+
+  }*/
+}

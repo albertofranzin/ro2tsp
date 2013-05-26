@@ -2,6 +2,7 @@
 #define __PREPROCESSING_H
 
 #include <stdio.h>
+#include <assert.h>
 
 #include "../base/constants.h"
 #include "../base/utils.h"

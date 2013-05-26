@@ -6,6 +6,8 @@
 #include <ilcplex/cplex.h>
 #include "cpx_table.h"
 
+#include "../../base/utils.h"
+
 /**
  * Add a new subtour elimination constraint to the model
  * @param  env          CPLEX environment
@@ -15,11 +17,12 @@
  * @param  my_mark      mark to identify the subtour
  * @return              status of the operation
  */
-int cpx_add_my_sec(CPXENVptr  env,
-                   CPXLPptr   lp,
-		   cpx_table *hash_table,
-		   int       *vrtx_mrks,
-		   int        n,
-		   int        my_mark);
+int cpx_add_my_sec(CPXENVptr   env,
+                   CPXLPptr    lp,
+                   cpx_table  *hash_table,
+                   int        *vrtx_mrks,
+                   int         n,
+                   int         my_mark,
+                   parameters *pars);
 
 #endif
