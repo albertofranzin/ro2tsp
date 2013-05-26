@@ -5,6 +5,8 @@
 #include "../data/graph.h"
 #include "../data/cycle.h"
 
+#include <assert.h>
+
 // calcola un upper bound del costo di un tour ottimo su G
 // al termine della procedura sarà memorizzato in OT il miglior (di costo minore) tour trovato
 // Hp: G, OT inizializzati

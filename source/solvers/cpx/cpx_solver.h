@@ -25,6 +25,7 @@
 #include "cpx_setup_problem.h"
 #include "cpx_add_secs.h"
 #include "cpx_add_kruskal_secs.h"
+#include "cpx_callbacks.h"
 
 /**
  * [cpx_solver description]

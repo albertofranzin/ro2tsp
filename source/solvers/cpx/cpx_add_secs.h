@@ -5,6 +5,7 @@
 #include <ilcplex/cplex.h>
 
 #include "../../base/constants.h"
+#include "../../base/utils.h"
 #include "../../data/graph.h"
 #include "cpx_table.h"
 #include "cpx_add_my_sec.h"
@@ -19,9 +20,16 @@
  * @return              number of SECs added (if this number is equal to 1,
                         then no constraint was added
  */
-int cpx_add_secs(CPXENVptr  env,
-                 CPXLPptr   lp,
-                 cpx_table *hash_table,
-		 graph     *G);
+int cpx_add_secs(CPXENVptr   env,
+                 CPXLPptr    lp,
+                 cpx_table  *hash_table,
+                 graph      *G,
+                 parameters *pars);
+
+
+int cpx_add_cb_secs(CPXCENVptr  env,
+                    CPXLPptr    lp,
+                    cpx_table  *hash_table,
+                    parameters *pars);
 
 #endif

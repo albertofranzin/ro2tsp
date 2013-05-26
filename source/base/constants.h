@@ -58,7 +58,7 @@
 #define MAX_NUM_ITERATIONS           30000
 #define MAX_NUM_ITERATIONS_NO_IMPROV 100
 #define ALPHA                        2.0
-#define ALPHA_HALVING_TIME           5
+#define ALPHA_HALVING_TIME           10
 
 /*
 #define MAX_NUM_ITERATIONS 30000
@@ -89,7 +89,7 @@
 #define RANDOM_CYCLES_2OPT       4
 
 #define NUM_TRIALS_RANDOM_CYCLES          1000000
-#define NUM_TRIALS_RANDOM_CYCLES_2OPT     100
+#define NUM_TRIALS_RANDOM_CYCLES_2OPT     100000
 
 //------------------------------------------------------
 

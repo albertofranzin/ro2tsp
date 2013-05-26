@@ -5,6 +5,8 @@
 #include <ilcplex/cplex.h>
 
 #include "../../base/constants.h"
+#include "../../base/utils.h"
+
 #include "../../data/graph.h"
 #include "../../data/onetree.h"
 #include "cpx_table.h"
@@ -20,9 +22,10 @@
  * @param  OT           1-tree
  * @return              status of the operation performed
  */
-int cpx_add_kruskal_secs(CPXENVptr  env,
-                         CPXLPptr   lp,
-                         cpx_table *hash_table,
-		         onetree   *OT);
+int cpx_add_kruskal_secs(CPXENVptr   env,
+                         CPXLPptr    lp,
+                         cpx_table  *hash_table,
+                         onetree    *OT,
+                         parameters *pars);
 
 #endif

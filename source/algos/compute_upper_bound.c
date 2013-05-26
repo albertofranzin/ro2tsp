@@ -134,7 +134,14 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
 
     int i, status, flag;
     double min, tour_cost;
-    int n = G->n;
+    int n      = G->n,
+        trials = NUM_TRIALS_RANDOM_CYCLES_2OPT / n;
+
+    int count_opt = 0,
+        count_onepercent = 0,
+        last_best,
+        last_1pc,
+        cc = 0;
 
     cycle_delete(C);
     cycle_init(C, n);
@@ -142,15 +149,23 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
     cycle C_tmp;
     cycle_init(&C_tmp, n);
     flag = 0;
-    for (i = 1; i <= NUM_TRIALS_RANDOM_CYCLES_2OPT; i++) {
+    for (i = 1; i <= trials; i++) {
 
-      status = generate_random_cycle(G, &C_tmp, &tour_cost);
-      // always returns successfully
+      if ((rand() % 100) / 100. > (1.*i / trials)) {
+        // printf("%d\n", i);
+        cc++;
+        status = generate_random_cycle(G, &C_tmp, &tour_cost);
+        // always returns successfully
+        // assert(status == SUCCESS);
 
-      if (status == 1) {
+        // printf("%d   |  %f -- ", i, tour_cost);
+        // getchar();
+
 
         status = heur_2_opt(G, &C_tmp, tour_cost, &tour_cost);
         // always returns successfully
+
+        // printf("%f\n", tour_cost);
 
         if (flag == 0 && status == SUCCESS) {
           cycle_copy(&C_tmp, C);
@@ -160,11 +175,26 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
         else if (flag == 1 && status == SUCCESS && tour_cost < min) {
           cycle_copy(&C_tmp, C);
           min = tour_cost;
+          //printf("%d : %f . ratio = %f\n", i, tour_cost, ((double)cc)/i);
+          printf("%d : %f\n", i, tour_cost);
+          count_opt++;
+          last_best = i;
         }
 
-      }
+        if (tour_cost == min) {
+          count_onepercent++;
+          last_1pc = i;
+          //getchar();
+        }
+
+      } //else { printf("********** %d\n", i);getchar();}
 
     }
+
+    printf("++ %f . ratio = %f\n", min, ((double)cc)/i);
+    printf("recap : count_opt = %d, count_onepercent = %d\n", count_opt, count_onepercent);
+    printf("last_best = %d, last_1pc = %d\n", last_best, last_1pc);
+    getchar();
 
     if (flag == 1) {
       *ub = min;
@@ -409,8 +439,10 @@ int heur_2_opt(graph *G, cycle *C, double ccost, double* ub) {
           // We are guaranteed that v, z, h, k are all different vertices.
           delta = graph_get_edge_cost(G, v, h) +
                   graph_get_edge_cost(G, z, k) -
-                  graph_get_edge_cost(G, v, z) -
-                  graph_get_edge_cost(G, h, k);
+                  //graph_get_edge_cost(G, v, z) -
+                  //graph_get_edge_cost(G, h, k);
+                  C->costs[i] -
+                  C->costs[j];
 
 
           if (delta < 0.0) {
@@ -423,8 +455,8 @@ int heur_2_opt(graph *G, cycle *C, double ccost, double* ub) {
               //    node[j-1]=v_s,  node[j]=h,  node[j+1]=k, ...
               // To   ..., node[i]=v,  node[i+1]=h,  node[i+2]=v_s,  ...,
               //    node[j-1]=v_1,  node[j]=z,  node[j+1]=k, ...
-              k = 0;
-              for (l = (i+1)%n; l != (j+1)%n; l = (l+1)%n) {
+              k = (i+1) % n; //0;
+              /*for (l = (i+1)%n; l != (j+1)%n; l = (l+1)%n) {
                 tmp_nodes[k] = C->nodes[l];
                 k++;
               }
@@ -433,6 +465,17 @@ int heur_2_opt(graph *G, cycle *C, double ccost, double* ub) {
               for (l = (i+1)%n; l != (j+1)%n; l = (l+1)%n) {
                 C->nodes[l] = tmp_nodes[k];
                 k--;
+              }*/
+              int tmp;
+              for (l = 0; l <= (j - k) / 2; ++l) {
+
+                tmp             = C->nodes[k + l];
+                C->nodes[k + l] = C->nodes[j - l];
+                C->nodes[j - l] = tmp;
+
+                C->costs[i + l] = graph_get_edge_cost(G, C->nodes[i + l], C->nodes[(i+l+1) % G->n]);
+                C->costs[j - l] = graph_get_edge_cost(G, C->nodes[j - l], C->nodes[(j-l+1) % G->n]);
+
               }
 
               changed = 1;
@@ -446,7 +489,7 @@ int heur_2_opt(graph *G, cycle *C, double ccost, double* ub) {
   } // end while
 
 
-  int v1, v2, index_1;
+  /*int v1, v2, index_1;
   for (i = 0; i < n; i++) {
     if ((*C).nodes[i] == 1) {
       v1 = C->nodes[(i+1) % n];
@@ -472,7 +515,9 @@ int heur_2_opt(graph *G, cycle *C, double ccost, double* ub) {
     for (i = 0; i < n; i++) {
       *ub += C->costs[(index_1+i)%n];
     }
-  }
+  }*/
+
+  *ub = cost;
 
   return SUCCESS;
 }
@@ -498,7 +543,7 @@ int generate_random_cycle(graph *G, cycle *C, double* ub) {
   cycle_delete(C);
   cycle_init(C, n);
 
-  // generate permutation of the nodes
+  /*// generate permutation of the nodes
   for (i = 0; i < n; i++) {
     C->nodes[i] = i+1;
   }
@@ -545,8 +590,43 @@ int generate_random_cycle(graph *G, cycle *C, double* ub) {
   *ub = 0.0;
   for (i = 0; i < n; i++) {
     *ub += C->costs[(index_1+i)%n];
+  }*/
+
+  cycle WORK_CYCLE;
+  cycle_init(&WORK_CYCLE, G->n);
+
+  int j;
+  int nodes[n];
+  for (j = 0; j < G->n; ++j) {
+    nodes[j] = j+1;
   }
- 
+
+  remaining = G->n;
+
+  // generate permutation of the node
+  for (j = 0; j < G->n; ++j) {
+    target = rand() % remaining;
+
+    tmp = nodes[j];
+    nodes[j] = nodes[target + j];
+    nodes[target + j] = tmp;
+
+    remaining--;
+  }
+
+  // fill in cycle with costs
+  double cost = 0.;
+  for (j = 0; j < G->n; ++j) {
+    WORK_CYCLE.nodes[j] = nodes[j];
+    WORK_CYCLE.costs[j] += graph_get_edge_cost(G, nodes[j], nodes[(j+1) % G->n]);
+    cost += WORK_CYCLE.costs[j];
+  }
+
+  // cost = heur2opt(G, &WORK_CYCLE, cost);
+
+  cycle_copy(&WORK_CYCLE, C);
+  *ub = cost;
+
   return SUCCESS;
 }
 

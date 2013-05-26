@@ -137,14 +137,14 @@ void print_helper_menu() {
   printf("                    - NEAREST_NEIGHBOUR | nn\n");
   printf("                    - NEAREST_NEIGHBOUR_2_OPT | nn2opt | 2opt\n");
   printf("                    - RANDOM_CYCLE | rc\n");
-  printf("  --verb x        : set the verbosity level of infos when debugging\n");
-  printf("                    Has no effect in release mode.\n");
+  printf("  --verb x        : set the verbosity level of infos\n");
+  printf("                    (mostly, but not exclusively, when debugging)\n");
   printf("                    x can be:\n");
-  printf("                    - SILENT | silent 0         : no infos printed\n");
+  printf("                    - SILENT | silent | 0       : no infos printed\n");
   printf("                    - ESSENTIAL | essential | 1 : some infos\n");
   printf("                    - USEFUL | useful | 2       : more infos\n");
-  printf("                    - VERBOSE | verbose | 3     : log files\n");
-  printf("                    - ANNOYING | annoying | 4   : getchars too\n");
+  printf("                    - VERBOSE | verbose | 3     : write log files\n");
+  printf("                    - ANNOYING | annoying | 4   : ask getchars too\n");
   printf("  -h [--help]     : printf this menu and exit.\n");
   printf("\n\n");
 }
