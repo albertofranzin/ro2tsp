@@ -19,6 +19,7 @@
  * parameters
  *
  * unsigned int  solver                  : solver method (cplex or b&b)
+ * unsigned int  cplex_callbacks         : use callbacks (has effect only using cplex)
  * unsigned int  number_of_nodes         : # of nodes in the graph
  * int           random_instance_option  : generate a random graph?
  * int           random_seed_option      : use a pseudorandom seed?
@@ -28,11 +29,13 @@
  * int           tsp_file_format         : TSPLIB file format
  * unsigned int  heuristic_algo          : heuristic algorithm
  * unsigned int  heuristic_trials        : number of trials of the heuristic algo
+ * unsigned int  threads                 : number of threads
  * unsigned int  verbosity               : amount of infos when debugging
  */
 typedef struct _parameters {
 
   unsigned int  solver;
+  unsigned int  cplex_callbacks;
   unsigned int  number_of_nodes;
   int           random_instance_option;
   int           random_seed_option;
@@ -42,6 +45,7 @@ typedef struct _parameters {
   int           tsp_file_format;
   unsigned int  heuristic_algo;
   unsigned int  heuristic_trials;
+  unsigned int  threads;
   unsigned int  verbosity;
 
 } parameters;

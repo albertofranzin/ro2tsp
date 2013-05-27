@@ -82,6 +82,7 @@
 //------------------------------------------------------
 
 // heuristic algorithms available for the the upper bound:
+#define ALL                      99
 #define DUMB                     0
 #define NEAREST_NEIGHBOUR        1
 #define NEAREST_NEIGHBOUR_2_OPT  2
@@ -89,7 +90,7 @@
 #define RANDOM_CYCLES_2OPT       4
 
 #define NUM_TRIALS_RANDOM_CYCLES          1000000
-#define NUM_TRIALS_RANDOM_CYCLES_2OPT     1000
+#define NUM_TRIALS_RANDOM_CYCLES_2OPT     300000
 
 //------------------------------------------------------
 
@@ -117,6 +118,8 @@
 
 #define DEFAULT_HEURISTIC_ALGO   NEAREST_NEIGHBOUR_2_OPT
 #define DEFAULT_HEURISTIC_TRIALS 1
+
+#define NUM_OF_THREADS  4
 
 //------------------------------------------------------
 

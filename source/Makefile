@@ -1,14 +1,5 @@
 NOMEFILE = test.c
 
-PAR = -lm
-# -lm : linking to math lib math.h
-#
-#  #OPT = -ftree-vectorizer-verbose=2 -finline-functions -std=c99
-
-CFLAGS = 
-# debug options will be appended when asked by using 'make debug'
-# release optimization will be added then command is 'make release'
-
 CHECK = -Winline -Wall
 # -Winline : warn if any problem in including inline functions occurs
 
@@ -18,10 +9,19 @@ CPLEX_COMPILER_OPT = -I/opt/ibm/ILOG/CPLEX_Studio125/cplex/include -DIL_STD
 #CPLEX_LINKER_OPT = -L/home/ludo/Programmi/CPLEX/cplex/lib/x86-64_sles10_4.1/static_pic -lcplex -lm -lpthread
 CPLEX_LINKER_OPT = -L/opt/ibm/ILOG/CPLEX_Studio125/cplex/lib/x86-64_sles10_4.1/static_pic -lcplex -lm -lpthread
 
+PAR = -lm -lpthread
+# -lm : linking to math lib math.h
+#
+#  #OPT = -ftree-vectorizer-verbose=2 -finline-functions -std=c99
+
+CFLAGS = -L. -lro2ds -lconcorde $(CHECK) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR)
+# debug options will be appended when asked by using 'make debug'
+# release optimization will be added then command is 'make release'
+
 all: clean test
 
 test: buildLib $(NOMEFILE)
-	gcc $(NOMEFILE) -o $@ -L. -lro2ds $(CFLAGS) $(CHECK) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR)
+	gcc $(NOMEFILE) -o $@ $(CFLAGS)
 # cleanComp
 
 release: CFLAGS += -O3
