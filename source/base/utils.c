@@ -46,6 +46,7 @@ parameters *getParameters() {
   //printf("@getParameters : calloc done\n");
 
   pars->solver                 = DEFAULT_SOLVER;
+  pars->cplex_callbacks        = N;
   pars->number_of_nodes        = DEFAULT_NUMBER_OF_NODES;
   pars->random_instance_option = DEFAULT_RANDOM_INSTANCE_OPTION;
   pars->random_seed_option     = DEFAULT_RANDOM_SEED_OPTION;
@@ -55,6 +56,7 @@ parameters *getParameters() {
   pars->tsp_file_format        = DEFAULT_TSP_FILE_FORMAT;
   pars->heuristic_trials       = DEFAULT_HEURISTIC_TRIALS;
   pars->heuristic_algo         = DEFAULT_HEURISTIC_ALGO;
+  pars->threads                = NUM_OF_THREADS;
   pars->verbosity              = USEFUL;
 
 
@@ -397,8 +399,8 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                 token2 = strtok(NULL, delimiters);
                                 token3 = strtok(NULL, delimiters);
 
-                                //printf("%s %s %s | ", token1, token2, token3);
-                                //printf("%d %f %f\n", atoi(token1), atof(token2), atof(token3));
+                                // printf("%s %s %s | ", token1, token2, token3);
+                                // printf("%d %f %f\n", atoi(token1), atof(token2), atof(token3));
 
                                 j = atoi(token1)-1;
                                 G->V[j].x = atof(token2);
@@ -630,7 +632,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
           } else if (pars->tsp_file_format == 423 ||
                      pars->tsp_file_format == 433   ) {
 
-            printf("HOUSTON... 3D, we don't cover this...\n");
+            fprintf(stderr, "HOUSTON... 3D, we don't cover this...\n");
             exit(1);
 
           }
@@ -657,7 +659,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
       // found at http://stackoverflow.com/questions/10963054/finding-the-coordinates-of-points-from-distance-matrix
       // hope it works, since there is probably something I haven't understood yet...
 
-      double Dp1p2 = egraph_get_edge_cost(G, 1, 2),  // 1-2
+      double Dp1p2 = egraph_get_edge_cost(G, 0, 1),  // 1-2
              Dp1p3,                                  // 1-3
              Dp2p3,                                  // 2-3
              Dp1pn,                                  // 1-n, n >= 4
@@ -689,8 +691,8 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
       max_y = 2.;
 
       // set third node coords, in order to build the orthonormal space
-      Dp1p3 = egraph_get_edge_cost(G, 1, 3);
-      Dp2p3 = egraph_get_edge_cost(G, 2, 3);
+      Dp1p3 = egraph_get_edge_cost(G, 0, 2);
+      Dp2p3 = egraph_get_edge_cost(G, 1, 2);
 
       cosine = (Dp1p2*Dp1p2 + Dp1p3*Dp1p3 - Dp2p3*Dp2p3) / (2*Dp1p2*Dp1p3);
       angle  = acosf(cosine);

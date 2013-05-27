@@ -49,6 +49,9 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
     }
     printf("done\n");
   }
+
+  // Turn on data checking
+  //status = CPXsetintparam (env, CPX_PARAM_DATACHECK, CPX_ON);
 #endif
 
 
@@ -56,7 +59,7 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   // --------------------------------------------------------------
   // Create a conversion table.
 
-  int n = te->G_CURR.n;
+  int n       = te->G_CURR.n;
   int numcols = n * (n - 1) / 2;
   cpx_table hash_table;
 
@@ -146,91 +149,85 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
 
 
 
+  //
+  // set up callbacks
+  //
 
-  // --------------------------------------------------------------
-  // Assure linear mappings between the presolved and original models
+  if (pars->cplex_callbacks) {
+    // --------------------------------------------------------------
+    // Ensure linear mappings between the presolved and original models
 
-  // Perform only linear reduction:
-  status = CPXsetintparam (env, CPX_PARAM_PRELINEAR, CPX_OFF);
-  // Perform full reductions:
-  //status = CPXsetintparam (env, CPX_PARAM_PRELINEAR, CPX_ON);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
-    fprintf(stderr, "CPXsetintparam :: CPX_PARAM_PRELINEAR : %d\n", status);
-    fprintf(stderr, "Failed in setting CPX_PARAM_PRELINEAR.\n");
-    exit(1);
-  }
-
-
-
-
-  // --------------------------------------------------------------
-  // Turn on traditional search for use with control callbacks
-
-  // Apply traditional branch & cut strategy:
-  status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_TRADITIONAL);
-  // Apply dynamic search:
-  //status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_DYNAMIC);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
-    fprintf(stderr, "CPXsetintparam :: CPX_PARAM_MIPSEARCH : %d\n", status);
-    fprintf(stderr, "Failed in setting CPX_PARAM_MIPSEARCH.\n");
-    exit(1);
-  }
+    // Perform only linear reduction:
+    status = CPXsetintparam (env, CPX_PARAM_PRELINEAR, CPX_OFF);
+    // Perform full reductions:
+    //status = CPXsetintparam (env, CPX_PARAM_PRELINEAR, CPX_ON);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
+      fprintf(stderr, "CPXsetintparam :: CPX_PARAM_PRELINEAR : %d\n", status);
+      fprintf(stderr, "Failed in setting CPX_PARAM_PRELINEAR.\n");
+      exit(1);
+    }
 
 
 
 
-  // --------------------------------------------------------------
-  // Let MIP callbacks work on the original model
+    // --------------------------------------------------------------
+    // Turn on traditional search for use with control callbacks
 
-  // Use the original model:
-  status = CPXsetintparam (env, CPX_PARAM_MIPCBREDLP, CPX_OFF);
-  // Use reduced, presolved model:
-  //status = CPXsetintparam (env, CPX_PARAM_MIPCBREDLP, CPX_ON);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
-    fprintf(stderr, "CPXsetintparam :: CPX_PARAM_MIPCBREDLP : %d\n", status);
-    fprintf(stderr, "Failed in setting CPX_PARAM_MIPCBREDLP.\n");
-    exit(1);
-  }
+    // Apply traditional branch & cut strategy:
+    status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_TRADITIONAL);
+    // Apply dynamic search:
+    //status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_DYNAMIC);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
+      fprintf(stderr, "CPXsetintparam :: CPX_PARAM_MIPSEARCH : %d\n", status);
+      fprintf(stderr, "Failed in setting CPX_PARAM_MIPSEARCH.\n");
+      exit(1);
+    }
 
+    // --------------------------------------------------------------
+    // Let MIP callbacks work on the original model
 
+    // Use the original model:
+    status = CPXsetintparam (env, CPX_PARAM_MIPCBREDLP, CPX_OFF);
+    // Use reduced, presolved model:
+    //status = CPXsetintparam (env, CPX_PARAM_MIPCBREDLP, CPX_ON);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
+      fprintf(stderr, "CPXsetintparam :: CPX_PARAM_MIPCBREDLP : %d\n", status);
+      fprintf(stderr, "Failed in setting CPX_PARAM_MIPCBREDLP.\n");
+      exit(1);
+    }
 
-  /////////////////////////////////////////////////////////////////
-  // callback
-  /*
-  // cutinfo for passing parameters to the callback
-  cutinfo ci;
-  ci.lp  = lp;
-  ci.x   = (double *) malloc (numcols * sizeof (double));
-  ci.beg = (int *)    malloc (11 * sizeof (int));
-  ci.ind = (int *)    malloc (numcols * sizeof (int));
-  ci.val = (double *) malloc (numcols * sizeof (double));
-  ci.rhs = (double *) malloc (10 * sizeof (double));
-  ci.pars            = pars;
-  ci.numcols         = numcols;
-  ci.hash_table      = hash_table;
-  ci.number_of_nodes = n;
+    // cutinfo for passing parameters to the callback
+    cutinfo ci;
+    ci.lp  = lp;
+    ci.x   = (double *) malloc (numcols * sizeof (double));
+    ci.beg = (int *)    malloc (11 * sizeof (int));
+    ci.ind = (int *)    malloc (numcols * sizeof (int));
+    ci.val = (double *) malloc (numcols * sizeof (double));
+    ci.rhs = (double *) malloc (10 * sizeof (double));
+    ci.pars            = pars;
+    ci.numcols         = numcols;
+    ci.hash_table      = hash_table;
+    ci.number_of_nodes = n;
 
-  // set lazy constraint callback function
-  // Use a lazy constraint because it gets called when an integer-feasible
-  // solution is found.
-  // This does not happen with setusercutcallbackfunc, which can be called
-  // when there is a non-integer-feasible solution, thus not allowing us
-  // to solve the problem.
-  status = CPXsetlazyconstraintcallbackfunc(env, cpx_subtour_callback, &ci);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
-    fprintf(stderr, "CPXsetlazyconstraintcallbackfunc : %d\n", status);
-    fprintf(stderr, "Failed in setting the lazy constraint callback.\n");
-    exit(1);
-  }
-  */
-  /////////////////////////////////////////////////////////////////
+    // set lazy constraint callback function
+    // Use a lazy constraint because it gets called when an integer-feasible
+    // solution is found.
+    // This does not happen with setusercutcallbackfunc, which can be called
+    // when there is a non-integer-feasible solution, thus not allowing us
+    // to solve the problem.
+    status = CPXsetlazyconstraintcallbackfunc(env, cpx_subtour_callback, &ci);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
+      fprintf(stderr, "CPXsetlazyconstraintcallbackfunc : %d\n", status);
+      fprintf(stderr, "Failed in setting the lazy constraint callback.\n");
+      exit(1);
+    }
+    
 
-
-
+  } // end if use callbacks
 
 
   // --------------------------------------------------------------
@@ -242,54 +239,13 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
 
 
 
-  /////////////////////////////////////////////////////////////////
-  // callback
-  /*
 #ifdef DEBUG
   if (pars->verbosity >= ESSENTIAL) {
     printf("about to solve the problem\n");
   }
 #endif
 
-  status = CPXmipopt(env, lp);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
-    fprintf(stderr, "CPXmipopt : %d\n", status);
-    fprintf(stderr, "Error while solving the problem.\n");
-    exit(1);
-  }
-
-  int solstat = CPXgetstat(env, lp);
-  // 101 == CPXMIP_OPTIMAL
-  // 102 == CPXMIP_OPTIMAL_TOL
-  // assert(solstat == 101 || solstat == 102);
-
-#ifdef DEBUG
-  if (pars->verbosity >= ESSENTIAL) {
-    printf ("Solution status %d.\n", solstat);
-  }
-#endif
-  */
-  /////////////////////////////////////////////////////////////////
-
-
-
-
-
-  // --------------------------------------------------------------
-  // Compute a solution by calling CPLEX multiple times,
-  // and by adding violated SECs to the model at each iteration.
-  
-  int numsubtrs = 0;
-
-  while (numsubtrs != 1) {
-
-#ifdef DEBUG
-  if (pars->verbosity >= ESSENTIAL) {
-    printf("about to solve the problem\n");
-  }
-#endif
-
+  if (pars->cplex_callbacks) {
     status = CPXmipopt(env, lp);
     if (status) {
       fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
@@ -298,39 +254,34 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
       exit(1);
     }
 
-    int solstat = CPXgetstat(env, lp);
-    // 101 == CPXMIP_OPTIMAL
-    // 102 == CPXMIP_OPTIMAL_TOL
-    // assert(solstat == 101 || solstat == 102);
+  } else {  // do not use callbacks
+
+    // variabili per memorizzazione soluzione
+    /**/int numsubtrs;
+
+   numsubtrs = 0;
+
+    while (numsubtrs != 1) {
 
 #ifdef DEBUG
-  if (pars->verbosity >= ESSENTIAL) {
-    printf ("Solution status %d.\n", solstat);
-  }
+    if (pars->verbosity >= ESSENTIAL) {
+      printf("about to solve the problem\n");
+    }
 #endif
 
-    numsubtrs = cpx_add_secs(env, lp, &hash_table, pars);
+      status = CPXmipopt(env, lp);
+      if (status) {
+        fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
+        fprintf(stderr, "CPXmipopt : %d\n", status);
+        fprintf(stderr, "Error while solving the problem.\n");
+        exit(1);
+      }
 
-  }
-  
+      numsubtrs = cpx_add_secs(env, lp, &hash_table, pars);
 
-  /////////////////////////////////////////////////////////////////
-  // callback
-  /*
-#ifdef DEBUG
-  if (pars->verbosity >= ESSENTIAL) {
-    printf("about to solve the problem\n");
-  }
-#endif
+    }  // end while
 
-  status = CPXmipopt(env, lp);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
-    fprintf(stderr, "CPXmipopt : %d\n", status);
-    fprintf(stderr, "Error while solving the problem.\n");
-    exit(1);
-  }
-
+  } // end if !callbacks
 
   int solstat = CPXgetstat(env, lp);
   // 101 == CPXMIP_OPTIMAL
@@ -342,8 +293,6 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
     printf ("Solution status %d.\n", solstat);
   }
 #endif
-  */
-  /////////////////////////////////////////////////////////////////
 
 
   // --------------------------------------------------------------
@@ -396,11 +345,11 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
 
   // ==============================================================
   // Turn off the callback.
-  status = CPXsetlpcallbackfunc (env, NULL, NULL);
+  /*status = CPXsetlpcallbackfunc(env, NULL, NULL);
   if ( status ) {
     fprintf (stderr, "Failed to turn off callback function.\n");
-  }
+  }*/
 
 
-  return;
+  return SUCCESS;
 }

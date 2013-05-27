@@ -39,16 +39,15 @@ parameters *base_problem_setup(int argc, char **argv) {
     }
 
     if (strcmp(opt, "--heur") == 0) {
-      if (strcmp(argv[i+1], "NEAREST_NEIGHBOUR") == 0 ||
-          strcmp(argv[i+1], "nn") == 0                  ) {
-        pars->heuristic_algo = NEAREST_NEIGHBOUR;
-      } else if (strcmp(argv[i+1], "NEAREST_NEIGHBOUR_2_OPT") == 0 ||
-                 strcmp(argv[i+1], "nn2opt") == 0                  ||
-                 strcmp(argv[i+1], "2opt") == 0                      ) {
+      if (strcmp(argv[i+1], "ALL") == 0 ||
+          strcmp(argv[i+1], "all") == 0                  ) {
+        pars->heuristic_algo = ALL;
+      } else if (strcmp(argv[i+1], "NEAREST_NEIGHBOUR") == 0 ||
+                 strcmp(argv[i+1], "nn")                == 0   ) {
         pars->heuristic_algo = NEAREST_NEIGHBOUR_2_OPT;
       } else if (strcmp(argv[i+1], "RANDOM_CYCLE") == 0 ||
-                 strcmp(argv[i+1], "rc") == 0             ) {
-        pars->heuristic_algo = RANDOM_CYCLES;
+                 strcmp(argv[i+1], "rc")           == 0   ) {
+        pars->heuristic_algo = RANDOM_CYCLES_2OPT;
       }
       i++;
     }
@@ -89,6 +88,15 @@ parameters *base_problem_setup(int argc, char **argv) {
       }
       i++;
     }
+
+    if (strcmp(opt, "--cplex_callbacks") == 0 ||
+        strcmp(opt, "--callbacks")       == 0 ||
+        strcmp(opt, "-cb")               == 0   ) {
+      pars->cplex_callbacks = Y;
+    }
+
+    if (strcmp(opt, "-nt") == 0 || strcmp(opt, "--threads") == 0)
+      pars->threads = atoi(argv[++i]);
 
   }
 
@@ -134,17 +142,18 @@ void print_helper_menu() {
   printf("                    - CPLEX | cplex\n");
   printf("  --heur x        : choose the heuristic algorithm for an upper bound\n");
   printf("                    x can be:\n");
-  printf("                    - NEAREST_NEIGHBOUR | nn\n");
-  printf("                    - NEAREST_NEIGHBOUR_2_OPT | nn2opt | 2opt\n");
+  printf("                    - ALL | all\n");
+  printf("                    - NEAREST_NEIGHBOUR | nn | nn\n");
   printf("                    - RANDOM_CYCLE | rc\n");
   printf("  --verb x        : set the verbosity level of infos when debugging\n");
   printf("                    Has no effect in release mode.\n");
   printf("                    x can be:\n");
-  printf("                    - SILENT | silent 0         : no infos printed\n");
+  printf("                    - SILENT | silent | 0       : no infos printed\n");
   printf("                    - ESSENTIAL | essential | 1 : some infos\n");
   printf("                    - USEFUL | useful | 2       : more infos\n");
   printf("                    - VERBOSE | verbose | 3     : log files\n");
   printf("                    - ANNOYING | annoying | 4   : getchars too\n");
+  printf("  -cb             : use cplex callbacks\n");
   printf("  -h [--help]     : printf this menu and exit.\n");
   printf("\n\n");
 }
