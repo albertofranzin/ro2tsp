@@ -400,14 +400,15 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                 //printf("%s %s %s | ", token1, token2, token3);
                                 //printf("%d %f %f\n", atoi(token1), atof(token2), atof(token3));
 
-                                j = atoi(token1);
-                                egraph_set_node_x(G, j, atof(token2));
-                                egraph_set_node_y(G, j, atof(token3));
+                                j = atoi(token1)-1;
+                                G->V[j].x = atof(token2);
+                                G->V[j].y = atof(token3);
 
                              }
                              break;
 
                          } else if (matrix_type == 46) {
+
                              // full matrix
                              // each row contains pars->number_of_nodes elements
                              // (or, at least, it should...)
@@ -454,9 +455,9 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                   cumulative_counter %= pars->number_of_nodes;
 
                                   for (j = 0; j < row; ++j) {
-                                    if (row != j+1 && row <= pars->number_of_nodes &&
+                                    if (row-1 != j && row <= pars->number_of_nodes &&
                                       j < pars->number_of_nodes) {
-                                      egraph_insert_edge(G, row, j+1, atof(tokens[j]));
+                                      egraph_insert_edge(G, row-1, j, atof(tokens[j]));
                                     }
                                   }
                                 }
@@ -497,7 +498,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                   if (row != pos && row < pars->number_of_nodes &&
                                       pos < pars->number_of_nodes) {
                                       // <- eliminare i controlli row,pos<number_of_nodes ?
-                                    egraph_insert_edge(G, row+1, pos+1, atof(tok));
+                                    egraph_insert_edge(G, row, pos, atof(tok));
                                   }
                                   pos++;
                                   if (atof(tok) == 0.0) {
@@ -548,15 +549,16 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
       // TSPLIB file contains node coordinates
       // for each edge, compute the distance (= the cost)
-      min_x = egraph_get_node_x(G, 1);
+      min_x = G->V[0].x;
       max_x = min_x;
-      min_y = egraph_get_node_y(G, 1);
+      min_y = G->V[0].y;
       max_y = min_y;
 
-      for (i = 1; i <= pars->number_of_nodes; i++) {
 
-        x = egraph_get_node_x(G, i);
-        y = egraph_get_node_y(G, i);
+      for (i = 0; i < pars->number_of_nodes; i++) {
+
+        x = G->V[i].x;
+        y = G->V[i].y;
 
         if (pars->tsp_file_format == 45) {
           // 'GEO' distances
@@ -566,17 +568,18 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
           longitude1 = PI * ((int)y + 5.0 * fract / 3.0) / 180.0;
         }
 
-        for (j = i+1; j <= pars->number_of_nodes; j++) {
+        for (j = i+1; j < pars->number_of_nodes; j++) {
 
-          x2 = egraph_get_node_x(G, j);
-          y2 = egraph_get_node_y(G, j);
+          x2 = G->V[j].x;
+          y2 = G->V[j].y;
 
           // choose right function to compute distance
           if (pars->tsp_file_format == 41) {
 
             // euclidean 2D distance, or boh
             egraph_insert_edge(G, i, j,
-              nearbyint(sqrt(pow(x - x2, 2) + pow(y - y2, 2)))
+			       //nearbyint(sqrt(pow(x - x2, 2) + pow(y - y2, 2)))
+			       round(sqrt(pow(x - x2, 2) + pow(y - y2, 2)))
             );
 
           } else if (pars->tsp_file_format == 45) {
@@ -672,12 +675,12 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
              y3;
 
       // set first node at (0,0)
-      egraph_set_node_x(G, 1, x1);
-      egraph_set_node_y(G, 1, y1);
+      G->V[0].x = x1;
+      G->V[0].y = y1;
 
       // set node 2 on the same horz. line, at proper distance
-      egraph_set_node_x(G, 2, x2);
-      egraph_set_node_y(G, 2, y2);
+      G->V[1].x = x2;
+      G->V[1].y = y2;
 
       // for padding
       min_x = 0.;
@@ -694,32 +697,32 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
       x3 = cosine * Dp1p3;
       y3 = sinf(angle) * Dp1p3;
 
-      egraph_set_node_x(G, 3, x3);
-      egraph_set_node_y(G, 3, y3);
+      G->V[2].x = x3;
+      G->V[2].y = y3;
 
       // iterate brute-force step until all nodes have been somewhat correctly given
       // their coords - or some values sufficiently near to them.
 
-      for (i = 4; i <= pars->number_of_nodes; ++i) {
+      for (i = 3; i < pars->number_of_nodes; ++i) {
 
-        Dp1pn = egraph_get_edge_cost(G, 1, i);
-        Dp2pn = egraph_get_edge_cost(G, 2, i);
+        Dp1pn = egraph_get_edge_cost(G, 0, i);
+        Dp2pn = egraph_get_edge_cost(G, 1, i);
 
         cosine = (Dp1p2*Dp1p2 + Dp1pn*Dp1pn - Dp2pn*Dp2pn) / (2*Dp1p2*Dp1pn);
         angle  = acosf(cosine);
         x = cosine * Dp1pn;
         y = sinf(angle) * Dp1pn;
 
-        egraph_set_node_x(G, i, x);
+        G->V[i].x = x;
 
         tentative_cost_1 = sqrt((x-x3)*(x-x3) + (y-y3)*(y-y3));
         tentative_cost_2 = sqrt((x-x3)*(x-x3) + (-y-y3)*(-y-y3));
 
-        if (fabs(tentative_cost_1 - egraph_get_edge_cost(G, 3, i)) > 
-            fabs(tentative_cost_2 - egraph_get_edge_cost(G, 3, i))) {
+        if (fabs(tentative_cost_1 - egraph_get_edge_cost(G, 2, i)) > 
+            fabs(tentative_cost_2 - egraph_get_edge_cost(G, 2, i))) {
           y = -y;
         }
-        egraph_set_node_y(G, i, y);
+        G->V[i].y = y;
 
         if (x < min_x) {
           min_x = x;

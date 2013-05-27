@@ -1,11 +1,14 @@
 #include "compute_lagrange.h"
 
+
+
 int compute_lagrange(graph* G, onetree* OT, double ub, double* lb) {
+
   int i, j, v, status, num_of_iterations, time_since_improvement;
   double alpha, square_norm, step_size, z, z_best;
 
 
-  int n = (*G).n;
+  int n = G->n;
 
 
 
@@ -19,15 +22,16 @@ int compute_lagrange(graph* G, onetree* OT, double ub, double* lb) {
 
   
   onetree_delete(OT);
-  onetree_init(OT, n);
+  onetree_init(OT, 0);
 
 
 
   graph G_tmp;
-  onetree OT_tmp;
-  onetree_init(&OT_tmp, n);
-  graph_init(&G_tmp, 1);
+  graph_init(&G_tmp, 0);
   graph_copy(G, &G_tmp);
+
+  onetree OT_tmp;
+  onetree_init(&OT_tmp, 0);
 
 
 
@@ -46,16 +50,16 @@ int compute_lagrange(graph* G, onetree* OT, double ub, double* lb) {
     // Note that, at each iteration, G_tmp is a copy of the original graph G where the costs of the edges have been modified to take into account of the effect of the lagrangean multipliers.
     // If the compute_ot fails, then also compute_lagrange will fail; in fact, this means that there is no 1-tree satisfying the constraints on the edges;
     // in parctice, this is due to the fact that G has too many forbidden edges.
-    status = compute_ot(&G_tmp, &OT_tmp);
+    status = compute_min_ot(&G_tmp, &OT_tmp);
     if (status == FAILURE) {
       return FAILURE; // If it doesn't fails at the firt iteration, then compute_ot will never fails because no new constraints are added during compute_lagrange (this will not be true in compute_incremental_lagrange)
     }
 
 
     // Computes the cost of the solution.
-    z = onetree_get_cost(&OT_tmp);
-    for (i = 2; i <= n; i++) {
-      z += 2 * multipliers[i-1];
+    z = onetree_get_cost(&OT_tmp, &G_tmp);
+    for (i = 1; i < n; i++) {
+      z += 2 * multipliers[i];
     }
 
     // If needed, update the cost of the best solution found up to now; save the 1-tree.
@@ -84,13 +88,13 @@ int compute_lagrange(graph* G, onetree* OT, double ub, double* lb) {
 
     
     square_norm = 0.0;
-    for (i = 2; i <= n; i++) {
+    for (i = 1; i < n; i++) {
 
       // Compute the subgradient vector.
-      subgradient[i-1] = 2 - onetree_get_node_deg(&OT_tmp, i); // You have to take into account the presence of forced edges and forbidden edges..?! Note however that no forbidden edges are incident to any node of the 1-tree,
+      subgradient[i] = 2 - OT_tmp.V[i].deg; // You have to take into account the presence of forced edges and forbidden edges..?! Note however that no forbidden edges are incident to any node of the 1-tree,
                                                              // since compute_ot does not chose any time a forbidden edge as a new edge for the spanning tree (at last, it terminates returning a failure code).
       // Compute the square norm of the subgradient vector.
-      square_norm += subgradient[i-1] * subgradient[i-1];
+      square_norm += subgradient[i] * subgradient[i];
     }
     
 
@@ -116,15 +120,15 @@ int compute_lagrange(graph* G, onetree* OT, double ub, double* lb) {
 
   
     // Compute the new lagrangean multipliers.
-    for (i = 2; i <= n; i++) {
-      multipliers[i-1] += step_size * (subgradient[i-1] / sqrt(square_norm));
+    for (i = 1; i < n; i++) {
+      multipliers[i] += step_size * (subgradient[i] / sqrt(square_norm));
     }
   
 
     // Set the costs of the edges to take into account of the lagrangean multipliers.
-    for (i = 1; i <= n; i ++) {
-      for (j = i+1; j <= n; j++) {
-        graph_set_edge_cost(&G_tmp, i, j, graph_get_edge_cost(G, i, j) - multipliers[i-1] - multipliers[j-1]); // Note that when i = 1, multipliers[i] is equal to zero.
+    for (i = 0; i < n; i ++) {
+      for (j = i+1; j < n; j++) {
+        graph_set_edge_cost(&G_tmp, i, j, graph_get_edge_cost(G, i, j) - multipliers[i] - multipliers[j]); // Note that when i = 1, multipliers[i] is equal to zero.
       }
     }
  

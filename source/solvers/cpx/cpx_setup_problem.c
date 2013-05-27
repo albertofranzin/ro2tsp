@@ -21,10 +21,10 @@ int cpx_setup_problem(CPXENVptr   env,
 
   // Objective function.
   //printf("obj func\n");
-  for (i = 1; i <= n; i++) {
-    for (j = i+1; j <= n; j++) {
+  for (i = 0; i < n; i++) {
+    for (j = i+1; j < n; j++) {
       indx_from_vertices(hash_table, i, j, &ind);
-      obj[ind-1] = graph_get_edge_cost(G, i, j);
+      obj[ind] = graph_get_edge_cost(G, i, j);
     }
   }
 
@@ -84,8 +84,8 @@ int cpx_setup_problem(CPXENVptr   env,
     k = 0;
     for (j = 0; j < n; j++) {
       if (j != i) {
-        indx_from_vertices(hash_table, i+1, j+1, &ind);
-        rmatind[i * (n-1) + k] = ind-1;
+        indx_from_vertices(hash_table, i, j, &ind);
+        rmatind[i * (n-1) + k] = ind;
         // attenzione: gli indici delle variabili passati con questo metodo
         // si assumono numerati a partire da 0
         k++;

@@ -2,27 +2,17 @@
 
 #include "bb_solver.h"
 
-void bb_solver(tsp_env* env, tsp_stats* stats) {
+void bb_solver(tsp_env* te, tsp_stats* ts) {
 
 
 
   double ub, lb;
   int i, j, status; 
-  int n = env->G_INPUT.n;
-
-  cycle CYCLE;
-  cycle_init(&CYCLE, 0);
-
-  /*
-  graph G_FAT;
-  */
+  int n = te->G_INPUT.n;
 
   // To easily access some frequently used pointer...
-  graph* G_CURR = &env->G_CURR;
-  onetree* OT_CURR = &env->OT_CURR;
-
-
-
+  graph* G_CURR = &te->G_CURR;
+  onetree* OT_CURR = &te->OT_CURR;
 
 
 
@@ -30,145 +20,36 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
   // --------------------------------------------------------------
   // Update some variables...
 
-  stats->num_of_calls++;
+  ts->num_of_calls++;
 
-  env->curr_call = stats->num_of_calls;
+  te->curr_call = ts->num_of_calls;
 
-  env->curr_level++;
+  te->curr_level++;
 
-  stats->num_of_levels =
-      (env->curr_level > stats->num_of_levels) ?
-        env->curr_level :
-        stats->num_of_levels;
+  ts->num_of_levels =
+      (te->curr_level > ts->num_of_levels) ?
+        te->curr_level :
+        ts->num_of_levels;
 
+  if (te->curr_call % 10 == 0) 
+    printf("# node %d : still computing...\n", te->curr_call);
 
 
   // ---------------------------------------------------------------
   // Things to do at the root node of the recursione tree.
 
-  if (env->curr_call == 1) {
+  if (te->curr_call == 1) {
 
-    graph_copy(&env->G_INPUT, &env->G_CURR);
+    cycle_copy(&te->TOUR_INIT, &te->TOUR_BEST);
 
-  /*
-    // Set G_CURR to be a copy of the input graph.
-    graph_copy(&env->G_INPUT, &env->G_CURR);
+    cycle_copy(&te->TOUR_INIT, &te->TOUR_OPT);
 
-    // Compute a naive upper bound that will be used when our heuristic is
-    // not able to find any upper bound and any tour with no forbidden edges.
-    // This upper bound will be a valid upper bound to the cost of
-    // an optimal tour (with no forbidden edges) for every configuration
-    // of constraints on the edges of the graph
-    // (in fact, it is the sum of the first n edges of the input graph
-    // with highest costs).
+    te->incumbent = te->z_opt = te->init_ub;
 
-    // Naive.
-    //status = compute_upper_bound(G_CURR, NULL, DUMB, &ub);
+    te-> z_curr = te->init_lb;
 
-    stats->dumb_ub = ub;
-    printf("# node %d : upper bound : dumb            = %f\n",
-            env->curr_call, stats->dumb_ub);
+    // Shall we compute again the 1-tree? Maybe reduction was applied in the preproc. step...
 
-    // Compute an upper bound of the cost of the optimal tour.
-    // The procedure will always successfully returns, since
-    // the graph is complete and no forbidden (nor forced) edges
-    // are currently present.
-
-    // Random Cycles.
-    status = compute_upper_bound(G_CURR, &CYCLE, RANDOM_CYCLES, &ub);
-
-    stats->rc_ub = ub;
-    printf("# node %d : upper bound : heur. rc        = %f\n",
-            env->curr_call, stats->rc_ub);
-
-    // Random Cycles + 2OPT.
-    status = compute_upper_bound(G_CURR, &CYCLE, RANDOM_CYCLES_2OPT, &ub);
-
-    stats->rc2opt_ub = ub;
-    printf("# node %d : upper bound : heur. rc + 2opt = %f\n",
-            env->curr_call, stats->rc2opt_ub);
-
-    // Nearest Neighbour.
-    status = compute_upper_bound(G_CURR, &CYCLE, NEAREST_NEIGHBOUR, &ub);
-
-    stats->nn_ub = ub;
-    printf("# node %d : upper bound : heur. nn        = %f\n",
-            env->curr_call, stats->nn_ub);
-
-    // Nearest Neighbour + 2OPT.
-    status = compute_upper_bound(G_CURR, &CYCLE,
-                                    NEAREST_NEIGHBOUR_2_OPT, &ub);
-
-    stats->nn2opt_ub = ub;
-    printf("# node %d : upper bound : heur. nn + 2opt = %f\n",
-            env->curr_call, stats->nn2opt_ub);
-
-    // Set the upper-bound(s)
-    env->dumb_ub = stats->dumb_ub;
-    ub = stats->nn2opt_ub < stats->rc2opt_ub ?
-          stats->nn2opt_ub :
-          stats->rc2opt_ub;
-
-    // We assume that, in the case in which compute_upper_bound
-    // successfully returns, then OT_CURR is a tour and ub is the cost
-    // of that tour.
-    // We set the initial incumbent equal to the upper bound...
-    env->incumbent = env->z_opt = ub;
-
-    stats->init_ub = ub;
-    printf("# node %d : initial upper bound           = %f\n",
-            env->curr_call, stats->init_ub);
-
-    //printf("# node %d : initial incumbent             = %f\n",
-    //      env->curr_call, stats->init_ub);
-
-    // and the optimal solution TOUR_OPT equal to the tour just computed.
-    cycle_copy(&CYCLE, &env->TOUR_OPT);
-
-    // The procedure will always successfully returns,
-    // since the graph is complete and no forbidden 
-    // (nor forced) edges are currently present.
-    status = compute_lagrange(G_CURR, OT_CURR, ub, &lb);
-
-    //onetree_plot(OT_CURR, &env->EG_INPUT, "Lagr. 1-tree");
-
-
-    // Discard fat edges.
-    if (FAT_EDGES_OPT == ENABLED) {
-      bb_remove_fat_edges(env, stats, ub);
-    }
-
-    if (INTEGER_ROUNDING_OPT == ENABLED) {
-
-      if (lb - floor(lb) > SAFE_ROUNDING_THRESHOLD) {
-        lb = ceil(lb);
-      } else {
-        stats->num_fails_integer_rounding++;
-      }
-
-    }
-
-    env->z_curr = lb;
-
-    stats->init_lb = lb;
-    printf("# node %d : initial lower bound           = %f\n",
-            env->curr_call, stats->init_lb);
-
-
-    // It may be the case that the solution computed by compute_lagrange
-    // is in fact the optimal solution...
-    if (onetree_is_cycle(OT_CURR)) {
-
-      env->incumbent = env->z_opt = env->z_curr;
-      onetree_to_cycle(OT_CURR, &env->TOUR_OPT);
-
-      printf("# node %d : updated incumbent = %f : node = %d : level = %d\n",
-                env->curr_call, env->incumbent,
-                env->curr_call, env->curr_level);
-
-      return;
-
-    }*/
   }
 
 
@@ -178,18 +59,16 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
     // then the computation of the current 1-tree will be performed
     // in the forward-cheking part.
 
-    status = bb_compute_current_ot(env, stats);
+    status = bb_compute_current_ot(te, ts);
 
-    if (status == FAILURE) {
-      stats->num_fails_compute_ot++;
-      return;
-    }
+    if (status == FAILURE) { ts->num_fails_compute_ot++; return; }
    
   }
 
 
 
-  // ====================================================================
+
+  ///////////////////////////////////////////////////////////////////////
   // START NO-FC SECTION
 
   if (FORWARD_CHECKING_OPT == DISABLED) {
@@ -197,7 +76,7 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
     // ------------------------------------------------------------------
     // Check if we can prune the current branch.
 
-    if (env->z_curr >= env->incumbent + EPSILON) return;
+    if (te->z_curr >= te->incumbent + EPSILON) return;
 
     // ------------------------------------------------------------------
     // Check if the current solution is optimal for the current subtree.
@@ -219,13 +98,13 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
       // better solution in the subtree rooted at
       // the current node of the recursion tree).
 
-      env->incumbent = env->z_opt = env->z_curr;
+      te->incumbent = te->z_curr;
 
-      onetree_to_cycle(OT_CURR, &env->TOUR_OPT);
+      onetree_to_cycle(OT_CURR, &te->TOUR_BEST);
 
       printf("# node %d : updated incumbent = %f : node = %d : level = %d\n",
-                env->curr_call, env->incumbent,
-                env->curr_call, env->curr_level);
+                te->curr_call, te->incumbent,
+                te->curr_call, te->curr_level);
 
       return;
 
@@ -237,12 +116,12 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
     int w, v, u;
 
     // Select the vertex where to perform branching.
-    status = bb_select_node(env, &w, SELECT_NODE_OPT);
+    status = bb_select_node(te, &w, SELECT_NODE_OPT);
 
     if (status == FAILURE) {
       // All the edges (of the 1-tree) incident to the nodes with degree
       // greater or equal to 3 are forced or forbidden.
-      stats->num_fails_select_node++; return;
+      ts->num_fails_select_node++; return;
     }
 
     // Select two edges which are incident to the vertex just found,
@@ -252,7 +131,7 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
     // one edge incident to the vertex which is not forbidden nor forced:
     // branching will be done with respect to this edge.
 
-    status = bb_select_edges(env, &w, &v, &u, SELECT_EDGES_OPT);
+    status = bb_select_edges(te, &w, &v, &u, SELECT_EDGES_OPT);
     // The procedure will always successfully return, since at this point
     // we are guaranteed that vertex w has at least one edge incident
     // to it which is not forced nor forbidden.
@@ -262,9 +141,9 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 
     // (w, v) and (w, u) are two edges of OT_CURR incident to w,
     // which are not forced nor forbidden: we can proceed with 3-way branching.
-    if (v > 0 && u > 0) {
+    if (v >= 0 && u >= 0) {
 
-      stats->num_3_ways_branching++;
+      ts->num_3_ways_branching++;
 
       bb_bkp bkp[3];
       for (i = 0; i < 3; i++) {
@@ -273,21 +152,21 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 
       for (i = 0; i < 3; i++) {
 
-        bb_bkp_save(&bkp[i], env);
+        bb_bkp_save(&bkp[i], te);
 
         switch (i) {
-          case 0  : status = bb_propagate_and_check(w, v, 0,
-                                  FORBIDDEN, 0, env, &bkp[i],
+          case 0  : status = bb_propagate_and_check(w, v, -1,
+                                  FORBIDDEN, -1, te, &bkp[i],
                                   NULL, NOFC_MODE);
                     break;  // Branch #1
 
           case 1  : status = bb_propagate_and_check(w, v, u,
-                                  FORCED, FORBIDDEN, env, &bkp[i],
+                                  FORCED, FORBIDDEN, te, &bkp[i],
                                   NULL, NOFC_MODE);
                     break; // Branch #2
 
           case 2  : status = bb_propagate_and_check(w, v, u,
-                                  FORCED, FORCED, env, &bkp[i],
+                                  FORCED, FORCED, te, &bkp[i],
                                   NULL, NOFC_MODE);
                     break; // Branch #3
 
@@ -295,12 +174,12 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
         }
 
         if (status == SUCCESS) {
-          bb_solver(env, stats);
+          bb_solver(te, ts);
         } else {
-          stats->num_fails_propagate++;
+          ts->num_fails_propagate++;
         }
 
-        bb_bkp_restore(&bkp[i], env);
+        bb_bkp_restore(&bkp[i], te);
         bb_bkp_delete(&bkp[i]);
     
       }
@@ -308,9 +187,9 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 
     // There exists only one edge of OT_CURR incident to w, which is
     // not forced nor forbidden: we proceed with 2-way branching.
-    else if (v > 0) {
+    else if (v >= 0) {
 
-      stats->num_2_ways_branching++;
+      ts->num_2_ways_branching++;
 
       bb_bkp bkp[2];
       for (i = 0; i < 2; i++) {
@@ -319,16 +198,16 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 
       for (i = 0; i < 2; i++) {
 
-        bb_bkp_save(&bkp[i], env);
+        bb_bkp_save(&bkp[i], te);
 
         switch (i) {
-          case 0  : status = bb_propagate_and_check(w, v, 0,
-                                FORBIDDEN, 0, env, &bkp[i],
+          case 0  : status = bb_propagate_and_check(w, v, -1,
+                                FORBIDDEN, -1, te, &bkp[i],
                                 NULL, NOFC_MODE);
                     break;  // Branch #1
 
-          case 1  : status = bb_propagate_and_check(w, v, u,
-                                FORCED, 0, env, &bkp[i],
+          case 1  : status = bb_propagate_and_check(w, v, -1,
+                                FORCED, -1, te, &bkp[i],
                                 NULL, NOFC_MODE);
                     break;  // Branch #2
 
@@ -336,12 +215,12 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
         }
 
         if (status == SUCCESS) {
-          bb_solver(env, stats);
+          bb_solver(te, ts);
         } else {
-          stats->num_fails_propagate++;
+          ts->num_fails_propagate++;
         }
 
-        bb_bkp_restore(&bkp[i], env);
+        bb_bkp_restore(&bkp[i], te);
         bb_bkp_delete(&bkp[i]);
 
       }
@@ -349,13 +228,13 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 
   }
   // END NO-FC SECTION
-  // ===================================================================
+  ///////////////////////////////////////////////////////////////////////
 
 
 
 
 
-  // ===================================================================
+  ///////////////////////////////////////////////////////////////////////
   // START FC SECTION
   if (FORWARD_CHECKING_OPT == ENABLED) {
 
@@ -365,12 +244,12 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
     int w, v, u;
 
     // Select the vertex where to perform branching.
-    status = bb_select_node(env, &w, SELECT_NODE_OPT);
+    status = bb_select_node(te, &w, SELECT_NODE_OPT);
 
     // All the edges (of the 1-tree) incident to the nodes with degree
     // greater or equal to 3 are forced or forbidden.
     if (status == FAILURE) {
-      stats->num_fails_select_node++;
+      ts->num_fails_select_node++;
       return;
     }
 
@@ -382,7 +261,7 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
     // one edge incident to the vertex which is not forbidden nor forced:
     // branching will be done with respect to this edge.
 
-    status = bb_select_edges(env, &w, &v, &u, SELECT_EDGES_OPT);
+    status = bb_select_edges(te, &w, &v, &u, SELECT_EDGES_OPT);
     // The procedure will always successfully return, since at this point
     // we are guaranteed that vertex w has at least one edge incident to
     // it which is not forced nor forbidden.
@@ -392,9 +271,9 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 
     // (w, v) and (w, u) are two edges of OT_CURR incident to w, which are
     // not forced nor forbidden: we can proceed with 3-way branching.
-    if (v > 0 && u > 0) {
+    if (v >= 0 && u >= 0) {
 
-      stats->num_3_ways_branching++;
+      ts->num_3_ways_branching++;
 
       int k;
       int branch_selection[3];
@@ -408,21 +287,21 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 
       for (i = 0; i < 3; i++) {
 
-        bb_bkp_save(&bkp[i], env);
+        bb_bkp_save(&bkp[i], te);
 
         switch (i) {
-          case 0  : status = bb_propagate_and_check(w, v, 0,
-                          FORBIDDEN, 0, env, &bkp[i],
+          case 0  : status = bb_propagate_and_check(w, v, -1,
+                          FORBIDDEN, -1, te, &bkp[i],
                           &update[i], FC_MODE);
                     break; // Branch #1
 
           case 1  : status = bb_propagate_and_check(w, v, u,
-                          FORCED, FORBIDDEN, env, &bkp[i],
+                          FORCED, FORBIDDEN, te, &bkp[i],
                           &update[i], FC_MODE);
                     break; // Branch #2
 
           case 2  : status = bb_propagate_and_check(w, v, u,
-                          FORCED, FORCED, env, &bkp[i],
+                          FORCED, FORCED, te, &bkp[i],
                           &update[i], FC_MODE);
                     break; // Branch #3
 
@@ -430,13 +309,13 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
         }
 
         if (status == SUCCESS) {
-          status = bb_compute_current_ot(env, stats);
+          status = bb_compute_current_ot(te, ts);
           if (status == SUCCESS) {
-            z[i] = env->z_curr;
-            bb_bkp_save(&update[i], env);
+            z[i] = te->z_curr;
+            bb_bkp_save(&update[i], te);
           } else {
-            z[i] = env->incumbent;
-            stats->num_fails_compute_ot++;
+            z[i] = te->incumbent;
+            ts->num_fails_compute_ot++;
           }
           // This is a little trick. In this way, in the following,
           // the branch will not be entered because the condition
@@ -444,21 +323,21 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
           // will never be verified.
         }
         else {
-          stats->num_fails_propagate++;
-          z[i] = env->incumbent;
+          ts->num_fails_propagate++;
+          z[i] = te->incumbent;
         }
 
         // We want to update the incumbent as soon as possible!
-        if (z[i] < env->incumbent && onetree_is_cycle(OT_CURR)) {
-          env->incumbent = env->z_opt = z[i];
-          onetree_to_cycle(OT_CURR, &env->TOUR_OPT);
+        if (z[i] < te->incumbent && onetree_is_cycle(OT_CURR)) {
+          te->incumbent = te->z_opt = z[i];
+          onetree_to_cycle(OT_CURR, &te->TOUR_BEST);
           printf("# node %d : updated incumbent = %f : node = %d : level = %d\n",
-                    env->curr_call, env->incumbent,
-                    env->curr_call, env->curr_level);
+                    te->curr_call, te->incumbent,
+                    te->curr_call, te->curr_level);
         }
 
         // Restore the old configuration.
-        bb_bkp_restore(&bkp[i], env);
+        bb_bkp_restore(&bkp[i], te);
 
       }
 
@@ -500,30 +379,30 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
         switch (branch_selection[k]) {
 
           case 0:
-            if (z[0] < env->incumbent) {
-              bb_bkp_restore(&update[0], env);
-              bb_solver(env, stats);
-              bb_bkp_restore(&bkp[0], env);
+            if (z[0] < te->incumbent) {
+              bb_bkp_restore(&update[0], te);
+              bb_solver(te, ts);
+              bb_bkp_restore(&bkp[0], te);
             }
             bb_bkp_delete(&bkp[0]);
             bb_bkp_delete(&update[0]);
             break;
 
           case 1:
-            if (z[1] < env->incumbent) {
-              bb_bkp_restore(&update[1], env);
-              bb_solver(env, stats);
-              bb_bkp_restore(&bkp[1], env);
+            if (z[1] < te->incumbent) {
+              bb_bkp_restore(&update[1], te);
+              bb_solver(te, ts);
+              bb_bkp_restore(&bkp[1], te);
             }
             bb_bkp_delete(&bkp[1]);
             bb_bkp_delete(&update[1]);
             break;
 
           case 2:
-            if (z[2] < env->incumbent) {
-              bb_bkp_restore(&update[2], env);
-              bb_solver(env, stats);
-              bb_bkp_restore(&bkp[2], env);
+            if (z[2] < te->incumbent) {
+              bb_bkp_restore(&update[2], te);
+              bb_solver(te, ts);
+              bb_bkp_restore(&bkp[2], te);
             }
             bb_bkp_delete(&bkp[2]);
             bb_bkp_delete(&update[2]);
@@ -534,13 +413,13 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 
         }  // end switch
       }  // end for
-    }  // end if v>0, u>0
+    }  // end if v>=0, u>=0
 
     // There exists only one edge of OT_CURR incident to w, which
     // is not forced nor forbidden: we proceed with 2-way branching.
-    else if (v > 0) {
+    else if (v >= 0) {
 
-      stats->num_2_ways_branching++;
+      ts->num_2_ways_branching++;
 
       int    k;
       int    branch_selection[2];
@@ -555,16 +434,16 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 
       for (i = 0; i < 2; i++) {
 
-        bb_bkp_save(&bkp[i], env);
+        bb_bkp_save(&bkp[i], te);
 
         switch (i) {
-          case 0  : status = bb_propagate_and_check(w, v, 0,
-                                  FORBIDDEN, 0, env, &bkp[i],
+          case 0  : status = bb_propagate_and_check(w, v, -1,
+                                  FORBIDDEN, -1, te, &bkp[i],
                                   &update[i], FC_MODE);
                     break; // Branch #1
 
-          case 1  : status = bb_propagate_and_check(w, v, 0,
-                                  FORCED, 0, env, &bkp[i],
+          case 1  : status = bb_propagate_and_check(w, v, -1,
+                                  FORCED, -1, te, &bkp[i],
                                   &update[i], FC_MODE);
                     break; // Branch #2
 
@@ -573,13 +452,13 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
         }
 
         if (status == SUCCESS) {
-          status = bb_compute_current_ot(env, stats);
+          status = bb_compute_current_ot(te, ts);
           if (status == SUCCESS) {
-            z[i] = env->z_curr;
-            bb_bkp_save(&update[i], env);
+            z[i] = te->z_curr;
+            bb_bkp_save(&update[i], te);
           } else {
-            z[i] = env->incumbent;
-            stats->num_fails_compute_ot++;
+            z[i] = te->incumbent;
+            ts->num_fails_compute_ot++;
           }
           // This is a little trick. In this way, in the following,
           // the branch will not be entered because the condition
@@ -587,21 +466,21 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
           // will never be verified.
         }
         else {
-          stats->num_fails_propagate++;
-          z[i] = env->incumbent;
+          ts->num_fails_propagate++;
+          z[i] = te->incumbent;
         }
 
         // We want to update the incumbent as soon as possible!
-        if (z[i] < env->incumbent && onetree_is_cycle(OT_CURR)) {
-          env->incumbent = env->z_opt = z[i];
-          onetree_to_cycle(OT_CURR, &env->TOUR_OPT);
+        if (z[i] < te->incumbent && onetree_is_cycle(OT_CURR)) {
+          te->incumbent = te->z_opt = z[i];
+          onetree_to_cycle(OT_CURR, &te->TOUR_BEST);
           printf("# node %d : updated incumbent = %f : node = %d : level = %d\n",
-                    env->curr_call, env->incumbent,
-                    env->curr_call, env->curr_level);
+                    te->curr_call, te->incumbent,
+                    te->curr_call, te->curr_level);
         }
 
         // Restore the old configuration.
-        bb_bkp_restore(&bkp[i], env);
+        bb_bkp_restore(&bkp[i], te);
       }
 
 
@@ -619,20 +498,20 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
         switch (branch_selection[k]) {
 
           case 1:
-            if (z[0] < env->incumbent) {
-              bb_bkp_restore(&update[0], env);
-              bb_solver(env, stats);
-              bb_bkp_restore(&bkp[0], env);
+            if (z[0] < te->incumbent) {
+              bb_bkp_restore(&update[0], te);
+              bb_solver(te, ts);
+              bb_bkp_restore(&bkp[0], te);
             }
             bb_bkp_delete(&bkp[0]);
             bb_bkp_delete(&update[0]);
             break;
 
           case 2:
-            if (z[1] < env->incumbent) {
-              bb_bkp_restore(&update[1], env);
-              bb_solver(env, stats);
-              bb_bkp_restore(&bkp[1], env);
+            if (z[1] < te->incumbent) {
+              bb_bkp_restore(&update[1], te);
+              bb_solver(te, ts);
+              bb_bkp_restore(&bkp[1], te);
             }
             bb_bkp_delete(&bkp[1]);
             bb_bkp_delete(&update[1]);
@@ -648,7 +527,25 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 
   }
   // END FC SECTION
-  // ============================================================
+  ///////////////////////////////////////////////////////////////////////
+
+
+
+
+  if (te->curr_call == 1) {
+
+    cycle_copy(&te->TOUR_BEST, &te->TOUR_OPT);
+
+    graph_delete(&te->G_OUTPUT); graph_init(&te->G_OUTPUT, n);
+
+    for (i = 0; i < n; i++) {
+      graph_insert_edge(&te->G_OUTPUT, (te->TOUR_OPT).nodes[i], (te->TOUR_OPT).nodes[(i+1)%n],
+      graph_get_edge_cost(&te->G_INPUT, (te->TOUR_OPT).nodes[i], (te->TOUR_OPT).nodes[(i+1)%n]), FREE);
+    }
+
+    te->z_opt = ts->z_opt = te->incumbent;
+
+  }
 
   return;
 } // end bb_solver
@@ -669,13 +566,13 @@ void bb_solver(tsp_env* env, tsp_stats* stats) {
 // (see function compute_ot). The procedure fails in computing a 1-tree
 // if and only if no 1-tree without forbidden edges exists for the current
 // graph. In this case the function returns FAILURE.
-int bb_compute_current_ot(tsp_env* env, tsp_stats* stats) {
+int bb_compute_current_ot(tsp_env* te, tsp_stats* ts) {
 
   double ub, lb;
   int status; 
 
-  graph* G_CURR = &env->G_CURR;
-  onetree* OT_CURR = &env->OT_CURR;
+  graph* G_CURR = &te->G_CURR;
+  onetree* OT_CURR = &te->OT_CURR;
 
   int n = G_CURR->n;
   cycle CYCLE;
@@ -699,11 +596,11 @@ int bb_compute_current_ot(tsp_env* env, tsp_stats* stats) {
 
     status = compute_lagrange(G_CURR, OT_CURR, ub, &lb);
 
-    env->z_curr = lb;
+    te->z_curr = lb;
 
   } else {
 
-    stats->num_fails_compute_ub++;
+    ts->num_fails_compute_ub++;
 
     /*
     // Decomment this block if you want to use compute_ot when
@@ -720,7 +617,7 @@ int bb_compute_current_ot(tsp_env* env, tsp_stats* stats) {
     // compute_ot, which is based on a simple application of
     // Prim's algorithm, without looking for some better lower-bounding 1-tree.
 
-    status = compute_ot(G_CURR, OT_CURR);
+    status = compute_min_ot(G_CURR, OT_CURR);
 
     if (status == SUCCESS) {
       env->z_curr = onetree_get_cost(OT_CURR);
@@ -746,10 +643,10 @@ int bb_compute_current_ot(tsp_env* env, tsp_stats* stats) {
     // in a specific variable of the environnement, say it .dumb_ub.
     
     printf("trying optimizing the lagrangean function using the dumb upper bound...\n");
-    status = compute_lagrange(G_CURR, OT_CURR, env->dumb_ub, &lb);
+    status = compute_lagrange(G_CURR, OT_CURR, te->dumb_ub, &lb);
 
     if (status == SUCCESS) {
-      env->z_curr = lb;
+      te->z_curr = lb;
     } else {
 
       // It may be the case that no 1-tree with not-forbidden edges exists;
@@ -759,7 +656,7 @@ int bb_compute_current_ot(tsp_env* env, tsp_stats* stats) {
       // thus we can safely prune the branch.
 
       printf("# call %d : return: no spanning tree exists satisfying the constraints\n",
-                env->curr_call);
+                te->curr_call);
 
       return FAILURE;
 
@@ -776,7 +673,7 @@ int bb_compute_current_ot(tsp_env* env, tsp_stats* stats) {
   // is not above some threshold.
   if (INTEGER_ROUNDING_OPT == ENABLED) {
     if (lb - floor(lb) > SAFE_ROUNDING_THRESHOLD) lb = ceil(lb);
-    else stats->num_fails_integer_rounding++;
+    else ts->num_fails_integer_rounding++;
   }
 
   return SUCCESS;

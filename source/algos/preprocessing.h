@@ -1,8 +1,7 @@
-#ifndef __PREPROCESSING_H
-#define __PREPROCESSING_H
+#ifndef __BB_PREPROCESSING_H
+#define __BB_PREPROCESSING_H
 
 #include <stdio.h>
-#include <assert.h>
 
 #include "../base/constants.h"
 #include "../base/utils.h"
@@ -11,8 +10,8 @@
 #include "../data/tsp_env.h"
 #include "../data/tsp_stats.h"
 
-#include "../algos/compute_upper_bound.h"
-#include "../algos/compute_lagrange.h"
+#include "compute_upper_bound.h"
+#include "compute_lagrange.h"
 
 /**
  * preprocess the tsp instance, computing upper and lower bounds
@@ -24,7 +23,7 @@
  * @return     status of preprocessing
  */
 int preprocessing(graph      *G,
-                  parameters *pars,
+		  parameters *pars,
                   tsp_env    *te,
                   tsp_stats  *ts);
 

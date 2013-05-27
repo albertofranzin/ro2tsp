@@ -24,5 +24,14 @@ int cpx_add_my_sec(CPXENVptr   env,
                    int         n,
                    int         my_mark,
                    parameters *pars);
+/*
+int cpx_add_my_cb_sec(CPXCENVptr   env,
+                   CPXLPptr    lp,
+                   cpx_table  *hash_table,
+                   int        *vrtx_mrks,
+                   int         n,
+                   int         my_mark,
+                   parameters *pars);
+*/
 
 #endif

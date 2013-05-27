@@ -1,10 +1,13 @@
-#include "compute_ot.h"
+#include "compute_min_ot.h"
 
-int compute_ot(graph* G, onetree* OT) {
+
+
+int compute_min_ot(graph* G, onetree* OT) {
+
   int i, j, v, v1, v2, flag, some_forced_edges;
   double min1, min2, c;
 
-  int n = (*G).n;
+  int n = G->n;
 
 
 
@@ -20,19 +23,19 @@ int compute_ot(graph* G, onetree* OT) {
 
   // Find the first node v1.
   some_forced_edges = 0;
-  for (v = 1; v <= n; v++) {
-    if (v != 1 && graph_get_edge_constr(G, 1, v) == FORCED) {
+  for (v = 1; v < n; v++) {
+    if (graph_get_edge_constr(G, 0, v) == FORCED) {
       some_forced_edges = 1;
       break;
     }
   }
 
-  v1 = 0;
+  v1 = -1;
   if (some_forced_edges == 0) {
     flag = 0;
-    for (v = 1; v <= n; v++) {
-      if (v != 1 && graph_get_edge_constr(G, 1, v) != FORBIDDEN) {
-	c = graph_get_edge_cost(G, 1, v);
+    for (v = 1; v < n; v++) {
+      if (graph_get_edge_constr(G, 0, v) != FORBIDDEN) {
+	c = graph_get_edge_cost(G, 0, v);
 	if (flag == 0) {
 	  v1 = v;
 	  min1 = c;
@@ -48,9 +51,9 @@ int compute_ot(graph* G, onetree* OT) {
 
   else {
     flag = 0;
-    for (v = 1; v <= n; v++) {
-      if (v != 1 && graph_get_edge_constr(G, 1, v) == FORCED) {
-	c = graph_get_edge_cost(G, 1, v);
+    for (v = 1; v < n; v++) {
+      if (graph_get_edge_constr(G, 0, v) == FORCED) {
+	c = graph_get_edge_cost(G, 0, v);
 	if (flag == 0) {
 	  v1 = v;
 	  min1 = c;
@@ -64,25 +67,25 @@ int compute_ot(graph* G, onetree* OT) {
     }
   }
 
-  if (v1 == 0) {
+  if (v1 < 0) {
     return FAILURE;
   }
 
   // Find the second node v2.
   some_forced_edges = 0;
-  for (v = 1; v <= n; v++) {
-    if (v != 1 && v != v1 && graph_get_edge_constr(G, 1, v) == FORCED) {
+  for (v = 1; v < n; v++) {
+    if (v != v1 && graph_get_edge_constr(G, 0, v) == FORCED) {
       some_forced_edges = 1;
       break;
     }
   }
 
-  v2 = 0;
+  v2 = -1;
   if (some_forced_edges == 0) {
     flag = 0;
-    for (v = 1; v <= n; v++) {
-      if (v != 1 && v != v1 && graph_get_edge_constr(G, 1, v) != FORBIDDEN) {
-	c = graph_get_edge_cost(G, 1, v);
+    for (v = 1; v < n; v++) {
+      if (v != v1 && graph_get_edge_constr(G, 0, v) != FORBIDDEN) {
+	c = graph_get_edge_cost(G, 0, v);
 	if (flag == 0) {
 	  v2 = v;
 	  min2 = c;
@@ -98,9 +101,9 @@ int compute_ot(graph* G, onetree* OT) {
 
   else {
     flag = 0;
-    for (v = 1; v <= n; v++) {
-      if (v != 1 && v != v1 && graph_get_edge_constr(G, 1, v) == FORCED) {
-	c = graph_get_edge_cost(G, 1, v);
+    for (v = 1; v < n; v++) {
+      if (v != v1 && graph_get_edge_constr(G, 0, v) == FORCED) {
+	c = graph_get_edge_cost(G, 0, v);
 	if (flag == 0) {
 	  v2 = v;
 	  min2 = c;
@@ -114,7 +117,7 @@ int compute_ot(graph* G, onetree* OT) {
     }
   }
 
-  if (v2 == 0) {
+  if (v2 < 0) {
     return FAILURE;
   }
 
@@ -133,11 +136,11 @@ int compute_ot(graph* G, onetree* OT) {
 
 
 
-  int pred[n-1];      
+  int pred[n];      
 		    
 		    
 
-  double cost[n-1];
+  double cost[n];
 
 
 
@@ -170,11 +173,11 @@ int compute_ot(graph* G, onetree* OT) {
 
   // Initial operations.
 
-  for (v = 2; v <= n; v++) {
+  for (v = 1; v < n; v++) {
 
     if (v == root) {
 
-      pred[root-2] = 0;
+      pred[root] = -1;
 
     }
     else {
@@ -182,12 +185,12 @@ int compute_ot(graph* G, onetree* OT) {
       list_push_last(&not_visited, v);
 
       if (graph_get_edge_constr(G, root, v) != FORBIDDEN) {
-	pred[v-2] = root;
-	cost[v-2] = graph_get_edge_cost(G, root, v);
+	pred[v] = root;
+	cost[v] = graph_get_edge_cost(G, root, v);
       }
 
       else {
-        pred[v-2] = 0;
+        pred[v] = -1;
       }
 
     }
@@ -207,39 +210,39 @@ int compute_ot(graph* G, onetree* OT) {
     // We try to extend the region of visited vertices. 
 
     some_forced_edges = 0;
-    node_curr = list_get_first(&not_visited);
+    node_curr = not_visited.head.next;
     for (i = 0; i < n-k-2; i++) {
 
-      v = (*node_curr).data;
-      if (pred[v-2] >  0 && graph_get_edge_constr(G, pred[v-2], v) == FORCED) {
+      v = node_curr->data;
+      if (pred[v] >=  0 && graph_get_edge_constr(G, pred[v], v) == FORCED) {
 	some_forced_edges = 1;
 	break;
       }
-      node_curr = list_get_next(&not_visited, node_curr);
+      node_curr = node_curr->next;
     }
 
     if (some_forced_edges == 0) {
 
       flag = 0;
-      v_min = 0;
-      node_curr = list_get_first(&not_visited);
+      v_min = -1;
+      node_curr = not_visited.head.next;
       for (i = 0; i < n-k-2; i++) {
-	v = (*node_curr).data;
+	v = node_curr->data;
 
-	if (flag == 0 && pred[v-2] > 0) {
+	if (flag == 0 && pred[v] >= 0) {
 	  v_min = v;
-	  cost_min = cost[v-2];
+	  cost_min = cost[v];
 	  node_min = node_curr;
 	  flag = 1;
 	}
 
-	else if (flag == 1 && pred[v-2] > 0 && cost[v-2] < cost_min) {
+	else if (flag == 1 && pred[v] >= 0 && cost[v] < cost_min) {
 	  v_min = v;
-	  cost_min = cost[v-2];
+	  cost_min = cost[v];
 	  node_min = node_curr;
 	}
 
-	node_curr = list_get_next(&not_visited, node_curr);
+	node_curr = node_curr->next;
       }
 
     }
@@ -247,30 +250,30 @@ int compute_ot(graph* G, onetree* OT) {
     else {
 
       flag = 0;
-      v_min = 0;
-      node_curr = list_get_first(&not_visited);
+      v_min = -1;
+      node_curr = not_visited.head.next;
       for (i = 0; i < n-k-2; i++) {
-	v = (*node_curr).data;
+	v = node_curr->data;
 
-	if (flag == 0 && pred[v-2] > 0 && graph_get_edge_constr(G, pred[v-2], v) == FORCED) {
+	if (flag == 0 && pred[v] >= 0 && graph_get_edge_constr(G, pred[v], v) == FORCED) {
 	  v_min = v;
-	  cost_min = cost[v-2];
+	  cost_min = cost[v];
 	  node_min = node_curr;
 	  flag = 1;
 	}
 
-	else if (flag == 1 && pred[v-2] > 0 && graph_get_edge_constr(G, pred[v-2], v) == FORCED && cost[v-2] < cost_min) {
+	else if (flag == 1 && pred[v] >= 0 && graph_get_edge_constr(G, pred[v], v) == FORCED && cost[v] < cost_min) {
 	  v_min = v;
-	  cost_min = cost[v-2];
+	  cost_min = cost[v];
 	  node_min = node_curr;
 	}
 
-	node_curr = list_get_next(&not_visited, node_curr);
+	node_curr = node_curr->next;
       }
 
     }
 
-    if (v_min == 0) { 
+    if (v_min < 0) { 
       return FAILURE;
     }
 
@@ -279,7 +282,7 @@ int compute_ot(graph* G, onetree* OT) {
     // Remove the selected vertex from the list of not-visited vertices and insert the new edge in the solution.
 
     list_remove(&not_visited, node_min);
-    onetree_insert_edge(OT, pred[v_min-2], v_min, graph_get_edge_cost(G, pred[v_min-2], v_min), graph_get_edge_constr(G, pred[v_min-2], v_min));
+    onetree_insert_edge(OT, pred[v_min], v_min);
 
 
     // ------------------------------------------
@@ -288,38 +291,38 @@ int compute_ot(graph* G, onetree* OT) {
 
     if (n-k-3 > 0) { // The list contains one less vertex than before, and it may be empty if we are done.
 
-      node_curr = list_get_first(&not_visited);
+      node_curr = not_visited.head.next;
       for (i = 0; i < n-k-3; i++) {
-	v = (*node_curr).data;
+	v = node_curr->data;
 	new_cost = graph_get_edge_cost(G, v_min, v);
 	new_constr = graph_get_edge_constr(G, v_min, v);
 
 	if (new_constr != FORBIDDEN) {
 
-	  if (pred[v-2] == 0) { // Vertex v has no predecessor.
+	  if (pred[v] < 0) { // Vertex v has no predecessor.
 
-	    pred[v-2] = v_min;
-	    cost[v-2] = new_cost;
+	    pred[v] = v_min;
+	    cost[v] = new_cost;
 
 	  }
 
 	  else { // Vertex v has already a predecessor pred[v].
 
-	    old_cost = graph_get_edge_cost(G, pred[v-2], v);
-	    old_constr = graph_get_edge_constr(G, pred[v-2], v);
+	    old_cost = graph_get_edge_cost(G, pred[v], v);
+	    old_constr = graph_get_edge_constr(G, pred[v], v);
 
 	    if ( (new_constr == FORCED && old_constr == FREE) ||
 		 (new_constr == FREE && old_constr == FREE && new_cost < old_cost) ||
 		 (new_constr == FORCED && old_constr == FORCED && new_cost < old_cost) ) {
 
-        	      pred[v-2] = v_min;
- 	              cost[v-2] = new_cost;
+        	      pred[v] = v_min;
+ 	              cost[v] = new_cost;
 	      
 	    }
 	  }
 	}
 
-	node_curr = list_get_next(&not_visited, node_curr);
+	node_curr = node_curr->next;
       }
 
     }
@@ -329,13 +332,13 @@ int compute_ot(graph* G, onetree* OT) {
   // ----------------------------------------------------------------------
 
   // We add to the solution the two edges (1, v1), (1, w2).
-  onetree_insert_edge(OT, 1, v1, min1, graph_get_edge_constr(G, 1, v1)); // In practice what we do here is to insert the edge(1, v1) setting 1 as the predecessor of v1 (see onetree_insert_edge procedure);
+  onetree_insert_edge(OT, 0, v1); // In practice what we do here is to insert the edge(1, v1) setting 1 as the predecessor of v1 (see onetree_insert_edge procedure);
                                         // we can do this safely since up to now  v1 has been considered as the root of the tree spanning on vertices 2, 3, ..., n, so its predecessor pointer has nevere been reserved.
  
-  onetree_insert_edge(OT, v2, 1, min2, graph_get_edge_constr(G, v2, 1));
+  onetree_insert_edge(OT, v2, 0);
 
-  (*OT).v1 = v1;
-  (*OT).v2 = v2;
+  OT->nn1 = v1;
+  OT->nn2 = v2;
 
   return SUCCESS;
 }

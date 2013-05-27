@@ -1,13 +1,14 @@
 // NOTA: si assume G grafo completo
 
-#include "compute_mst.h"
+#include "compute_min_st.h"
 
-int compute_mst(graph* G, tree* T, int root) {
+int compute_min_st(graph* G, tree* T, int root) {
+
   int i, k, v, v_min, new_constr, old_constr, flag, some_forced_edges;
   double cost_min, new_cost, old_cost; 
   list_node* node_curr;
   list_node* node_min;
-  int n = (*G).n;
+  int n = G->n;
 
 
 
@@ -36,11 +37,11 @@ int compute_mst(graph* G, tree* T, int root) {
   // All other vertices are marked as not-visited and added to the list not_visited.
   // For all vertices v which are not yet visited and are connected to the root through a free or forced edge, pred[v] is set equal to the root.
   // The predecessor of all other vertices that are connected to the root through a forbidden edge, is set equal to 0.
-  for (v = 1; v <= n; v++) {
+  for (v = 0; v < n; v++) {
 
     if (v == root) {
 
-      pred[root-1] = 0;
+      pred[root] = -1;
 
     }
     else {
@@ -48,12 +49,12 @@ int compute_mst(graph* G, tree* T, int root) {
       list_push_last(&not_visited, v);
 
       if (graph_get_edge_constr(G, root, v) != FORBIDDEN) {
-	pred[v-1] = root;
-	cost[v-1] = graph_get_edge_cost(G, root, v);
+	pred[v] = root;
+	cost[v] = graph_get_edge_cost(G, root, v);
       }
 
       else {
-        pred[v-1] = 0;
+        pred[v] = -1;
       }
 
     }
@@ -83,14 +84,14 @@ int compute_mst(graph* G, tree* T, int root) {
 
     // Check if there is some vertex v such that (pred[v], v) is a forced edge.
     some_forced_edges = 0;
-    node_curr = list_get_first(&not_visited);
+    node_curr = not_visited.head.next;
     for (i = 0; i < n-k-1; i++) {
-      v = (*node_curr).data;
-      if (pred[v-1] >  0 && graph_get_edge_constr(G, pred[v-1], v) == FORCED) {
+      v = node_curr->data;
+      if (pred[v] >=  0 && graph_get_edge_constr(G, pred[v], v) == FORCED) {
 	some_forced_edges = 1;
 	break;
       }
-      node_curr = list_get_next(&not_visited, node_curr);
+      node_curr = node_curr->next;
     }
 
 
@@ -98,25 +99,25 @@ int compute_mst(graph* G, tree* T, int root) {
     if (some_forced_edges == 0) {
 
       flag = 0;
-      v_min = 0;
-      node_curr = list_get_first(&not_visited);
+      v_min = -1;
+      node_curr = not_visited.head.next;
       for (i = 0; i < n-k-1; i++) {
-	v = (*node_curr).data;
+	v = node_curr->data;
 
-	if (flag == 0 && pred[v-1] > 0) {
+	if (flag == 0 && pred[v] >= 0) {
 	  v_min = v;
-	  cost_min = cost[v-1];
+	  cost_min = cost[v];
 	  node_min = node_curr;
 	  flag = 1;
 	}
 
-	else if (flag == 1 && pred[v-1] > 0 && cost[v-1] < cost_min) {
+	else if (flag == 1 && pred[v] >= 0 && cost[v] < cost_min) {
 	  v_min = v;
-	  cost_min = cost[v-1];
+	  cost_min = cost[v];
 	  node_min = node_curr;
 	}
 
-	node_curr = list_get_next(&not_visited, node_curr);
+	node_curr = node_curr->next;
       }
 
     }
@@ -126,30 +127,30 @@ int compute_mst(graph* G, tree* T, int root) {
     else {
 
       flag = 0;
-      v_min = 0;
-      node_curr = list_get_first(&not_visited);
+      v_min = -1;
+      node_curr = not_visited.head.next;
       for (i = 0; i < n-k-1; i++) {
-	v = (*node_curr).data;
+	v = node_curr->data;
 
-	if (flag == 0 && pred[v-1] > 0 && graph_get_edge_constr(G, pred[v-1], v) == FORCED) {
+	if (flag == 0 && pred[v] >= 0 && graph_get_edge_constr(G, pred[v], v) == FORCED) {
 	  v_min = v;
-	  cost_min = cost[v-1];
+	  cost_min = cost[v];
 	  node_min = node_curr;
 	  flag = 1;
 	}
 
-	else if (flag == 1 && pred[v-1] > 0 && graph_get_edge_constr(G, pred[v-1], v) == FORCED && cost[v-1] < cost_min) {
+	else if (flag == 1 && pred[v] >= 0 && graph_get_edge_constr(G, pred[v], v) == FORCED && cost[v] < cost_min) {
 	  v_min = v;
-	  cost_min = cost[v-1];
+	  cost_min = cost[v];
 	  node_min = node_curr;
 	}
 
-	node_curr = list_get_next(&not_visited, node_curr);
+	node_curr = node_curr->next;
       }
 
     }
 
-    if (v_min == 0) { // If no free or forced edge exists from the visited region to the not-visited one, then exit the main loop.
+    if (v_min < 0) { // If no free or forced edge exists from the visited region to the not-visited one, then exit the main loop.
       break;
     }
 
@@ -159,7 +160,7 @@ int compute_mst(graph* G, tree* T, int root) {
     // Remove the selected vertex from the list of not-visited vertices.
     // Insert the edge (pred[v-1], v) in the solution.
     list_remove(&not_visited, node_min);
-    tree_insert_edge(T, pred[v_min-1], v_min, graph_get_edge_cost(G, pred[v_min-1], v_min));
+    tree_insert_edge(T, pred[v_min], v_min);
 
  
     // ------------------------------------------
@@ -168,38 +169,38 @@ int compute_mst(graph* G, tree* T, int root) {
 
     if (n-k-2 > 0) { // The list contains one less vertex than before, and it may be empty if we are done.
 
-      node_curr = list_get_first(&not_visited);
+      node_curr = not_visited.head.next;
       for (i = 0; i < n-k-2; i++) {
-	v = (*node_curr).data;
+	v = node_curr->data;
 	new_cost = graph_get_edge_cost(G, v_min, v);
 	new_constr = graph_get_edge_constr(G, v_min, v);
 
 	if (new_constr != FORBIDDEN) {
 
-	  if (pred[v-1] == 0) { // Vertex v has no predecessor.
+	  if (pred[v] < 0) { // Vertex v has no predecessor.
 
-	    pred[v-1] = v_min;
-	    cost[v-1] = new_cost;
+	    pred[v] = v_min;
+	    cost[v] = new_cost;
 
 	  }
 
 	  else { // Vertex v has already a predecessor pred[v].
 
-	    old_cost = graph_get_edge_cost(G, pred[v-1], v);
-	    old_constr = graph_get_edge_constr(G, pred[v-1], v);
+	    old_cost = graph_get_edge_cost(G, pred[v], v);
+	    old_constr = graph_get_edge_constr(G, pred[v], v);
 
 	    if ( (new_constr == FORCED && old_constr == FREE) ||
 		 (new_constr == FREE && old_constr == FREE && new_cost < old_cost) ||
 		 (new_constr == FORCED && old_constr == FORCED && new_cost < old_cost) ) {
 
-        	      pred[v-1] = v_min;
- 	              cost[v-1] = new_cost;
+        	      pred[v] = v_min;
+ 	              cost[v] = new_cost;
 	      
 	    }
 	  }
 	}
 
-	node_curr = list_get_next(&not_visited, node_curr);
+	node_curr = node_curr->next;
       }
 
     }

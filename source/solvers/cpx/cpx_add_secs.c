@@ -3,11 +3,11 @@
 int cpx_add_secs(CPXENVptr   env,
                  CPXLPptr    lp,
                  cpx_table  *hash_table,
-                 graph      *G,
                  parameters *pars)
 {
 
-  int n = (*G).n;
+  int n = pars->number_of_nodes;
+
   int i, j, numcols, numedgs, status;
 
   numcols = CPXgetnumcols(env, lp);
@@ -21,7 +21,7 @@ int cpx_add_secs(CPXENVptr   env,
   numedgs = 0;
   for (i = 0; i < numcols; i++) {
 
-    if (sol[i] > 0.9)  edg_inds[numedgs++] = i+1;
+    if (sol[i] > 0.9)  edg_inds[numedgs++] = i;
 
   }
 
@@ -31,8 +31,9 @@ int cpx_add_secs(CPXENVptr   env,
 
   int vrtx_neighbour1[n];
   int vrtx_neighbour2[n];
-  memset(vrtx_neighbour1, 0, sizeof(vrtx_neighbour1));
-  memset(vrtx_neighbour2, 0, sizeof(vrtx_neighbour2));
+  for (i = 0; i < n; i++) vrtx_neighbour1[i] = vrtx_neighbour2[i] = -1;
+  //memset(vrtx_neighbour1, 0, sizeof(vrtx_neighbour1));
+  //memset(vrtx_neighbour2, 0, sizeof(vrtx_neighbour2));
 
   for (i = 0; i < numedgs; i++) {
 
@@ -40,58 +41,66 @@ int cpx_add_secs(CPXENVptr   env,
 
     vertices_from_indx(hash_table, &x, &y, ind);
 
-    if (vrtx_neighbour1[x-1] == 0) vrtx_neighbour1[x-1] = y;
-    else                           vrtx_neighbour2[x-1] = y;
+    if (vrtx_neighbour1[x] == -1) vrtx_neighbour1[x] = y;
+    else                          vrtx_neighbour2[x] = y;
 
-    if (vrtx_neighbour1[y-1] == 0) vrtx_neighbour1[y-1] = x;
-    else                           vrtx_neighbour2[y-1] = x;
+    if (vrtx_neighbour1[y] == -1) vrtx_neighbour1[y] = x;
+    else                          vrtx_neighbour2[y] = x;
 
   }
 
   int vrtx_start, vrtx_curr, my_mark;
 
   int vrtx_mrks[n];
-  memset(vrtx_mrks, 0, sizeof(vrtx_mrks));
-  vrtx_start = 1; my_mark = 1;
+  for (i = 0; i < n; i++) vrtx_mrks[i] = -1;
+  vrtx_start = 0; my_mark = 0;
 
   int termination = FALSE;
 
   while (!termination) {
 
-    vrtx_curr = vrtx_neighbour1[vrtx_start-1];
-    vrtx_mrks[vrtx_curr-1] = my_mark;
+    vrtx_curr = vrtx_neighbour1[vrtx_start];
+    vrtx_mrks[vrtx_curr] = my_mark;
 
-    vrtx_curr = (vrtx_neighbour1[vrtx_curr-1] != vrtx_start) ?
-                  vrtx_neighbour1[vrtx_curr-1] :
-                  vrtx_neighbour2[vrtx_curr-1];
-    vrtx_mrks[vrtx_curr-1] = my_mark;
+    vrtx_curr = (vrtx_neighbour1[vrtx_curr] != vrtx_start) ?
+                  vrtx_neighbour1[vrtx_curr] :
+                  vrtx_neighbour2[vrtx_curr];
+
+    vrtx_mrks[vrtx_curr] = my_mark;
+
+
 
     while (vrtx_curr != vrtx_start) {
-      vrtx_curr = (vrtx_mrks[vrtx_neighbour1[vrtx_curr-1]-1] == 0) ?
-                  vrtx_neighbour1[vrtx_curr-1] :
-                  vrtx_neighbour2[vrtx_curr-1];
-      vrtx_mrks[vrtx_curr-1] = my_mark;
+
+      vrtx_curr = (vrtx_mrks[vrtx_neighbour1[vrtx_curr]] == -1) ?
+                  vrtx_neighbour1[vrtx_curr] :
+                  vrtx_neighbour2[vrtx_curr];
+
+      vrtx_mrks[vrtx_curr] = my_mark;
+
     }
 
-    vrtx_start = 0;
+
+
+    vrtx_start = -1;
     for (i = 0; i < n; i++) {
-      if (vrtx_mrks[i] == 0) {
-          vrtx_start = i+1;
+      if (vrtx_mrks[i] == -1) {
+          vrtx_start = i;
           break;
       }
     }
 
-    if (vrtx_start == 0) termination = TRUE;
-    else                 my_mark++;
+    if (vrtx_start == -1) termination = TRUE;
+    else                           my_mark++;
 
   }
 
 
-  int numsubtrs = my_mark;
+  int numsubtrs = my_mark + 1;
 
   if (numsubtrs > 1) {
 
-    for (my_mark = 1; my_mark <= numsubtrs; my_mark++) {
+    for (my_mark = 0; my_mark < numsubtrs; my_mark++) {
 
       cpx_add_my_sec(env, lp, hash_table, vrtx_mrks, n, my_mark, pars);
 
@@ -105,6 +114,7 @@ int cpx_add_secs(CPXENVptr   env,
 }
 
 
+/*
 int cpx_add_cb_secs(CPXCENVptr  env,
                     CPXLPptr    lp,
                     cpx_table  *hash_table,
@@ -113,7 +123,7 @@ int cpx_add_cb_secs(CPXCENVptr  env,
 
 
 
-/*#ifdef DEBUG
+#ifdef DEBUG
   if (pars->verbosity >= ESSENTIAL) {
     printf("# of subtours found : %d\n", num_of_subtours);
   }
@@ -152,5 +162,6 @@ int cpx_add_cb_secs(CPXCENVptr  env,
     // Tell CPLEX that cuts have been created
     *useraction_p = CPX_CALLBACK_SET;
 
-  }*/
+  }
 }
+*/

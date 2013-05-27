@@ -3,9 +3,8 @@
 
 #include "../../base/constants.h"
 #include "../../data/graph.h"
-#include "../../data/clist.h"
+#include "../../data/elist.h"
 #include "../../data/tsp_env.h"
-//#include "bb_env.h"
 #include "bb_bkp.h"
 
 int bb_apply_and_check(int       w,
