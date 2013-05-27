@@ -9,9 +9,10 @@
 
 #include "../../base/utils.h"
 
-#include "cpx_solver.h"
-#include "cpx_add_sec.h"
+//#include "cpx_solver.h"
+#include "cpx_add_secs.h"
 #include "cpx_table.h"
+
 
 /**
  * parameters passed to the callback
@@ -29,6 +30,16 @@ typedef struct _cutinfo {
   int         number_of_nodes;
   parameters *pars;
 } cutinfo;
+
+typedef struct _icbinfo {
+
+  CPXLPptr    lp;
+  cpx_table  *hash_table;
+  parameters *pars;
+
+} icbinfo;
+
+
 
 /**
  * [cpx_subtour_callback description]
@@ -62,5 +73,7 @@ int CPXPUBLIC cpx_flow_callback(CPXCENVptr  env,
                                 int         wherefrom,
                                 void       *cbhandle,
                                 int        *useraction_p);
+
+
 
 #endif

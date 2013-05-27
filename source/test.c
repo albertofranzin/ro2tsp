@@ -46,27 +46,6 @@ int main (int argc, char *argv[]) {
                 pars->number_of_nodes, pars->seed);
   }
 
-  /*
-  //printf("creating a cycle\n");
-  cycle C;
-  cycle_init(&C, 1);
-  //printf("cycle created\n");
-
-  double heuristic_upper_bound;
-  heuristic_upper_bound = compute_upper_bound(&G, &C, pars->heuristic_algo);
-  //heuristic_upper_bound = compute_upper_bound(&G, &NN, pars->heuristic_algo);
-  printf("@ Nearest Neighbour Heuristic\n# upper bound = %f\n", heuristic_upper_bound);
-
-  double lagr_lower_bound;
-  onetree NN;
-  onetree_init(&NN, pars->number_of_nodes);
-  lagr_lower_bound = compute_lagrange(&G, &NN, heuristic_upper_bound);
-
-  printf("bounds for the solution: [%f, %f]\n", heuristic_upper_bound, lagr_lower_bound);
-  
-
-  double incumbent = heuristic_upper_bound;
-  */
 
   tsp_env te;
   tsp_env_init(&te);
@@ -83,35 +62,15 @@ int main (int argc, char *argv[]) {
     case BRANCH_AND_BOUND :
       {
 
-        /*bb_env env;
-        bb_env_init(&env);
-
-        graph_copy(&G, &env.G_INPUT);
-        egraph_copy(&EG, &env.EG_INPUT);
-
-        bb_stats stats;
-        bb_stats_init(&stats);*/
-
-
-        // bb_solver(&env, &stats);
-
         start = clock();
 
         bb_solver(&te, &ts);
 
         end = clock();
 
-        printf("--------------------------------------------------------------\n");
-        printf("# cost of the optimal solution = %f\n", te.z_opt);
-        tsp_stats_print(&ts);
+        tsp_stats_print(&ts, pars);
 
-        cycle_plot(&te.TOUR_OPT, &EG, "OPT TOUR");
-
-        printf("# quality of bounds:\n");
-        printf("- best heur. upper bound  = %f\n",
-                  ts.init_ub / te.z_opt );
-        printf("- lagr. lower bound       = %f\n",
-                  ts.init_lb / te.z_opt);
+        graph_plot(&te.G_OUTPUT, &EG, "optimal tour");
 
       }
         break;
@@ -119,42 +78,23 @@ int main (int argc, char *argv[]) {
     case CPLEX :
       {
 
-      graph H;
-      graph_init(&H, 1);
-
-      printf("upper bound: %f\n", te.input_ub);
-
       start = clock();
 
       cpx_solver(&te, &ts, pars);
 
       end = clock();
 
-      printf("# cost of the optimal solution = %f\n", graph_get_cost(&H));
-      tsp_stats_print(&ts);
+      tsp_stats_print(&ts, pars);
 
-      graph_plot(&te.G_OUTPUT, &EG, "OPT TOUR");
-
-      printf("# quality of bounds:\n");
-      printf("- best heur. upper bound  = %f\n",
-                ts.init_ub / te.z_opt );
-      printf("- lagr. lower bound       = %f\n",
-                ts.init_lb / te.z_opt);
-
+      graph_plot(&te.G_OUTPUT, &EG, "optimal tour");
+	
       }
         break;
-
+	
   }
 
   printf("time spent in actual solving: %f s\n",
         ((double) (end - start)) / CLOCKS_PER_SEC);
-
-/*
-  printf("Optimal cost: %f\n", incumbent);
-  printf("Quality of bounds:\n");
-  printf("- upper bound/opt : %f\n", heuristic_upper_bound / incumbent);
-  printf("- lagr. lower bound : %f\n", lagr_lower_bound / incumbent);
-*/
 
   return 0;
 }

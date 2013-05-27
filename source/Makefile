@@ -36,22 +36,30 @@ debug:  test
 
 
 # link libraries
-buildLib: list.o clist.o elist.o tree.o graph.o onetree.o egraph.o cycle.o \
-	compute_mst.o compute_ot.o compute_lagrange.o compute_upper_bound.o \
-	compute_deltas.o bb_env.o bb_stats.o bb_bkp.o bb_select_node.o \
-	bb_select_edges.o bb_propagate.o bb_remove_fat_edges.o bb_solver.o \
+buildLib: list.o elist.o tree.o graph.o onetree.o egraph.o cycle.o \
+	compute_min_st.o compute_min_ot.o compute_lagrange.o compute_upper_bound.o \
+	compute_deltas.o bb_bkp.o bb_select_node.o \
+	bb_select_edges.o bb_propagate.o bb_forbid_fat_edges.o bb_solver.o \
+	base.o utils.o preprocessing.o cpx_callbacks.o \
 	cpx_table.o cpx_create_problem.o cpx_setup_problem.o cpx_add_my_sec.o \
 	cpx_add_secs.o cpx_add_kruskal_secs.o cpx_solver.o base.o utils.o \
-	tsp_env.o tsp_stats.o preprocessing.o cpx_callbacks.o
+	tsp_env.o tsp_stats.o
 	ar r libro2ds.a *.o
 	#rm *.o
+
+#buildLib: list.o elist.o tree.o graph.o onetree.o egraph.o cycle.o \
+#	compute_min_st.o compute_min_ot.o compute_lagrange.o compute_upper_bound.o \
+#	compute_deltas.o bb_bkp.o bb_select_node.o bb_preprocessing.o \
+#	bb_select_edges.o bb_propagate.o bb_forbid_fat_edges.o bb_solver.o \
+#	cpx_table.o cpx_create_problem.o cpx_setup_problem.o cpx_add_my_sec.o \
+#	cpx_add_secs.o cpx_add_kruskal_secs.o cpx_solver.o base.o utils.o \
+#	tsp_env.o tsp_stats.o cpx_callbacks.o
+#	ar r libro2ds.a *.o
+#	#rm *.o
 
 # data structures
 list.o: data/list.h data/list.c
 	gcc $(CFLAGS) $(PAR) -c data/list.c
-
-clist.o: data/cnstr.h data/clist.h data/clist.c
-	gcc $(CFLAGS) $(PAR) -c data/clist.c
 
 elist.o: data/edge.h data/elist.h data/elist.c
 	gcc $(CFLAGS) $(PAR) -c data/elist.c
@@ -61,9 +69,6 @@ tree.o: data/tree.h data/tree.c
 
 onetree.o: data/onetree.h data/onetree.c
 	gcc $(CFLAGS) $(PAR) -c data/onetree.c
-
-#type_graph.o: data/type_graph.h data/type_graph.c
-#	gcc $(CFLAGS) $(PAR) -c data/type_graph.c
 
 graph.o: data/graph.h data/graph.c
 	gcc $(CFLAGS) $(PAR) -c data/graph.c
@@ -81,11 +86,11 @@ tsp_stats.o: data/tsp_stats.h data/tsp_stats.c
 	gcc $(CFLAGS) $(PAR) -c data/tsp_stats.c
 
 # algorithms
-compute_mst.o: algos/compute_mst.h algos/compute_mst.c
-	gcc $(CFLAGS) $(PAR) -c algos/compute_mst.c
+compute_min_st.o: algos/compute_min_st.h algos/compute_min_st.c
+	gcc $(CFLAGS) $(PAR) -c algos/compute_min_st.c
 
-compute_ot.o: algos/compute_ot.h algos/compute_ot.c
-	gcc $(CFLAGS) $(PAR) -c algos/compute_ot.c
+compute_min_ot.o: algos/compute_min_ot.h algos/compute_min_ot.c
+	gcc $(CFLAGS) $(PAR) -c algos/compute_min_ot.c
 
 compute_lagrange.o: algos/compute_lagrange.h algos/compute_lagrange.c
 	gcc $(CFLAGS) $(PAR) -c algos/compute_lagrange.c
@@ -101,12 +106,6 @@ preprocessing.o: algos/preprocessing.h algos/preprocessing.c
 
 # solvers: bb
 
-bb_env.o: solvers/bb/bb_env.h solvers/bb/bb_env.c
-	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_env.c
-
-bb_stats.o: solvers/bb/bb_stats.h solvers/bb/bb_stats.c
-	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_stats.c
-
 bb_bkp.o: solvers/bb/bb_bkp.h solvers/bb/bb_bkp.c
 	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_bkp.c
 
@@ -119,8 +118,8 @@ bb_select_edges.o: solvers/bb/bb_select_edges.h solvers/bb/bb_select_edges.c
 bb_propagate.o: solvers/bb/bb_propagate.h solvers/bb/bb_propagate.c
 	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_propagate.c
 
-bb_remove_fat_edges.o: solvers/bb/bb_remove_fat_edges.h solvers/bb/bb_remove_fat_edges.c
-	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_remove_fat_edges.c
+bb_forbid_fat_edges.o: solvers/bb/bb_forbid_fat_edges.h solvers/bb/bb_forbid_fat_edges.c
+	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_forbid_fat_edges.c
 
 bb_solver.o: solvers/bb/bb_solver.h solvers/bb/bb_solver.c
 	gcc $(CFLAGS) $(PAR) -c solvers/bb/bb_solver.c

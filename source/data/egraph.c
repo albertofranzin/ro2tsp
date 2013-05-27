@@ -1,73 +1,88 @@
 #include "egraph.h"
 
+
+
 void egraph_init(egraph* EG, int n) {
 
   if (n == 0) {
-    (*EG).n = 0;
-    (*EG).V = NULL;
-    (*EG).E = NULL;
+    EG->n = 0;
+    EG->V = NULL;
+    EG->E = NULL;
   }
   else if (n >= 1) {
-    (*EG).n = n;
-    (*EG).V = (egraph_node*)calloc(n, sizeof(egraph_node));
-    (*EG).E = (egraph_edge*)calloc(n * (n + 1) / 2, sizeof(egraph_edge));
+    EG->n = n;
+    EG->V = (egraph_node*)calloc(n, sizeof(egraph_node));
+    EG->E = (egraph_edge*)calloc(n * (n + 1) / 2, sizeof(egraph_edge));
 
+#ifdef DEBUG
+    if (n < 0) {
+      printf("error: egraph_init\n");
+      exit(1);
+    }
+#endif
 
     EG->max_x = X_MAX;
     EG->max_y = Y_MAX;
     EG->min_x = X_MIN;
     EG->min_y = Y_MIN;
   }
-  else {
-    printf("error: egraph_init\n");
-    exit(EXIT_FAILURE);
-  }
+
 }
+
+
 
 void egraph_delete(egraph* EG) {
 
-  free((*EG).V);
-  free((*EG).E);
-  (*EG).V = NULL;
-  (*EG).E = NULL;
-  (*EG).n = 0;
+  free(EG->V);
+  free(EG->E);
+  EG->V = NULL;
+  EG->E = NULL;
+  EG->n = 0;
+
 }
 
-void egraph_copy(egraph* FROM, egraph* TO) {
-  int i;
 
-  int n = (*FROM).n;
+
+void egraph_copy(egraph* FROM, egraph* TO) {
+
+  int i;
+  int n = FROM->n;
+
   egraph_delete(TO);
   egraph_init(TO, n);
   for (i = 0; i < n; i++) {
-    (*TO).V[i].x = (*FROM).V[i].x;
-    (*TO).V[i].y = (*FROM).V[i].y;
-    (*TO).V[i].deg = (*FROM).V[i].deg;
+    TO->V[i].x = FROM->V[i].x;
+    TO->V[i].y = FROM->V[i].y;
+    TO->V[i].deg = FROM->V[i].deg;
   }
   for (i = 0; i < n * (n + 1) / 2; i++) {
-    (*TO).E[i].flag = (*FROM).E[i].flag;
-    (*TO).E[i].cost = (*FROM).E[i].cost;
+    TO->E[i].flag = FROM->E[i].flag;
+    TO->E[i].cost = FROM->E[i].cost;
   }
 
   TO->max_x = FROM->max_x;
   TO->max_y = FROM->max_y;
   TO->min_x = FROM->min_x;
   TO->min_y = FROM->min_y;
+
 }
 
-void egraph_random(egraph* EG) {
-  int i, j;
 
+
+void egraph_random(egraph* EG) {
+
+  int i, j;
   int n = (*EG).n;
+
   for (i = 0; i < n; i++) {
-    (*EG).V[i].deg = n-1;
-    (*EG).V[i].x = (double)(rand()) / ((double)RAND_MAX + 1.0);
-    (*EG).V[i].y = (double)(rand()) / ((double)RAND_MAX + 1.0);
+    EG->V[i].deg = n-1;
+    EG->V[i].x = (double)(rand()) / ((double)RAND_MAX + 1.0);
+    EG->V[i].y = (double)(rand()) / ((double)RAND_MAX + 1.0);
   }
   for (i = 0; i < n; i++) {
     for (j = i+1; j < n; j++) {
-      (*EG).E[ j*(j+1) / 2 + i].flag = 1;
-      (*EG).E[ j*(j+1) / 2 + i].cost = sqrt(pow( (*EG).V[i].x - (*EG).V[j].x, 2 ) + pow( (*EG).V[i].y - (*EG).V[j].y, 2 ));
+      EG->E[ j*(j+1) / 2 + i].flag = 1;
+      EG->E[ j*(j+1) / 2 + i].cost = sqrt(pow( EG->V[i].x - EG->V[j].x, 2 ) + pow( EG->V[i].y - EG->V[j].y, 2 ));
     }
   }
 
@@ -75,150 +90,120 @@ void egraph_random(egraph* EG) {
   EG->max_y = 1.1;
   EG->min_x = -0.1;
   EG->min_y = -0.1;
+
 }
 
-void egraph_set_node_x(egraph* EG, int v, double x) {
 
-  if( v >= 1 && v <= (*EG).n) {
-    (*EG).V[v-1].x = x;
-  }
-  else {
-    printf("error: egraph_set_node_x\n");
-    exit(EXIT_FAILURE);
-  }
-}
-
-void egraph_set_node_y(egraph* EG, int v, double y) {
-
-  if( v >= 1 && v <= (*EG).n) {
-    (*EG).V[v-1].y = y;
-  }
-  else {
-    printf("error: egraph_set_node_y\n");
-    exit(EXIT_FAILURE);
-  }
-}
-
-double egraph_get_node_x(egraph* EG, int v) {
-
-  if( v >= 1 && v <= (*EG).n) {
-    return (*EG).V[v-1].x;
-  }
-  else {
-    printf("error: egraph_get_node_x\n");
-    exit(EXIT_FAILURE);
-  }
-}
-
-double egraph_get_node_y(egraph* EG, int v) {
-
-  if( v >= 1 && v <= (*EG).n) {
-    return (*EG).V[v-1].y;
-  }
-  else {
-    printf("error: egraph_get_node_y\n");
-    exit(EXIT_FAILURE);
-  }
-}
 
 void egraph_insert_edge(egraph* EG, int u, int v, double cost) {
 
-  if ( u >= 1 && v >= 1 && u <= (*EG).n && v <= (*EG).n && u != v && !egraph_adjacent_nodes(EG, u, v))
-    {
-      (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].flag = 1 ) : ( (*EG).E[ v*(v-1)/2 + u-1].flag = 1 );
-      (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*EG).E[ v*(v-1)/2 + u-1].cost = cost );
-      (*EG).V[u-1].deg++;
-      (*EG).V[v-1].deg++;
-    }
-  else {
+#ifdef DEBUG
+  if (u < 0 || v < 0 || u >= EG->n || v >= EG->n || u == v || egraph_adjacent_nodes(EG, u, v)) {
     printf("error: egraph_insert_edge: %d %d\n", u, v);
-    exit(EXIT_FAILURE);
+    exit(1);
   }
+#endif
+
+  (u > v) ? ( EG->E[ u*(u+1)/2 + v ].flag = 1 ) : ( EG->E[ v*(v+1)/2 + u].flag = 1 );
+  (u > v) ? ( EG->E[ u*(u+1)/2 + v ].cost = cost ) : ( EG->E[ v*(v+1)/2 + u].cost = cost );
+  EG->V[u].deg++;
+  EG->V[v].deg++;
       
 }
 
+
+
 void egraph_remove_edge(egraph* EG, int u, int v) {
 
-  if( u >= 1 && v >= 1 && u <= (*EG).n && v <= (*EG).n && u != v && egraph_adjacent_nodes(EG, u, v)) {
-    (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].flag = 0 ) : ( (*EG).E[ v*(v-1)/2 + u-1].flag = 0 );
-    (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = 0.0 ) : ( (*EG).E[ v*(v-1)/2 + u-1].cost = 0.0 );
-    (*EG).V[u-1].deg--;
-    (*EG).V[v-1].deg--;
-  }
-  else {
+#ifdef DEBUG
+  if (u < 0 || v < 0 || u >= EG->n || v >= EG->n || u == v || !egraph_adjacent_nodes(EG, u, v)) {
     printf("error: egraph_remove_edge: %d %d\n", u, v);
-    exit(EXIT_FAILURE);
+    exit(1);
   }
+#endif
+
+  (u > v) ? ( EG->E[ u*(u+1)/2 + v ].flag = 0 ) : ( EG->E[ v*(v+1)/2 + u].flag = 0 );
+  (u > v) ? ( EG->E[ u*(u+1)/2 + v ].cost = 0.0 ) : ( EG->E[ v*(v+1)/2 + u].cost = 0.0 );
+  EG->V[u].deg--;
+  EG->V[v].deg--;
+
 }
+
+
 
 void egraph_set_edge_cost(egraph* EG, int u, int v, double cost) {
 
-  if( u >= 1 && v >= 1 && u <= (*EG).n && v <= (*EG).n && u != v && egraph_adjacent_nodes(EG, u, v)) {
-    (u > v) ? ( (*EG).E[ u*(u-1)/2 + v-1 ].cost = cost ) : ( (*EG).E[ v*(v-1)/2 + u-1 ].cost = cost );
-  }
-  else {
+#ifdef DEBUG
+  if (u < 0 && v < 0 || u >= EG->n || v >= EG->n || u == v || !egraph_adjacent_nodes(EG, u, v)) {
     printf("error: egraph_set_edge_cost: %d %d\n", u, v);
-    exit(EXIT_FAILURE);
+    exit(1);
   }
+#endif
+
+  (u > v) ? ( EG->E[ u*(u+1)/2 + v ].cost = cost ) : ( EG->E[ v*(v+1)/2 + u ].cost = cost );
+
 }
+
+
 
 double egraph_get_edge_cost(egraph* EG, int u, int v) {
 
-  if( u >= 1 && v >= 1 && u <= (*EG).n && v <= (*EG).n && u != v && egraph_adjacent_nodes(EG, u, v)) {
-    return (u > v) ? (*EG).E[ u*(u-1)/2 + v-1 ].cost : (*EG).E[ v*(v-1)/2 + u-1 ].cost;
-  }
-  else {
+#ifdef DEBUG
+  if (u < 0 && v < 0 || u >= EG->n || v >= EG->n || u == v || !egraph_adjacent_nodes(EG, u, v)) {
     printf("error: egraph_get_edge_cost: %d %d\n", u, v);
-    exit(EXIT_FAILURE);
+    exit(1);
   }
+#endif
+
+  return (u > v) ? EG->E[ u*(u+1)/2 + v ].cost : EG->E[ v*(v+1)/2 + u ].cost;
+
 }
 
-int egraph_get_node_deg(egraph* EG, int v) {
 
-  if (v >= 1 && v <= (*EG).n) {
-    return (*EG).V[v-1].deg;
-  }
-  else {
-    printf("error: egraph_get_node_deg\n");
-    exit(EXIT_FAILURE);
-  }
-}
 
 int egraph_adjacent_nodes(egraph* EG, int u, int v) {
 
-  if (u >= 1 && v >= 1 && u <= (*EG).n && v <= (*EG).n && u != v) {
-    return (u > v) ? (*EG).E[ u*(u-1)/2 + v-1 ].flag : (*EG).E[ v*(v-1)/2 + u-1 ].flag;
-  }
-  else {
+#ifdef DEBUG
+  if (u < 0 || v < 0 || u >= EG->n || v >= EG->n || u == v) {
     printf("error: egraph_adjacent_nodes: %d %d\n", u, v);
-    exit(EXIT_FAILURE);
+    exit(1);
   }
+#endif
+
+  return (u > v) ? EG->E[ u*(u+1)/2 + v ].flag : EG->E[ v*(v+1)/2 + u ].flag;
  
 }
 
-double egraph_get_cost(egraph* EG) {
-  int i, j;
 
+
+double egraph_get_cost(egraph* EG) {
+
+  int i, j;
   double c = 0.0;
-  int n = (*EG).n;
-  for (i = 1; i <= n; i++) {
-    for (j = i+1; j <= n; j++) {
+  int n = EG->n;
+
+  for (i = 0; i < n; i++) {
+    for (j = i+1; j < n; j++) {
       if (egraph_adjacent_nodes(EG, i, j)) {
         c += egraph_get_edge_cost(EG, i, j);
       }
     }
   }
   return c;
+
 }
 
+
+
 void egraph_plot(egraph* EG1, egraph* EG2, char* title) {
+
   int i, j, v, n1, n2, eg1_has_some_edge, eg2_has_some_edge;
 
   n1 = n2 = 0;
   if (EG1 != NULL)
-    n1 = (*EG1).n;
+    n1 = EG1->n;
   if (EG2 != NULL)
-    n2 = (*EG2).n;
+    n2 = EG2->n;
 
   eg1_has_some_edge = eg2_has_some_edge = 0;
   if (n1 > 0) {
@@ -278,18 +263,18 @@ void egraph_plot(egraph* EG1, egraph* EG2, char* title) {
   }
 
   if (n1 > 0) {
-    for (i = 1; i <= n1; i++) {
-      fprintf(pipe, "%f %f\n", egraph_get_node_x(EG1, i), egraph_get_node_y(EG1, i));
+    for (i = 0; i < n1; i++) {
+      fprintf(pipe, "%f %f\n", EG1->V[i].x, EG1->V[i].y);
       fprintf(pipe, "\n");
     }
     fprintf(pipe, "e\n");
 
     if (eg1_has_some_edge) {
-      for (i = 1; i <= n1; i++) {
-	for (j = i+1; j <= n1; j++) {
+      for (i = 0; i < n1; i++) {
+	for (j = i+1; j < n1; j++) {
 	  if (egraph_adjacent_nodes(EG1, i, j)) {
-	    fprintf(pipe, "%f %f\n", egraph_get_node_x(EG1, i), egraph_get_node_y(EG1, i));
-	    fprintf(pipe, "%f %f\n", egraph_get_node_x(EG1, j), egraph_get_node_y(EG1, j));
+	    fprintf(pipe, "%f %f\n", EG1->V[i].x, EG1->V[i].y);
+	    fprintf(pipe, "%f %f\n", EG1->V[j].x, EG1->V[j].y);
 	    fprintf(pipe, "\n");
 	  }
 	}
@@ -299,18 +284,18 @@ void egraph_plot(egraph* EG1, egraph* EG2, char* title) {
   }
 
   if (n2 > 0) {
-    for (i = 1; i <= n2; i++) {
-      fprintf(pipe, "%f %f\n", egraph_get_node_x(EG2, i), egraph_get_node_y(EG2, i));
+    for (i = 0; i < n2; i++) {
+      fprintf(pipe, "%f %f\n", EG2->V[i].x, EG2->V[i].y);
       fprintf(pipe, "\n");
     }
     fprintf(pipe, "e\n");
   
     if (eg2_has_some_edge) {
-      for (i = 1; i <= n2; i++) {
-	for (j = i+1; j <= n2; j++) {
+      for (i = 0; i < n2; i++) {
+	for (j = i+1; j < n2; j++) {
 	  if (egraph_adjacent_nodes(EG2, i, j)) {
-	    fprintf(pipe, "%f %f\n", egraph_get_node_x(EG2, i), egraph_get_node_y(EG2, i));
-	    fprintf(pipe, "%f %f\n", egraph_get_node_x(EG2, j), egraph_get_node_y(EG2, j));
+	    fprintf(pipe, "%f %f\n", EG2->V[i].x, EG2->V[i].y);
+	    fprintf(pipe, "%f %f\n", EG2->V[j].x, EG2->V[j].y);
 	    fprintf(pipe, "\n");
 	  }
 	}
@@ -320,108 +305,145 @@ void egraph_plot(egraph* EG1, egraph* EG2, char* title) {
   }
 
   if (n1 > 0) {
-    for (i = 1; i <= n1; i++) {
-      fprintf(pipe, "%f %f %d", egraph_get_node_x(EG1, i), egraph_get_node_y(EG1, i), i);
+    for (i = 0; i < n1; i++) {
+      fprintf(pipe, "%f %f %d",  EG1->V[i].x, EG2->V[i].y, i+1);
       fprintf(pipe, "\n");
     }
     fprintf(pipe, "e\n");
   }
   if (n2 > 0) {
-    for (i = 1; i <= n2; i++) {
-      fprintf(pipe, "%f %f %d", egraph_get_node_x(EG2, i), egraph_get_node_y(EG2, i), i);
+    for (i = 0; i < n2; i++) {
+      fprintf(pipe, "%f %f %d", EG2->V[i].x, EG2->V[i].y, i+1);
       fprintf(pipe, "\n");
     }
     fprintf(pipe, "e\n");
   }
 
   fflush(pipe);
+
 }
+
 
 
 void egraph_to_graph(egraph* EG, graph* G) {
-  int i;
 
-  int n = (*EG).n;
+  int i;
+  int n = EG->n;
+
   graph_delete(G);
   graph_init(G, n);
+
   for (i = 0; i < n; i++) {
-    (*G).V[i].deg = (*EG).V[i].deg;
+    G->V[i].deg = EG->V[i].deg;
   }
   for (i = 0; i < n * (n + 1) / 2; i++) {
-    (*G).E[i].flag = (*EG).E[i].flag;
-    (*G).E[i].cost = (*EG).E[i].cost;
-    (*G).E[i].constr = FREE;
+    G->E[i].flag = EG->E[i].flag;
+    G->E[i].cost = EG->E[i].cost;
+    G->E[i].constr = FREE;
   }
+
 }
+
+
 
 void graph_to_egraph(graph* G, egraph* EG) {
-  int i;
-  if ((*G).n != (*EG).n) {
+
+#ifdef DEBUG
+  if (G->n != EG->n) {
     printf("error: graph_to_egraph\n");
-    exit(EXIT_FAILURE);
+    exit(1);
+  }
+#endif
+
+  int i;
+  int n = G->n;
+
+  for (i = 0; i < n; i++) {
+    EG->V[i].deg = G->V[i].deg;
+  }
+  for (i = 0; i < n * (n + 1) / 2; i++) {
+    EG->E[i].flag = G->E[i].flag;
   }
 
-  int n = (*G).n;
-  for (i = 0; i < n * (n + 1) / 2; i++) {
-    (*EG).E[i].flag = 0;
-    (*EG).E[i].cost = 0;
-  }
-  for (i = 0; i < n; i++) {
-    (*EG).V[i].deg = (*G).V[i].deg;
-  }
-  for (i = 0; i < n * (n + 1) / 2; i++) {
-    (*EG).E[i].flag = (*G).E[i].flag;
-    (*EG).E[i].cost = (*G).E[i].cost;
-  }
 }
+
+
 
 void cycle_to_egraph(cycle* C, egraph* EG) {
-  int i;
 
-  if ((*C).n != (*EG).n) {
+#ifdef DEBUG
+  if (C->n != EG->n) {
     printf("error: cycle_to_egraph\n");
-    exit(EXIT_FAILURE);
+    exit(1);
   }
+#endif
 
-  int n = (*C).n;
+  int i;
+  int n = C->n;
+
   for (i = 0; i < n * (n + 1) / 2; i++) {
-    (*EG).E[i].flag = 0;
-    (*EG).E[i].cost = 0;
+    EG->E[i].flag = 0;
+    EG->E[i].cost = 0;
   }
   for (i = 0; i < n; i++) {
-    egraph_insert_edge(EG, (*C).nodes[i], (*C).nodes[(i+1)%n], (*C).costs[i]);
+    egraph_insert_edge(EG, C->nodes[i], C->nodes[(i+1)%n], 0.0);
   }
+
 }
+
+
 
 void tree_to_egraph(tree* T, egraph* EG) {
-  int i;
 
-  int n = (*T).n;
+#ifdef DEBUG
+  if (T->n != EG->n) {
+    printf("error: tree_to_egraph\n");
+    exit(1);
+  }
+#endif
+
+  int i;
+  int n = T->n;
+
   for (i = 0; i < n * (n + 1) / 2; i++) {
-    (*EG).E[i].flag = 0;
-    (*EG).E[i].cost = 0;
+    EG->E[i].flag = 0;
+    EG->E[i].cost = 0.0;
   }
   for (i = 0; i < n; i++) {
-    (*EG).V[i].deg = (*T).V[i].deg;
-    if ((*T).V[i].pred > 0)
-      egraph_insert_edge(EG, (*T).V[i].pred, i+1, (*T).V[i].cost);
+    EG->V[i].deg = T->V[i].deg;
+    if (T->V[i].pred >= 0)
+      egraph_insert_edge(EG, T->V[i].pred, i, 0.0);
   }
+
 }
+
+
 
 void onetree_to_egraph(onetree* OT, egraph* EG) {
-  int i;
 
-  int n = (*OT).n;
+#ifdef DEBUG
+  if (OT->n != EG->n) {
+    printf("error: onetree_to_egraph\n");
+    exit(1);
+  }
+#endif
+
+  int i;
+  int n = OT->n;
+
   for (i = 0; i < n * (n + 1) / 2; i++) {
-    (*EG).E[i].flag = 0;
-    (*EG).E[i].cost = 0;
+    EG->E[i].flag = 0;
+    EG->E[i].cost = 0.0;
   }
   for (i = 0; i < n; i++) {
-    (*EG).V[i].deg = (*OT).V[i].deg;
-    if ((*OT).V[i].pred > 0)
-      egraph_insert_edge(EG, (*OT).V[i].pred, i+1, (*OT).V[i].cost);
+    EG->V[i].deg = OT->V[i].deg;
+    if (OT->V[i].pred >= 0)
+      egraph_insert_edge(EG, OT->V[i].pred, i, 0.0);
   }
+
 }
+
+
 
 void graph_plot(graph* G, egraph* EG, char* title) {
 
@@ -434,6 +456,21 @@ void graph_plot(graph* G, egraph* EG, char* title) {
 
 }
 
+
+
+void tree_plot(tree* T, egraph* EG, char* title) {
+
+  egraph EG_TMP;
+  egraph_init(&EG_TMP, 0);
+  egraph_copy(EG, &EG_TMP);
+  tree_to_egraph(T, &EG_TMP);
+  egraph_plot(EG, &EG_TMP, title);
+  egraph_delete(&EG_TMP);
+
+}
+
+
+
 void onetree_plot(onetree* OT, egraph* EG, char* title) {
 
   egraph EG_TMP;
@@ -444,6 +481,8 @@ void onetree_plot(onetree* OT, egraph* EG, char* title) {
   egraph_delete(&EG_TMP);
 
 }
+
+
  
 void cycle_plot(cycle* C, egraph* EG, char* title) {
 
@@ -456,16 +495,19 @@ void cycle_plot(cycle* C, egraph* EG, char* title) {
 
 }
 
+
+
 /*
  * print egraph as (diagonal) matrix of costs
  */
 void egraph_print(egraph *EG) {
   int i, j;
-  for (i = 1; i <= EG->n; ++i) {
-    for (j = 1; j < i; ++j) {
+  for (i = 0; i < EG->n; ++i) {
+    for (j = 0; j < i; ++j) {
      printf("%f ", egraph_get_edge_cost(EG, i, j));
     }
     printf("\n");
   }
+
 }
 

@@ -1,5 +1,8 @@
 #include "cpx_callbacks.h"
 
+
+
+
 int CPXPUBLIC cpx_subtour_callback(CPXCENVptr  env,
                                    void       *cbdata,
                                    int         wherefrom,

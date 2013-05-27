@@ -15,17 +15,17 @@
 #include "../../data/tsp_env.h"
 #include "../../data/tsp_stats.h"
 
-#include "../../algos/compute_ot.h"
+#include "../../algos/compute_min_ot.h"
 #include "../../algos/compute_lagrange.h"
 #include "../../algos/compute_upper_bound.h"
 #include "../../algos/compute_deltas.h"
 
+#include "cpx_callbacks.h"
 #include "cpx_table.h"
 #include "cpx_create_problem.h"
 #include "cpx_setup_problem.h"
 #include "cpx_add_secs.h"
 #include "cpx_add_kruskal_secs.h"
-#include "cpx_callbacks.h"
 
 /**
  * [cpx_solver description]

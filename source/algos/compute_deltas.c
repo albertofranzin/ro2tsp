@@ -5,7 +5,7 @@
 
 int compute_deltas(graph* G, onetree* OT) { // Linear time complexity!!!
 
-  int n = (*G).n;
+  int n = G->n;
   int i, j, k, count, root, curr, n_leaves;
 
 
@@ -27,27 +27,23 @@ int compute_deltas(graph* G, onetree* OT) { // Linear time complexity!!!
   // Let T be the spanning-tree portion of the 1-tree. T is a spanning tree on vertices {2, 3, ..., n}.
   // List in a vector leaves[] the leaves of T.
   n_leaves = 0;
-  leaves[n_leaves++] = onetree_get_pred(OT, 1); // Note that T can be obtained from the 1-tree removing the two edges incidents to 1, let be edges (1, v1) and (1, v2). Let v1 be the root of T, then
+  leaves[n_leaves++] = OT->V[0].pred; // Note that T can be obtained from the 1-tree removing the two edges incidents to 1, let be edges (1, v1) and (1, v2). Let v1 be the root of T, then
                                                 // v2 has to be considered as a leave (even if deg(v2) = 2, since in the 1-tree v2 is adjacent to 1 and to some other vertex of T). Remember also that
                                                 // the 1-tree is build in such a way that, pred(v1)=1 and pred(1)=v2, where v1 is the root of T.
 
-  for (i = 1; i <= n; i++) {
-    if (onetree_get_node_deg(OT, i) == 1)
+  for (i = 0; i < n; i++) {
+    if (OT->V[i].deg == 1)
 
       leaves[n_leaves++] = i;
 
   }
 
-  // Search for the root of T.
-  curr = onetree_get_pred(OT, 1);
-  while (curr != 1) {
-    root = curr;
-    curr = onetree_get_pred(OT, curr);
-  }
+  // Get the root of T.
+  root = OT->nn1;
 
  
-  ordered_vertices[0] = 1;  flags[0] = 1;
-  ordered_vertices[1] = root; flags[root-1] = 1;
+  ordered_vertices[0] = 0;  flags[0] = 1;
+  ordered_vertices[1] = root; flags[root] = 1;
   k = 2;
   // Starting from each leave, walk from that leave backward toward the root, following the chain of predecessors.
   // Flag each vertex in the path as visited. If some vertex is reached which is already flagged, than stop the walk
@@ -58,11 +54,11 @@ int compute_deltas(graph* G, onetree* OT) { // Linear time complexity!!!
     count = 0;
     curr = leaves[i];
 
-    while (flags[curr-1] != 1) {
+    while (flags[curr] != 1) {
 
       path[count++] = curr;
-      flags[curr-1] = 1;
-      curr = onetree_get_pred(OT, curr);
+      flags[curr] = 1;
+      curr = OT->V[curr].pred;
 
     }
 
@@ -91,14 +87,14 @@ int compute_deltas(graph* G, onetree* OT) { // Linear time complexity!!!
   int u, v, pred_v;
   double delta;
 
-  for (i = 2; i <= n; i++) {
-    for (j = i+1; j <= n; j++) {
+  for (i = 1; i < n; i++) {
+    for (j = i+1; j < n; j++) {
 
-      if (i != 1 && j != 1) {
+      if (i != 0 && j != 0) {
 
-      u = ordered_vertices[i-1];
-      v = ordered_vertices[j-1];
-      pred_v = onetree_get_pred(OT, v);
+      u = ordered_vertices[i];
+      v = ordered_vertices[j];
+      pred_v = OT->V[v].pred;
 
       if (pred_v == u) { // The edge belongs to the 1-tree.
 
@@ -124,27 +120,27 @@ int compute_deltas(graph* G, onetree* OT) { // Linear time complexity!!!
 
   double cost_1v, cost_1u, max_cost;
   v = root;
-  u = onetree_get_pred(OT, 1);
-  cost_1v = graph_get_edge_cost(G, 1, v);
-  cost_1u = graph_get_edge_cost(G, 1, u);
+  u = OT->nn2;
+  cost_1v = graph_get_edge_cost(G, 0, v);
+  cost_1u = graph_get_edge_cost(G, 0, u);
   max_cost = (cost_1v > cost_1u) ? cost_1v : cost_1u;
 
-  for (i = 1; i <= n; i++) {
-    for (j = i+1; j <= n; j++) {
+  for (i = 0; i < n; i++) {
+    for (j = i+1; j < n; j++) {
 
       graph_set_edge_delta(G, i, j, graph_get_edge_cost(G, i, j) - graph_get_edge_delta(G, i, j));
 
     }
   }
 
-  for (j = 2; j <= n; j++) {
+  for (j = 1; j < n; j++) {
 
-    graph_set_edge_delta(G, 1, j, graph_get_edge_cost(G, 1, j) - max_cost);
+    graph_set_edge_delta(G, 0, j, graph_get_edge_cost(G, 0, j) - max_cost);
     
   }
 
-  graph_set_edge_delta(G, 1, v, 0.0);
-  graph_set_edge_delta(G, 1, u, 0.0);
+  graph_set_edge_delta(G, 0, v, 0.0);
+  graph_set_edge_delta(G, 0, u, 0.0);
 
   free(flags);
 
