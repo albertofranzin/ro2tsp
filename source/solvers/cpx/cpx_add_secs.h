@@ -22,15 +22,10 @@
  */
 int cpx_add_secs(CPXENVptr   env,
                  CPXLPptr    lp,
+                 double     *sol,
+                 int         numcol,
                  cpx_table  *hash_table,
                  parameters *pars);
 
-
-/*
-int cpx_add_cb_secs(CPXCENVptr  env,
-                    CPXLPptr    lp,
-                    cpx_table  *hash_table,
-                    parameters *pars);
-*/
 
 #endif

@@ -14,14 +14,16 @@ PAR = -lm -lpthread
 #
 #  #OPT = -ftree-vectorizer-verbose=2 -finline-functions -std=c99
 
-CFLAGS = -L. -lro2ds -lconcorde $(CHECK) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR)
+CFLAGS = -L. -lro2ds -lconcorde $(CHECK) $(PAR)
 # debug options will be appended when asked by using 'make debug'
 # release optimization will be added then command is 'make release'
+
+# $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT)
 
 all: clean test
 
 test: buildLib $(NOMEFILE)
-	gcc $(NOMEFILE) -o $@ $(CFLAGS)
+	gcc $(NOMEFILE) -o $@ $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT)
 # cleanComp
 
 release: CFLAGS += -O3
@@ -40,7 +42,8 @@ buildLib: list.o elist.o tree.o graph.o onetree.o egraph.o cycle.o \
 	compute_min_st.o compute_min_ot.o compute_lagrange.o compute_upper_bound.o \
 	compute_deltas.o bb_bkp.o bb_select_node.o \
 	bb_select_edges.o bb_propagate.o bb_forbid_fat_edges.o bb_solver.o \
-	base.o utils.o preprocessing.o cpx_callbacks.o \
+	base.o utils.o preprocessing.o cpx_callbacks.o cpx_cpool.o \
+	cpx_local_branching.o \
 	cpx_table.o cpx_create_problem.o cpx_setup_problem.o cpx_add_my_sec.o \
 	cpx_add_secs.o cpx_add_kruskal_secs.o cpx_solver.o base.o utils.o \
 	tsp_env.o tsp_stats.o
@@ -129,6 +132,9 @@ bb_solver.o: solvers/bb/bb_solver.h solvers/bb/bb_solver.c
 cpx_table.o: solvers/cpx/cpx_table.h solvers/cpx/cpx_table.c
 	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_table.c
 
+cpx_cpool.o: solvers/cpx/cpx_cpool.h solvers/cpx/cpx_cpool.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_cpool.c
+
 cpx_create_problem.o: solvers/cpx/cpx_create_problem.h solvers/cpx/cpx_create_problem.c
 	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_create_problem.c
 
@@ -149,6 +155,10 @@ cpx_solver.o: solvers/cpx/cpx_solver.h solvers/cpx/cpx_solver.c
 
 cpx_callbacks.o: solvers/cpx/cpx_callbacks.h solvers/cpx/cpx_callbacks.c
 	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_callbacks.c
+
+cpx_local_branching.o: solvers/cpx/cpx_local_branching.h solvers/cpx/cpx_local_branching.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_local_branching.c
+
 
 # base (common utilities)
 base.o: base/base.h base/base.c

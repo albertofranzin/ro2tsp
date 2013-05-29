@@ -55,11 +55,15 @@ parameters *base_problem_setup(int argc, char **argv) {
     if (strcmp(opt, "--solver") == 0) {
       if (strcmp(argv[i+1], "BRANCH_AND_BOUND") == 0 ||
           strcmp(argv[i+1], "branch_and_bound") == 0 ||
-          strcmp(argv[i+1], "bb") == 0                 ) {
+          strcmp(argv[i+1], "bb")               == 0   ) {
         pars->solver = BRANCH_AND_BOUND;
       } else if (strcmp(argv[i+1], "CPLEX") == 0 ||
                  strcmp(argv[i+1], "cplex") == 0   ) {
         pars->solver = CPLEX;
+      } else if (strcmp(argv[i+1], "LOCAL_BRANCHING") == 0 ||
+                 strcmp(argv[i+1], "local_branching") == 0 ||
+                 strcmp(argv[i+1], "lb")              == 0   ) {
+        pars->solver = LOCAL_BRANCHING;
       }
       i++;
     }

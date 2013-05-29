@@ -2,28 +2,54 @@
 
 int cpx_add_secs(CPXENVptr   env,
                  CPXLPptr    lp,
+                 double     *sol,
+                 int         numcols,
                  cpx_table  *hash_table,
                  parameters *pars)
 {
 
   int n = pars->number_of_nodes;
 
-  int i, j, numcols, numedgs, status;
-
-  numcols = CPXgetnumcols(env, lp);
-
-  double sol[numcols];
-
-  status = CPXgetx(env, lp, sol, 0, numcols-1);
+  int i, j, numedgs, status;
 
   int edg_inds[n];
 
   numedgs = 0;
   for (i = 0; i < numcols; i++) {
-
     if (sol[i] > 0.9)  edg_inds[numedgs++] = i;
-
   }
+
+  int rmatind[numcols];
+  double coeffs[numcols];
+  for (i = 0; i < numcols; ++i) {
+    if (sol[i] > 0.9) {
+      coeffs[i] = 0.0;
+    } else if (sol[i] < 0.1) {
+      coeffs[i] = 1.0;
+    }
+    rmatind[i] = i;
+  }
+
+  int rmatbeg[1];
+  rmatbeg[0] = 0;
+
+  double rhs[1];
+  rhs[0] = 10;
+
+  char sense[1];
+  sense[0] = 'L';
+
+  /*status = CPXaddrows(env, lp, 0, 1, numcols,
+                      rhs, sense, rmatbeg, rmatind, coeffs,
+                      NULL, NULL);
+  if (status) {
+    fprintf(stderr, "Fatal error in cpx_add_secs.c :: CPXaddrows :: ");
+    fprintf(stderr, "failed to add constraint : error %d\n", status);
+    exit(1);
+  } else {
+    printf("done\n");
+    getchar();
+  }*/
 
   // if numedgs != n : error
 

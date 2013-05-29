@@ -25,7 +25,7 @@
 int cpx_add_kruskal_secs(CPXENVptr   env,
                          CPXLPptr    lp,
                          cpx_table  *hash_table,
-			 graph      *G,
+                         graph      *G,
                          onetree    *OT,
                          parameters *pars);
 
