@@ -580,8 +580,8 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
 
             // euclidean 2D distance, or boh
             egraph_insert_edge(G, i, j,
-			       //nearbyint(sqrt(pow(x - x2, 2) + pow(y - y2, 2)))
-			       round(sqrt(pow(x - x2, 2) + pow(y - y2, 2)))
+             //nearbyint(sqrt(pow(x - x2, 2) + pow(y - y2, 2)))
+             round(sqrt(pow(x - x2, 2) + pow(y - y2, 2)))
             );
 
           } else if (pars->tsp_file_format == 45) {
@@ -621,7 +621,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
             double xd  = x - x2,
                    yd  = y - y2,
                    rij = sqrt((xd*xd + yd*yd) / 10.0),
-                   tij = nearbyint(rij);
+                   tij = round(rij); //nearbyint
 
             if (tij < rij) {
               tij = tij + 1;

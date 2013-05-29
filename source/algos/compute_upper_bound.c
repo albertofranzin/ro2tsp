@@ -183,7 +183,8 @@ void *rc_thread(void *p) {
   rc_params *rcp = (rc_params *) p;
 
   // better trying different random seeds?
-  srand(time(NULL) * rcp->th_no);
+  //srand(time(NULL) * rcp->th_no);
+  srand(1 * rcp->th_no);
 
   int i, status, flag;
   double min = BIG, tour_cost;

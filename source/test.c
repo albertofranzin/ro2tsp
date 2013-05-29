@@ -9,9 +9,8 @@
 #include "data/tsp_stats.h"
 
 #include "solvers/cpx/cpx_solver.h"
+#include "solvers/cpx/cpx_local_branching.h"
 #include "solvers/bb/bb_solver.h"
-//#include "solvers/bb/bb_env.h"
-//#include "solvers/bb/bb_stats.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -61,37 +60,32 @@ int main (int argc, char *argv[]) {
 
     case BRANCH_AND_BOUND :
       {
-
         start = clock();
-
         bb_solver(&te, &ts);
-
         end = clock();
-
-        tsp_stats_print(&ts, pars);
-
-        graph_plot(&te.G_OUTPUT, &EG, "optimal tour");
-
       }
         break;
 
     case CPLEX :
       {
-
-      start = clock();
-
-      cpx_solver(&te, &ts, pars);
-
-      end = clock();
-
-      tsp_stats_print(&ts, pars);
-
-      graph_plot(&te.G_OUTPUT, &EG, "optimal tour");
-	
+        start = clock();
+        cpx_solver(&te, &ts, pars);
+        end = clock();
       }
         break;
-	
+
+    case LOCAL_BRANCHING :
+      {
+        start = clock();
+        cpx_local_branching(&te, &ts, pars);
+        end = clock();
+      }
+        break;
+
   }
+
+  tsp_stats_print(&ts, pars);
+  graph_plot(&te.G_OUTPUT, &EG, "optimal tour");
 
   printf("time spent in actual solving: %f s\n",
         ((double) (end - start)) / CLOCKS_PER_SEC);

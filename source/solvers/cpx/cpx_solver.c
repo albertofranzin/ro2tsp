@@ -15,8 +15,6 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   char* probname = "problema";
 
 
-
-
   // --------------------------------------------------------------
   // Create cplex-problem.
 
@@ -63,6 +61,9 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   int numcols = n * (n - 1) / 2;
   cpx_table hash_table;
 
+  double objval;
+  double x[numcols];
+
   printf("creating cpx_table\n");
 
   cpx_table_init(&hash_table, numcols);
@@ -107,7 +108,10 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   }
 #endif
 
- 
+
+  // local branching
+  /*status = CPXsetintparam(env, CPX_PARAM_LBHEUR, CPX_ON);
+  assert(status == 0);*/
 
 
   // --------------------------------------------------------------
@@ -277,7 +281,16 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
         exit(1);
       }
 
-      numsubtrs = cpx_add_secs(env, lp, &hash_table, pars);
+      double x[numcols];
+      status = CPXgetx(env, lp, x, 0, numcols-1);
+      if (status) {
+        fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver :: ");
+        fprintf(stderr, "CPXgetx : %d\n", status);
+        fprintf(stderr, "Failed to get node solution.\n");
+        exit(1);
+      }
+
+      numsubtrs = cpx_add_secs(env, lp, x, numcols, &hash_table, pars);
 
     }  // end while
 
@@ -297,9 +310,6 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
 
   // --------------------------------------------------------------
   // Retrieve a solution.
-
-  double objval;
-  double x[numcols];
 
   // Retrieve objective function final value.
   status = CPXgetobjval(env, lp, &objval);

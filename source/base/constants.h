@@ -56,9 +56,9 @@
 // compute_lagrange
 
 #define MAX_NUM_ITERATIONS           30000
-#define MAX_NUM_ITERATIONS_NO_IMPROV 100
+#define MAX_NUM_ITERATIONS_NO_IMPROV 1000
 #define ALPHA                        2.0
-#define ALPHA_HALVING_TIME           10
+#define ALPHA_HALVING_TIME           100
 
 /*
 #define MAX_NUM_ITERATIONS 30000
@@ -75,6 +75,7 @@
 // solvers available
 #define BRANCH_AND_BOUND 1
 #define CPLEX            2
+#define LOCAL_BRANCHING  3
 
 
 
@@ -90,7 +91,7 @@
 #define RANDOM_CYCLES_2OPT       4
 
 #define NUM_TRIALS_RANDOM_CYCLES          1000000
-#define NUM_TRIALS_RANDOM_CYCLES_2OPT     300000
+#define NUM_TRIALS_RANDOM_CYCLES_2OPT     500000
 
 //------------------------------------------------------
 
@@ -119,7 +120,7 @@
 #define DEFAULT_HEURISTIC_ALGO   NEAREST_NEIGHBOUR_2_OPT
 #define DEFAULT_HEURISTIC_TRIALS 1
 
-#define NUM_OF_THREADS  4
+#define NUM_OF_THREADS  8
 
 //------------------------------------------------------
 
