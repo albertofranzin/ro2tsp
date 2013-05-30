@@ -10,6 +10,15 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
   else if (algo == RANDOM_CYCLES      ||
            algo == RANDOM_CYCLES_2OPT   ) {
     return compute_rc(G, C, ub);
+    /*compute_rc(G, C, ub);
+    int i;
+    for (i = 0; i < C->n; ++i) {
+      printf("%d ", C->nodes[i]);
+    }
+    printf("\n");
+    printf("from %f\n", *ub);
+    return heur_3_opt(G, C, *ub, ub);
+    // printf("to %f\n", *ub);*/
   }
   
   else if (algo == DUMB) { 
@@ -93,11 +102,17 @@ int compute_rc(graph *G, cycle *C, double *ub) {
 
   pthread_t thread[num_of_threads];
   rc_params rcp[num_of_threads];
+  cycle     cycles[num_of_threads];
+
+
+  for (i = 0; i < num_of_threads; ++i) {
+    cycle_init(&cycles[i], 0);
+  }
 
   for (i = 0; i < num_of_threads; ++i) {
     rcp[i].th_no            = i;
     rcp[i].G                = G;
-    rcp[i].C                = C;
+    rcp[i].C                = &cycles[i];
     rcp[i].number_of_cycles = total_trials / num_of_threads;
 
     if (pthread_create(&thread[i], NULL, rc_thread, (void *)&rcp[i])) {
@@ -118,12 +133,23 @@ int compute_rc(graph *G, cycle *C, double *ub) {
     }
     if (rcp[i].return_status == SUCCESS) {
       status = SUCCESS;
+      printf("ub = %f\n", rcp[i].ub);
       if (min >= rcp[i].ub) {
+        int j;
+          for (j = 0; j < n; ++j) {
+    printf("%d ", (rcp[i].C)->nodes[j]);
+  }
+  printf("\n");
         cycle_copy(rcp[i].C, C);
         min = rcp[i].ub;
       }
     }
   } // end thread joining
+
+  for (i = 0; i < n; ++i) {
+    printf("%d ", C->nodes[i]);
+  }
+  printf("\n");
 
   *ub = min;
 
@@ -241,14 +267,15 @@ void *rc_thread(void *p) {
   printf("last_best = %d, last_1pc = %d\n", last_best, last_1pc);
   getchar();*/
 
-  cycle_delete(&C_tmp);
   if (flag == 1) {
+    //cycle_copy(&C_tmp, rcp->C);
     rcp->ub = min;
     rcp->return_status = SUCCESS;
   }
   else {
     rcp->return_status = FAILURE;
   }
+  cycle_delete(&C_tmp);
 
   return NULL;
 }
@@ -469,8 +496,12 @@ int heur_2_opt(graph *G, cycle *C, double ccost, double* ub) {
                 C->nodes[k + l] = C->nodes[j - l];
                 C->nodes[j - l] = tmp;
 
-                C->costs[i + l] = graph_get_edge_cost(G, C->nodes[i + l], C->nodes[(i+l+1) % G->n]);
-                C->costs[j - l] = graph_get_edge_cost(G, C->nodes[j - l], C->nodes[(j-l+1) % G->n]);
+                C->costs[i + l] = graph_get_edge_cost(G,
+                                                      C->nodes[i + l],
+                                                      C->nodes[(i+l+1) % G->n]);
+                C->costs[j - l] = graph_get_edge_cost(G,
+                                                      C->nodes[j - l],
+                                                      C->nodes[(j-l+1) % G->n]);
 
               }
 
@@ -484,34 +515,208 @@ int heur_2_opt(graph *G, cycle *C, double ccost, double* ub) {
 
   } // end while
 
+  *ub = cost;
 
-  /*int v1, v2, index_1;
-  for (i = 0; i < n; i++) {
-    if ((*C).nodes[i] == 1) {
-      v1 = C->nodes[(i+1) % n];
-      v2 = C->nodes[(i-1+n) % n];
-      index_1 = i;
-      break;
-    }
-  }
+  return SUCCESS;
+}
 
-  // fill in cycle with costs
-  for (i = 0; i < n; i++) {
-    C->costs[i] = graph_get_edge_cost(G, C->nodes[i], C->nodes[(i+1)%n]);
-  }
+/*
+ * heur_3_opt
+ * G : graph
+ * C : cycle computed by another heuristic
+ *     (will be modified if it's not 3-opt)
+ * cost : cost of the solution computed by the heuristic
+ *
+ * compute a 3-opt admissible solution, in order to swap crossing edges
+ *
+ * return : cost of the 3-opt solution
+ */
+int heur_3_opt(graph *G, cycle *C, double ccost, double* ub) {
 
-  if (v1 > v2) { // to take into account rounding errors, maybe not necessary
-    *ub = 0.0;
-    for (i = 0; i < n; i++) {
-      *ub += C->costs[(index_1-i+n)%n];
-    }
+  int i, j, k, u, v, w, x, y, z, h, l;
+  double delta;
+  double cost = ccost;
+
+  int n = C->n;
+  int changed = 1;
+
+  //int MAX_ITER = 100;
+  int counter = 0;
+
+  for (i = 0; i < n; ++i) {
+    printf("%d ", C->nodes[i]);
   }
-  else {
-    *ub = 0.0;
-    for (i = 0; i < n; i++) {
-      *ub += C->costs[(index_1+i)%n];
-    }
-  }*/
+  printf("\n");
+
+  while (changed /*&& counter < MAX_ITER*/) {
+    counter++;
+    changed = 0;
+
+
+    for (i = 0; i < n ; i++) {
+
+      for (j = i+2; j < n; j++) {
+        // i+2: We don't want something like i-->i+1=j-->j+1
+        
+        for (k = j+2; k < n; ++k) {
+          // j+2 for the same reason above
+
+          if ((j+1) % n != i &&
+              (k+1) % n != j &&
+              (k+1) % n != i   ) {
+            // We don't want something like j-->j+1=i-->i+1
+            // (this happens only if i=0 and j=n-1 so that n-1-->0-->1).
+
+            u = C->nodes[i];
+            v = C->nodes[(i+1) % n];
+            w = C->nodes[j];
+            x = C->nodes[(j+1) % n];
+            y = C->nodes[k];
+            z = C->nodes[(k+1) % n];
+            //printf("%d %d %d %d %d %d\n", u,v,x,y,w,z);
+
+
+            // first round : i, j
+            //printf("haaaa\n");
+            delta = graph_get_edge_cost(G, u, w) +
+                    graph_get_edge_cost(G, v, x) -
+                    C->costs[i] -
+                    C->costs[j];
+            //printf("heeee\n");
+
+
+            if (delta < 0.0) {
+
+                cost += delta;
+                
+                // Reverse the portion of the cycle which goes from
+                // index i+1 to index j;
+                // From ..., node[i]=v,  node[i+1]=z,  node[i+2]=v_1,  ...,
+                //    node[j-1]=v_s,  node[j]=h,  node[j+1]=k, ...
+                // To   ..., node[i]=v,  node[i+1]=h,  node[i+2]=v_s,  ...,
+                //    node[j-1]=v_1,  node[j]=z,  node[j+1]=k, ...
+                h = (i+1) % n;
+                int tmp;
+                for (l = 0; l <= (j - h) / 2; ++l) {
+
+                  tmp             = C->nodes[h + l];
+                  C->nodes[h + l] = C->nodes[j - l];
+                  C->nodes[j - l] = tmp;
+
+                  //printf("hiiii\n");
+                  C->costs[i + l] = graph_get_edge_cost(G,
+                                                        C->nodes[i + l],
+                                                        C->nodes[(i+l+1) % G->n]);
+                  //printf("hoooo\n");
+                  C->costs[j - l] = graph_get_edge_cost(G,
+                                                        C->nodes[j - l],
+                                                        C->nodes[(j-l+1) % G->n]);
+                  //printf("huuuu\n");
+                }
+
+                changed = 1;
+                i = j = k = n;
+                break;
+            } // end if delta
+
+            // second round : i, k
+            //printf("ha\n");
+            delta = graph_get_edge_cost(G, u, y) +
+                    graph_get_edge_cost(G, v, z) -
+                    C->costs[i] -
+                    C->costs[k];
+            //printf("he\n");
+
+
+            if (delta < 0.0) {
+
+                // getchar();
+
+                cost += delta;
+                
+                // Reverse the portion of the cycle which goes from
+                // index i+1 to index j;
+                // From ..., node[i]=v,  node[i+1]=z,  node[i+2]=v_1,  ...,
+                //    node[j-1]=v_s,  node[j]=h,  node[j+1]=k, ...
+                // To   ..., node[i]=v,  node[i+1]=h,  node[i+2]=v_s,  ...,
+                //    node[j-1]=v_1,  node[j]=z,  node[j+1]=k, ...
+                h = (i+1) % n;
+                int tmp;
+                for (l = 0; l <= (k - h) / 2; ++l) {
+
+                  tmp             = C->nodes[h + l];
+                  C->nodes[h + l] = C->nodes[k - l];
+                  C->nodes[k - l] = tmp;
+
+                  //printf("hi\n");
+                  C->costs[i + l] = graph_get_edge_cost(G,
+                                                        C->nodes[i + l],
+                                                        C->nodes[(i+l+1) % G->n]);
+                  //printf("ho\n");
+                  C->costs[k - l] = graph_get_edge_cost(G,
+                                                        C->nodes[k - l],
+                                                        C->nodes[(k-l+1) % G->n]);
+                  //printf("hu\n");
+
+                }
+
+                changed = 1;
+                i = j = k = n;
+                break;
+            } // end if delta
+
+            // third round : j, k
+            //printf("ha\n");
+            delta = graph_get_edge_cost(G, v, y) +
+                    graph_get_edge_cost(G, x, z) -
+                    C->costs[j] -
+                    C->costs[k];
+            //printf("he\n");
+
+
+            if (delta < 0.0) {
+
+                // getchar();
+
+                cost += delta;
+                
+                // Reverse the portion of the cycle which goes from
+                // index i+1 to index j;
+                // From ..., node[i]=v,  node[i+1]=z,  node[i+2]=v_1,  ...,
+                //    node[j-1]=v_s,  node[j]=h,  node[j+1]=k, ...
+                // To   ..., node[i]=v,  node[i+1]=h,  node[i+2]=v_s,  ...,
+                //    node[j-1]=v_1,  node[j]=z,  node[j+1]=k, ...
+                h = (j+1) % n;
+                int tmp;
+                for (l = 0; l <= (k - h) / 2; ++l) {
+
+                  tmp             = C->nodes[h + l];
+                  C->nodes[h + l] = C->nodes[k - l];
+                  C->nodes[k - l] = tmp;
+
+                  //printf("hi\n");
+                  C->costs[j + l] = graph_get_edge_cost(G,
+                                                        C->nodes[j + l],
+                                                        C->nodes[(j+l+1) % G->n]);
+                  //printf("ho\n");
+                  C->costs[k - l] = graph_get_edge_cost(G,
+                                                        C->nodes[k - l],
+                                                        C->nodes[(k-l+1) % G->n]);
+                  //printf("hu\n");
+
+                }
+
+                changed = 1;
+                i = j = k = n;
+                break;
+            } // end if delta
+
+          }
+        }
+      }
+    } // end for
+
+  } // end while
 
   *ub = cost;
 

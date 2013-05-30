@@ -63,6 +63,9 @@ void *rc_thread(void *p);
 int heur_nearest_neighbour(graph *G, cycle* C, int start_node, double* ub);
 
 int heur_2_opt(graph *G, cycle *C, double ccost, double* ub);
+
+int heur_3_opt(graph *G, cycle *C, double ccost, double *ub);
+
 int generate_random_cycle(graph *G, cycle *C, double* ub);
 
 /**
