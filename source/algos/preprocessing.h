@@ -10,6 +10,8 @@
 #include "../data/tsp_env.h"
 #include "../data/tsp_stats.h"
 
+#include "../algos/compute_deltas.h"
+
 #include "compute_upper_bound.h"
 #include "compute_lagrange.h"
 

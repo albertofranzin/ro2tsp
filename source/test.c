@@ -1,5 +1,6 @@
 #include "base/constants.h"
 #include "base/base.h"
+#include "base/utils.h"
 
 #include "algos/preprocessing.h"
 
@@ -10,6 +11,7 @@
 
 #include "solvers/cpx/cpx_solver.h"
 #include "solvers/cpx/cpx_local_branching.h"
+#include "solvers/cpx/cpx_mip_refine.h"
 #include "solvers/bb/bb_solver.h"
 
 #include <stdio.h>
@@ -54,7 +56,10 @@ int main (int argc, char *argv[]) {
   tsp_stats ts;
   tsp_stats_init(&ts);
 
+  start = clock();
   preprocessing(&G, pars, &te, &ts);
+  end = clock();
+  double preprocessing_time = time_elapsed(start, end);
 
   switch(pars->solver) {
 
@@ -82,13 +87,25 @@ int main (int argc, char *argv[]) {
       }
         break;
 
+    case MIP_AND_REFINE :
+      {
+        start = clock();
+        cpx_mip_refine(&te, &ts, pars);
+        end = clock();
+      }
+        break;
+
+    default :
+      fprintf(stderr, "Fatal error in main :: no such solver available\n");
+      exit(1);
+
   }
 
   tsp_stats_print(&ts, pars);
   graph_plot(&te.G_OUTPUT, &EG, "optimal tour");
 
-  printf("time spent in actual solving: %f s\n",
-        ((double) (end - start)) / CLOCKS_PER_SEC);
+  printf("time spent in preprocessing: %f s\n", preprocessing_time);
+  printf("time spent in actual solving: %f s\n", time_elapsed(start, end));
 
   return 0;
 }

@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <time.h>
 #include <ilcplex/cplex.h>
 
 #include "cpx_table.h"

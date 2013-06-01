@@ -64,6 +64,10 @@ parameters *base_problem_setup(int argc, char **argv) {
                  strcmp(argv[i+1], "local_branching") == 0 ||
                  strcmp(argv[i+1], "lb")              == 0   ) {
         pars->solver = LOCAL_BRANCHING;
+      } else if (strcmp(argv[i+1], "MIP_AND_REFINE") == 0 ||
+                 strcmp(argv[i+1], "mip_and_refine") == 0 ||
+                 strcmp(argv[i+1], "mr")             == 0   ) {
+        pars->solver = MIP_AND_REFINE;
       }
       i++;
     }
@@ -144,6 +148,8 @@ void print_helper_menu() {
   printf("                    x can be:\n");
   printf("                    - BRANCH_AND_BOUND | branch_and_bound | bb\n");
   printf("                    - CPLEX | cplex\n");
+  printf("                    - LOCAL_BRANCHING | local_branching | lb\n");
+  printf("                    - MIP_AND_REFINE | mip_and_refine | mr\n");
   printf("  --heur x        : choose the heuristic algorithm for an upper bound\n");
   printf("                    x can be:\n");
   printf("                    - ALL | all\n");

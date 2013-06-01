@@ -13,7 +13,7 @@ int cpx_add_kruskal_secs(CPXENVptr   env,
   int n = (*OT).n;
 
   double cost, cost_min;
-  int flag, mark1, mark2, x, y;
+  int flag, mark1, mark2, x = -1, y = -1;
 
   int vrtx_mrks[n];
   for (i = 0; i < n; i++) vrtx_mrks[i] = i;

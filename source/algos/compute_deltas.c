@@ -92,24 +92,24 @@ int compute_deltas(graph* G, onetree* OT) { // Linear time complexity!!!
 
       if (i != 0 && j != 0) {
 
-      u = ordered_vertices[i];
-      v = ordered_vertices[j];
-      pred_v = OT->V[v].pred;
+        u = ordered_vertices[i];
+        v = ordered_vertices[j];
+        pred_v = OT->V[v].pred;
 
-      if (pred_v == u) { // The edge belongs to the 1-tree.
+        if (pred_v == u) { // The edge belongs to the 1-tree.
 
-	graph_set_edge_delta(G, u, v, graph_get_edge_cost(G, u, v));
+          graph_set_edge_delta(G, u, v, graph_get_edge_cost(G, u, v));
 
-      }
-      else {
+        }
+        else {
 
-	delta = ((graph_get_edge_delta(G, u, pred_v) > graph_get_edge_cost(G, v, pred_v))) ? 
-	  graph_get_edge_delta(G, u, pred_v) : 
-	  graph_get_edge_cost(G, v, pred_v);
-	
-	graph_set_edge_delta(G, u, v, delta); // Now delta is not the true delta, it is the cost of the edge of maximum cost in C\{(i, j)} !!!
+          delta = ((graph_get_edge_delta(G, u, pred_v) > graph_get_edge_cost(G, v, pred_v))) ? 
+            graph_get_edge_delta(G, u, pred_v) : 
+            graph_get_edge_cost(G, v, pred_v);
 
-      }
+          graph_set_edge_delta(G, u, v, delta); // Now delta is not the true delta, it is the cost of the edge of maximum cost in C\{(i, j)} !!!
+
+        }
       }
 
     }
@@ -144,4 +144,5 @@ int compute_deltas(graph* G, onetree* OT) { // Linear time complexity!!!
 
   free(flags);
 
+  return SUCCESS;
 }

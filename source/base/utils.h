@@ -121,4 +121,12 @@ int sebwComp ( const void *, const void *);
  */
 void free_and_null(char **ptr);
 
+/**
+ * compute difference in seconds between two clock_t times
+ * @param  start start time
+ * @param  end   end time
+ * @return       seconds passed between start and end
+ */
+double time_elapsed(clock_t start, clock_t end);
+
 #endif

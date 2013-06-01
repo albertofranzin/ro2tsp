@@ -134,7 +134,10 @@ void egraph_remove_edge(egraph* EG, int u, int v) {
 void egraph_set_edge_cost(egraph* EG, int u, int v, double cost) {
 
 #ifdef DEBUG
-  if (u < 0 && v < 0 || u >= EG->n || v >= EG->n || u == v || !egraph_adjacent_nodes(EG, u, v)) {
+  if ((u < 0)      || (v < 0)      ||
+      (u >= EG->n) || (v >= EG->n) ||
+      (u == v)     ||
+      !egraph_adjacent_nodes(EG, u, v)) {
     printf("error: egraph_set_edge_cost: %d %d\n", u, v);
     exit(1);
   }
@@ -149,7 +152,7 @@ void egraph_set_edge_cost(egraph* EG, int u, int v, double cost) {
 double egraph_get_edge_cost(egraph* EG, int u, int v) {
 
 #ifdef DEBUG
-  if (u < 0 && v < 0 || u >= EG->n || v >= EG->n || u == v || !egraph_adjacent_nodes(EG, u, v)) {
+  if (u < 0 || v < 0 || u >= EG->n || v >= EG->n || u == v || !egraph_adjacent_nodes(EG, u, v)) {
     printf("error: egraph_get_edge_cost: %d %d\n", u, v);
     exit(1);
   }
@@ -197,7 +200,7 @@ double egraph_get_cost(egraph* EG) {
 
 void egraph_plot(egraph* EG1, egraph* EG2, char* title) {
 
-  int i, j, v, n1, n2, eg1_has_some_edge, eg2_has_some_edge;
+  int i, j, n1, n2, eg1_has_some_edge, eg2_has_some_edge;
 
   n1 = n2 = 0;
   if (EG1 != NULL)
@@ -271,13 +274,13 @@ void egraph_plot(egraph* EG1, egraph* EG2, char* title) {
 
     if (eg1_has_some_edge) {
       for (i = 0; i < n1; i++) {
-	for (j = i+1; j < n1; j++) {
-	  if (egraph_adjacent_nodes(EG1, i, j)) {
-	    fprintf(pipe, "%f %f\n", EG1->V[i].x, EG1->V[i].y);
-	    fprintf(pipe, "%f %f\n", EG1->V[j].x, EG1->V[j].y);
-	    fprintf(pipe, "\n");
-	  }
-	}
+        for (j = i+1; j < n1; j++) {
+          if (egraph_adjacent_nodes(EG1, i, j)) {
+            fprintf(pipe, "%f %f\n", EG1->V[i].x, EG1->V[i].y);
+            fprintf(pipe, "%f %f\n", EG1->V[j].x, EG1->V[j].y);
+            fprintf(pipe, "\n");
+          }
+        }
       }
       fprintf(pipe, "e\n");
     }
@@ -292,13 +295,13 @@ void egraph_plot(egraph* EG1, egraph* EG2, char* title) {
   
     if (eg2_has_some_edge) {
       for (i = 0; i < n2; i++) {
-	for (j = i+1; j < n2; j++) {
-	  if (egraph_adjacent_nodes(EG2, i, j)) {
-	    fprintf(pipe, "%f %f\n", EG2->V[i].x, EG2->V[i].y);
-	    fprintf(pipe, "%f %f\n", EG2->V[j].x, EG2->V[j].y);
-	    fprintf(pipe, "\n");
-	  }
-	}
+        for (j = i+1; j < n2; j++) {
+          if (egraph_adjacent_nodes(EG2, i, j)) {
+            fprintf(pipe, "%f %f\n", EG2->V[i].x, EG2->V[i].y);
+            fprintf(pipe, "%f %f\n", EG2->V[j].x, EG2->V[j].y);
+            fprintf(pipe, "\n");
+          }
+        }
       }
       fprintf(pipe, "e\n");
     }

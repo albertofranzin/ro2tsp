@@ -39,10 +39,11 @@ int bb_select_edges(tsp_env* env, int* w, int* v, int* u, int opt) {
       return FAILURE;
     } 
 
-  }
-
   *v = k;
   *u = h;
+
+  }
+
 
   return SUCCESS;
 }

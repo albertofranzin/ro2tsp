@@ -4,8 +4,8 @@
 
 int compute_lagrange(graph* G, onetree* OT, double ub, double* lb) {
 
-  int i, j, v, status, num_of_iterations, time_since_improvement;
-  double alpha, square_norm, step_size, z, z_best;
+  int i, j, status, num_of_iterations, time_since_improvement;
+  double alpha, square_norm, step_size, z, z_best = SMALL;
 
 
   int n = G->n;
@@ -52,7 +52,9 @@ int compute_lagrange(graph* G, onetree* OT, double ub, double* lb) {
     // in parctice, this is due to the fact that G has too many forbidden edges.
     status = compute_min_ot(&G_tmp, &OT_tmp);
     if (status == FAILURE) {
-      return FAILURE; // If it doesn't fails at the firt iteration, then compute_ot will never fails because no new constraints are added during compute_lagrange (this will not be true in compute_incremental_lagrange)
+      free(multipliers);
+      free(subgradient);
+      return FAILURE; // If it doesn't fails at the first iteration, then compute_ot will never fails because no new constraints are added during compute_lagrange (this will not be true in compute_incremental_lagrange)
     }
 
 

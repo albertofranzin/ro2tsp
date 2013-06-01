@@ -15,17 +15,17 @@ int CPXPUBLIC cpx_subtour_callback(CPXCENVptr  env,
   cutinfo *ci = (cutinfo *) cbhandle;
 
   cpx_table hash_table = ci->hash_table;
-  CPXLPptr  lp         = ci->lp;
+  // CPXLPptr  lp         = ci->lp;
 
   parameters *pars     = ci->pars;
 
   int      numcols  = ci->numcols;
-  int      numcuts  = ci->num;
+  // int      numcuts  = ci->num;
   double  *solx     = ci->x;
-  int     *beg      = ci->beg;
-  int     *ind      = ci->ind;
-  double  *val      = ci->val;
-  double  *rhs      = ci->rhs;
+  // int     *beg      = ci->beg;
+  // int     *ind      = ci->ind;
+  // double  *val      = ci->val;
+  // double  *rhs      = ci->rhs;
   int      n        = ci->number_of_nodes;
   double   objval;
   int      i, k;

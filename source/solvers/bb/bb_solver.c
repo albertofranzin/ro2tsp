@@ -6,12 +6,12 @@ void bb_solver(tsp_env* te, tsp_stats* ts) {
 
 
 
-  double ub, lb;
-  int i, j, status; 
+  // double ub, lb;
+  int i, status; 
   int n = te->G_INPUT.n;
 
   // To easily access some frequently used pointer...
-  graph* G_CURR = &te->G_CURR;
+  // graph* G_CURR = &te->G_CURR;
   onetree* OT_CURR = &te->OT_CURR;
 
 
@@ -574,7 +574,7 @@ int bb_compute_current_ot(tsp_env* te, tsp_stats* ts) {
   graph* G_CURR = &te->G_CURR;
   onetree* OT_CURR = &te->OT_CURR;
 
-  int n = G_CURR->n;
+  // int n = G_CURR->n;
   cycle CYCLE;
   cycle_init(&CYCLE, 0);
 

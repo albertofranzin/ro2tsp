@@ -32,8 +32,8 @@ void cpx_cpool_copy(cpx_cpool *FROM, cpx_cpool *TO) {
 
   for (i = 0; i < n; i++) {
     c = curr_node->constraint;
-    cpx_cpool_push_last(TO, c.cid, c.num, c.rmatind, c.rmatval, c.rmatbeg,
-                        c.rhs, c.sense);
+    cpx_cpool_push_last(TO, c.cid, c.num, c.rmatind, c.rmatval,
+                        c.rmatbeg[0], c.rhs[0], c.sense[0]);
     curr_node = curr_node->next;
   }
 
@@ -50,21 +50,21 @@ void cpx_cpool_push_last(cpx_cpool *cl,
                          char       sense)
 {
 
-  cpx_cpool_node *tail = &(cl->tail);
+  cpx_cpool_node *tail      = &(cl->tail);
   cpx_cpool_node *last_node = cl->tail.prev;
-  cpx_cpool_node *new_node = malloc(sizeof(cpx_cpool_node));
+  cpx_cpool_node *new_node  = malloc(sizeof(cpx_cpool_node));
 
-  tail->prev = new_node;
-  new_node->next = tail;
+  tail->prev      = new_node;
+  new_node->next  = tail;
   last_node->next = new_node;
-  new_node->prev = last_node;
-  new_node->constraint.cid = cid;
-  new_node->constraint.num = num;
-  new_node->constraint.rmatind = rmatind;
-  new_node->constraint.rmatval = rmatval;
-  new_node->constraint.rmatbeg = rmatbeg;
-  new_node->constraint.rhs = rhs;
-  new_node->constraint.sense = sense;
+  new_node->prev  = last_node;
+  new_node->constraint.cid        = cid;
+  new_node->constraint.num        = num;
+  new_node->constraint.rmatind    = rmatind;
+  new_node->constraint.rmatval    = rmatval;
+  new_node->constraint.rmatbeg[0] = rmatbeg;
+  new_node->constraint.rhs[0]     = rhs;
+  new_node->constraint.sense[0]   = sense;
   cl->size++;
 }
 
@@ -189,8 +189,8 @@ cpx_constraint *cpx_create_lb_constraint(double  *x,
                                          double   rhs)
 {
   int i;
-  int rmatind[numcols];
-  double coeffs[numcols];
+  int *rmatind = malloc(sizeof(int) * numcols);
+  double *coeffs = malloc(sizeof(double) * numcols);
 
   for (i = 0; i < numcols; ++i) {
     if (x[i] > 0.9) {         // == 1
@@ -203,13 +203,49 @@ cpx_constraint *cpx_create_lb_constraint(double  *x,
 
   cpx_constraint *c = malloc(sizeof(cpx_constraint));
 
-  c->cid     = cid;
-  c->num     = numcols;
-  c->rmatind = rmatind;
-  c->rmatval = coeffs;
-  c->rmatbeg = 0;
-  c->rhs     = rhs;
-  c->sense   = sense;
+  c->cid        = cid;
+  c->num        = numcols;
+  c->rmatind    = rmatind;
+  c->rmatval    = coeffs;
+  c->rmatbeg[0] = 0;
+  c->rhs[0]     = rhs;
+  c->sense[0]   = sense;
 
   return c;
+}
+
+/**
+ * insert the local branching constraint into the model
+ * @param  env  CPLEX environment
+ * @param  lp   problem
+ * @param  c    local branching constraint
+ * @param  pars user parameters
+ * @return      status of the operations
+ */
+int cpx_add_lb_constraint(CPXENVptr       env,
+                          CPXLPptr        lp,
+                          cpx_constraint *c,
+                          parameters     *pars) {
+  int status;
+
+  printf("eora?\n");
+
+  printf("%d: %d %f %c %d\n",
+      c->cid, c->num, c->rhs[0], c->sense[0], c->rmatbeg[0]);
+
+  printf("%d\n", c->rmatind[0]);
+  printf("%f\n", c->rmatval[0]);
+
+  status = CPXaddrows(env, lp, 0, 1, c->num, c->rhs, c->sense,
+                      c->rmatbeg, c->rmatind, c->rmatval, NULL, NULL);
+
+  printf("aaaaaaaaaaak\n");
+
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_add_lb_constraint :: ");
+    fprintf(stderr, "CPXaddrows, status %d\n", status);
+    exit(1);
+  }
+
+  return status;
 }

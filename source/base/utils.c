@@ -294,7 +294,6 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
     char  line[1024];
     char *p1, *p2;
     int   lineLen;
-    short read        = 1;
     short haveCoords  = 1;
     short matrix_type = 0;
 
@@ -393,7 +392,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                     break;
                                 }
 
-                                char *running, *token1, *token2, *token3;
+                                char *token1, *token2, *token3;
 
                                 token1 = strtok(line, delimiters);
                                 token2 = strtok(NULL, delimiters);
@@ -493,7 +492,7 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
                                     break;
                                 }
 
-                                char *running, *tokens[pars->number_of_nodes], *tok;
+                                char *tok;
                                 tok = strtok(line, delimiters);
 
                                 while (tok != NULL) {
@@ -544,10 +543,10 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
              q2,
              q3,
              fract,
-             latitude1,
-             longitude1,
-             latitude2,
-             longitude2;
+             latitude1  = 0.,
+             longitude1 = 0.,
+             latitude2  = 0.,
+             longitude2 = 0.;
 
       // TSPLIB file contains node coordinates
       // for each edge, compute the distance (= the cost)
@@ -799,3 +798,12 @@ void free_and_null(char **ptr) {
   }
 } // END free_and_null
 
+/**
+ * compute difference in seconds between two clock_t times
+ * @param  start start time
+ * @param  end   end time
+ * @return       seconds passed between start and end
+ */
+inline double time_elapsed(clock_t start, clock_t end) {
+  return (double) (end - start) / CLOCKS_PER_SEC;
+}

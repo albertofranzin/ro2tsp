@@ -55,7 +55,7 @@
 
 // compute_lagrange
 
-#define MAX_NUM_ITERATIONS           30000
+#define MAX_NUM_ITERATIONS           50000
 #define MAX_NUM_ITERATIONS_NO_IMPROV 1000
 #define ALPHA                        2.0
 #define ALPHA_HALVING_TIME           100
@@ -73,9 +73,12 @@
 //------------------------------------------------------
 
 // solvers available
+// exacts:
 #define BRANCH_AND_BOUND 1
 #define CPLEX            2
+// heuristics:
 #define LOCAL_BRANCHING  3
+#define MIP_AND_REFINE   4
 
 
 

@@ -1,6 +1,7 @@
 #ifndef CPX_SOLVER_H_
 #define CPX_SOLVER_H_
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -33,6 +34,6 @@
  * @param ts    problem stats
  * @param pars  user parameters
  */
-void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars);
+int cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars);
 
 #endif
