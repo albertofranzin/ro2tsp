@@ -17,6 +17,11 @@ int cpx_local_branching(tsp_env    *te,
   CPXLPptr  lp       = NULL;
   char     *probname = "problema";
 
+  double total_time_limit = 60., // seconds
+         node_time_limit  = 5.,  // s
+         elapsed_time     = 0.;  // s
+  clock_t start_time, now;
+
   status = cpx_create_problem(&env, &lp, probname);
   assert(status == 0);
 
@@ -28,7 +33,7 @@ int cpx_local_branching(tsp_env    *te,
     // Turn off output to the screen.
     //status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_OFF);
     if (status != 0) {
-      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c: ");
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching.c: ");
       fprintf(stderr, "failed to turn on screen indicator, error %d.\n", status);
       exit(1);
     }
@@ -50,7 +55,7 @@ int cpx_local_branching(tsp_env    *te,
   cpx_table_init(&hash_table, numcols);
   cpx_table_populate(&hash_table, &te->G_CURR);
 
-  status = cpx_setup_problem(env, lp, &te->G_CURR, &hash_table);
+  status = cpx_setup_problem(env, lp, &te->G_CURR, &hash_table, pars);
   assert(status == 0);
 
   // --------------------------------------------------------------
@@ -60,29 +65,57 @@ int cpx_local_branching(tsp_env    *te,
   // upper and lower bounds
   printf("Set upper bound to CPLEX: %f\n", te->init_ub);
   status = CPXsetdblparam(env, CPX_PARAM_CUTUP, te->init_ub);
-  if ( status != 0 ) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching.c :: ");
     fprintf(stderr, "failed to set the upper cutoff, error %d.\n", status);
     exit(1);
   }
 
   printf("Set lower bound to CPLEX: %f\n", ts->init_lb);
   status = CPXsetdblparam(env, CPX_PARAM_CUTLO, ts->init_lb);
-  if ( status != 0 ) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching.c :: ");
     fprintf(stderr, "failed to set the lower cutoff, error %d.\n", status);
     exit(1);
   }
 
   // timeout
-  double time_limit = 12.; // seconds
-  printf("Set time limit to CPLEX: %f\n", time_limit);
-  status = CPXsetdblparam(env, CPX_PARAM_TILIM, time_limit);
-  if ( status != 0 ) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
+  printf("Set node time limit to CPLEX: %f\n", node_time_limit);
+  status = CPXsetdblparam(env, CPX_PARAM_TILIM, node_time_limit);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching.c :: ");
     fprintf(stderr, "failed to set the timeout, error %d.\n", status);
     exit(1);
   }
+
+  // start from a known solution
+  status = CPXsetintparam(env, CPX_PARAM_ADVIND, CPX_ON);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching.c :: ");
+    fprintf(stderr, "failed in setting CPX_PARAM_ADVIND, error %d.\n", status);
+    exit(1);
+  }
+
+  // set start solution
+  int    ms_indices[numcols];
+  double ms_values[numcols];
+
+  memset(ms_values, 0., sizeof(ms_values));
+  for (i = 0; i < n; ++i) {
+    indx_from_vertices(&hash_table,
+                       te->TOUR_OPT.nodes[i],
+                       te->TOUR_OPT.nodes[(i+1) % n],
+                       &k);
+    ms_values[k] = 1.0;
+  }
+
+  for (i = 0; i < numcols; ++i) {
+    ms_indices[i] = i;
+  }
+
+  int beg[1] = {0};
+  status = CPXaddmipstarts(env, lp, 1, numcols, beg,
+        ms_indices, ms_values, NULL, NULL);
 
   // --------------------------------------------------------------
   // 
@@ -112,7 +145,9 @@ int cpx_local_branching(tsp_env    *te,
   int opt       = TRUE,
       first     = TRUE,
       diversify = FALSE;
-  int dv        = 0;
+  int dv        = 0,
+      dv_max    = 100000, // ????
+      lcr;                // last constraint row
 
   // constraint pools:
   // round1_cpool contains the constraints that have not been proved to make
@@ -122,9 +157,9 @@ int cpx_local_branching(tsp_env    *te,
   // I'm not sure this is going to work, hope this does not fuck up everything.
   cpx_cpool *round1_cpool = malloc(sizeof(round1_cpool)),
             *round2_cpool = malloc(sizeof(round2_cpool));
-  int cid_counter = 0, // constraints ID counter
-      round1_last_cid, // ID of the most recent constraint in round1_cpool
-      round2_last_cid; // ID of the most recent constraint in round2_cpool
+  int cid_counter = 0; // constraints ID counter
+  //    round1_last_cid, // ID of the most recent constraint in round1_cpool
+  //    round2_last_cid; // ID of the most recent constraint in round2_cpool
 
   cpx_cpool_init(round1_cpool);
   cpx_cpool_init(round2_cpool);
@@ -134,13 +169,35 @@ int cpx_local_branching(tsp_env    *te,
 
   double rhs        = BIG,
          tl         = BIG,
-         current_ub = te->init_ub,
-         ub         = te->init_ub;
+         ub         = BIG,//te->init_ub,
+         best_ub    = BIG;//te->init_ub;
   double x_opt[numcols],
          cur_x_opt[numcols];
 
+  memset(x_opt, 0., sizeof(x_opt));
+  // memset(cur_x_opt, 0., sizeof(cur_x_opt));
+  memcpy(&cur_x_opt, &ms_values, sizeof(ms_values));
+
+  // set time controls
+  start_time = clock();
+
   // cycle begins!
   while (!termination) {
+
+    if (rhs < BIG) {
+      printf("creating constraint\n");
+      cpx_constraint *cpxc = cpx_create_lb_constraint(cur_x_opt,
+                                                      numcols,
+                                                      cid_counter++,
+                                                      'L',
+                                                      rhs);
+      printf("done\n");
+      status = cpx_add_lb_constraint(env, lp, cpxc, pars);
+      assert(status == 0);
+      printf("asserted!\n");
+    }
+
+    tl = fmin(tl, total_time_limit - elapsed_time);
 
     int numsubtrs = 0;
     while (numsubtrs != 1) {
@@ -154,7 +211,7 @@ int cpx_local_branching(tsp_env    *te,
       // solve the MIP problem
       status = CPXmipopt(env, lp);
       if (status) {
-        fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
+        fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching.c :: ");
         fprintf(stderr, "CPXmipopt : %d\n", status);
         fprintf(stderr, "Error while solving the problem.\n");
         exit(1);
@@ -184,7 +241,7 @@ int cpx_local_branching(tsp_env    *te,
         // retrieve solution coefficients
         status = CPXgetx(env, lp, x, 0, numcols-1);
         if (status) {
-          fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver :: ");
+          fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
           fprintf(stderr, "CPXgetx : %d\n", status);
           fprintf(stderr, "Failed to get node solution.\n");
           exit(1);
@@ -196,40 +253,96 @@ int cpx_local_branching(tsp_env    *te,
 
     }  // end while num of subtours != 1
 
+    tl = node_time_limit;
+
     switch(solstat) {
       case 101: // optimal solution found
       case 102: // optimal solution found within tolerance
                 status = CPXgetobjval(env, lp, &objval);
                 if (status) {
-                  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver :: ");
-                  fprintf(stderr, "CPXgetobjval : %d\n", status);
+                  fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                  fprintf(stderr, "case %d :: CPXgetobjval : %d\n", solstat, status);
                   fprintf(stderr, "Failed to obtain objective value.\n");
                   exit(1);
                 }
                 printf("objval = %f\n", objval);
-                termination = TRUE;
+                if (objval < best_ub) {
+                  best_ub = objval;
+                  memcpy(&x_opt, &x, sizeof(x));
+                }
+                if (rhs >= BIG) {
+                  termination = TRUE;
+                  break;
+                }
+                diversify = FALSE;
+                first     = FALSE;
+                ub        = objval;
+                rhs       = radius;
+                memcpy(&cur_x_opt, &x, sizeof(x));
+                // reverse last constraint
+                lcr = CPXgetnumrows(env, lp);
+                char asense[1];
+                asense[0] = 'G';
+                int inds[1];
+                inds[0] = lcr-1;
+                status = CPXchgsense(env, lp, 1, inds, asense);
+                if (status) {
+                  fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                  fprintf(stderr, "case 101 :: CPXchgsense : %d\n", status);
+                  fprintf(stderr, "Failed to invert constraint.\n");
+                  exit(1);
+                }
+                double arhs[1];
+                arhs[0] = rhs + 1;
+                status = CPXchgrhs(env, lp, 1, inds, arhs);
+                if (status) {
+                  fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                  fprintf(stderr, "case 101 :: CPXchgrhs : %d\n", status);
+                  fprintf(stderr, "Failed to invert constraint.\n");
+                  exit(1);
+                }
                 break;
 
       case 103: // problem is infeasible
                 if (rhs >= BIG) {
                   termination = TRUE;
-                  // returns current  opt
                   break;
                 }
                 // reverse last local branching constraint
                 if (round1_cpool->size > 0) {
-                  cpx_constraint *outc = cpx_cpool_pop_last(round1_cpool);
-                  outc->rhs = outc->rhs+1;
-                  if (outc->sense == 'L') {
-                    outc->sense = 'U';
+                  /*cpx_constraint *outc = cpx_cpool_pop_last(round1_cpool);
+                  outc->rhs[0] = outc->rhs[0]+1;
+                  if (outc->sense[0] == 'L') {
+                    outc->sense[0] = 'G';
                   } else {
-                    outc->sense = 'L';
+                    outc->sense[0] = 'L';
                   }
-                  cpx_cpool_insert(round2_cpool, outc);
+                  cpx_cpool_insert(round2_cpool, outc);*/
+                  lcr = CPXgetnumrows(env, lp);
+                  char asense[1];
+                  asense[0] = 'G';
+                  int inds[1];
+                  inds[0] = lcr-1;
+                  status = CPXchgsense(env, lp, 1, inds, asense);
+                  if (status) {
+                    fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                    fprintf(stderr, "case 103 :: CPXchgsense : %d\n", status);
+                    fprintf(stderr, "Failed to invert constraint.\n");
+                    exit(1);
+                  }
+                  double arhs[1];
+                  arhs[0] = rhs + 1;
+                  status = CPXchgrhs(env, lp, 1, inds, arhs);
+                  if (status) {
+                    fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                    fprintf(stderr, "case 103 :: CPXchgrhs : %d\n", status);
+                    fprintf(stderr, "Failed to invert constraint.\n");
+                    exit(1);
+                  }
                 }
                 if (diversify) {
-                  current_ub = BIG;
-                  tl         = BIG;
+                  ub = BIG;
+                  tl = BIG;
                   dv++;
                   first = TRUE;
                 }
@@ -239,75 +352,161 @@ int cpx_local_branching(tsp_env    *te,
 
       case 107: // problem has timed out, a feasible solution has been found
                 if (rhs < BIG) {
-                  printf("rhs < BIG\n");
+                  /*printf("rhs < BIG\n");
                   if (round1_cpool->size > 0) {
                     cpx_constraint *outc = cpx_cpool_pop_last(round1_cpool);
                   }
-                  printf("last popped\n");
+                  printf("last popped\n");*/
+                  lcr = CPXgetnumrows(env, lp);
+                  // printf("# of rows: %d\n", lcr);
                   if (first) {
-                    // remove constraint from model
+                    // printf("ciao\n");
+                    status = CPXdelrows(env, lp, lcr-1, lcr-1);
+                    if (status) {
+                      fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                      fprintf(stderr, "case 107 :: CPXdelrows : %d\n", status);
+                      fprintf(stderr, "Failed to delete constraint.\n");
+                      exit(1);
+                    }
                   } else {
-                    // add reversed constraint to round2_cpool
-                    // ma non ho capito se devo farlo o meno...
-                  }
-                }
+                    // don't know what that 'refine' is,
+                    // so I follow the advice and do NOT execute
+                    // the following 'else' branch
+                    /*char asense[1];
+                    asense[0] = 'G';
+                    int inds[1];
+                    inds[0] = lcr-1;
+                    status = CPXchgsense(env, lp, 1, inds, asense);
+                    if (status) {
+                      fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                      fprintf(stderr, "case 107 :: CPXchgsense : %d\n", status);
+                      fprintf(stderr, "Failed to invert constraint.\n");
+                      exit(1);
+                    }
+                    int arhs[1];
+                    arhs[0] = rhs + 1;
+                    status = CPXchgrhs(env, lp, 1, inds, arhs);
+                    if (status) {
+                      fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                      fprintf(stderr, "case 107 :: CPXchgrhs : %d\n", status);
+                      fprintf(stderr, "Failed to invert constraint.\n");
+                      exit(1);
+                    }*/
+                  } // end if !first
+                } // end if rhs < BIG
                 // refine ?
+                printf("try to get value\n");
                 status = CPXgetobjval(env, lp, &objval);
                 if (status) {
-                  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver :: ");
-                  fprintf(stderr, "CPXgetobjval : %d\n", status);
+                  fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                  fprintf(stderr, "case 107 :: CPXgetobjval : %d\n", status);
                   fprintf(stderr, "Failed to obtain objective value.\n");
                   exit(1);
                 }
-                if (objval < ub) {
-                  ub = objval;
-                  printf("before memcpy 1\n");
+                // printf("eh?\n");
+                if (objval < best_ub) {
+                  best_ub = objval;
                   memcpy(&x_opt, &x, sizeof(x));
-                  printf("after memcpy 1\n");
                 }
+                // printf("mah\n");
                 first      = FALSE;
                 diversify  = FALSE;
-                current_ub = objval;
-                rhs        = radius;
-                printf("before memcpy 2\n");
+                ub  = objval;
+                rhs = radius;
+                // printf("boh\n");
                 memcpy(&cur_x_opt, &x, sizeof(x));
-                printf("after memcpy 2\n");
+                // printf("già\n");
                 break;
 
       case 108: // problem infeasible, no feasible solutions found
                 printf("diversify = %d\n", diversify);
                 if (diversify) {
-                  if (round1_cpool->size > 0) {
+                  /*if (round1_cpool->size > 0) {
                     cpx_constraint *outc = cpx_cpool_pop_last(round1_cpool);
-                    outc->rhs = outc->rhs+1;
-                    if (outc->sense == 'L') {
-                      outc->sense = 'U';
+                    outc->rhs[0] = outc->rhs[0]+1;
+                    if (outc->sense[0] == 'L') {
+                      outc->sense[0] = 'G';
                     } else {
-                      outc->sense = 'L';
+                      outc->sense[0] = 'L';
                     }
-                    cpx_cpool_insert(round2_cpool, outc);
-                  }
-                  current_ub = BIG;
+                    cpx_cpool_insert(round2_cpool, outc);*/
+                    lcr = CPXgetnumrows(env, lp);
+                    char asense[1];
+                    asense[0] = 'G';
+                    int inds[1];
+                    inds[0] = lcr-1;
+                    status = CPXchgsense(env, lp, 1, inds, asense);
+                    if (status) {
+                      fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                      fprintf(stderr, "case 108 :: CPXchgsense : %d\n", status);
+                      fprintf(stderr, "Failed to invert constraint.\n");
+                      exit(1);
+                    }
+                    double arhs[1];
+                    arhs[0] = rhs + 1;
+                    status = CPXchgrhs(env, lp, 1, inds, arhs);
+                    if (status) {
+                      fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                      fprintf(stderr, "case 108 :: CPXchgrhs : %d\n", status);
+                      fprintf(stderr, "Failed to invert constraint.\n");
+                      exit(1);
+                    }
+                  //}
+                  ub = BIG;
                   tl = BIG;
                   dv++;
                   rhs = rhs + ceil(radius / 2);
                   first = TRUE;
                 } else {
-                  if (round1_cpool->size > 0) {
+                  /*if (round1_cpool->size > 0) {
                     cpx_constraint *outc = cpx_cpool_pop_last(round1_cpool);
-                  }
+                  }*/
+                    lcr = CPXgetnumrows(env, lp);
+                    status = CPXdelrows(env, lp, lcr-1, lcr-1);
+                    if (status) {
+                      fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+                      fprintf(stderr, "case 108 :: CPXdelrows : %d\n", status);
+                      fprintf(stderr, "Failed to delete constraint.\n");
+                      exit(1);
+                    }
                   rhs = rhs - ceil(radius / 2);
-                  diversify = TRUE;
                 }
+                diversify = TRUE;
                 break;
+    } // end switch
+
+    // check time
+    now = clock();
+    elapsed_time = time_elapsed(start_time, now);
+    if (elapsed_time > total_time_limit || dv > dv_max) {
+      termination = TRUE;
     }
 
+    status = CPXaddmipstarts(env, lp, 1, numcols, beg,
+        ms_indices, x_opt, NULL, NULL);
+
   } // end while termination
+
+  printf("Set node time limit to CPLEX: %f\n", node_time_limit);
+  status = CPXsetdblparam(env, CPX_PARAM_TILIM, node_time_limit);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching.c :: ");
+    fprintf(stderr, "failed to set the timeout, error %d.\n", status);
+    exit(1);
+  }
+
+  status = CPXmipopt(env, lp);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching.c :: ");
+    fprintf(stderr, "CPXmipopt : %d\n", status);
+    fprintf(stderr, "Error while solving the problem.\n");
+    exit(1);
+  }
 
   // Retrieve objective function final value.
   status = CPXgetobjval(env, lp, &objval);
   if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver :: ");
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
     fprintf(stderr, "CPXgetobjval : %d\n", status);
     fprintf(stderr, "Failed to obtain objective value.\n");
     //exit(1);
@@ -318,12 +517,24 @@ int cpx_local_branching(tsp_env    *te,
 
   assert(numcols == CPXgetnumcols(env, lp));
 
-  status = CPXgetx(env, lp, x, 0, numcols-1);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver :: ");
-    fprintf(stderr, "CPXgetx : %d\n", status);
-    fprintf(stderr, "Failed to get node solution.\n");
-    exit(1);
+  solstat = CPXgetstat(env, lp);
+  if (solstat == 101 ||
+      solstat == 102 ||
+      solstat == 103) {
+    opt = TRUE;
+  } else {
+    opt = FALSE;
+  }
+
+  if (solstat == 101 ||
+      solstat == 102) {
+    status = CPXgetx(env, lp, x_opt, 0, numcols-1);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
+      fprintf(stderr, "CPXgetx : %d\n", status);
+      fprintf(stderr, "Failed to get node solution.\n");
+      exit(1);
+    }
   }
 
   // Save tour...
@@ -331,8 +542,7 @@ int cpx_local_branching(tsp_env    *te,
 
   for (k = 0; k < numcols; k++) {
 
-    if (x[k] > 0.9) {
-
+    if (x_opt[k] > 0.9) {
       vertices_from_indx(&hash_table, &i, &j, k);
 
 #ifdef DEBUG

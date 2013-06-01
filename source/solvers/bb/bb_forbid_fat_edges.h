@@ -8,6 +8,7 @@
 #include "../../data/tsp_stats.h"
 
 #include "../../algos/compute_deltas.h"
+#include "../../algos/compute_min_ot.h"
 
 void bb_forbid_fat_edges(tsp_env* te, tsp_stats* ts, double ub);
 

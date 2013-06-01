@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <ilcplex/cplex.h>
 
+#include "../../base/utils.h"
+
 
 // ---------------------------------------------------------- //
 //                                                            //
@@ -20,9 +22,9 @@ typedef struct _cpx_constraint {
   int     num;
   int    *rmatind;
   double *rmatval;
-  int     rmatbeg;
-  double  rhs;
-  char    sense;
+  int     rmatbeg[1];
+  double  rhs[1];
+  char    sense[1];
 } cpx_constraint;
 
 // constraint pool
@@ -117,5 +119,18 @@ cpx_constraint *cpx_create_lb_constraint(double  *x,
 int cpx_add_constraint(CPXENVptr       env,
                        CPXLPptr        lp,
                        cpx_constraint *c);
+
+/**
+ * insert the local branching constraint into the model
+ * @param  env  CPLEX environment
+ * @param  lp   problem
+ * @param  c    local branching constraint
+ * @param  pars user parameters
+ * @return      status of the operations
+ */
+int cpx_add_lb_constraint(CPXENVptr       env,
+                          CPXLPptr        lp,
+                          cpx_constraint *c,
+                          parameters     *pars);
 
 #endif

@@ -3,7 +3,8 @@
 int cpx_setup_problem(CPXENVptr   env,
                       CPXLPptr    lp,
                       graph      *G,
-                      cpx_table  *hash_table)
+                      cpx_table  *hash_table,
+                      parameters *pars)
 {
   int i, j, k,
       ind, status;
@@ -15,6 +16,8 @@ int cpx_setup_problem(CPXENVptr   env,
   double lb[ccnt];
   double ub[ccnt];
   char   xtype[ccnt];
+  int forbidden[ccnt];
+  memset(forbidden, 0, sizeof(forbidden));
 
   //printf("CPXchgprobtype\n");
   CPXchgprobtype(env, lp, CPXPROB_MILP); // forse non serve
@@ -25,6 +28,9 @@ int cpx_setup_problem(CPXENVptr   env,
     for (j = i+1; j < n; j++) {
       indx_from_vertices(hash_table, i, j, &ind);
       obj[ind] = graph_get_edge_cost(G, i, j);
+      if (obj[ind] >= BIG) {
+        forbidden[ind] = 1;
+      }
     }
   }
 
@@ -104,11 +110,44 @@ int cpx_setup_problem(CPXENVptr   env,
   status = CPXaddrows(env, lp, 0, rcnt, nzcnt, rhs, sense,
                       rmatbeg, rmatind, rmatval, NULL, NULL);
   if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c ::");
-    fprintf(stderr, " CPXaddrows\n");
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c :: ");
+    fprintf(stderr, "CPXaddrows\n");
     fprintf(stderr, "Error while inserting a new constraint: %d.\n", status);
     exit(1);
   }
+
+  int rrmatind[1];
+
+  char lbs[1] = {'B'};
+
+  double ubs[1] = {0.};
+
+  for (i = 0; i < ccnt; ++i) {
+    if (forbidden[i] == 1) {
+      rrmatind[0] = i;
+      status = CPXchgbds(env, lp, 1, rrmatind, lbs, ubs);
+      if (status) {
+        fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c :: ");
+        fprintf(stderr, "CPXaddrows\n");
+        fprintf(stderr, "Error while inserting a new constraint: %d.\n", status);
+        exit(1);
+      }
+
+      // printf("%d set to 0\n", i);
+    }
+  }
+
+#ifdef DEBUG
+  if (pars->verbosity >= VERBOSE) {
+    printf("saving model file\n");
+    status = CPXwriteprob(env, lp, "checkproblem.lp", NULL);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem :: ");
+      fprintf(stderr, "cannot save file checkproblem.lp, error %d\n", status);
+      exit(1);
+    }
+  }
+#endif
 
   return status;
 }

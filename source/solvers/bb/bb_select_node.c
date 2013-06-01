@@ -5,7 +5,7 @@ int bb_select_node(tsp_env* env, int* w, int opt) {
   graph* G_CURR = &(*env).G_CURR;
   onetree* OT_CURR = &(*env).OT_CURR;
   int n =  G_CURR->n;
-  int i, j, k, num_free_edges, min_num_free_edges;
+  int i, j, k, num_free_edges;
 
   if (opt == DEFAULT) {
 
@@ -17,21 +17,21 @@ int bb_select_node(tsp_env* env, int* w, int opt) {
 
       if (OT_CURR->V[i].deg >= 3) {
 
-	num_free_edges = 0;
+        num_free_edges = 0;
 
-	for (j = 0; j < n; j++) {
-	  if (num_free_edges < 1 && j != i && onetree_adjacent_nodes(OT_CURR, i, j) &&
-	      graph_get_edge_constr(G_CURR, i, j) == FREE) {
+        for (j = 0; j < n; j++) {
+          if (num_free_edges < 1 && j != i && onetree_adjacent_nodes(OT_CURR, i, j) &&
+              graph_get_edge_constr(G_CURR, i, j) == FREE) {
 
-	    num_free_edges++;
- 
-	  }
-	}
-      
-	if (num_free_edges > 0) {
-	  k = i;
-	  break;
-	}
+            num_free_edges++;
+
+          }
+        }
+
+        if (num_free_edges > 0) {
+          k = i;
+          break;
+        }
       }
     }
 
@@ -45,4 +45,5 @@ int bb_select_node(tsp_env* env, int* w, int opt) {
   
   }
 
+  return SUCCESS;
 }

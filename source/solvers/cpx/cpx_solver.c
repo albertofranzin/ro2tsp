@@ -6,9 +6,9 @@
  * @param ts    problem stats
  * @param pars  user parameters
  */
-void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
+int cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
 
-  int i, j, k, status, ind;
+  int i, j, k, status;
 
   CPXENVptr env = NULL;
   CPXLPptr lp = NULL;
@@ -84,7 +84,7 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   }
 #endif
 
-  status = cpx_setup_problem(env, lp, &te->G_CURR, &hash_table);
+  status = cpx_setup_problem(env, lp, &te->G_CURR, &hash_table, pars);
   assert(status == 0);
 
 #ifdef DEBUG
@@ -93,7 +93,11 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   }
   if (pars->verbosity >= VERBOSE) {
     char *prob_filename = NULL;
-    asprintf(&prob_filename, "%s%s", probname, ".lp");
+    if (asprintf(&prob_filename, "%s%s", probname, ".lp") == -1) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver :: ");
+      fprintf(stderr, "error while allocating memory\n");
+      exit(1);
+    }
     printf("Saving problem to file %s...\n", prob_filename);
     status = CPXwriteprob(env, lp, prob_filename, NULL);
     if (status) {
@@ -127,7 +131,7 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   
   // --------------------------------------------------------------
   // Set cplex lower-cutoff.
-  /*
+  /**/
   printf("Set lower bound to CPLEX: %f\n", ts->init_lb);
   status = CPXsetdblparam(env, CPX_PARAM_CUTLO, ts->init_lb);
   if ( status != 0 ) {
@@ -135,7 +139,7 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
     fprintf(stderr, "failed to set the lower cutoff, error %d.\n", status);
     exit(1);
   }
-  */
+  /**/
 
 
 
@@ -151,6 +155,37 @@ void cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   }
   */
 
+  // start from a known solution
+  status = CPXsetintparam(env, CPX_PARAM_ADVIND, CPX_ON);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching.c :: ");
+    fprintf(stderr, "failed in setting CPX_PARAM_ADVIND, error %d.\n", status);
+    exit(1);
+  }
+
+  // set start solution
+  /**/int    ms_indices[numcols];
+  double ms_values[numcols];
+
+  memset(ms_values, 0., sizeof(ms_values));
+  for (i = 0; i < n; ++i) {
+    indx_from_vertices(&hash_table,
+                       te->TOUR_OPT.nodes[i],
+                       te->TOUR_OPT.nodes[(i+1) % n],
+                       &k);
+    ms_values[k] = 1.0;
+  }
+
+  for (i = 0; i < numcols; ++i) {
+    ms_indices[i] = i;
+  }
+
+  int beg[1] = {0};
+  status = CPXaddmipstarts(env, lp, 1, numcols, beg, 
+        ms_indices, ms_values, NULL, NULL);
+
+  printf("setting RINS frequency to 50\n");
+  status = CPXsetintparam(env, CPX_PARAM_RINSHEUR, 50);/**/
 
 
   //

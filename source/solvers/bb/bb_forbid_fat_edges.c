@@ -11,7 +11,7 @@ void bb_forbid_fat_edges(tsp_env* te, tsp_stats* ts, double ub) {
   onetree MIN_OT;
   onetree_init(&MIN_OT, 0);
 
-  compute_ot(G_CURR, &MIN_OT);
+  compute_min_ot(G_CURR, &MIN_OT);
   compute_deltas(G_CURR, &MIN_OT);
 
   double lb = onetree_get_cost(&MIN_OT, G_CURR);

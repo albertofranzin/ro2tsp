@@ -10,7 +10,7 @@ int cpx_add_secs(CPXENVptr   env,
 
   int n = pars->number_of_nodes;
 
-  int i, j, numedgs, status;
+  int i, numedgs, status;
 
   int edg_inds[n];
 
@@ -19,7 +19,7 @@ int cpx_add_secs(CPXENVptr   env,
     if (sol[i] > 0.9)  edg_inds[numedgs++] = i;
   }
 
-  int rmatind[numcols];
+  /*int rmatind[numcols];
   double coeffs[numcols];
   for (i = 0; i < numcols; ++i) {
     if (sol[i] > 0.9) {
@@ -37,7 +37,7 @@ int cpx_add_secs(CPXENVptr   env,
   rhs[0] = 10;
 
   char sense[1];
-  sense[0] = 'L';
+  sense[0] = 'L';*/
 
   /*status = CPXaddrows(env, lp, 0, 1, numcols,
                       rhs, sense, rmatbeg, rmatind, coeffs,
@@ -127,9 +127,8 @@ int cpx_add_secs(CPXENVptr   env,
   if (numsubtrs > 1) {
 
     for (my_mark = 0; my_mark < numsubtrs; my_mark++) {
-
-      cpx_add_my_sec(env, lp, hash_table, vrtx_mrks, n, my_mark, pars);
-
+      status = cpx_add_my_sec(env, lp, hash_table, vrtx_mrks, n, my_mark, pars);
+      assert(status == SUCCESS);
     }
 
     printf("# SECs added = %d\n", numsubtrs);

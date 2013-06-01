@@ -9,6 +9,8 @@
 #include "../../data/graph.h"
 #include "cpx_table.h"
 
+#include "../../base/utils.h"
+
 /**
  * Set up the problem, creating and inserting the objective function,
  * the variables and the first constraints.
@@ -19,9 +21,10 @@
  *                    in the list, and viceversa
  * @return            status of the operation
  */
-int cpx_setup_problem(CPXENVptr  env,
-                      CPXLPptr   lp,
-                      graph     *G,
-                      cpx_table *hash_table);
+int cpx_setup_problem(CPXENVptr   env,
+                      CPXLPptr    lp,
+                      graph      *G,
+                      cpx_table  *hash_table,
+                      parameters *pars);
 
 #endif
