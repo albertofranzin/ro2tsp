@@ -120,7 +120,7 @@ void onetree_to_egraph(onetree* OT, egraph* EG);
 
 void egraph_print(egraph *EG);
 
-
+void onetree_to_egraph(onetree* OT, egraph* EG);
 
 void graph_plot(graph* G, egraph* EG, char* title);
 

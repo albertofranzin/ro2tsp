@@ -121,7 +121,8 @@ void bb_solver(tsp_env* te, tsp_stats* ts) {
     if (status == FAILURE) {
       // All the edges (of the 1-tree) incident to the nodes with degree
       // greater or equal to 3 are forced or forbidden.
-      ts->num_fails_select_node++; return;
+      ts->num_fails_select_node++;
+      return;
     }
 
     // Select two edges which are incident to the vertex just found,
@@ -644,6 +645,7 @@ int bb_compute_current_ot(tsp_env* te, tsp_stats* ts) {
     
     printf("trying optimizing the lagrangean function using the dumb upper bound...\n");
     status = compute_lagrange(G_CURR, OT_CURR, te->dumb_ub, &lb);
+    // status = compute_lagrange(G_CURR, OT_CURR, te->init_ub, &lb);
 
     if (status == SUCCESS) {
       te->z_curr = lb;
