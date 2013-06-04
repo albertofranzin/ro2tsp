@@ -12,6 +12,7 @@
 //#include "cpx_solver.h"
 #include "cpx_add_secs.h"
 #include "cpx_table.h"
+#include "cpx_components.h"
 
 
 /**
@@ -38,7 +39,6 @@ typedef struct _icbinfo {
   parameters *pars;
 
 } icbinfo;
-
 
 
 /**

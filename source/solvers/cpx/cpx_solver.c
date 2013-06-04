@@ -49,7 +49,7 @@ int cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   }
 
   // Turn on data checking
-  //status = CPXsetintparam (env, CPX_PARAM_DATACHECK, CPX_ON);
+  status = CPXsetintparam (env, CPX_PARAM_DATACHECK, CPX_ON);
 #endif
 
 
@@ -121,13 +121,13 @@ int cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   // --------------------------------------------------------------
   // Set cplex upper-cutoff.
   
-  printf("Set upper bound to CPLEX: %f\n", te->init_ub);
+  /*printf("Set upper bound to CPLEX: %f\n", te->init_ub);
   status = CPXsetdblparam(env, CPX_PARAM_CUTUP, te->init_ub);
   if ( status != 0 ) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
     fprintf(stderr, "failed to set the upper cutoff, error %d.\n", status);
     exit(1);
-  }
+  }*/
   
   // --------------------------------------------------------------
   // Set cplex lower-cutoff.
@@ -146,14 +146,14 @@ int cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
 
   // --------------------------------------------------------------
   // Set cplex absolute gap tolerance.
-  /*
+  
   status = CPXsetdblparam(env, CPX_PARAM_EPGAP, 0.0000000001);
   if ( status != 0 ) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c :: ");
     fprintf(stderr, "failed to set the upper cutoff, error %d.\n", status);
     exit(1);
   }
-  */
+
 
   // start from a known solution
   status = CPXsetintparam(env, CPX_PARAM_ADVIND, CPX_ON);
@@ -272,10 +272,12 @@ int cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   // --------------------------------------------------------------
   // Add Kruskal-like SECs to the model.
 
-  cpx_add_kruskal_secs(env, lp, &hash_table, &te->G_CURR, &te->OT_CURR, pars);
-
-
-
+  cpx_add_kruskal_secs(env,
+                       lp,
+                       &hash_table,
+                       &te->G_CURR,
+                       &te->OT_CURR,
+                       pars);
 
 
 #ifdef DEBUG
@@ -356,7 +358,7 @@ int cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars) {
   }
 
   ts->z_opt = objval;
-  printf("# problem solved!\n");
+  printf("# problem solved! cost = %f\n", objval);
 
   numcols = CPXgetnumcols(env, lp);
 

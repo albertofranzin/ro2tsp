@@ -56,7 +56,7 @@
 // compute_lagrange
 
 #define MAX_NUM_ITERATIONS           50000
-#define MAX_NUM_ITERATIONS_NO_IMPROV 1000
+#define MAX_NUM_ITERATIONS_NO_IMPROV 500
 #define ALPHA                        2.0
 #define ALPHA_HALVING_TIME           100
 
@@ -94,7 +94,7 @@
 #define RANDOM_CYCLES_2OPT       4
 
 #define NUM_TRIALS_RANDOM_CYCLES          1000000
-#define NUM_TRIALS_RANDOM_CYCLES_2OPT     500000
+#define NUM_TRIALS_RANDOM_CYCLES_2OPT     20000
 
 //------------------------------------------------------
 

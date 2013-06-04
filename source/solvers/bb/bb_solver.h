@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include "../../base/constants.h"
+#include "../../data/egraph.h"
 #include "../../data/graph.h"
 #include "../../data/onetree.h"
 #include "../../data/cycle.h"

@@ -43,7 +43,7 @@ buildLib: list.o elist.o tree.o graph.o onetree.o egraph.o cycle.o \
 	compute_deltas.o bb_bkp.o bb_select_node.o \
 	bb_select_edges.o bb_propagate.o bb_forbid_fat_edges.o bb_solver.o \
 	base.o utils.o preprocessing.o cpx_callbacks.o cpx_cpool.o \
-	cpx_local_branching.o cpx_mip_refine.o \
+	cpx_local_branching.o cpx_mip_refine.o cpx_components.o \
 	cpx_table.o cpx_create_problem.o cpx_setup_problem.o cpx_add_my_sec.o \
 	cpx_add_secs.o cpx_add_kruskal_secs.o cpx_solver.o base.o utils.o \
 	tsp_env.o tsp_stats.o
@@ -161,6 +161,9 @@ cpx_local_branching.o: solvers/cpx/cpx_local_branching.h solvers/cpx/cpx_local_b
 
 cpx_mip_refine.o: solvers/cpx/cpx_mip_refine.h solvers/cpx/cpx_mip_refine.c
 	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_mip_refine.c
+
+cpx_components.o: solvers/cpx/cpx_components.h solvers/cpx/cpx_components.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_components.c
 
 
 # base (common utilities)

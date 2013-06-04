@@ -228,10 +228,10 @@ void *rc_thread(void *p) {
   flag = 0;
   for (i = 0; i < trials; i++) {
 
+    status = generate_random_cycle(rcp->G, &C_tmp, &tour_cost);
     if ((rand() % 100) / 100. > (1.*i / trials)) {
       // printf("thread %d : %d\n", rcp->th_no, i);
       cc++;
-      status = generate_random_cycle(rcp->G, &C_tmp, &tour_cost);
       status = heur_2_opt(rcp->G, &C_tmp, tour_cost, &tour_cost);
       // always returns successfully
 
