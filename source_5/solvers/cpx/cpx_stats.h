@@ -11,21 +11,22 @@
 //                                                            //
 // ---------------------------------------------------------- //
 
-
+/**
+ * cpx_stats
+ * contains initial bounds and final value of the solution
+ *
+ * rc2opt_ub : bound obtained by random cycle + 2-opt heuristic
+ * nn2opt_ub : bound obtained by nearest neighbour + 2-opt heuristic
+ * init_ub   : chosen initial upper bound on the cost of the solution
+ * init_lb   : chosen initial lower bound on the cost of the solution
+ * z_opt     : optimal cost of the solution
+ */
 typedef struct _cpx_stats {
-
   double rc2opt_ub;
-
   double nn2opt_ub;
-
-
   double init_ub;
-
   double init_lb;
-
   double z_opt;
-
-
 } cpx_stats;
 
 
