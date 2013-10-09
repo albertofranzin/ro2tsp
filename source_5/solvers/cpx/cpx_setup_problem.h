@@ -11,39 +11,45 @@
 #include "cpx_constraint.h"
 
 /**
- * create cplex problem and fill it with TSP data
- * @param env		CPLEX environment
- * @param lp		CPLEX problem
- * @param probname	problem name
- * @return 		status of the function
+ * cpx_create_problem
+ * create cplex problem
+ * 
+ * @param env       CPLEX environment, to be created here
+ * @param lp        CPLEX problem, to be created here
+ * @param probname  problem name
+ * @return          status of the function
  */
-int cpx_create_problem(CPXENVptr	*env,
-                       CPXLPptr		*lp,
-                       char		*probname);
+int cpx_create_problem(CPXENVptr  *env,
+                       CPXLPptr   *lp,
+                       char       *probname);
 
 
 /**
+ * cpx_setup_problem
  * fill the problem with TSP data
- * @param env		CPLEX environment
- * @param lp		CPLEX problem
- * @param ce		cpx environment
- * @return 		status of the function
+ * 
+ * @param env   CPLEX environment
+ * @param lp    CPLEX problem
+ * @param ce    cpx environment
+ * @return      status of the function
  */
-int cpx_setup_problem(CPXENVptr       	env,
-                      CPXLPptr		lp,
-		      cpx_env		*ce);
+int cpx_setup_problem(CPXENVptr   env,
+                      CPXLPptr    lp,
+                      cpx_env    *ce);
 
 
 /**
+ * cpx_set_problem_parameters
  * set some parameters
- * @param env		CPLEX environment
- * @param lp		CPLEX problem
- * @param ce		cpx environment
- * @return 		status of the function
+ * 
+ * @param env   CPLEX environment
+ * @param lp    CPLEX problem
+ * @param ce    cpx environment
+ * @return      status of the function
  */
-int cpx_set_problem_parameters(CPXENVptr	env,
-               	               CPXLPptr		lp,
-		               cpx_env		*ce);
+int cpx_set_problem_parameters(CPXENVptr    env,
+                               CPXLPptr     lp,
+                               cpx_env      *ce);
 
 
 #endif

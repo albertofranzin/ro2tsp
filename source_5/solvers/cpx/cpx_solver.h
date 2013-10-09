@@ -21,12 +21,16 @@
 #include "cpx_preprocessing.h"
 
 /**
- * cplex-based tsp solver
+ * cpx_solver
+ * cplex-based tsp solver: just a "proxy" method
+ * 
  * @param ce	cpx environment
  * @param cs	cpx environment
  * @param pars	user parameters
  */
-void cpx_solver(cpx_env *ce, cpx_stats *cs, parameters *pars);
+void cpx_solver(cpx_env    *ce,
+	            cpx_stats  *cs,
+	            parameters *pars);
 
 
 #endif

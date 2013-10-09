@@ -37,7 +37,7 @@ int cpx_preprocessing(CPXENVptr  env,
 
 
   // Nearest Neighbour + 2opt //
-
+/*
   status = compute_upper_bound(&ce->G, &TOUR_NN2OPT,
 		      NEAREST_NEIGHBOUR_2_OPT, &ub);
   if (status) {
@@ -46,10 +46,9 @@ int cpx_preprocessing(CPXENVptr  env,
                     "compute_upper_bound (NEAREST_NEIGHBOUR_2OPT): %d\n", status);
     return status;
   }
-
+*/
   cs->nn2opt_ub = ub;
   printf("# preprocessing : upper-bound : heur. nn+2opt = %f\n", cs->nn2opt_ub);
-
 
   // select the best upper bound as the initial upper bound //
 
@@ -106,7 +105,10 @@ int cpx_preprocessing(CPXENVptr  env,
   double bd[numcols];
 
   
-  status = compute_deltas(&ce->G, &ce->OT);
+  /**
+   * ERROR HERE
+   */
+  //status = compute_deltas(&ce->G, &ce->OT);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
                     "function: cpx_preprocessing:\n"

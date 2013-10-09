@@ -3,11 +3,11 @@ NOMEFILE = test.c
 CHECK = -Winline -Wall
 # -Winline : warn if any problem in including inline functions occurs
 
-CPLEX_COMPILER_OPT = -I/home/ludo/Programmi/CPLEX/cplex/include -DIL_STD
-#CPLEX_COMPILER_OPT = -I/opt/ibm/ILOG/CPLEX_Studio125/cplex/include -DIL_STD
+#CPLEX_COMPILER_OPT = -I/home/ludo/Programmi/CPLEX/cplex/include -DIL_STD
+CPLEX_COMPILER_OPT = -I/opt/ibm/ILOG/CPLEX_Studio125/cplex/include -DIL_STD
 
-CPLEX_LINKER_OPT = -L/home/ludo/Programmi/CPLEX/cplex/lib/x86-64_sles10_4.1/static_pic -lcplex -lm -lpthread
-#CPLEX_LINKER_OPT = -L/opt/ibm/ILOG/CPLEX_Studio125/cplex/lib/x86-64_sles10_4.1/static_pic -lcplex -lm -lpthread
+#CPLEX_LINKER_OPT = -L/home/ludo/Programmi/CPLEX/cplex/lib/x86-64_sles10_4.1/static_pic -lcplex -lm -lpthread
+CPLEX_LINKER_OPT = -L/opt/ibm/ILOG/CPLEX_Studio125/cplex/lib/x86-64_sles10_4.1/static_pic -lcplex -lm -lpthread
 
 PAR = -lm -lpthread
 # -lm : linking to math lib math.h

@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <ilcplex/cplex.h>
 
+#include "../../base/utils.h"
+
 #include "../../data/graph.h"
 #include "../../data/egraph.h"
 #include "../../data/onetree.h"
@@ -36,6 +38,7 @@
  * init_ub   : initial upper bound on the solution
  * init_lb   : initial lower bound on the solution
  * mylp      : pointer to CPLEX LP
+ * pars      : user-defined parameters
  */
 typedef struct _cpx_env {
   graph		  G_INPUT;
@@ -50,7 +53,9 @@ typedef struct _cpx_env {
   double	z_opt;
   double	init_ub;
   double	init_lb;
-  CPXLPptr mylp;
+
+  CPXLPptr    mylp;
+  parameters *pars;
 } cpx_env;
 
 
@@ -62,10 +67,13 @@ typedef struct _cpx_env {
 
 
 /**
+ * cpx_env_init
  * initialize environment
- * @param ce	cpx environment
+ * @param ce	  cpx environment
+ * @param pars  user-defined parameters
  */
-void cpx_env_init(cpx_env* ce);
+void cpx_env_init(cpx_env    *ce,
+                  parameters *pars);
 
 
 /**
