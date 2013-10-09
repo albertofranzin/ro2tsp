@@ -39,8 +39,7 @@ int main (int argc, char *argv[]) {
     printf("@ Euclidean TSP\n# tsplib instance\n");
     printf("# number of nodes = %d\n# tsplib file = %s\n\n",
                 pars->number_of_nodes, pars->tsp_file);
-  }
-  else if (pars->random_instance_option == TRUE) {
+  } else if (pars->random_instance_option == TRUE) {
     egraph_random(&EG);
     egraph_to_graph(&EG, &G);
     printf("@ Euclidean TSP\n# random instance\n# number of nodes = %d\n# seed = %ld\n\n",
@@ -79,26 +78,26 @@ int main (int argc, char *argv[]) {
     case CPLEX :
       {
 
-	cpx_env ce;
-	cpx_stats cs;
-	cpx_env_init(&ce);
-	cpx_stats_init(&cs);
-	egraph_copy(&EG, &ce.EG_INPUT);
-	graph_copy(&G, &ce.G_INPUT);
+        cpx_env ce;
+        cpx_stats cs;
+        cpx_env_init(&ce, pars);
+        cpx_stats_init(&cs);
+        egraph_copy(&EG, &ce.EG_INPUT);
+        graph_copy(&G, &ce.G_INPUT);
 
-	start = clock();
+        start = clock();
 
-	cpx_solver(&ce, &cs, pars);
+        cpx_solver(&ce, &cs, pars);
 
-	end = clock();
+        end = clock();
 
-	cpx_stats_print(&cs);
+        cpx_stats_print(&cs);
 
-	graph_plot(&ce.G_OUTPUT, &EG, "optimal tour");
-	
+        graph_plot(&ce.G_OUTPUT, &EG, "optimal tour");
+  
       }
         break;
-	
+  
   }
 
   printf("time spent in actual solving: %f s\n",

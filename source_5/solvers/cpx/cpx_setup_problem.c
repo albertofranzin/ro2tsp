@@ -1,18 +1,21 @@
 #include "cpx_setup_problem.h"
 
-
-int cpx_create_problem(CPXENVptr *env, CPXLPptr *lp, char *probname) {
+int cpx_create_problem(CPXENVptr  *env,
+                       CPXLPptr   *lp,
+                       char       *probname) {
 
   int status;
 
+  // create CPLEX problem environment
   *env = CPXopenCPLEX(&status);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
-		    "function: cpx_create_problem:\n"
+                    "function: cpx_create_problem:\n"
                     "CPXopenCPLEX : %d\n", status);
     return status;
   }
 
+  // create linear problem
   *lp = CPXcreateprob(*env, &status, probname);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
@@ -25,16 +28,16 @@ int cpx_create_problem(CPXENVptr *env, CPXLPptr *lp, char *probname) {
 }
 
 
-int cpx_setup_problem(CPXENVptr       	env,
-                      CPXLPptr		lp,
-		      cpx_env		*ce) {
+int cpx_setup_problem(CPXENVptr   env,
+                      CPXLPptr    lp,
+                      cpx_env    *ce) {
 
-  int status = 0;
-  int n = ce->G_INPUT.n;
+  int status  = 0;
+  int n       = ce->G_INPUT.n;
   int numcols = n * (n - 1) / 2;
   int idx, i, j, k;
 
-
+  // set problem as Mixed-Integer LP
   CPXchgprobtype(env, lp, CPXPROB_MILP);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
@@ -44,38 +47,39 @@ int cpx_setup_problem(CPXENVptr       	env,
   }
 
 
-  // set objective function //
+  // set objective function
+  double lb[numcols];      // lower bound on variables
+  double ub[numcols];      // upper bound on variables
+  char   xtype[numcols];   // type of variables
+  double obj[numcols];     // objected value computed for the variables
+  char  *colname[numcols]; // nama of columns (really need this?)
+  for (i = 0; i < numcols; i++) {
+    colname[i] = (char *)calloc(100, sizeof(char));
+  }
 
-  double lb[numcols];
-  double ub[numcols];
-  char   xtype[numcols];
-  double obj[numcols];
-  char*  colname[numcols];
-  for (i = 0; i < numcols; i++) 
-	colname[i] = (char*)calloc(100, sizeof(char));
-
-
+  // set variables: binary -> {0,1} -> [0,1] in the relaxated problem
+  // set bounds and retrieve variable corresponding to the vertex, according to
+  // its position in the table
   for (idx = 0; idx < numcols; idx++) {
-
-	lb[idx]    = 0.0;
-    	ub[idx]    = 1.0;
-    	xtype[idx] = 'B';
-    	vrtx_from_idx(&ce->T, &i, &j, idx);
-	sprintf(colname[idx], "x_%d_%d", i, j);
-
+    lb[idx]    = 0.0;
+    ub[idx]    = 1.0;
+    xtype[idx] = 'B';
+    vrtx_from_idx(&ce->T, &i, &j, idx);
+    sprintf(colname[idx], "x_%d_%d", i, j);
+    obj[idx] = graph_get_edge_cost(&ce->G_INPUT, i, j); 
   }
 
-
+  /*
+  moved operation into previous cycle
   for (i = 0; i < n; i++) {
-	for (j = i+1; j < n; j++) {
-
- 		idx_from_vrtx(&ce->T, i, j, &idx);
-		obj[idx] = graph_get_edge_cost(&ce->G_INPUT, i, j);
- 
-	}
+    for (j = i+1; j < n; j++) {
+      idx_from_vrtx(&ce->T, i, j, &idx);
+      obj[idx] = graph_get_edge_cost(&ce->G_INPUT, i, j); 
+    }
   }
+  */
 
-
+  // create constraints and add them to the problem
   status = CPXnewcols(env, lp, numcols, obj, lb, ub, xtype, colname);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
@@ -84,7 +88,7 @@ int cpx_setup_problem(CPXENVptr       	env,
     return status;
   }
 
-
+  // set problem as a minimum problem
   status = CPXchgobjsen(env, lp, CPX_MIN);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
@@ -95,50 +99,44 @@ int cpx_setup_problem(CPXENVptr       	env,
 
 
   // set degree constraints //
-
   cpx_constraint c;
   cpx_constraint_init(&c, n-1);
 
+  c.nzcnt   = n-1;
+  c.rmatbeg = 0;
+  c.rhs     = 2.0;
+  c.sense   = 'E';
+
   for (i = 0; i < n; i++) {
+    sprintf(c.rowname, "deg_cstr_%d", i);
+    k = 0;
+    for (j = 0; j < n; j++) {
+      if (j != i) {
+        idx_from_vrtx(&ce->T, i, j, &idx);
+        c.rmatind[k] = idx;
+        c.rmatval[k] = 1.0;
+        k++;
+      }
+    }
 
-    	sprintf(c.rowname, "deg_cstr_%d", i);
-
-	k = 0;
-	for (j = 0; j < n; j++) {
-		if (j != i) {
-
-			idx_from_vrtx(&ce->T, i, j, &idx);
- 			c.rmatind[k] = idx;
-			c.rmatval[k] = 1.0;
-			k++;
-
-		}
-    	}
-
-	c.nzcnt	  = n-1;
-	c.rmatbeg = 0;
-	c.rhs     = 2.0;
-	c.sense   = 'E';
-
-	status = cpx_constraint_add(env, lp, &c);
-	if (status) {
-	  fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
-                          "function: cpx_setup_problem:\n"
-                          "cpx_constraint_add : %d\n", status);
-          return status;
-	}
+    status = cpx_constraint_add(env, lp, &c);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
+                      "function: cpx_setup_problem:\n"
+                      "cpx_constraint_add : %d\n", status);
+      return status;
+    }
   }
 
   cpx_constraint_delete(&c);
-
   return 0;
 
 }
 
 
-int cpx_set_problem_parameters(CPXENVptr	env,
-               	               CPXLPptr		lp,
-		               cpx_env		*ce) {
+int cpx_set_problem_parameters(CPXENVptr  env,
+                               CPXLPptr   lp,
+                   cpx_env    *ce) {
 
   int status;
 

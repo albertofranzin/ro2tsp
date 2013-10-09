@@ -7,18 +7,17 @@
 #include "../data/graph.h"
 #include "../data/egraph.h"
 
-/*
+/**
  * base_problem_setup
- * - int     : number of arguments passed via command line
- * - char ** : arguments passed via command line
- *
  * read parameters and obtain the info needed to build the graph
- *
- * return : pointer parameters object
+ * 
+ * @param  argc number of arguments passed via command line
+ * @param  argv arguments passed via command line
+ * @return      pointer to parameters object
  */
-parameters *base_problem_setup(int, char **);
+parameters *base_problem_setup(int argc, char **argv);
 
-/*
+/**
  * print_helper_menu
  *
  * print a menu with the list of all the parameters

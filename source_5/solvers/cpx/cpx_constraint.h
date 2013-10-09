@@ -103,19 +103,21 @@ int cpx_constraint_generate_sec(cpx_env        *ce,
 
 
 /**
+ * cpx_constraint_generate_proximity_cutoff
  * generate proximity-search cutoff-constraint
- * @param ce    cpx environment
- * @param x_feas  feasible solution
+ * 
+ * @param ce          cpx environment
+ * @param x_feas      feasible solution
  * @param x_feas_size x_feas length
- * @param theta   proximity-search parameter
- * @param c         constraint
- * @return          status of the function
+ * @param theta       proximity-search parameter
+ * @param c           constraint
+ * @return            status of the function
  */
-int cpx_constraint_generate_proximity_cutoff(cpx_env    *ce,
-               double   *x_feas,
-               int          x_feas_size,
-               double   theta,
-               cpx_constraint *c);
+int cpx_constraint_generate_proximity_cutoff(cpx_env        *ce,
+                                             double         *x_feas,
+                                             int             x_feas_size,
+                                             double          theta,
+                                             cpx_constraint *c);
 
 
 #endif

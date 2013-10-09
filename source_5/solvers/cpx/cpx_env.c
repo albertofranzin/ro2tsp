@@ -1,6 +1,7 @@
 #include "cpx_env.h"
 
-void cpx_env_init(cpx_env* ce) {
+void cpx_env_init(cpx_env    *ce,
+                  parameters *pars) {
   graph_init(&ce->G_INPUT, 0);
   egraph_init(&ce->EG_INPUT, 0);
   graph_init(&ce->G_OUTPUT, 0);
@@ -14,6 +15,7 @@ void cpx_env_init(cpx_env* ce) {
   ce->init_ub = 0.0;
   ce->init_lb = 0.0;
   ce->mylp    = NULL;
+  ce->pars    = pars;
 }
 
 

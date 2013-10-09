@@ -92,7 +92,7 @@ parameters *base_problem_setup(int argc, char **argv) {
     if (strcmp(opt, "--cplex_callbacks") == 0 ||
         strcmp(opt, "--callbacks")       == 0 ||
         strcmp(opt, "-cb")               == 0   ) {
-      pars->cplex_callbacks = Y;
+      pars->cplex_callbacks = TRUE;
     }
 
     if (strcmp(opt, "-nt") == 0 || strcmp(opt, "--threads") == 0)
