@@ -218,7 +218,7 @@ double graph_get_edge_delta(graph* G, int u, int v) {
 
 #ifdef DEBUG
   if (u < 0 || v < 0 || u >= G->n || v >= G->n || u == v || !graph_adjacent_nodes(G, u, v)) {
-    printf("error: graph_fet_edge_delta: %d %d\n", u, v);
+    printf("error: graph_get_edge_delta: %d %d\n", u, v);
     exit(1);
   }
 #endif

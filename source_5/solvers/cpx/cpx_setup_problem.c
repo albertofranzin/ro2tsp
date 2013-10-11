@@ -37,6 +37,13 @@ int cpx_setup_problem(CPXENVptr   env,
   int numcols = n * (n - 1) / 2;
   int idx, i, j, k;
 
+#ifdef DEBUG
+  if (ce->pars->verbosity >= USEFUL) {
+    printf("solvers/cpx/cpx_setup_problem.c :: "
+           "cpx_setup_problem: n = %d, numcols = %d\n", n, numcols);
+  }
+#endif
+
   // set problem as Mixed-Integer LP
   CPXchgprobtype(env, lp, CPXPROB_MILP);
   if (status) {
@@ -48,11 +55,19 @@ int cpx_setup_problem(CPXENVptr   env,
 
 
   // set objective function
-  double lb[numcols];      // lower bound on variables
-  double ub[numcols];      // upper bound on variables
-  char   xtype[numcols];   // type of variables
-  double obj[numcols];     // objected value computed for the variables
-  char  *colname[numcols]; // nama of columns (really need this?)
+  // I try to malloc 'em, to bypass the 8MB limit
+  double *lb;      // lower bound on variables
+  double *ub;      // upper bound on variables
+  char   *xtype;   // type of variables
+  double *obj;     // objected value computed for the variables
+  char  **colname; // name of columns (really need this?)
+
+  lb      = (double *)calloc(numcols, sizeof(double));
+  ub      = (double *)calloc(numcols, sizeof(double));
+  xtype   = (char *)  calloc(numcols, sizeof(char));
+  obj     = (double *)calloc(numcols, sizeof(double));
+  colname = (char **) calloc(numcols, sizeof(char *));
+
   for (i = 0; i < numcols; i++) {
     colname[i] = (char *)calloc(100, sizeof(char));
   }
@@ -84,7 +99,7 @@ int cpx_setup_problem(CPXENVptr   env,
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
                     "function: cpx_setup_problem:\n"
-                     "PXnewcols : %d\n", status);
+                    "PXnewcols : %d\n", status);
     return status;
   }
 
@@ -128,6 +143,11 @@ int cpx_setup_problem(CPXENVptr   env,
     }
   }
 
+  free(ub);
+  free(lb);
+  free(xtype);
+  free(obj);
+  free(colname);
   cpx_constraint_delete(&c);
   return 0;
 
@@ -136,11 +156,11 @@ int cpx_setup_problem(CPXENVptr   env,
 
 int cpx_set_problem_parameters(CPXENVptr  env,
                                CPXLPptr   lp,
-                   cpx_env    *ce) {
+                               cpx_env   *ce) {
 
   int status;
 
-
+  // set cplex algo
   status = CPXsetintparam(env, CPX_PARAM_LPMETHOD, CPX_ALG_AUTOMATIC);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
@@ -149,8 +169,12 @@ int cpx_set_problem_parameters(CPXENVptr  env,
     return status;
   }
 
-
-  //status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);
+  // turn on/off CPLEX messages during execution
+  if (ce->pars->verbosity >= USEFUL) {
+    status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON);
+  } else {
+    status = CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_OFF);
+  }
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
                     "function: cpx_set_problem_parameters:\n"

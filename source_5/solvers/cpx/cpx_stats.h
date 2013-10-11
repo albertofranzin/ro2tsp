@@ -27,6 +27,10 @@ typedef struct _cpx_stats {
   double init_ub;
   double init_lb;
   double z_opt;
+  double heur_time;
+  double lb_time;
+  double cpx_time;
+  int    cpx_iterations;
 } cpx_stats;
 
 
