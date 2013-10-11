@@ -22,6 +22,12 @@ void cpx_solver(cpx_env    *ce,
     exit(1);
   }
 
+#ifdef DEBUG
+  if (ce->pars->verbosity >= ANNOYING) {
+    printf("solvers/cpx/cpx_solver.c :: before entering cpx_setup_problem\n");
+  }
+#endif
+
   status = cpx_setup_problem(env, lp, ce);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c:\n"
@@ -30,6 +36,12 @@ void cpx_solver(cpx_env    *ce,
     exit(1);
   }
 
+#ifdef DEBUG
+  if (ce->pars->verbosity >= ANNOYING) {
+    printf("solvers/cpx/cpx_solver.c :: before entering cpx_set_problem_parameters\n");
+  }
+#endif
+
   status = cpx_set_problem_parameters(env, lp, ce);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_solver.c:\n"
@@ -37,6 +49,12 @@ void cpx_solver(cpx_env    *ce,
                     "cpx_set_problem_parameters : %d\n", status);
     exit(1);
   }
+
+#ifdef DEBUG
+  if (ce->pars->verbosity >= ANNOYING) {
+    printf("solvers/cpx/cpx_solver.c :: before entering cpx_preprocessing\n");
+  }
+#endif
 
   status = cpx_preprocessing(env, lp, ce, cs, pars);
   if (status) {
@@ -61,18 +79,25 @@ void cpx_solver(cpx_env    *ce,
   // - cplex with callbacks
   // - matheuristic
   int    solstat;
-  int    n = ce->G.n;
-  double x[n * (n - 1) / 2];
+  int    n       = ce->G.n,
+         numcols = n * (n - 1) / 2;
+  double *x;
+
+  clock_t time_start, time_end;
+
+  x = (double *)calloc(numcols, sizeof(double));
 
   ce->mylp = lp;
 
+  time_start = clock();
   if (ce->pars->cplex_callbacks == TRUE) {
     status = cpx_solve_miliotis(env, lp, ce, cs, x, n * (n - 1) / 2, &solstat);
   } else {
     status = cpx_solve_iterative(env, lp, ce, cs, x, n * (n - 1) / 2, &solstat);
   }
   //status = cpx_solve_proximity(env, lp, ce, cs, x, n * (n - 1) / 2, &solstat);
-
+  time_end = clock();
+  cs->cpx_time = (double)(time_end - time_start)/CLOCKS_PER_SEC;
 
   // set up output, retrieving edges whose corresponding variable
   // is close enough to 1 (tolerance should be much higher, but...)
@@ -84,5 +109,7 @@ void cpx_solver(cpx_env    *ce,
       cs->z_opt += graph_get_edge_cost(&ce->G_INPUT, i, j);
     }
   }
+
+  free(x);
 
 }

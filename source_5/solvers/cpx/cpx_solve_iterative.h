@@ -13,22 +13,22 @@
 
 /**
  * solve the problem using the iterative method
- * @param env		CPLEX environment
- * @param lp		CPLEX problem
- * @param ce		cpx environment
- * @param cs		cpx statistics
- * @param x		computed solution
- * @param x_size	x length
- * @param solstat	CPLEX status of the solution
- * @return 		status of the function
+ * @param env       CPLEX environment
+ * @param lp        CPLEX problem
+ * @param ce        cpx environment
+ * @param cs        cpx statistics
+ * @param x         computed solution
+ * @param x_size    x length
+ * @param solstat   CPLEX status of the solution
+ * @return          status of the function
  */
-int cpx_solve_iterative(CPXENVptr	env, 
-			CPXLPptr	lp, 
-			cpx_env		*ce, 
-			cpx_stats	*cs, 
-			double*		x, 
-			int		x_size, 
-			int*		solstat);
+int cpx_solve_iterative(CPXENVptr   env, 
+                        CPXLPptr    lp,
+                        cpx_env    *ce,
+                        cpx_stats  *cs,
+                        double     *x,
+                        int         x_size,
+                        int        *solstat);
 
 
 #endif
