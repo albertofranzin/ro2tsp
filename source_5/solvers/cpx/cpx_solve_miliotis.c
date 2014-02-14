@@ -1,12 +1,12 @@
 #include "cpx_solve_miliotis.h"
 
-int cpx_solve_miliotis(CPXENVptr	env, 
-		       CPXLPptr	lp, 
-		       cpx_env		*ce, 
-		       cpx_stats	*cs, 
-		       double*		x, 
-		       int		x_size, 
-		       int*		solstat) {
+int cpx_solve_miliotis(CPXENVptr  env, 
+           CPXLPptr lp, 
+           cpx_env    *ce, 
+           cpx_stats  *cs, 
+           double*    x, 
+           int    x_size, 
+           int*   solstat) {
 
 
   int n = ce->G.n;
@@ -18,8 +18,8 @@ int cpx_solve_miliotis(CPXENVptr	env,
   //status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_DYNAMIC);
   status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_TRADITIONAL);
   if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
-                    "function: cpx_set_problem_parameters:\n"
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: cpx_solve_miliotis:\n"
                     "CPXsetinparam (CPX_PARAM_MIPSEARCH) : %d\n", status);
     return status;
   }
@@ -27,19 +27,19 @@ int cpx_solve_miliotis(CPXENVptr	env,
   //status = CPXsetintparam (env, CPX_PARAM_PRELINEAR, CPX_ON);
   status = CPXsetintparam (env, CPX_PARAM_PRELINEAR, CPX_OFF);
   if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
-                    "function: cpx_set_problem_parameters:\n"
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: cpx_solve_miliotis:\n"
                     "CPXsetinparam (CPX_PARAM_PRELINEAR) : %d\n", status);
     return status;
   }
 
   //status = CPXsetintparam (env, CPX_PARAM_REDUCE, CPX_PREREDUCE_NOPRIMALORDUAL);
-  //status = CPXsetintparam (env, CPX_PARAM_REDUCE, CPX_PREREDUCE_PRIMALANDDUAL);
-  status = CPXsetintparam (env, CPX_PARAM_REDUCE, CPX_PREREDUCE_PRIMALONLY);
+  status = CPXsetintparam (env, CPX_PARAM_REDUCE, CPX_PREREDUCE_PRIMALANDDUAL);
+  //status = CPXsetintparam (env, CPX_PARAM_REDUCE, CPX_PREREDUCE_PRIMALONLY);
   //status = CPXsetintparam (env, CPX_PARAM_REDUCE, CPX_PREREDUCE_DUALONLY);
   if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
-                    "function: cpx_set_problem_parameters:\n"
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: cpx_solve_miliotis:\n"
                     "CPXsetinparam (CPX_PARAM_REDUCE) : %d\n", status);
     return status;
   }
@@ -47,13 +47,13 @@ int cpx_solve_miliotis(CPXENVptr	env,
   status = CPXsetintparam (env, CPX_PARAM_MIPCBREDLP, CPX_ON);
   //status = CPXsetintparam (env, CPX_PARAM_MIPCBREDLP, CPX_OFF);
   if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
-                    "function: cpx_set_problem_parameters:\n"
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: cpx_solve_miliotis:\n"
                     "CPXsetinparam (CPX_PARAM_MIPCBREDLP) : %d\n", status);
     return status;
   }
 
-  /*
+  /**/
   status = CPXsetintparam (env, CPX_PARAM_PREDUAL, -1);
   //status = CPXsetintparam (env, CPX_PARAM_PREDUAL, 0);
   if (status) {
@@ -62,10 +62,23 @@ int cpx_solve_miliotis(CPXENVptr	env,
                     "CPXsetinparam (CPX_PARAM_PREDUAL) : %d\n", status);
     return status;
   }
-  */
+  /**/
 
+  /** /status = CPXsetdblparam(env, CPX_PARAM_CUTUP, ce->init_ub);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: cpx_solve_miliotis:\n"
+                    "CPXsetdblparam (CPX_PARAM_CUTUP) : %d\n", status);
+    return status;
+  }/*
 
-
+  status = CPXsetdblparam(env, CPX_PARAM_CUTLO, ce->init_lb);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: cpx_solve_miliotis:\n"
+                    "CPXsetdblparam (CPX_PARAM_CUTLO) : %d\n", status);
+    return status;
+  }*/
 
 
   if (x_size != numcols) return 1;
@@ -73,36 +86,44 @@ int cpx_solve_miliotis(CPXENVptr	env,
   status = CPXsetlazyconstraintcallbackfunc(env, cpx_callback_miliotis, ce);
   //status = CPXsetincumbentcallbackfunc(env, cpx_callback_miliotis, ce);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-			"function: cpx_solve_miliotis:\n"
-			"CPXsetlazyconstraintcallbackfunc : %d\n", status);
-	return 1;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+      "function: cpx_solve_miliotis:\n"
+      "CPXsetlazyconstraintcallbackfunc : %d\n", status);
+  return 1;
+  }
+
+  status = CPXsetusercutcallbackfunc(env, cpx_callback_maxflow, ce);
+  if (status) {
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                  "function: cpx_solve_miliotis:\n"
+                  "CPXsetusercutcallbackfunc : %d\n", status);
+  return 1;
   }
 
   status = CPXpresolve(env, lp, CPX_ALG_NONE);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
-             		"function: cpx_set_problem_parameters:\n"
-          		"CPXpresolve : %d\n", status);
-	return status;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: cpx_solve_miliotis:\n"
+              "CPXpresolve : %d\n", status);
+  return status;
   }
 
 
   status = CPXmipopt(env, lp);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-			"function: cpx_solve_miliotis:\n"
-			"CPXmipopt : %d\n", status);
-	return 1;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+      "function: cpx_solve_miliotis:\n"
+      "CPXmipopt : %d\n", status);
+  return 1;
   }
 
   
   status = CPXfreepresolve(env, lp);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_iterative.c:\n"
-		        "function: cpx_solve_iteraitve:\n"
-		        "CPXfreepresolve : %d\n", status);
-	return 1;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: cpx_solve_miliotis:\n"
+            "CPXfreepresolve : %d\n", status);
+  return 1;
   }
 
 
@@ -117,10 +138,10 @@ int cpx_solve_miliotis(CPXENVptr	env,
 
   status = CPXgetx(env, lp, x, 0, numcols-1);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-		        "function: cpx_solve_miliotis:\n"
-		        "CPXgetx : %d\n", status);
-	return 1;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+            "function: cpx_solve_miliotis:\n"
+            "CPXgetx : %d\n", status);
+  return 1;
   }
 
 
@@ -129,11 +150,11 @@ int cpx_solve_miliotis(CPXENVptr	env,
 }
 
 
-int CPXPUBLIC cpx_callback_miliotis(CPXENVptr	env,
-				    void	*cbdata,
-				    int 	wherefrom,
-				    void	*cbhandle,
-				    int		*useraction_p) {
+int CPXPUBLIC cpx_callback_miliotis(CPXENVptr env,
+                                    void     *cbdata,
+                                    int       wherefrom,
+                                    void     *cbhandle,
+                                    int      *useraction_p) {
 
 
   printf("# hello callback!\n");
@@ -147,7 +168,7 @@ int CPXPUBLIC cpx_callback_miliotis(CPXENVptr	env,
   //int numcols = ce->T.numel;
   int numcols = n * (n - 1) / 2;
   int vrtx_comp[n];
-  double x[numcols];
+  double *x = malloc(numcols * sizeof(double));
 
   int numcomp, my_comp;
   int i;
@@ -157,37 +178,37 @@ int CPXPUBLIC cpx_callback_miliotis(CPXENVptr	env,
 
   status = CPXgetcallbacklp(env, cbdata, wherefrom, &prelp);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-			"function: cpx_callback_miliotis:\n"
-			"CPXgetcallbacklp : %d\n", status);
-	return 1;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+      "function: cpx_callback_miliotis:\n"
+      "CPXgetcallbacklp : %d\n", status);
+  return 1;
   }
 
   prenumcols = CPXgetnumcols(env, prelp);
 
-  double prex[prenumcols];
+  double *prex = malloc(prenumcols*sizeof(double));
   status = CPXgetcallbacknodex(env, cbdata, wherefrom, prex, 0, prenumcols-1);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-			"function: cpx_callback_miliotis:\n"
-			"CPXgetcallbacknodex : %d\n", status);
-	return 1;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+      "function: cpx_callback_miliotis:\n"
+      "CPXgetcallbacknodex : %d\n", status);
+  return 1;
   }
 
   status = CPXuncrushx(env, ce->mylp, x, prex);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-			"function: cpx_callback_miliotis:\n"
-			"CPXgetuncrushx : %d\n", status);
-	return 1;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+      "function: cpx_callback_miliotis:\n"
+      "CPXgetuncrushx : %d\n", status);
+  return 1;
   }
 
   status = cpx_mark_components(ce, x, numcols, vrtx_comp, n, &numcomp);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-			"function: cpx_callback_miliotis:\n"
-			"cpx_mark_components : %d\n", status);
-	return 1;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+      "function: cpx_callback_miliotis:\n"
+      "cpx_mark_components : %d\n", status);
+  return 1;
   }
 
   cpx_constraint sec;
@@ -200,50 +221,51 @@ int CPXPUBLIC cpx_callback_miliotis(CPXENVptr	env,
 
   if (numcomp > 1 && wherefrom == CPX_CALLBACK_MIP_CUT_FEAS) {
 
+    //int count = (numcomp < 3) ? numcomp : 3;
 
-        //int count = (numcomp < 3) ? numcomp : 3;
+    printf("# SECs added: %d\n", numcomp);
+    //printf("# SECs added: %d\n", count);
+    //printf("%d\n", rand());
 
-	printf("# SECs added: %d\n", numcomp);
-	//printf("# SECs added: %d\n", count);
-	//printf("%d\n", rand());
-
-	for (my_comp = 0; my_comp < numcomp; my_comp++) {
-	//for (my_comp = 0; my_comp < count; my_comp++) {
-
-
-		status = cpx_constraint_generate_sec(ce, vrtx_comp, n, my_comp, &sec);
-		if (status) {
-			fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-					"function: cpx_callback_miliotis:\n"
-					"cpx_constraint_generate_sec : %d\n", status);
-			return 1;
-		}
+    for (my_comp = 0; my_comp < numcomp; my_comp++) {
+    //for (my_comp = 0; my_comp < count; my_comp++) {
 
 
-		CPXcrushform(env, ce->mylp, sec.nzcnt, sec.rmatind, sec.rmatval, &prenzcnt, &preoffset, presec.rmatind, presec.rmatval);
+      status = cpx_constraint_generate_sec(ce, vrtx_comp, n, my_comp, &sec);
+      if (status) {
+        fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+            "function: cpx_callback_miliotis:\n"
+            "cpx_constraint_generate_sec : %d\n", status);
+        return 1;
+      }
 
-		presec.nzcnt = prenzcnt;
-		presec.rhs = sec.rhs -  preoffset;
-		//presec.rowname = sec.rowname;
-		presec.rmatbeg = sec.rmatbeg;
-		presec.sense = sec.sense;
 
-		status = CPXcutcallbackadd(env, cbdata, wherefrom, presec.nzcnt, presec.rhs, presec.sense, presec.rmatind, presec.rmatval, CPX_USECUT_PURGE);
-		if (status) {
-	       		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-					"function: cpx_callback_miliotis:\n"
-					"CPXcutcallbackadd : %d\n", status);
-			return 1;
-		}
+      CPXcrushform(env, ce->mylp, sec.nzcnt, sec.rmatind, sec.rmatval, &prenzcnt, &preoffset, presec.rmatind, presec.rmatval);
 
-    
-	}
+      presec.nzcnt = prenzcnt;
+      presec.rhs = sec.rhs -  preoffset;
+      //presec.rowname = sec.rowname;
+      presec.rmatbeg = sec.rmatbeg;
+      presec.sense = sec.sense;
+
+      status = CPXcutcallbackadd(env, cbdata, wherefrom, presec.nzcnt, presec.rhs, presec.sense, presec.rmatind, presec.rmatval, CPX_USECUT_PURGE);
+      if (status) {
+              fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+            "function: cpx_callback_miliotis:\n"
+            "CPXcutcallbackadd : %d\n", status);
+        return 1;
+      }
+
+      
+    }
   }
 
 
 
   cpx_constraint_delete(&sec);
   cpx_constraint_delete(&presec);
+  free(x);
+  free(prex);
 
   if (numcomp > 1) {
     *useraction_p = CPX_CALLBACK_SET;
@@ -272,18 +294,18 @@ int CPXPUBLIC cpx_callback_miliotis(CPXENVptr	env,
 
   status = CPXgetcallbacknodex(env, cbdata, wherefrom, x, 0, numcols-1);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-			"function: cpx_callback_miliotis:\n"
-			"CPXgetcallbacknodex : %d\n", status);
-	return 1;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+      "function: cpx_callback_miliotis:\n"
+      "CPXgetcallbacknodex : %d\n", status);
+  return 1;
   }
 
   status = cpx_mark_components(ce, x, numcols, vrtx_comp, n, &numcomp);
   if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-			"function: cpx_callback_miliotis:\n"
-			"cpx_mark_components : %d\n", status);
-	return 1;
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+      "function: cpx_callback_miliotis:\n"
+      "cpx_mark_components : %d\n", status);
+  return 1;
   }
 
 
@@ -292,34 +314,34 @@ int CPXPUBLIC cpx_callback_miliotis(CPXENVptr	env,
 
         //int count = (numcomp < 3) ? numcomp : 3;
 
-	printf("# SECs added: %d\n", numcomp);
-	//printf("# SECs added: %d\n", count);
-	//printf("%d\n", rand());
+  printf("# SECs added: %d\n", numcomp);
+  //printf("# SECs added: %d\n", count);
+  //printf("%d\n", rand());
 
-	for (my_comp = 0; my_comp < numcomp; my_comp++) {
-	//for (my_comp = 0; my_comp < count; my_comp++) {
-
-
-		status = cpx_constraint_generate_sec(ce, vrtx_comp, n, my_comp, &sec);
-		if (status) {
-			fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-					"function: cpx_callback_miliotis:\n"
-					"cpx_constraint_generate_sec : %d\n", status);
-			return 1;
-		}
+  for (my_comp = 0; my_comp < numcomp; my_comp++) {
+  //for (my_comp = 0; my_comp < count; my_comp++) {
 
 
-		//status = CPXcutcallbackadd(env, cbdata, wherefrom, sec.nzcnt, sec.rhs, sec.sense, sec.rmatind, sec.rmatval, CPX_USECUT_FORCE);
-		status = CPXcutcallbackadd(env, cbdata, wherefrom, sec.nzcnt, sec.rhs, sec.sense, sec.rmatind, sec.rmatval, CPX_USECUT_PURGE);
-		if (status) {
-	       		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-					"function: cpx_callback_miliotis:\n"
-					"CPXcutcallbackadd : %d\n", status);
-			return 1;
-		}
+    status = cpx_constraint_generate_sec(ce, vrtx_comp, n, my_comp, &sec);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+          "function: cpx_callback_miliotis:\n"
+          "cpx_constraint_generate_sec : %d\n", status);
+      return 1;
+    }
+
+
+    //status = CPXcutcallbackadd(env, cbdata, wherefrom, sec.nzcnt, sec.rhs, sec.sense, sec.rmatind, sec.rmatval, CPX_USECUT_FORCE);
+    status = CPXcutcallbackadd(env, cbdata, wherefrom, sec.nzcnt, sec.rhs, sec.sense, sec.rmatind, sec.rmatval, CPX_USECUT_PURGE);
+    if (status) {
+            fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+          "function: cpx_callback_miliotis:\n"
+          "CPXcutcallbackadd : %d\n", status);
+      return 1;
+    }
 
     
-	}
+  }
   }
 
 
@@ -331,4 +353,201 @@ int CPXPUBLIC cpx_callback_miliotis(CPXENVptr	env,
   return 0;
   */
 
+}
+
+
+int CPXPUBLIC cpx_callback_maxflow(CPXENVptr  env,
+                                    void     *cbdata,
+                                    int       wherefrom,
+                                    void     *cbhandle,
+                                    int      *useraction_p) {
+
+  int status = 0, i, j, k, idx;
+  *useraction_p = CPX_CALLBACK_DEFAULT;
+
+  if (rand() % 100 > 5) {
+    *useraction_p = CPX_CALLBACK_SET;
+    return 0;
+  }
+
+  cpx_env* ce = (cpx_env*)cbhandle;
+  int n = ce->G.n;
+  int numcols = n * (n - 1) / 2;
+
+  double *x = calloc(numcols, sizeof(double));
+
+  int prenumcols;
+  CPXLPptr prelp;
+
+  status = CPXgetcallbacklp(env, cbdata, wherefrom, &prelp);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: cpx_callback_maxflow:\n"
+                    "CPXgetcallbacklp : %d\n", status);
+    return 1;
+  }
+
+  prenumcols = CPXgetnumcols(env, prelp);
+
+  double *prex = malloc(prenumcols*sizeof(double));
+  status = CPXgetcallbacknodex(env, cbdata, wherefrom, prex, 0, prenumcols-1);
+  if (status) {
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                  "function: cpx_callback_maxflow:\n"
+                  "CPXgetcallbacknodex : %d\n", status);
+  return 1;
+  }
+
+  status = CPXuncrushx(env, ce->mylp, x, prex);
+  if (status) {
+  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                  "function: cpx_callback_maxflow:\n"
+                  "CPXgetuncrushx : %d\n", status);
+  return 1;
+  }
+
+  int *cut = NULL;
+  int cutcount = -1;
+  double minval;
+
+  status = cpx_maxflow_constraints(ce, x, &cut, &cutcount, &minval);
+
+  printf("%d\n", cutcount);
+  //getchar();
+
+  if (cutcount > 0) {
+    printf("in: if cutcount > 0\n");
+    for (i = 0; i < cutcount; i++) {
+      printf("%d ", cut[i]);
+    }
+    printf("\n");
+
+
+    int nflows = cutcount * (n - cutcount);
+    flow *flist = malloc(nflows * sizeof(flow));
+    /*for (i = 0 ; i < nflows ; i++) {
+      flist[i] = malloc(sizeof(flist));
+    }*/
+
+
+    int    *matind = malloc(cutcount*(n-cutcount)*sizeof(int));
+    double *matval = malloc(cutcount*(n-cutcount)*sizeof(double));
+    int    *mark   = calloc(n, sizeof(int));
+    
+    for (i = 0 ; i < cutcount ; i++) mark[cut[i]] = 1;
+
+    k = 0;
+    for (i = 0 ; i < cutcount ; i++) {
+      for (j = 0 ; j < n ; j++) {
+        if (mark[j] == 0) {
+          idx_from_vrtx(&ce->T, cut[i], j, &idx);
+          flist[k].index    = k;
+          flist[k].edge     = idx;
+          flist[k].capacity = x[idx];
+          // printf("%d | %d %d | %d %f\n", k, cut[i], j, idx, x[idx]);
+          k++;
+        }
+      }
+    }
+
+    /*printf ("%d =?= %d\n", k, nflows);
+    getchar();*/
+
+    qsort(flist, nflows, sizeof(flow), comp_flows);
+
+    for (i = 0 ; i < nflows ; i++) {
+      // printf("%d %f\n", flist[i].edge, fabs(flist[i].capacity));
+      matind[i] = flist[i].edge;
+      matval[i] = 1.0;//fabs(flist[i].capacity);
+    }
+
+    double *pval = calloc(numcols, sizeof(double));
+    int    *pind = calloc(numcols, sizeof(int));
+    double  offset_p;
+    int     plen_p;
+
+    status = CPXcrushform(env, ce->mylp, nflows, matind, matval, &plen_p, &offset_p, pind, pval);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                      "function: cpx_callback_maxflow:\n"
+                      "CPXcrushform : %d\n", status);
+      return 1;
+    }
+
+    char   sen = 'G';
+    double rhs = 2.0;
+    status = CPXcutcallbackadd(env, cbdata, wherefrom, nflows, rhs, sen, pind, pval, CPX_USECUT_PURGE);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                      "function: cpx_callback_maxflow:\n"
+                      "CPXcutcallbackadd : %d\n", status);
+      return 1;
+    }
+
+    free(mark);
+    free(matind);
+    free(matval);
+    //for (i = 0 ; i < nflows ; i++) free(flist[i]);
+    free(flist);
+  }
+
+
+  free(x);
+  free(prex);
+
+  *useraction_p = CPX_CALLBACK_SET;
+  return 0;
+}
+
+int mincut(cpx_env  *ce,
+           double   *x,
+           int       s,
+           int       t) {
+
+  int status = 0;
+  int i, j, k, idx,
+      n = ce->G.n,
+      numcols = n*(n-1)/2;
+
+  CPXENVptr mcenv = CPXopenCPLEX(&status);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: mincut:\n"
+                    "CPXopenCPLEX : %d\n", status);
+    return 1;
+  }
+
+  CPXLPptr mclp = CPXcreateprob(mcenv, &status, "mincut");
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                    "function: mincut:\n"
+                    "CPXcreateprob : %d\n", status);
+    return 1;
+  }
+
+  char   *ctype = malloc(numcols * sizeof(char));
+  double *lb    = calloc(numcols, sizeof(double));
+  double *ub    = malloc(numcols * sizeof(double));
+  for (i = 0; i < numcols; ++i) {
+    ctype[i] = 'B';
+    ub[i]    = 1.0;
+  }
+
+  status = CPXnewcols(mcenv, mclp, numcols, x, lb, ub, ctype, NULL);
+
+
+  free(ctype);
+  free(ub);
+  free(lb);
+
+  return status;
+
+}
+
+
+int comp_flows(const void *f1, const void *f2) {
+  flow *ff1 = (flow *)f1;
+  flow *ff2 = (flow *)f2;
+  //printf("%d %d %f | %d %d %f\n", ff1.index, ff1.edge, ff1.capacity, ff2.index, ff2.edge, ff2.capacity);
+  return (ff1->edge - ff2->edge);
 }

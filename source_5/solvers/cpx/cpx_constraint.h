@@ -9,6 +9,8 @@
 #include "cpx_env.h"
 #include "cpx_components.h"
 
+#include "../concorde/concorde.h"
+
 // ---------------------------------------------------------- //
 //                                                            //
 //                       data structures                      //
@@ -121,3 +123,16 @@ int cpx_constraint_generate_proximity_cutoff(cpx_env        *ce,
 
 
 #endif
+
+/**
+ * create max-flow constraints on the fractional solution
+ * @param  ce         cpx environment
+ * @param  x          the fractional solution
+ * @param  cut_set    list of nodes in separated set
+ * @return            status of the function
+ */
+int cpx_maxflow_constraints(cpx_env *ce,
+                            double  *x,
+                            int    **cut_set,
+                            int     *cscount,
+                            double  *minval);

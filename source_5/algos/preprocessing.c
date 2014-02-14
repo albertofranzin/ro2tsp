@@ -16,7 +16,15 @@ int preprocessing(graph      *G,
 {
 
   double ub, lb;
-  int    status;
+  int    status, i, n = G->n;
+
+  int *zeros = malloc(n*(n-1)*sizeof(int)/2),
+      *ones  = malloc(n*(n-1)*sizeof(int)/2);
+  // initially, all zeros - just saves time later
+  for (i = 0; i < n*(n-1)/2; ++i) {
+    zeros[i] = 1;
+  }
+  memset(ones, 0, n*(n-1)*sizeof(int)/2);
 
   graph_copy(G, &te->G_INPUT); graph_copy(G, &te->G_CURR);
 
@@ -31,20 +39,23 @@ int preprocessing(graph      *G,
 
   // Random Cycles + 2opt.
   status = compute_upper_bound(&te->G_CURR, &TOUR_RC2OPT,
-			        RANDOM_CYCLES_2OPT, &ub);
+			        RANDOM_CYCLES_2OPT, &ub,
+              &ones, &zeros);
 
   ts->rc2opt_ub = ub;
   printf("# preprocessing : upper-bound : heur. rc+2opt = %f\n", ts->rc2opt_ub);
 
   // Nearest Neighbour + 2opt.
   status = compute_upper_bound(&te->G_CURR, &TOUR_NN2OPT,
-			       NEAREST_NEIGHBOUR_2_OPT, &ub);
+			       NEAREST_NEIGHBOUR_2_OPT, &ub,
+             &ones, &zeros);
 
   ts->nn2opt_ub = ub;
   printf("# preprocessing : upper-bound : heur. nn+2opt = %f\n", ts->nn2opt_ub);
 
   // Dumb.
-  status = compute_upper_bound(&te->G_CURR, NULL, DUMB, &ub);
+  status = compute_upper_bound(&te->G_CURR, NULL, DUMB, &ub,
+                                 &ones, &zeros);
 
   ts->dumb_ub = ub;
   printf("# preprocessing : upper-bound : dumb          = %f\n", ts->dumb_ub);

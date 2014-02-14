@@ -91,9 +91,24 @@ parameters *base_problem_setup(int argc, char **argv) {
 
     if (strcmp(opt, "--cplex_callbacks") == 0 ||
         strcmp(opt, "--callbacks")       == 0 ||
+        strcmp(opt, "--cb")              == 0 ||
         strcmp(opt, "-cb")               == 0   ) {
       pars->cplex_callbacks = TRUE;
     }
+
+    if (strcmp(opt, "--proxy") == 0)
+      pars->use_proximity = TRUE;
+
+    if (strcmp(opt, "--rins") == 0)
+      pars->use_rinspolishing = TRUE;
+
+    if (strcmp(opt, "--hf") == 0 ||
+        strcmp(opt, "-hf")  == 0   )
+      pars->use_hardfixing = TRUE;
+
+    if (strcmp(opt, "--lb") == 0 ||
+        strcmp(opt, "-lb")  == 0   )
+      pars->use_localbranching = TRUE;
 
     if (strcmp(opt, "-nt") == 0 || strcmp(opt, "--threads") == 0)
       pars->threads = atoi(argv[++i]);
@@ -153,7 +168,11 @@ void print_helper_menu() {
   printf("                    - USEFUL | useful | 2       : more infos\n");
   printf("                    - VERBOSE | verbose | 3     : log files\n");
   printf("                    - ANNOYING | annoying | 4   : getchars too\n");
-  printf("  -cb             : use cplex callbacks\n");
+  printf("  --cb            : use cplex callbacks\n");
+  printf("  --proxy         : use proximity search matheuristic (uses CPLEX)\n");
+  printf("  --lb            : use local branching matheuristic (uses CPLEX)\n");
+  printf("  --hf            : use hard fixing\n");
+  printf("  --rins          : use cplex RINS+polishing (uses CPLEX)\n");
   printf("  -h [--help]     : printf this menu and exit.\n");
   printf("\n\n");
 }

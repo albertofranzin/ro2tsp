@@ -41,18 +41,18 @@
  * pars      : user-defined parameters
  */
 typedef struct _cpx_env {
-  graph		  G_INPUT;
-  egraph	  EG_INPUT;
-  graph		  G_OUTPUT;
-  graph 	  G;
-  onetree	  OT;
-  cpx_table	T;
-  cycle		  TOUR_HEUR;
-  graph		  TOUR_OPT;
+  graph     G_INPUT;
+  egraph    EG_INPUT;
+  graph     G_OUTPUT;
+  graph     G;
+  onetree   OT;
+  cpx_table T;
+  cycle     TOUR_HEUR;
+  graph     TOUR_OPT;
 
-  double	z_opt;
-  double	init_ub;
-  double	init_lb;
+  double  z_opt;
+  double  init_ub;
+  double  init_lb;
 
   CPXLPptr    mylp;
   parameters *pars;
@@ -69,7 +69,7 @@ typedef struct _cpx_env {
 /**
  * cpx_env_init
  * initialize environment
- * @param ce	  cpx environment
+ * @param ce    cpx environment
  * @param pars  user-defined parameters
  */
 void cpx_env_init(cpx_env    *ce,
@@ -78,7 +78,7 @@ void cpx_env_init(cpx_env    *ce,
 
 /**
  * delete environment
- * @param ce	cpx environment
+ * @param ce  cpx environment
  */
 void cpx_env_delete(cpx_env* ce);
 

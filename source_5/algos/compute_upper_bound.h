@@ -19,6 +19,10 @@ typedef struct _rc_params {
   double  ub;
   int     number_of_cycles;
   int     return_status;
+  int    *ones;
+  int     n_ones;
+  int    *zeros;
+  int     n_zeros;
 } rc_params;
 /*
  * 
@@ -27,7 +31,12 @@ typedef struct _rc_params {
 // calcola un upper bound del costo di un tour ottimo su G
 // al termine della procedura sarà memorizzato in OT il miglior (di costo minore) tour trovato
 // Hp: G, OT inizializzati
-int compute_upper_bound(graph* G, cycle* C, int algo, double* ub);
+int compute_upper_bound(graph   *G,
+                        cycle   *C,
+                        int      algo,
+                        double  *ub,
+                        int     *ones,
+                        int     *zeros);
 
 int dumb_upper_bound(graph *G, double* ub);
 
@@ -43,12 +52,18 @@ int compute_nearest_neighbour(graph *G, cycle *C, double *ub);
 
 /**
  * compute an ub using RC+2-opt heuristic
- * @param  G  graph
- * @param  C  best cycle found
- * @param  ub uper bound computed
- * @return    status of the operations
+ * @param  G       graph
+ * @param  C       best cycle found
+ * @param  ub      uper bound computed
+ * @param  ones    list of variables always found to be 1
+ * @param  zeros   list of variables always found to be 0
+ * @return         status of the operations
  */
-int compute_rc(graph *G, cycle *C, double *ub);
+int compute_rc(graph  *G,
+               cycle  *C,
+               double *ub,
+               int    *ones,
+               int    *zeros);
 
 
 /**

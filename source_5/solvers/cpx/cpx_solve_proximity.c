@@ -1,17 +1,17 @@
 #include "cpx_solve_proximity.h"
 
-int cpx_solve_proximity(CPXENVptr	env, 
-		       CPXLPptr		lp, 
-		       cpx_env		*ce, 
-		       cpx_stats	*cs, 
-		       double*		x, 
-		       int		x_size, 
-		       int*		solstat) {
+int cpx_solve_proximity(CPXENVptr  env, 
+                        CPXLPptr   lp, 
+                        cpx_env   *ce, 
+                        cpx_stats *cs, 
+                        double    *x, 
+                        int        x_size, 
+                        int       *solstat) {
  
 
   int n = ce->G.n;
   int numcols = n * (n - 1) / 2;
-  double x_feas[numcols];
+  double *x_feas = malloc(numcols * sizeof(double));
   cpx_constraint cutoff;
   cpx_constraint_init(&cutoff, numcols);
   double theta = 1.0;
@@ -29,7 +29,6 @@ int cpx_solve_proximity(CPXENVptr	env,
     idx_from_vrtx(&ce->T, ce->TOUR_HEUR.nodes[i], ce->TOUR_HEUR.nodes[(i+1) % n], &idx);
     x_feas[idx] = 1.0;
   }
-
 
   status = cpx_recenter_obj(env, lp, x_feas, numcols);
   if (status) {
@@ -70,7 +69,7 @@ int cpx_solve_proximity(CPXENVptr	env,
   int iter = 0;
   double z_feas;
   int begin, end;
-  while (iter < 100) {
+  while (iter < 1) {
     printf("iter = %d\n", iter);
     iter++;
     /*
@@ -87,6 +86,7 @@ int cpx_solve_proximity(CPXENVptr	env,
 
     if (status == 103) {printf("CIAO!\n"); break; }
     printf("SOLSTAT = %d\n", status);
+    getchar();
 
     for (idx = 0; idx < numcols; idx++) {
       x[idx] = x_feas[idx];
@@ -96,65 +96,65 @@ int cpx_solve_proximity(CPXENVptr	env,
     z_feas = 0.0;
     for (idx = 0; idx < numcols; idx++) {
       if (x_feas[idx] > 0.9) {
-	vrtx_from_idx(&ce->T, &i, &j, idx);
-	z_feas += graph_get_edge_cost(&ce->G, i, j);
+        vrtx_from_idx(&ce->T, &i, &j, idx);
+        z_feas += graph_get_edge_cost(&ce->G, i, j);
       }
     }
     printf("feas. sol = %f\n", z_feas);
 
     status = cpx_recenter_obj(env, lp, x_feas, numcols);
     if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_proximity.c:\n"
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_proximity.c:\n"
                         "function: cpx_solve_proximity:\n"
                         "cpx_recenter_obj: %d\n", status);
-	return 1;
+      return 1;
     }
 
     status = cpx_update_cutoff(env, lp, ce, x_feas, numcols, theta, cutoff_idx);
     if (status) {
-	fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_proximity.c:\n"
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_proximity.c:\n"
                         "function: cpx_solve_proximity:\n"
                         "cpx_update_cutoff: %d\n", status);
-	return 1;
+      return 1;
     }
 
     begin = cutoff_idx + 1;
     end = CPXgetnumrows(env, lp) - 1;
     if (begin < end) {
- 	status = CPXdelrows(env, lp, begin, end);
-    	if (status) {
-		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_proximity.c:\n"
+      status = CPXdelrows(env, lp, begin, end);
+      if (status) {
+        fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_proximity.c:\n"
                                 "function: cpx_solve_proximity:\n"
                                 "CPXdelrows: %d\n", status);
-		return 1;
-	}
+        return 1;
+      }
     }
 
     
     cnt = 0;   
     for (idx =  0; idx < numcols; idx++) {
-    	vrtx_from_idx(&ce->T, &i, &j, idx);
-    	if (ce->init_lb + graph_get_edge_delta(&ce->G, i, j) > z_feas+1) {
-      		indices[cnt] = idx;
-      	        lu[cnt]      = 'B';
-     		bd[cnt]      = 0.0;
-      		cnt++;
-	}
+      vrtx_from_idx(&ce->T, &i, &j, idx);
+      if (ce->init_lb + graph_get_edge_delta(&ce->G, i, j) > z_feas+1) {
+          indices[cnt] = idx;
+          lu[cnt]      = 'B';
+          bd[cnt]      = 0.0;
+          cnt++;
+      }
     }
      
 
     status = CPXchgbds(env, lp, cnt, indices, lu, bd);
     if (status) {
-    	fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
                         "function: cpx_preprocessing:\n"
                         "CPXchgbds: %d\n", status);
-	return status;
+      return status;
     }
 
     printf("# discarded fat edges = %d\n", cnt);
     
 
-  }
+  } // end while (iter)
 
   return 0;
 }
@@ -197,11 +197,10 @@ int cpx_update_cutoff(CPXENVptr env, CPXLPptr lp, cpx_env* ce, double* x_feas, i
 
   z_feas = 0.0;
   for (idx = 0; idx < x_feas_size; idx++) {
-	if (x_feas[idx] > 0.9) {
-
-		vrtx_from_idx(&ce->T, &i, &j, idx);
-		z_feas += graph_get_edge_cost(&ce->G, i, j);
-	}
+    if (x_feas[idx] > 0.9) {
+      vrtx_from_idx(&ce->T, &i, &j, idx);
+      z_feas += graph_get_edge_cost(&ce->G, i, j);
+    }
   }
 
   int rmatind[1];

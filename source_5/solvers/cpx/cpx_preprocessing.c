@@ -9,8 +9,30 @@ int cpx_preprocessing(CPXENVptr   env,
 {
 
   double ub, lb;
-  int    status;
+  int    status, i, n = ce->G_INPUT.n;
   clock_t  time_start_heurs, time_end_heurs;
+
+  printf("N = %d\n", n);
+
+  int *zeros = malloc(n*(n-1)*sizeof(int)/2),
+      *ones  = malloc(n*(n-1)*sizeof(int)/2);
+  // initially, all zeros - just saves time later
+  for (i = 0; i < n*(n-1)/2; ++i) {
+    zeros[i] = 1;
+  }
+  memset(ones, 0, n*(n-1)*sizeof(int)/2);
+
+    /*printf("ZEROS\n");
+    for (i = 0; i < n*(n-1)/2; ++i) {
+      printf("%d ", zeros[i]);
+    }
+    printf("\nONES\n");
+    for (i = 0; i < n*(n-1)/2; ++i) {
+      printf("%d ", ones[i]);
+    }
+    printf("\n");
+    getchar();*/
+
 
   time_start_heurs = clock();
 
@@ -24,8 +46,20 @@ int cpx_preprocessing(CPXENVptr   env,
       ce->pars->heuristic_algo == RANDOM_CYCLES_2OPT ||
       ce->pars->heuristic_algo == ALL                  ) {
     status = compute_upper_bound(&ce->G, &TOUR_RC2OPT,
-                                 RANDOM_CYCLES_2OPT, &ub);
+                                 RANDOM_CYCLES_2OPT, &ub,
+                                 ones, zeros);
     
+    /*printf("ZEROS\n");
+    for (i = 0; i < n*(n-1)/2; ++i) {
+      printf("%d ", zeros[i]);
+    }
+    printf("\nONES\n");
+    for (i = 0; i < n*(n-1)/2; ++i) {
+      printf("%d ", ones[i]);
+    }
+    printf("\n");
+    getchar();*/
+
     if (status) {
       fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
                       "function: cpx_preprocessing:\n"
@@ -44,7 +78,8 @@ int cpx_preprocessing(CPXENVptr   env,
       ce->pars->heuristic_algo == NEAREST_NEIGHBOUR_2_OPT ||
       ce->pars->heuristic_algo == ALL                       ) {
     status = compute_upper_bound(&ce->G, &TOUR_NN2OPT,
-                                 NEAREST_NEIGHBOUR_2_OPT, &ub);
+                                 NEAREST_NEIGHBOUR_2_OPT, &ub,
+                                 ones, zeros);
     if (status) {
       fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
                       "function: cpx_preprocessing:\n"
@@ -64,7 +99,7 @@ int cpx_preprocessing(CPXENVptr   env,
     ce->init_ub = cs->init_ub = cs->nn2opt_ub;
     cycle_copy(&TOUR_NN2OPT, &ce->TOUR_HEUR);
   } else {
-    ce-> init_ub = cs->init_ub = cs->rc2opt_ub;
+    ce->init_ub = cs->init_ub = cs->rc2opt_ub;
     cycle_copy(&TOUR_RC2OPT, &ce->TOUR_HEUR);
   }
    
@@ -106,9 +141,8 @@ int cpx_preprocessing(CPXENVptr   env,
   //----------------------------------------------------------------
   // Problem reduction: discard fat edges.
 
-  int n       = ce->G.n;
   int numcols = n * (n - 1) / 2;
-  int i, j, idx, cnt;
+  int j, idx, cnt;
 
   int    *indices;
   char   *lu;
@@ -119,9 +153,6 @@ int cpx_preprocessing(CPXENVptr   env,
   bd      = (double *)calloc(numcols, sizeof(double));
 
   
-  /**
-   * ERROR HERE
-   */
   status = compute_deltas(&ce->G, &ce->OT);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
@@ -157,9 +188,65 @@ int cpx_preprocessing(CPXENVptr   env,
   cycle_delete(&TOUR_RC2OPT);
   cycle_delete(&TOUR_NN2OPT);
 
+  // restart with clean arrays
   free(indices);
   free(lu);
   free(bd);
+
+  if (ce->pars->use_hardfixing) {
+    int    *indicesz = (int *)calloc(numcols, sizeof(int));
+    char   *luz      = (char *)calloc(numcols, sizeof(char));
+    double *bdz      = (double *)calloc(numcols, sizeof(double));
+    int    *indiceso = (int *)calloc(numcols, sizeof(int));
+    char   *luo      = (char *)calloc(numcols, sizeof(char));
+    double *bdo      = (double *)calloc(numcols, sizeof(double));
+
+    int cnto = 0, cntz = 0;
+
+    if (ce->pars->heuristic_algo == RANDOM_CYCLES      ||
+        ce->pars->heuristic_algo == RANDOM_CYCLES_2OPT ||
+        ce->pars->heuristic_algo == ALL                  ) {
+      for (i = 0; i < numcols; ++i) {
+        if (ones[i] == 1) {
+          indiceso[cnto] = i;
+          luo[cnto]      = 'B';
+          bdo[cnto]      = 1.0;
+          cnto++;
+        } else if (zeros[i] == 1) {
+          indicesz[cntz] = i;
+          luz[cntz]      = 'B';
+          bdz[cntz]      = 0.0;
+          cntz++;
+        }
+      }
+    }
+
+    status = CPXchgbds(env, lp, cntz, indicesz, luz, bdz);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
+                      "function: cpx_preprocessing:\n"
+                      "CPXchgbds: %d\n", status);
+      return status;
+    }
+
+    printf("Additionally, %d variables are set to 0\n", cntz);
+    printf("Additionally, %d variables are set to 1\n", cnto);
+
+    status = CPXchgbds(env, lp, cnto, indiceso, luo, bdo);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
+                      "function: cpx_preprocessing:\n"
+                      "CPXchgbds: %d\n", status);
+      return status;
+    }
+
+    free(indicesz);
+    free(luz);
+    free(bdz);
+    free(indiceso);
+    free(luo);
+    free(bdo);
+  }
 
   return 0;
 

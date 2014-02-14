@@ -36,6 +36,10 @@ typedef struct _parameters {
 
   unsigned int  solver;
   unsigned int  cplex_callbacks;
+  unsigned int  use_proximity;
+  unsigned int  use_localbranching;
+  unsigned int  use_hardfixing;
+  unsigned int  use_rinspolishing;
   unsigned int  number_of_nodes;
   int           random_instance_option;
   int           random_seed_option;
@@ -120,5 +124,17 @@ int sebwComp ( const void *, const void *);
  * empty a char** and set the pointer to NULL
  */
 void free_and_null(char **ptr);
+
+/**
+ * compute difference in seconds between two clock_t times
+ * @param  start start time
+ * @param  end   end time
+ * @return       seconds passed between start and end
+ */
+double time_elapsed(clock_t start, clock_t end);
+
+
+int comp_int(const void * elem1, const void * elem2);
+
 
 #endif

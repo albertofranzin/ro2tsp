@@ -584,7 +584,10 @@ int bb_compute_current_ot(tsp_env* te, tsp_stats* ts) {
   // of the original input graph; if so, this is due to the presence
   // of some constraints (of the type forced/forbidden) on the edges.
 
-  status = compute_upper_bound(G_CURR, &CYCLE, NEAREST_NEIGHBOUR, &ub);
+  int *zeros, *ones;
+
+  status = compute_upper_bound(G_CURR, &CYCLE, NEAREST_NEIGHBOUR, &ub,
+                               ones, zeros);
 
 
   if (status == SUCCESS) {

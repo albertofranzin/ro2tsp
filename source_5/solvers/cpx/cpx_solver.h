@@ -18,6 +18,9 @@
 #include "cpx_solve_miliotis.h"
 #include "cpx_solve_iterative.h"
 #include "cpx_solve_proximity.h"
+#include "cpx_solve_local_branching.h"
+#include "cpx_solve_rins.h"
+#include "cpx_solve_hardfixing.h"
 #include "cpx_preprocessing.h"
 
 /**
