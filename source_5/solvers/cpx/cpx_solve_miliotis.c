@@ -1,12 +1,12 @@
 #include "cpx_solve_miliotis.h"
 
 int cpx_solve_miliotis(CPXENVptr  env, 
-           CPXLPptr lp, 
-           cpx_env    *ce, 
-           cpx_stats  *cs, 
-           double*    x, 
-           int    x_size, 
-           int*   solstat) {
+                       CPXLPptr   lp, 
+                       cpx_env   *ce, 
+                       cpx_stats *cs, 
+                       double    *x, 
+                       int        x_size, 
+                       int       *solstat) {
 
 
   int n = ce->G.n;
@@ -83,7 +83,7 @@ int cpx_solve_miliotis(CPXENVptr  env,
 
   if (x_size != numcols) return 1;
 
-  status = CPXsetlazyconstraintcallbackfunc(env, cpx_callback_miliotis, ce);
+  //status = CPXsetlazyconstraintcallbackfunc(env, cpx_callback_miliotis, ce);
   //status = CPXsetincumbentcallbackfunc(env, cpx_callback_miliotis, ce);
   if (status) {
   fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
@@ -273,86 +273,6 @@ int CPXPUBLIC cpx_callback_miliotis(CPXENVptr env,
 
   return 0;
 
-  /*
-  printf("# hello callback!\n");
-  //getchar();
-
-  int status = 0;
-  *useraction_p = CPX_CALLBACK_DEFAULT;
-
-  cpx_env* ce = (cpx_env*)cbhandle;
-  int n = ce->G.n;
-  //int numcols = ce->T.numel;
-  int numcols = n * (n - 1) / 2;
-  int vrtx_comp[n];
-  double x[numcols];
-  cpx_constraint sec;
-  cpx_constraint_init(&sec, numcols);
-
-  int numcomp, my_comp;
-
-
-  status = CPXgetcallbacknodex(env, cbdata, wherefrom, x, 0, numcols-1);
-  if (status) {
-  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-      "function: cpx_callback_miliotis:\n"
-      "CPXgetcallbacknodex : %d\n", status);
-  return 1;
-  }
-
-  status = cpx_mark_components(ce, x, numcols, vrtx_comp, n, &numcomp);
-  if (status) {
-  fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-      "function: cpx_callback_miliotis:\n"
-      "cpx_mark_components : %d\n", status);
-  return 1;
-  }
-
-
-  if (numcomp > 1 && wherefrom == CPX_CALLBACK_MIP_CUT_FEAS) {
-
-
-        //int count = (numcomp < 3) ? numcomp : 3;
-
-  printf("# SECs added: %d\n", numcomp);
-  //printf("# SECs added: %d\n", count);
-  //printf("%d\n", rand());
-
-  for (my_comp = 0; my_comp < numcomp; my_comp++) {
-  //for (my_comp = 0; my_comp < count; my_comp++) {
-
-
-    status = cpx_constraint_generate_sec(ce, vrtx_comp, n, my_comp, &sec);
-    if (status) {
-      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-          "function: cpx_callback_miliotis:\n"
-          "cpx_constraint_generate_sec : %d\n", status);
-      return 1;
-    }
-
-
-    //status = CPXcutcallbackadd(env, cbdata, wherefrom, sec.nzcnt, sec.rhs, sec.sense, sec.rmatind, sec.rmatval, CPX_USECUT_FORCE);
-    status = CPXcutcallbackadd(env, cbdata, wherefrom, sec.nzcnt, sec.rhs, sec.sense, sec.rmatind, sec.rmatval, CPX_USECUT_PURGE);
-    if (status) {
-            fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-          "function: cpx_callback_miliotis:\n"
-          "CPXcutcallbackadd : %d\n", status);
-      return 1;
-    }
-
-    
-  }
-  }
-
-
-  cpx_constraint_delete(&sec);
-  if (numcomp > 1) {
-    *useraction_p = CPX_CALLBACK_SET;
-  }
-
-  return 0;
-  */
-
 }
 
 
@@ -487,8 +407,10 @@ int CPXPUBLIC cpx_callback_maxflow(CPXENVptr  env,
     free(mark);
     free(matind);
     free(matval);
-    //for (i = 0 ; i < nflows ; i++) free(flist[i]);
     free(flist);
+    free(pval);
+    free(pind);
+    if (*cut != NULL) free(cut);
   }
 
 
