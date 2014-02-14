@@ -1,0 +1,94 @@
+#include "../algos/pr_lagrange_hk.h"
+
+int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_noimprov, int alpha_ht, tree* t, double *lb, int *status) {
+
+	*status = 0;
+
+	int i, j, k, m, e, st, my_edge;
+	int num_step		= 0;
+	int num_noimprov 	= 0;
+	int n 				= env->main_graph.vrtx_num;
+	double a 			= ALPHA;
+	double z, w, step, sqnorm;
+
+	double 	*mults		= (double*)calloc(n, sizeof(double));
+
+	graph local_graph;
+	graph_init(&local_graph);
+	graph_copy(&(env->main_graph), &local_graph);
+
+	tree temp1t;
+	tree_init(&temp1t);
+	tree_setup(&temp1t, n);
+
+	while (num_step < max_num_step) {
+
+		num_step++;
+
+		if (num_step % 1000 == 0) printf("num step = %d\n", num_step);
+
+	    /* compute minimum 1-tree */
+		tree_empty(&temp1t);
+		e = pr_onetree(&local_graph, &temp1t, &st);
+
+		/* no spanning tree exists */
+		if (st != 0) {
+			*status = st;
+			break;
+		}
+
+		/* compute the cost of the 1-tree */
+		tree_get_cost(&temp1t, &local_graph, &z);
+		for (i = 1; i < n; i++) {
+			z += mults[i] * 2;
+		}
+
+		/* update solution */
+		if (z > *lb || num_step == 1) {
+			//printf("update! z = %.2f\n", z);
+			tree_copy(&temp1t, t);
+			*lb				= z;
+			num_noimprov	= -1;
+		}
+		num_noimprov++;
+
+		/* stop condition */
+		if (num_noimprov > max_num_noimprov) break;
+	    if (num_noimprov > alpha_ht) {
+	    	a /= 2.0;
+	    	alpha_ht *= 2; /* mod */
+	    }
+
+	    sqnorm = 0.0;
+	    for (i = 1; i < n; i++) {
+	    	sqnorm += (2 - temp1t.vrtx_deg[i]) * (2 - temp1t.vrtx_deg[i]);
+	    }
+	    if (sqnorm == 0.0) break;
+
+	    /* update step */
+	    step = a * (ub - z) / sqnorm;
+
+	    /* update  multipliers */
+	    for (i = 0; i < n; i++) {
+	    	mults[i] += step * ((2 - temp1t.vrtx_deg[i]) / sqrt(sqnorm));
+	    }
+
+	    /* update edge-costs */
+	    for (i = 0; i < n; i++) {
+	    	for (j = i+1; j < n; j++) {
+	    		local_graph.edge_cost[get_idx(i, j)] =
+						env->main_graph.edge_cost[get_idx(i, j)] - mults[i] - mults[j];
+	    	}
+	    }
+
+
+	} /* end main for loop */
+
+
+
+	graph_delete(&local_graph);
+	tree_delete(&temp1t);
+	free(mults);
+
+	return 0;
+}
