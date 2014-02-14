@@ -73,15 +73,16 @@ void cpx_solver(cpx_env    *ce,
     exit(1);
   }
 
-
   // call the chosen solver, among
   // - iterative cplex
   // - cplex with callbacks
   // - matheuristic
   int    solstat;
-  int    n       = ce->G.n,
+  int    n       = (ce->G_INPUT).n,
          numcols = n * (n - 1) / 2;
   double *x;
+
+  //printf("########### N = %d\n", n);
 
   clock_t time_start, time_end;
 
@@ -90,12 +91,21 @@ void cpx_solver(cpx_env    *ce,
   ce->mylp = lp;
 
   time_start = clock();
-  if (ce->pars->cplex_callbacks == TRUE) {
-    status = cpx_solve_miliotis(env, lp, ce, cs, x, n * (n - 1) / 2, &solstat);
+  if (ce->pars->use_proximity == TRUE) {
+    status = cpx_solve_proximity(env, lp, ce, cs, x, n * (n - 1) / 2, &solstat);
+  } else if (ce->pars->use_localbranching == TRUE) {
+    status = cpx_solve_local_branching(env, lp, ce, cs, x, n * (n - 1) / 2, &solstat);
+  } else if (ce->pars->use_rinspolishing == TRUE) {
+    status = cpx_solve_rins(env, lp, ce, cs, NULL, NULL, x, n * (n - 1) / 2, &solstat);
+  } else if (ce->pars->use_proximity == TRUE) {
+    status = cpx_solve_hardfixing(env, lp, ce, cs, NULL, NULL, x, n * (n - 1) / 2, &solstat);
   } else {
-    status = cpx_solve_iterative(env, lp, ce, cs, x, n * (n - 1) / 2, &solstat);
+    if (ce->pars->cplex_callbacks == TRUE) {
+      status = cpx_solve_miliotis(env, lp, ce, cs, x, n * (n - 1) / 2, &solstat);
+    } else {
+      status = cpx_solve_iterative(env, lp, ce, cs, x, n * (n - 1) / 2, &solstat);
+    }
   }
-  //status = cpx_solve_proximity(env, lp, ce, cs, x, n * (n - 1) / 2, &solstat);
   time_end = clock();
   cs->cpx_time = (double)(time_end - time_start)/CLOCKS_PER_SEC;
 

@@ -50,8 +50,9 @@ int cpx_solve_iterative(CPXENVptr   env,
     return status;
   }
 
-  //status = CPXsetintparam (env, CPX_PARAM_MIPCBREDLP, CPX_ON);
-  status = CPXsetintparam (env, CPX_PARAM_MIPCBREDLP, CPX_OFF);
+  // use reduced (on) or original (off)?
+  status = CPXsetintparam (env, CPX_PARAM_MIPCBREDLP, CPX_ON);
+  //status = CPXsetintparam (env, CPX_PARAM_MIPCBREDLP, CPX_OFF);
   if (status) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_iterative.c:\n"
                     "function: cpx_solve_iterative:\n"
@@ -70,6 +71,22 @@ int cpx_solve_iterative(CPXENVptr   env,
     return status;
   }
   */
+ 
+  /*status = CPXsetdblparam(env, CPX_PARAM_CUTUP, ce->init_ub);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_iterative.c:\n"
+                    "function: cpx_solve_iterative:\n"
+                    "CPXsetdblparam (CPX_PARAM_CUTUP) : %d\n", status);
+    return status;
+  }
+
+  status = CPXsetdblparam(env, CPX_PARAM_CUTLO, ce->init_lb);
+  if (status) {
+    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_iterative.c:\n"
+                    "function: cpx_solve_iterative:\n"
+                    "CPXsetdblparam (CPX_PARAM_CUTLO) : %d\n", status);
+    return status;
+  }*/
 
   if (x_size != numcols) {
     fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_iterative.c:\n"

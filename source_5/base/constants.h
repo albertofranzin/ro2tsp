@@ -44,7 +44,7 @@
 
 #define INTEGER_ROUNDING_OPT ENABLED
 #define FORWARD_CHECKING_OPT ENABLED
-#define FAT_EDGES_OPT        DISABLED
+#define FAT_EDGES_OPT        ENABLED  //DISABLED
 #define SELECT_NODE_OPT      DEFAULT
 #define SELECT_EDGES_OPT     DEFAULT
 
@@ -55,10 +55,10 @@
 
 // compute_lagrange
 
-#define MAX_NUM_ITERATIONS           30000
-#define MAX_NUM_ITERATIONS_NO_IMPROV 100
+#define MAX_NUM_ITERATIONS           5000//0
+#define MAX_NUM_ITERATIONS_NO_IMPROV 200//0
 #define ALPHA                        2.0
-#define ALPHA_HALVING_TIME           10
+#define ALPHA_HALVING_TIME           50
 
 /*
 #define MAX_NUM_ITERATIONS 30000
@@ -90,7 +90,7 @@
 #define RANDOM_CYCLES_2OPT       4
 
 #define NUM_TRIALS_RANDOM_CYCLES          1000000
-#define NUM_TRIALS_RANDOM_CYCLES_2OPT     300000
+#define NUM_TRIALS_RANDOM_CYCLES_2OPT     160000
 
 //------------------------------------------------------
 
@@ -119,7 +119,7 @@
 #define DEFAULT_HEURISTIC_ALGO   NEAREST_NEIGHBOUR_2_OPT
 #define DEFAULT_HEURISTIC_TRIALS 1
 
-#define NUM_OF_THREADS  4
+#define NUM_OF_THREADS  8
 
 //------------------------------------------------------
 

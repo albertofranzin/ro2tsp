@@ -44,7 +44,7 @@ buildLib: list.o elist.o tree.o graph.o onetree.o egraph.o cycle.o \
 	cpx_env.o cpx_stats.o cpx_table.o cpx_constraint.o cpx_setup_problem.o \
 	cpx_preprocessing.o cpx_components.o \
 	cpx_solve_iterative.o cpx_solve_miliotis.o cpx_solve_proximity.o cpx_solver.o \
-	base.o utils.o \
+	base.o utils.o cpx_solve_local_branching.o cpx_solve_rins.o cpx_solve_hardfixing.o \
 	tsp_env.o tsp_stats.o
 	ar r libro2ds.a *.o
 	#rm *.o
@@ -157,6 +157,15 @@ cpx_solve_miliotis.o: solvers/cpx/cpx_solve_miliotis.h solvers/cpx/cpx_solve_mil
 
 cpx_solve_proximity.o: solvers/cpx/cpx_solve_proximity.h solvers/cpx/cpx_solve_proximity.c
 	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_solve_proximity.c
+
+cpx_solve_local_branching.o: solvers/cpx/cpx_solve_local_branching.h solvers/cpx/cpx_solve_local_branching.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_solve_local_branching.c
+
+cpx_solve_rins.o: solvers/cpx/cpx_solve_rins.h solvers/cpx/cpx_solve_rins.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_solve_rins.c
+
+cpx_solve_hardfixing.o: solvers/cpx/cpx_solve_hardfixing.h solvers/cpx/cpx_solve_hardfixing.c
+	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_solve_hardfixing.c
 
 cpx_solver.o: solvers/cpx/cpx_solver.h solvers/cpx/cpx_solver.c
 	gcc $(CFLAGS) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OPT) $(PAR) -c solvers/cpx/cpx_solver.c

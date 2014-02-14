@@ -191,3 +191,71 @@ int cpx_constraint_generate_proximity_cutoff(cpx_env        *ce,
   return 0;
 
 }
+
+int cpx_maxflow_constraints(cpx_env *ce,
+                            double  *x,
+                            int    **cut_set,
+                            int     *cscount,
+                            double  *minval) {
+  int status = 0;
+  int i, j, k, idx;
+  int n       = ce->G.n,
+      numcols = n * (n-1) / 2;
+
+  int  ncomp;
+  int *compscount,
+      *comps,
+      *elist;
+
+  elist = malloc(2 * numcols * sizeof(int));
+  for (idx = 0 ; idx < numcols ; idx++) {
+    vrtx_from_idx(&ce->T, &i, &j, idx);
+    elist[2*idx]     = i;
+    elist[2*idx + 1] = j;
+  }
+
+  int retval = CCcut_connect_components(n, numcols, elist, x, &ncomp,
+      &compscount, &comps);
+  assert(!retval);
+
+  printf("retval %d\n", retval);
+
+  if(ncomp == 1) {
+    int current_node = 0, curr_cc;
+    /*for (curr_cc = 0; curr_cc < ncomp; curr_cc++) {
+      printf("CC #%d:", curr_cc);
+      for (i = 0; i < compscount[curr_cc]; i++) {
+        printf(" %d", comps[current_node]);
+        current_node++;
+      }
+      printf("\n");
+    }*/
+
+    double cutval;
+    int   *cut,
+           cutcount;
+
+    int retval = CCcut_mincut(n, numcols, elist, x, &cutval, &cut,
+        &cutcount);
+
+    printf("Ret: %d, cutcount = %d\n", retval, cutcount);
+    printf("%lf\n", cutval);
+    /*for (i = 0; i < cutcount; i++) {
+      printf("%d ", cut[i]);
+    }
+    printf("\n");*/
+
+    if (cutval < 2.0) {
+      //printf("lakhskjsnd\n");
+      *cut_set = cut;
+      //getchar();
+      *cscount = cutcount;
+      *minval  = cutval;
+    }
+
+    //getchar();
+  }
+
+
+  return status;
+}

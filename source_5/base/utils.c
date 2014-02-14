@@ -47,6 +47,10 @@ parameters *getParameters() {
 
   pars->solver                 = DEFAULT_SOLVER;
   pars->cplex_callbacks        = N;
+  pars->use_proximity          = N;
+  pars->use_localbranching     = N;
+  pars->use_hardfixing         = N;
+  pars->use_rinspolishing      = N;
   pars->number_of_nodes        = DEFAULT_NUMBER_OF_NODES;
   pars->random_instance_option = DEFAULT_RANDOM_INSTANCE_OPTION;
   pars->random_seed_option     = DEFAULT_RANDOM_SEED_OPTION;
@@ -587,6 +591,10 @@ void read_tsp_from_file(egraph *G, parameters *pars) {
           } else if (pars->tsp_file_format == 45) {
 
             // 'GEO' distances
+            fract      = x - (int)x;
+            latitude1  = PI * ((int)x + 5.0 * fract / 3.0) / 180.0;
+            fract      = y - (int)y;
+            longitude1 = PI * ((int)y + 5.0 * fract / 3.0) / 180.0;
             fract      = x2 -  (int)x2;
             latitude2  = PI * ((int)x2 + 5.0 * fract / 3.0) / 180.0;
             fract      = y2 -  (int)y2;
@@ -799,3 +807,20 @@ void free_and_null(char **ptr) {
   }
 } // END free_and_null
 
+/**
+ * compute difference in seconds between two clock_t times
+ * @param  start start time
+ * @param  end   end time
+ * @return       seconds passed between start and end
+ */
+inline double time_elapsed(clock_t start, clock_t end) {
+  return (double) (end - start) / CLOCKS_PER_SEC;
+}
+
+int comp_int(const void * elem1, const void * elem2) {
+    int f = *((int*)elem1);
+    int s = *((int*)elem2);
+    if (f > s) return  1;
+    if (f < s) return -1;
+    return 0;
+}

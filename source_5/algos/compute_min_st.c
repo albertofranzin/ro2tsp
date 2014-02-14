@@ -13,8 +13,8 @@ int compute_min_st(graph* G, tree* T, int root) {
 
 
   int pred[n];      // If vertex v has been visited, then pred[v] is the predecessor of v in the solution (spanning tree);
-		    // otherwise, pred[v] it is the vertex among all visited vertices connected to v through a free or forced edge, such that the edge from pred[v] to v has minimum cost.
-		    // In the presence of forced edges from the set of visited vertices to vertex v, the choice of pred[v] will be done among all visited vertices adjacent to v through a forced edge.
+                    // otherwise, pred[v] it is the vertex among all visited vertices connected to v through a free or forced edge, such that the edge from pred[v] to v has minimum cost.
+                    // In the presence of forced edges from the set of visited vertices to vertex v, the choice of pred[v] will be done among all visited vertices adjacent to v through a forced edge.
 
   double cost[n];   // cost[v] is the cost of the edge from pred[v] to v.
 
@@ -49,8 +49,8 @@ int compute_min_st(graph* G, tree* T, int root) {
       list_push_last(&not_visited, v);
 
       if (graph_get_edge_constr(G, root, v) != FORBIDDEN) {
-	pred[v] = root;
-	cost[v] = graph_get_edge_cost(G, root, v);
+        pred[v] = root;
+        cost[v] = graph_get_edge_cost(G, root, v);
       }
 
       else {
@@ -88,8 +88,8 @@ int compute_min_st(graph* G, tree* T, int root) {
     for (i = 0; i < n-k-1; i++) {
       v = node_curr->data;
       if (pred[v] >=  0 && graph_get_edge_constr(G, pred[v], v) == FORCED) {
-	some_forced_edges = 1;
-	break;
+        some_forced_edges = 1;
+        break;
       }
       node_curr = node_curr->next;
     }
@@ -102,22 +102,22 @@ int compute_min_st(graph* G, tree* T, int root) {
       v_min = -1;
       node_curr = not_visited.head.next;
       for (i = 0; i < n-k-1; i++) {
-	v = node_curr->data;
+        v = node_curr->data;
 
-	if (flag == 0 && pred[v] >= 0) {
-	  v_min = v;
-	  cost_min = cost[v];
-	  node_min = node_curr;
-	  flag = 1;
-	}
+        if (flag == 0 && pred[v] >= 0) {
+          v_min = v;
+          cost_min = cost[v];
+          node_min = node_curr;
+          flag = 1;
+        }
 
-	else if (flag == 1 && pred[v] >= 0 && cost[v] < cost_min) {
-	  v_min = v;
-	  cost_min = cost[v];
-	  node_min = node_curr;
-	}
+        else if (flag == 1 && pred[v] >= 0 && cost[v] < cost_min) {
+          v_min = v;
+          cost_min = cost[v];
+          node_min = node_curr;
+        }
 
-	node_curr = node_curr->next;
+        node_curr = node_curr->next;
       }
 
     }
@@ -130,22 +130,22 @@ int compute_min_st(graph* G, tree* T, int root) {
       v_min = -1;
       node_curr = not_visited.head.next;
       for (i = 0; i < n-k-1; i++) {
-	v = node_curr->data;
+        v = node_curr->data;
 
-	if (flag == 0 && pred[v] >= 0 && graph_get_edge_constr(G, pred[v], v) == FORCED) {
-	  v_min = v;
-	  cost_min = cost[v];
-	  node_min = node_curr;
-	  flag = 1;
-	}
+        if (flag == 0 && pred[v] >= 0 && graph_get_edge_constr(G, pred[v], v) == FORCED) {
+          v_min = v;
+          cost_min = cost[v];
+          node_min = node_curr;
+          flag = 1;
+        }
 
-	else if (flag == 1 && pred[v] >= 0 && graph_get_edge_constr(G, pred[v], v) == FORCED && cost[v] < cost_min) {
-	  v_min = v;
-	  cost_min = cost[v];
-	  node_min = node_curr;
-	}
+        else if (flag == 1 && pred[v] >= 0 && graph_get_edge_constr(G, pred[v], v) == FORCED && cost[v] < cost_min) {
+          v_min = v;
+          cost_min = cost[v];
+          node_min = node_curr;
+        }
 
-	node_curr = node_curr->next;
+        node_curr = node_curr->next;
       }
 
     }
@@ -171,36 +171,36 @@ int compute_min_st(graph* G, tree* T, int root) {
 
       node_curr = not_visited.head.next;
       for (i = 0; i < n-k-2; i++) {
-	v = node_curr->data;
-	new_cost = graph_get_edge_cost(G, v_min, v);
-	new_constr = graph_get_edge_constr(G, v_min, v);
+        v = node_curr->data;
+        new_cost = graph_get_edge_cost(G, v_min, v);
+        new_constr = graph_get_edge_constr(G, v_min, v);
 
-	if (new_constr != FORBIDDEN) {
+        if (new_constr != FORBIDDEN) {
 
-	  if (pred[v] < 0) { // Vertex v has no predecessor.
+          if (pred[v] < 0) { // Vertex v has no predecessor.
 
-	    pred[v] = v_min;
-	    cost[v] = new_cost;
+            pred[v] = v_min;
+            cost[v] = new_cost;
 
-	  }
+          }
 
-	  else { // Vertex v has already a predecessor pred[v].
+          else { // Vertex v has already a predecessor pred[v].
 
-	    old_cost = graph_get_edge_cost(G, pred[v], v);
-	    old_constr = graph_get_edge_constr(G, pred[v], v);
+            old_cost = graph_get_edge_cost(G, pred[v], v);
+            old_constr = graph_get_edge_constr(G, pred[v], v);
 
-	    if ( (new_constr == FORCED && old_constr == FREE) ||
-		 (new_constr == FREE && old_constr == FREE && new_cost < old_cost) ||
-		 (new_constr == FORCED && old_constr == FORCED && new_cost < old_cost) ) {
+            if ( (new_constr == FORCED && old_constr == FREE) ||
+                 (new_constr == FREE && old_constr == FREE && new_cost < old_cost) ||
+                 (new_constr == FORCED && old_constr == FORCED && new_cost < old_cost) ) {
 
-        	      pred[v] = v_min;
- 	              cost[v] = new_cost;
-	      
-	    }
-	  }
-	}
+                      pred[v] = v_min;
+                      cost[v] = new_cost;
+              
+            }
+          }
+        }
 
-	node_curr = node_curr->next;
+        node_curr = node_curr->next;
       }
 
     }

@@ -1,6 +1,11 @@
 #include "compute_upper_bound.h"
 
-int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
+int compute_upper_bound(graph   *G,
+                        cycle   *C,
+                        int      algo,
+                        double  *ub,
+                        int     *ones,
+                        int     *zeros) {
 
   if (algo == NEAREST_NEIGHBOUR_2_OPT ||
       algo == NEAREST_NEIGHBOUR         ) {
@@ -10,7 +15,19 @@ int compute_upper_bound(graph* G, cycle* C, int algo, double* ub) {
   else if (algo == RANDOM_CYCLES      ||
            algo == RANDOM_CYCLES_2OPT   ) {
     //return compute_rc(G, C, ub);
-    compute_rc(G, C, ub);
+    int i = 0;
+    int n = G->n;
+    /*printf("ZEROS\n");
+    for (i = 0; i < n*(n-1)/2; ++i) {
+      printf("%d ", zeros[i]);
+    }
+    printf("\nONES\n");
+    for (i = 0; i < n*(n-1)/2; ++i) {
+      printf("%d ", ones[i]);
+    }
+    printf("\n");
+    getchar();*/
+    compute_rc(G, C, ub, ones, zeros);
 
     /*#ifdef DEBUG
       if (ce->pars->verbosity >= USEFUL) {
@@ -96,17 +113,29 @@ int compute_nearest_neighbour(graph *G, cycle *C, double *ub) {
 
 /**
  * compute an ub using RC+2-opt heuristic
- * @param  G  graph
- * @param  C  best cycle found
- * @param  ub uper bound computed
- * @return    status of the operations
+ * @param  G       graph
+ * @param  C       best cycle found
+ * @param  ub      uper bound computed
+ * @param  ones    list of variables always found to be 1
+ * @param  n_ones  length of ones
+ * @param  zeros   list of variables always found to be 0
+ * @param  n_zeros length of zeros
+ * @return         status of the operations
  */
-int compute_rc(graph *G, cycle *C, double *ub) {
+int compute_rc(graph  *G,
+               cycle  *C,
+               double *ub,
+               int    *ones,
+               int    *zeros) {
   int i,
+      j,
       n = G->n,
       status,
       total_trials = NUM_TRIALS_RANDOM_CYCLES_2OPT / n,
       num_of_threads = NUM_OF_THREADS;
+
+  printf("Random cycles: %d threads, each with up to %d trials\n",
+    num_of_threads, (int)(NUM_TRIALS_RANDOM_CYCLES_2OPT / n / num_of_threads));
 
   double min;
 
@@ -119,16 +148,47 @@ int compute_rc(graph *G, cycle *C, double *ub) {
     cycle_init(&cycles[i], 0);
   }
 
+  int **local_ones,
+      **local_zeros,
+       *local_n_ones,
+       *local_n_zeros;
+
+  local_ones    = malloc(num_of_threads * sizeof(int *));
+  local_zeros   = malloc(num_of_threads * sizeof(int *));
+  local_n_ones  = malloc(num_of_threads * sizeof(int));
+  local_n_zeros = malloc(num_of_threads * sizeof(int));
+  memset(local_n_ones, 0, num_of_threads);
+  memset(local_n_zeros, 0, num_of_threads);
+  for (i = 0; i < num_of_threads; ++i) {
+    local_zeros[i] = malloc(n*(n-1)*sizeof(int)/2);
+    for (j = 0; j < n*(n-1)/2; ++j) {
+      local_zeros[i][j] = 1;
+    }
+    local_ones[i]  = malloc(n*(n-1)*sizeof(int)/2);
+  }
+
+  int *zs = malloc(n*(n-1)*sizeof(int)/2),
+      *os = malloc(n*(n-1)*sizeof(int)/2);
+  // initially, all zeros - just saves time later
+  for (i = 0; i < n*(n-1)/2; ++i) {
+    zs[i] = 1;
+  }
+  memset(os, 0, n*(n-1)*sizeof(int)/2);
+
   for (i = 0; i < num_of_threads; ++i) {
     rcp[i].th_no            = i;
     rcp[i].G                = G;
     rcp[i].C                = &cycles[i];
     rcp[i].number_of_cycles = total_trials / num_of_threads;
+    rcp[i].zeros            = local_zeros[i];
+    rcp[i].ones             = local_ones[i];
+    rcp[i].n_zeros          = local_n_zeros[i];
+    rcp[i].n_ones           = local_n_ones[i];
 
     if (pthread_create(&thread[i], NULL, rc_thread, (void *)&rcp[i])) {
-      fprintf(stderr, "Fatal error in compute_upper_bound.c :: \n");
-      fprintf(stderr, "error while creating thread %d\n", i);
-      exit(1);
+        fprintf(stderr, "Fatal error in compute_upper_bound.c :: \n");
+        fprintf(stderr, "error while creating thread %d\n", i);
+        exit(1);
     }
   } // end thread creation
 
@@ -137,9 +197,9 @@ int compute_rc(graph *G, cycle *C, double *ub) {
 
   for (i = 0; i < num_of_threads; ++i) {
     if (pthread_join(thread[i], NULL)) {
-      fprintf(stderr, "Fatal error in compute_upper_bound.c :: \n");
-      fprintf(stderr, "error while joining thread %d\n", i);
-      exit(1);
+        fprintf(stderr, "Fatal error in compute_upper_bound.c :: \n");
+        fprintf(stderr, "error while joining thread %d\n", i);
+        exit(1);
     }
     if (rcp[i].return_status == SUCCESS) {
       status = SUCCESS;
@@ -148,14 +208,35 @@ int compute_rc(graph *G, cycle *C, double *ub) {
         min = rcp[i].ub;
       }
     }
+
+    for (j = 0; j < n*(n-1)/2; ++j) {
+      if(rcp[i].zeros[j] == 0) zeros[j] = 0;
+      if(rcp[i].ones[j] == 1)  os[j]++;
+    }
   } // end thread joining
 
-  for (i = 0; i < n; ++i) {
+  for (j = 0; j < n*(n-1)/2; ++j) {
+    if(os[j] == num_of_threads)
+      ones[j] = 1;
+    else
+      ones[j] = 0;
+  }
+
+  /*for (i = 0; i < n; ++i) {
     printf("%d ", C->nodes[i]);
   }
-  printf("\n");
+  printf("\n");*/
 
   *ub = min;
+
+  for (i = 0; i < num_of_threads; ++i) {
+    free(local_ones[i]);
+    free(local_zeros[i]);
+  }
+  free(local_ones);
+  free(local_zeros);
+  free(local_n_ones);
+  free(local_n_zeros);
 
   return status;
 }
@@ -227,6 +308,15 @@ void *rc_thread(void *p) {
       // last_1pc,
       cc = 0;
 
+  int *zs = malloc(n*(n-1)*sizeof(int)/2),
+      *os = malloc(n*(n-1)*sizeof(int)/2);
+
+  // initially, all zeros - just saves time later
+  for (i = 0; i < n*(n-1)/2; ++i) {
+    zs[i] = 1;
+  }
+  memset(os, 0, n*(n-1)*sizeof(int)/2);
+
   cycle_delete(rcp->C);
   cycle_init(rcp->C, n);
 
@@ -236,18 +326,31 @@ void *rc_thread(void *p) {
   for (i = 0; i < trials; i++) {
 
     status = generate_random_cycle(rcp->G, &C_tmp, &tour_cost);
-    if ((rand() % 100) / 100. > (1.*i / trials)) {
+    //if ((rand() % 100) / 100. > (1.*i / trials)) {
       // printf("thread %d : %d\n", rcp->th_no, i);
-      cc++;
-      status = heur_2_opt(rcp->G, &C_tmp, tour_cost, &tour_cost);
-      // always returns successfully
+    cc++;
+    status = heur_2_opt(rcp->G, &C_tmp, tour_cost, &tour_cost);
+    // always returns successfully
 
-      if (flag == 0 && status == SUCCESS) {
-        cycle_copy(&C_tmp, rcp->C);
-        min = tour_cost;
-        flag = 1;
+    if (flag == 0 && status == SUCCESS) {
+      cycle_copy(&C_tmp, rcp->C);
+      min = tour_cost;
+      flag = 1;
+      int j,idx,x,y;
+      for (j = 0; j < n; ++j) {
+        x = rcp->C->nodes[j];
+        y = rcp->C->nodes[(j+1)%n];
+        if (x < y) {
+          idx = y * (y - 1) / 2 + x;
+        } else {
+          idx = x * (x - 1) / 2 + y;
+        }
+        zs[idx] = 0;
+        os[idx] = 1;
       }
-      else if (flag == 1 && status == SUCCESS && tour_cost < min) {
+    }
+    else if (flag == 1 && status == SUCCESS) {
+      if(tour_cost < min) {
         cycle_copy(&C_tmp, rcp->C);
         min = tour_cost;
         //printf("%d : %f . ratio = %f\n", i, tour_cost, ((double)cc)/i);
@@ -255,16 +358,43 @@ void *rc_thread(void *p) {
         count_opt++;
         // last_best = i;
       }
-
-      if (tour_cost == min) {
-        count_onepercent++;
-        // last_1pc = i;
-        //getchar();
+      int j,idx,x,y;
+      for (j = 0; j < n; ++j) {
+        x = rcp->C->nodes[j];
+        y = rcp->C->nodes[(j+1)%n];
+        if (x < y) {
+          idx = y * (y - 1) / 2 + x;
+        } else {
+          idx = x * (x - 1) / 2 + y;
+        }
+        zs[idx]  = 0;
+        os[idx] += 1;
       }
+    }
 
-    } //else { printf("********** %d\n", i);getchar();}
+    if (tour_cost == min) {
+      count_onepercent++;
+      // last_1pc = i;
+      //getchar();
+    }
 
   }
+
+  int nzs = 0, nos = n*(n-1)/2;
+  for (i = 0; i < n*(n-1)/2; ++i) {
+    if (os[i] == trials) {
+      rcp->n_ones++;
+      rcp->ones[i] = 1;
+      nos++;
+    }
+    if (zs[i] == 0) {
+      rcp->zeros[i] = 0;
+      nzs--;
+    }
+  }
+
+  rcp->n_ones  = nos;
+  rcp->n_zeros = nzs;
 
   /*printf("++ %f . ratio = %f\n", min, ((double)cc)/i);
   printf("recap : count_opt = %d, count_onepercent = %d\n", count_opt, count_onepercent);
