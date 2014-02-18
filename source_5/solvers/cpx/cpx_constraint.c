@@ -194,6 +194,9 @@ int cpx_constraint_generate_proximity_cutoff(cpx_env        *ce,
 
 int cpx_maxflow_constraints(cpx_env *ce,
                             double  *x,
+                            int    **ret_comps,
+                            int    **ret_compscount,
+                            int     *ret_ncomps,
                             int    **cut_set,
                             int     *cscount,
                             double  *minval) {
@@ -220,17 +223,18 @@ int cpx_maxflow_constraints(cpx_env *ce,
 
   printf("retval %d\n", retval);
 
-  if(ncomp == 1) {
-    int current_node = 0, curr_cc;
-    /*for (curr_cc = 0; curr_cc < ncomp; curr_cc++) {
-      printf("CC #%d:", curr_cc);
-      for (i = 0; i < compscount[curr_cc]; i++) {
-        printf(" %d", comps[current_node]);
-        current_node++;
-      }
-      printf("\n");
-    }*/
+  /*int current_node = 0, curr_cc;
+  for (curr_cc = 0; curr_cc < ncomp; curr_cc++) {
+    printf("CC #%d:", curr_cc);
+    for (i = 0; i < compscount[curr_cc]; i++) {
+      printf(" %d", comps[current_node]);
+      current_node++;
+    }
+    printf("\n");
+  }
+  getchar();*/
 
+  if(ncomp == 1) {
     double cutval;
     int   *cut,
            cutcount;
@@ -255,6 +259,9 @@ int cpx_maxflow_constraints(cpx_env *ce,
 
     //getchar();
   }
+  *ret_comps      = comps;
+  *ret_compscount = compscount;
+  *ret_ncomps     = ncomp;
 
 
   return status;

@@ -133,6 +133,9 @@ int cpx_constraint_generate_proximity_cutoff(cpx_env        *ce,
  */
 int cpx_maxflow_constraints(cpx_env *ce,
                             double  *x,
+                            int    **ret_comps,
+                            int    **ret_compscount,
+                            int     *ret_ncomps,
                             int    **cut_set,
                             int     *cscount,
                             double  *minval);
