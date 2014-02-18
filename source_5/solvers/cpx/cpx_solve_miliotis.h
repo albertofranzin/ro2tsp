@@ -64,18 +64,6 @@ int CPXPUBLIC cpx_callback_maxflow(CPXENVptr  env,
                                     void     *cbhandle,
                                     int      *useraction_p);
 
-/**
- * compute mincut
- * @param  ce [description]
- * @param  x  [description]
- * @param  s  start
- * @param  t  end
- * @return    [description]
- */
-int mincut(cpx_env  *ce,
-           double   *x,
-           int       s,
-           int       t);
 
 
 int comp_flows(const void * f1, const void *f2);

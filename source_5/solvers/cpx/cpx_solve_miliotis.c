@@ -83,7 +83,7 @@ int cpx_solve_miliotis(CPXENVptr  env,
 
   if (x_size != numcols) return 1;
 
-  //status = CPXsetlazyconstraintcallbackfunc(env, cpx_callback_miliotis, ce);
+  status = CPXsetlazyconstraintcallbackfunc(env, cpx_callback_miliotis, ce);
   //status = CPXsetincumbentcallbackfunc(env, cpx_callback_miliotis, ce);
   if (status) {
   fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
@@ -92,7 +92,7 @@ int cpx_solve_miliotis(CPXENVptr  env,
   return 1;
   }
 
-  status = CPXsetusercutcallbackfunc(env, cpx_callback_maxflow, ce);
+  //status = CPXsetusercutcallbackfunc(env, cpx_callback_maxflow, ce);
   if (status) {
   fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
                   "function: cpx_solve_miliotis:\n"
@@ -329,13 +329,16 @@ int CPXPUBLIC cpx_callback_maxflow(CPXENVptr  env,
   int *cut = NULL;
   int cutcount = -1;
   double minval;
+  int  ncomp;
+  int *compscount,
+      *comps;
 
-  status = cpx_maxflow_constraints(ce, x, &cut, &cutcount, &minval);
+  status = cpx_maxflow_constraints(ce, x, &comps, &compscount, &ncomp, &cut, &cutcount, &minval);
 
   printf("%d\n", cutcount);
   //getchar();
 
-  if (cutcount > 0) {
+  if (ncomp == 1 && cutcount > 0) {
     printf("in: if cutcount > 0\n");
     for (i = 0; i < cutcount; i++) {
       printf("%d ", cut[i]);
@@ -411,6 +414,60 @@ int CPXPUBLIC cpx_callback_maxflow(CPXENVptr  env,
     free(pval);
     free(pind);
     if (*cut != NULL) free(cut);
+  } else if (ncomp > 1) {
+    // add SEC constraints to break subcycles
+    // first element of first connected component returned is always 0
+    // or, at least, I hope so
+    int current_node = compscount[0], curr_cc;
+
+    int    *matind = malloc(compscount[0]*(n - compscount[0])*sizeof(int));
+    double *matval = malloc(compscount[0]*(n - compscount[0])*sizeof(double));
+    double *pval = calloc(numcols, sizeof(double));
+    int    *pind = calloc(numcols, sizeof(int));
+    double  offset_p;
+    int     plen_p;
+
+    k = 0;
+    for (i = 0 ; i < compscount[0] ; i++) {
+      for (j = compscount[0] ; j < n ; j++) {
+        idx_from_vrtx(&ce->T, comps[i], comps[j], &idx);
+          //printf("%d %d %d\n", comps[i], comps[j], idx);
+          matind[k] = idx;
+          matval[k] = 1.0;
+          k++;
+      }
+    }
+
+    qsort(matind, k, sizeof(int), comp_int);
+
+    //getchar();
+    status = CPXcrushform(env, ce->mylp, k, matind, matval, &plen_p, &offset_p, pind, pval);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                      "function: cpx_callback_maxflow:\n"
+                      "CPXcrushform : %d\n", status);
+      return 1;
+    }
+
+    char   sen = 'G';
+    double rhs = 2.0;
+    status = CPXcutcallbackadd(env, cbdata, wherefrom, k, rhs, sen, pind, pval, CPX_USECUT_PURGE);
+    if (status) {
+      fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
+                      "function: cpx_callback_maxflow:\n"
+                      "CPXcutcallbackadd : %d\n", status);
+      return 1;
+    }
+
+    free(matind);
+    free(matval);
+    free(pval);
+    free(pind);
+
+    /*for (current_node = 0 ; current_node < n ; current_node++)
+      printf(" %d", comps[current_node]);
+    printf("\n");*/
+    //getchar();
   }
 
 
@@ -419,51 +476,6 @@ int CPXPUBLIC cpx_callback_maxflow(CPXENVptr  env,
 
   *useraction_p = CPX_CALLBACK_SET;
   return 0;
-}
-
-int mincut(cpx_env  *ce,
-           double   *x,
-           int       s,
-           int       t) {
-
-  int status = 0;
-  int i, j, k, idx,
-      n = ce->G.n,
-      numcols = n*(n-1)/2;
-
-  CPXENVptr mcenv = CPXopenCPLEX(&status);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-                    "function: mincut:\n"
-                    "CPXopenCPLEX : %d\n", status);
-    return 1;
-  }
-
-  CPXLPptr mclp = CPXcreateprob(mcenv, &status, "mincut");
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
-                    "function: mincut:\n"
-                    "CPXcreateprob : %d\n", status);
-    return 1;
-  }
-
-  char   *ctype = malloc(numcols * sizeof(char));
-  double *lb    = calloc(numcols, sizeof(double));
-  double *ub    = malloc(numcols * sizeof(double));
-  for (i = 0; i < numcols; ++i) {
-    ctype[i] = 'B';
-    ub[i]    = 1.0;
-  }
-
-  status = CPXnewcols(mcenv, mclp, numcols, x, lb, ub, ctype, NULL);
-
-
-  free(ctype);
-  free(ub);
-  free(lb);
-
-  return status;
-
 }
 
 
