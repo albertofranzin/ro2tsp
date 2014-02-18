@@ -16,6 +16,5 @@
 
 #include "../algos/pr_onetree.h"
 
-int pr_lagrange_hk(environment *env, double ub, int max_iter, int max_noimp_iter, int alpha_ht, tree* best1t, double *lb, int *status);
-
+int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_noimprov, int alpha_ht, tree* t, double *best_mults, double *best_lb, int *status);
 #endif /* PR_LAGRANGE_HK_H_ */

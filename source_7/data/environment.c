@@ -19,6 +19,8 @@ int environment_init(environment *env) {
 	env->redpreds 		= NULL;
 	env->redbegin 		= NULL;
 
+	env->genascent_mults = NULL;
+
 	return 0;
 }
 
@@ -40,6 +42,9 @@ int environment_delete(environment *env) {
 	env->redcstrs 		= NULL;
 	env->redpreds 		= NULL;
 	env->redbegin 		= NULL;
+
+	env->genascent_mults = NULL;
+
 
 	return 0;
 }

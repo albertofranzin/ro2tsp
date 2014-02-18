@@ -16,6 +16,6 @@
 
 #include "../algos/pr_onetree.h"
 
-int pr_lagrange_vj(environment *env, int mode, double ub, double *lb, double *gen_step, tree *best1t, int *status);
+int pr_lagrange_vj(environment *env, int mode, double ub, tree *best_1t, double *best_mults, double *best_lb, int *status);
 
 #endif /* PR_LAGRANGE_VJ_H_ */

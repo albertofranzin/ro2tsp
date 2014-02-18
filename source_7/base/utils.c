@@ -3,7 +3,7 @@
 
 int merge(int *a1, int n1, int *a2, int n2, int *a, double *w) {
 
-	int temp, curr1, curr2, i1, i2, i;
+	int curr1, curr2, i1, i2, i;
 
 	i = i1 = i2 = 0;
 
@@ -156,7 +156,7 @@ short par_hash(char* parName, char* parValue) {
 
 
 	if (strcmp(parName, "SOLVER") == 0 &&
-		strcmp(parValue, "BB") == 0)
+		strcmp(parValue, "BRANCH_AND_BOUND") == 0)
 		return 1800;
 	if (strcmp(parName, "SOLVER") == 0 &&
 		strcmp(parValue, "CPLEX") == 0)
@@ -173,20 +173,43 @@ short par_hash(char* parName, char* parValue) {
 	if (strcmp(parName, "CALLBACKS_OPTION") == 0 &&
 		strcmp(parValue, "FALSE") == 0)
 		return 2001;
-
+	if (strcmp(parName, "PROXIMITY_OPTION") == 0 &&
+		strcmp(parValue, "TRUE") == 0)
+		return 2100;
+	if (strcmp(parName, "PROXIMITY_OPTION") == 0 &&
+		strcmp(parValue, "FALSE") == 0)
+		return 2101;
+	if (strcmp(parName, "LOCALBRANCHING_OPTION") == 0 &&
+		strcmp(parValue, "TRUE") == 0)
+		return 2200;
+	if (strcmp(parName, "LOCALBRANCHING_OPTION") == 0 &&
+		strcmp(parValue, "FALSE") == 0)
+		return 2201;
+	if (strcmp(parName, "HARDFIXING_OPTION") == 0 &&
+		strcmp(parValue, "TRUE") == 0)
+		return 2300;
+	if (strcmp(parName, "HARDFIXING_OPTION") == 0 &&
+		strcmp(parValue, "FALSE") == 0)
+		return 2301;
+	if (strcmp(parName, "RINSPOLISHING_OPTION") == 0 &&
+		strcmp(parValue, "TRUE") == 0)
+		return 2400;
+	if (strcmp(parName, "RINSPOLISHING_OPTION") == 0 &&
+		strcmp(parValue, "FALSE") == 0)
+		return 2401;
 
 	if (strcmp(parName, "VERBOSITY") == 0 &&
 		strcmp(parValue, "SILENT") == 0)
-		return 2100;
+		return 2500;
 	if (strcmp(parName, "VERBOSITY") == 0 &&
 		strcmp(parValue, "ESSENTIAL") == 0)
-		return 2101;
+		return 2501;
 	if (strcmp(parName, "VERBOSITY") == 0 &&
 		strcmp(parValue, "USEFUL") == 0)
-		return 2102;
+		return 2502;
 	if (strcmp(parName, "VERBOSITY") == 0 &&
 		strcmp(parValue, "ANNOYING") == 0)
-		return 2103;
+		return 2503;
 
 
 	return 0;

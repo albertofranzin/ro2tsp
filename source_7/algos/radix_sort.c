@@ -1,7 +1,7 @@
 #include "../algos/radix_sort.h"
 
 
-int radix_sort(int *input_edges, int *output_edges, int num_edges, int* weights, int wmin, int wmax, int b) {
+int radix_sort(int *input_edges, int *output_edges, int num_edges, double* weights, double wmin, double wmax, int b) {
 
 
 	int i, j, p, temp, total;
@@ -16,7 +16,7 @@ int radix_sort(int *input_edges, int *output_edges, int num_edges, int* weights,
 		memset(count, '\0', b * sizeof(int));
 
 		for (j = 0; j < num_edges; j++) {
-			count[ ((weights[input_edges[j]] - wmin) / p) % b ] += 1;
+			count[ (((int)(weights[input_edges[j]] - wmin)) / p) % b ] += 1;
 		}
 
 		total = 0;
@@ -27,8 +27,8 @@ int radix_sort(int *input_edges, int *output_edges, int num_edges, int* weights,
 		}
 
 		for (j = 0; j < num_edges; j++) {
-			output_edges[ count[ ((weights[input_edges[j]] - wmin) / p) % b ] ] = input_edges[j];
-						  count[ ((weights[input_edges[j]] - wmin) / p) % b ]  += 1;
+			output_edges[ count[ (((int)(weights[input_edges[j]] - wmin)) / p) % b ] ] = input_edges[j];
+						  count[ (((int)(weights[input_edges[j]] - wmin)) / p) % b ]  += 1;
 		}
 
 

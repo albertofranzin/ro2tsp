@@ -11,9 +11,10 @@
 */
 typedef struct _statistics {
 
-	int bb_nod_num; /* number of nodes */
-	int bb_lev_num; /* deepest level */
-	int reduce_nr; 	/* number of removed edges */
+	int num_nodes;	/* number of nodes */
+	int num_levels; /* number of levels */
+	int curr_node;	/* current node */
+	int curr_level;	/* current level */
 
 } statistics;
 

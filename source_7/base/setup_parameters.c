@@ -18,8 +18,14 @@ int setup_parameters_default(parameters *pars) {
 
 	pars->solver					= DEFAULT_SOLVER;
 	pars->num_threads 				= DEFAULT_NUM_THREADS;
-	pars->callbacks_option 			= DEFAULT_CALLBAKS_OPTION;
 	verbosity 						= DEFAULT_VERBOSITY;
+
+	pars->callbacks_option 			= DEFAULT_CALLBAKS_OPTION;
+	pars->proximity_option 			= DEFAULT_PROXIMITY_OPTION;
+	pars->localbranching_option 	= DEFAULT_LOCALBRANCHING_OPTION;
+	pars->hardfixing_option 		= DEFAULT_HARDFIXING_OPTION;
+	pars->rinspolishing_option 		= DEFAULT_RINSPOLISHING_OPTION;
+
 	return 0;
 
 }
@@ -28,8 +34,10 @@ int setup_parameters_default(parameters *pars) {
 int setup_parameters_config(char *configPath, parameters *pars) {
 
 	FILE	*configFile = fopen(configPath, "r");
-	if (configFile == NULL)
+
+	if (configFile == NULL) {
 		perror( configPath );
+	}
 #ifdef DEBUG
     if (configFile == NULL) {
         fprintf(stderr, "Error in /base/setup_parameters.c:\n"
@@ -38,11 +46,10 @@ int setup_parameters_config(char *configPath, parameters *pars) {
         return -1;
     }
 #endif
-	char	line[256];
+	char	line[1024];
 	char	*parName; 	/* parameter name */
 	char	*parValue;	/* parameter value */
 	int		lineLen;
-
 
 	/* beginning file scan */
 	while (fgets(line, sizeof line, configFile) != NULL) {
@@ -130,17 +137,50 @@ int setup_parameters_config(char *configPath, parameters *pars) {
 				if (pars->solver != CPLEX) 					break;
 				pars->callbacks_option = FALSE;
 			break;
-			case 2100 : /* VERBOSITY = SILENT */
+			case 2100 : /* PROXIMITY_OPTION = TRUE */
+				if (pars->solver != CPLEX) 					break;
+				pars->proximity_option = TRUE;
+			break;
+			case 2101 : /* PROXIMITY_OPTION = FALSE */
+				if (pars->solver != CPLEX) 					break;
+				pars->proximity_option = FALSE;
+			break;
+			case 2200 : /* LOCALBRANCHING_OPTION = TRUE */
+				if (pars->solver != CPLEX) 					break;
+				pars->localbranching_option = TRUE;
+			break;
+			case 2201 : /* LOCALBRANCHING_OPTION = FALSE */
+				if (pars->solver != CPLEX) 					break;
+				pars->localbranching_option = FALSE;
+			break;
+			case 2300 : /* HARDFIXING_OPTION = TRUE */
+				if (pars->solver != CPLEX) 					break;
+				pars->hardfixing_option = TRUE;
+			break;
+			case 2301 : /* HARDFIXING_OPTION = FALSE */
+				if (pars->solver != CPLEX) 					break;
+				pars->hardfixing_option = FALSE;
+			break;
+			case 2400 : /* RINSPOLISHING_OPTION = TRUE */
+				if (pars->solver != CPLEX) 					break;
+				pars->rinspolishing_option = TRUE;
+			break;
+			case 2401 : /* RINSPOLISHING_OPTION = FALSE */
+				if (pars->solver != CPLEX) 					break;
+				pars->rinspolishing_option = FALSE;
+			break;
+
+			case 2500 : /* VERBOSITY = SILENT */
 				verbosity = SILENT;
 			break;
-			case 2101 : /* VERBOSITY = ESSENTIAL */
+			case 2501 : /* VERBOSITY = ESSENTIAL */
 				verbosity = ESSENTIAL;
 			break;
-			case 2102 : /* VERBOSITY = USEFUL */
+			case 2502 : /* VERBOSITY = USEFUL */
 				verbosity = USEFUL;
 			break;
 			break;
-			case 2103 : /* VERBOSITY = ANNOYING */
+			case 2503 : /* VERBOSITY = ANNOYING */
 				verbosity = ANNOYING;
 			break;
 			default:
@@ -236,6 +276,11 @@ int setup_parameters_commandline(int argc, char **argv, parameters *pars) {
 	    	i++;
 	    }
 
+	    if (strcmp(opt, "-nt") == 0 ||
+	    	strcmp(opt, "--threads") == 0) {
+	    	pars->num_threads = atoi(argv[++i]);
+	    }
+
 	    /* callbacks option */
 	    if (strcmp(opt, "--cplex_callbacks") == 0 ||
 	    	strcmp(opt, "--callbacks") == 0 ||
@@ -243,9 +288,22 @@ int setup_parameters_commandline(int argc, char **argv, parameters *pars) {
 	    	pars->callbacks_option = TRUE;
 	    }
 
-	    if (strcmp(opt, "-nt") == 0 ||
-	    	strcmp(opt, "--threads") == 0) {
-	    	pars->num_threads = atoi(argv[++i]);
+	    if (strcmp(opt, "--proxy") == 0) {
+	    	pars->proximity_option = TRUE;
+	    }
+
+	    if (strcmp(opt, "--lb") == 0 ||
+	        strcmp(opt, "-lb")  == 0   ) {
+	    	pars->localbranching_option = TRUE;
+	    }
+
+	    if (strcmp(opt, "--hf") == 0 ||
+	        strcmp(opt, "-hf")  == 0   ) {
+	    	pars->hardfixing_option = TRUE;
+	    }
+
+	    if (strcmp(opt, "--rins") == 0) {
+	    	pars->rinspolishing_option = TRUE;
 	    }
 
 	    /* verbosity level */
@@ -284,4 +342,58 @@ int setup_parameters_commandline(int argc, char **argv, parameters *pars) {
 	}
 	return 0;
 
+}
+
+
+/*
+ * print_helper_menu
+ *
+ * print a menu with the list of all the parameters
+ * and how to use the sw
+ */
+void print_helper_menu() {
+  printf("\n");
+  printf("  TSP solver for the course of Ricerca Operativa 2\n");
+  printf("  a.y. 2012/13, taught by prof. M. Fischetti\n\n");
+  printf("  authors: Alberto Franzin\n           Ludovico Minto\n\n");
+  printf("  Helper menu\n");
+  printf("  This software can solve two kind on TSP instances:\n");
+  printf("  - instances in TSPLIB format;\n");
+  printf("  - random instances.\n\n");
+  printf("  There are two ways to use it: set the desidered parameters\n");
+  printf("  in the 'config' file provided with the package,\n");
+  printf("  or append the desidered parameters to the command:\n");
+  printf("  -s [--seed] x   : x (integer) selects the desidered seed\n");
+  printf("                    for the random instance, such that:\n");
+  printf("                      if x >= 0, then x is the seed;\n");
+  printf("                      if x < 0, then a pseudorandom seed will be used.\n");
+  printf("  -n [--number] x : x (positive integer) is the number of nodes to be generated\n");
+  printf("                    in the random instance.\n");
+  printf("  -f [--file] x   : x (valid file/path) is the TSPLIB-formatted file of the instance.\n");
+  printf("                    If this option is chosen, then the previous ones\n");
+  printf("                    will be ignored, if present.\n");
+  printf("  --solver x      : choose the solver method for the problem\n");
+  printf("                    x can be:\n");
+  printf("                    - BRANCH_AND_BOUND | branch_and_bound | bb\n");
+  printf("                    - CPLEX | cplex\n");
+  printf("  --heur x        : choose the heuristic algorithm for an upper bound\n");
+  printf("                    x can be:\n");
+  printf("                    - ALL | all\n");
+  printf("                    - NEAREST_NEIGHBOUR | nn | nn\n");
+  printf("                    - RANDOM_CYCLE | rc\n");
+  printf("  --verb x        : set the verbosity level of infos when debugging\n");
+  printf("                    Has no effect in release mode.\n");
+  printf("                    x can be:\n");
+  printf("                    - SILENT | silent | 0       : no infos printed\n");
+  printf("                    - ESSENTIAL | essential | 1 : some infos\n");
+  printf("                    - USEFUL | useful | 2       : more infos\n");
+  printf("                    - VERBOSE | verbose | 3     : log files\n");
+  printf("                    - ANNOYING | annoying | 4   : getchars too\n");
+  printf("  --cb            : use cplex callbacks\n");
+  printf("  --proxy         : use proximity search matheuristic (uses CPLEX)\n");
+  printf("  --lb            : use local branching matheuristic (uses CPLEX)\n");
+  printf("  --hf            : use hard fixing\n");
+  printf("  --rins          : use cplex RINS+polishing (uses CPLEX)\n");
+  printf("  -h [--help]     : printf this menu and exit.\n");
+  printf("\n\n");
 }

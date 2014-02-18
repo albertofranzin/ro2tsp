@@ -29,4 +29,6 @@
 */
 int kr_onetree(int *mstedges, int num_mstedges, int *oneedges, int num_oneedges, double *weights, set *vertexset, tree* min1t, int *status);
 
+int kr_onetree2(graph *g, arraylist *edgelist, set *part_vs, tree *part_1t, tree* min1t, int *status);
+
 #endif /* KR_ONETREE_H_ */
