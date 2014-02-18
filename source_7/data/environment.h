@@ -35,7 +35,7 @@ typedef struct _environment {
 	int		*redbegin;		/* begin index of a set of red-edges in the list;
 	 	 	 	 	 	 	 * each set is associated to a red-node */
 
-
+	double	*genascent_mults;
 
 } environment;
 

@@ -1,15 +1,16 @@
 #include "../algos/pr_lagrange_hk.h"
 
-int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_noimprov, int alpha_ht, tree* t, double *lb, int *status) {
+int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_noimprov, int alpha_ht, tree* t, double *best_mults, double *best_lb, int *status) {
 
 	*status = 0;
+	int integer;
 
-	int i, j, k, m, e, st, my_edge;
+	int i, j, st;
 	int num_step		= 0;
 	int num_noimprov 	= 0;
 	int n 				= env->main_graph.vrtx_num;
 	double a 			= ALPHA;
-	double z, w, step, sqnorm;
+	double z, step, sqnorm;
 
 	double 	*mults		= (double*)calloc(n, sizeof(double));
 
@@ -17,9 +18,9 @@ int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_no
 	graph_init(&local_graph);
 	graph_copy(&(env->main_graph), &local_graph);
 
-	tree temp1t;
-	tree_init(&temp1t);
-	tree_setup(&temp1t, n);
+	tree curr_1t;
+	tree_init(&curr_1t);
+	tree_setup(&curr_1t, n);
 
 	while (num_step < max_num_step) {
 
@@ -27,9 +28,10 @@ int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_no
 
 		if (num_step % 1000 == 0) printf("num step = %d\n", num_step);
 
+
 	    /* compute minimum 1-tree */
-		tree_empty(&temp1t);
-		e = pr_onetree(&local_graph, &temp1t, &st);
+		tree_empty(&curr_1t);
+		pr_onetree(&local_graph, &curr_1t, &st);
 
 		/* no spanning tree exists */
 		if (st != 0) {
@@ -38,17 +40,25 @@ int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_no
 		}
 
 		/* compute the cost of the 1-tree */
-		tree_get_cost(&temp1t, &local_graph, &z);
+		z = 0.0;
+		for (i = 0; i < n; i++) {
+			z += local_graph.edge_cost[curr_1t.edges[i]];
+		}
 		for (i = 1; i < n; i++) {
 			z += mults[i] * 2;
 		}
 
 		/* update solution */
-		if (z > *lb || num_step == 1) {
+		if (z > *best_lb || num_step == 1) {
 			//printf("update! z = %.2f\n", z);
-			tree_copy(&temp1t, t);
-			*lb				= z;
+
+			for (i = 0; i < n; i++) {
+				best_mults[i] = mults[i];
+			}
+			tree_copy(&curr_1t, t);
+			*best_lb		= z;
 			num_noimprov	= -1;
+
 		}
 		num_noimprov++;
 
@@ -61,7 +71,7 @@ int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_no
 
 	    sqnorm = 0.0;
 	    for (i = 1; i < n; i++) {
-	    	sqnorm += (2 - temp1t.vrtx_deg[i]) * (2 - temp1t.vrtx_deg[i]);
+	    	sqnorm += (2 - curr_1t.vrtx_deg[i]) * (2 - curr_1t.vrtx_deg[i]);
 	    }
 	    if (sqnorm == 0.0) break;
 
@@ -70,7 +80,9 @@ int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_no
 
 	    /* update  multipliers */
 	    for (i = 0; i < n; i++) {
-	    	mults[i] += step * ((2 - temp1t.vrtx_deg[i]) / sqrt(sqnorm));
+	    	mults[i] += step * ((2 - curr_1t.vrtx_deg[i]) / sqrt(sqnorm));
+			integer = (int)(mults[i] * 10000.0);
+			mults[i] = integer / 10000.0;
 	    }
 
 	    /* update edge-costs */
@@ -84,11 +96,9 @@ int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_no
 
 	} /* end main for loop */
 
-
-
-	graph_delete(&local_graph);
-	tree_delete(&temp1t);
 	free(mults);
+	graph_delete(&local_graph);
+	tree_delete(&curr_1t);
 
 	return 0;
 }

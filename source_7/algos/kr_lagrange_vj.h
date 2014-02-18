@@ -19,7 +19,6 @@
 #include "../algos/radix_sort.h"
 #include "../algos/kr_onetree.h"
 
-
-int kr_lagrange_vj(environment *env, arraylist *edgelist, tree *part1t, set *partvs, int mode, double ub, tree *best1t, double *lb, double *gen_step, int *status);
+int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, tree *part_1t, set *part_vs, tree *best_1t, double *best_mults, double *best_lb, int *status);
 
 #endif /* KR_LAGRANGE_VJ_H_ */

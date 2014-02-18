@@ -123,7 +123,7 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 	            graph_setup(&(env->main_graph), pars->num_vertices);
 
 	            const char delimiters[] = " ";
-                char *running;
+                //char *running;
                 char *token1;
                 char *token2;
                 char *token3;
@@ -157,10 +157,128 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 	        case 1900 : /* EDGE_WEIGHT_SECTION */
 
 	        	if (pars->tsplib_matrix_type == FULL_MATRIX) {
-	        		;
+
+	        		// full matrix
+                    // each row contains pars->number_of_nodes elements
+                    // (or, at least, it should...)
+                    // since the assumption is NOT verified, we need
+                    // to keep track of the count of read elements
+                    // to manually split each row
+
+		        	coords_delete(&(env->vertices));
+		            graph_delete(&(env->main_graph));
+
+		            coords_setup(&(env->vertices), pars->num_vertices);
+		            graph_setup(&(env->main_graph), pars->num_vertices);
+
+                    int row 				= 0;
+                    int cumulative_counter 	= 0;
+                    int stop;
+                    const char delimiters[] = " ";
+
+                    while (fgets(line, sizeof(line), tsplibFile) != NULL) {
+                    	lineLen = strlen(line)-1;
+
+                    	// skip empty lines
+                    	if (lineLen == 0) continue;
+                    	if (line[lineLen] == '\n') line[lineLen] = 0;
+
+                    	// skip comments
+                    	if (line[0] == '#') continue;
+
+                    	if (strcmp(line, "EOF") == 0 ||
+                    			strcmp(line, " EOF") == 0) {
+                    			break;
+                    	}
+
+                    	char *tokens[pars->num_vertices], *tok;
+                    	tok = strtok(line, delimiters);
+
+                    	// very dirty
+                    	tokens[cumulative_counter] = tok;
+                    	cumulative_counter++;
+                    	stop = 0;
+                    	while (!stop) {
+                    		tok = strtok(NULL, delimiters);
+                    		if (tok == NULL) {
+                    			stop = 1;
+                    		}
+                    		else {
+                    			tokens[cumulative_counter] = tok;
+                    			cumulative_counter++;
+                    		}
+                    	}
+
+                    	if (cumulative_counter >= pars->num_vertices) {
+                    		row++;
+                    		cumulative_counter %= pars->num_vertices;
+
+                    		for (j = 0; j < row; ++j) {
+                    			if (row-1 != j && row <= pars->num_vertices &&
+                    					j < pars->num_vertices) {
+                    				graph_insert_edge(&(env->main_graph), get_idx(row-1, j), atof(tokens[j]), FREE);
+                    			}
+                    		}
+                    	}
+                    }
+
+                    haveVertexCoords = FALSE;
+                    break;
 	        	}
 	        	if (pars->tsplib_matrix_type == LOWER_DIAG_ROW) {
-	        		;
+
+	        		// lower diagonal row matrix
+                    // things are (surprisingly) easier here,
+                    // since we have to count the read elements,
+                    // and manually create the rows.
+
+		        	coords_delete(&(env->vertices));
+		            graph_delete(&(env->main_graph));
+
+		            coords_setup(&(env->vertices), pars->num_vertices);
+		            graph_setup(&(env->main_graph), pars->num_vertices);
+
+                    int row = 0;
+                    int pos = 0;
+                    const char delimiters[] = " ";
+
+                    while( fgets(line, sizeof line, tsplibFile) != NULL ) {
+
+                    	lineLen = strlen(line)-1;
+
+                    	// skip empty lines
+                    	if(lineLen == 0) continue;
+                    	if(line[lineLen] == '\n') line[lineLen] = 0;
+
+                    	// skip comments
+                    	if(line[0] == '#') continue;
+
+                    	if (strcmp(line, "EOF") == 0 ||
+                    		strcmp(line, " EOF") == 0) {
+                    		break;
+                    	}
+
+                    	char *tok;
+                    	tok = strtok(line, delimiters);
+
+                    	while (tok != NULL) {
+                    		if (row != pos && row < pars->num_vertices &&
+                    				pos < pars->num_vertices) {
+                    				// <- eliminare i controlli row,pos<number_of_nodes ?
+                    				graph_insert_edge(&(env->main_graph), get_idx(row, pos), atof(tok), FREE);
+                    		}
+                    		pos++;
+                    		if (atof(tok) == 0.0) {
+                    			row++;
+                    			pos = 0;
+                    		}
+                    		tok = strtok(NULL, delimiters);
+                    	}
+                    }
+
+                    haveVertexCoords = FALSE;
+                    break;
+
 	        	}
 
 	        	haveEdgeCosts = TRUE;
@@ -181,6 +299,8 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 
 	    } /* end switch */
 	} /* end while loop */
+
+    fclose(tsplibFile);
 
 
 	if (haveVertexCoords == TRUE && haveEdgeCosts == FALSE) {
@@ -219,9 +339,11 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 		            q2 = cosf(latitude1  - latitude2);
 		            q3 = cosf(latitude1  + latitude2);
 		        	graph_insert_edge(&(env->main_graph), get_idx(i, j),
-		        			(int)(EARTH_RADIUS * acosf(0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0),
+		        			(EARTH_RADIUS * acosf(0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0),
 		        			FREE);
 		        }
+
+
 		        if (pars->tsplib_file_format == EUC_2D) {	/* EUCLIDEAN 2D */
 		        	graph_insert_edge(&(env->main_graph), get_idx(i, j),
 		        			round(sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2))),
@@ -232,7 +354,7 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 		        }
 		        if (pars->tsplib_file_format == MAN_2D) {	/* MANHATTAN 2D */
 		        	graph_insert_edge(&(env->main_graph), get_idx(i, j),
-		        			(int)(fabs(x1 - x2) + fabs(y1 - y2)),
+		        			(fabs(x1 - x2) + fabs(y1 - y2)),
 		        			FREE);
 		        }
 		        if (pars->tsplib_file_format == CEIL_2D) {	/* CEIL 2D */

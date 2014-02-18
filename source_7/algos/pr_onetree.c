@@ -4,7 +4,7 @@
 int pr_onetree(graph *g, tree *min1t, int *status) {
 
 	*status = 0;
-	int i, n, e, cstr, v1, v2, st;
+	int i, n, cstr, v1, v2, st;
 	double w, wmin;
 	n = g->vrtx_num;
 

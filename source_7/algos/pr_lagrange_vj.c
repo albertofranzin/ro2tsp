@@ -1,19 +1,24 @@
 #include "../algos/pr_lagrange_vj.h"
 
 
-int pr_lagrange_vj(environment *env, int mode, double ub, double *lb, double *gen_step, tree *best1t, int *status) {
+int pr_lagrange_vj(environment *env, int mode, double ub, tree *best_1t, double *best_mults, double *best_lb, int *status) {
 
 	*status = 0;
 
-	int i, j, k, e, st;
+	int i, j, k, st;
 	double z, step, base_step;
 	int n 		= env->main_graph.vrtx_num;
 
 	int max_num_step;
 	if      (mode == INITASCENT) max_num_step	= (n * n) / 50 + n + 16;
 	else if (mode == GENASCENT ) max_num_step	= n / 4 + 5;
-
-	if 		(mode == GENASCENT ) base_step 		= *gen_step;
+	if 		(mode == GENASCENT) {
+		base_step = 0.0;
+		for (i = 0; i < n; i++) {
+			base_step += fabs(best_mults[i]);
+		}
+		base_step = (0.5 * base_step) / n;
+	}
 
 	int num_step		= 0;
 	double val1			= 2.0 * (max_num_step - 1.0) * (max_num_step - 2.0);
@@ -28,17 +33,17 @@ int pr_lagrange_vj(environment *env, int mode, double ub, double *lb, double *ge
 	graph_init(&local_graph);
 	graph_copy(&(env->main_graph), &local_graph);
 
-	tree temp1t;
-	tree_init(&temp1t);
-	tree_setup(&temp1t, n);
+	tree curr_1t;
+	tree_init(&curr_1t);
+	tree_setup(&curr_1t, n);
 
 	while (num_step < max_num_step) {
 
 		num_step++;
 
 	    /* compute minimum 1-tree */
-		tree_empty(&temp1t);
-		e = pr_onetree(&local_graph, &temp1t, &st);
+		tree_empty(&curr_1t);
+		pr_onetree(&local_graph, &curr_1t, &st);
 
 		/* no spanning tree exists */
 		if (st != 0) {
@@ -48,32 +53,27 @@ int pr_lagrange_vj(environment *env, int mode, double ub, double *lb, double *ge
 
 		if (num_step == 1) {
 			for (k = 0; k < n; k++) {
-				olddegs[k] = temp1t.vrtx_deg[k];
+				olddegs[k] = curr_1t.vrtx_deg[k];
 				mults[k]	= 0.0;
 			}
 		}
 
 		/* compute the cost of the 1-tree */
-		tree_get_cost(&temp1t, &local_graph, &z);
+		tree_get_cost(&curr_1t, &local_graph, &z);
 		for (k = 1; k < n; k++) {
 			z += mults[k] * 2;
 		}
 
 		/* update solution */
-		if (z > *lb || num_step == 1) {
-
+		if (z > *best_lb || num_step == 1) {
 			//printf("update! z = %.2f\n", z);
+
 			/* update best 1-tree */
-			tree_copy(&temp1t, best1t);
-			*lb	= z;
+			tree_copy(&curr_1t, best_1t);
+			*best_lb	= z;
 
 			if 		(mode == INITASCENT) {
-				/* update "base" step */
 				base_step = 0.01 * z;
-				/* update "base" step that will be used in general ascent */
-				*gen_step = 0.0;
-				for (i = 0; i < n; i++) *gen_step += fabs(mults[i]);
-				*gen_step = (0.5 * *gen_step) / n;
 			}
 			else if (mode == GENASCENT) {
 				if (z > ub) break;
@@ -81,10 +81,8 @@ int pr_lagrange_vj(environment *env, int mode, double ub, double *lb, double *ge
 
 		}
 
-		//break;
-
 		/* stop condition */
-		if (onetree_is_cycle(&temp1t)) {
+		if (onetree_is_cycle(&curr_1t)) {
 			break;
 		}
 
@@ -94,15 +92,15 @@ int pr_lagrange_vj(environment *env, int mode, double ub, double *lb, double *ge
 
 	    /* update  multipliers */
 	    for (k = 1; k < n; k++) {
-	    	if 	(temp1t.vrtx_deg[k] != 2) {
-	    		mults[k] += 0.5 * step * (2 - temp1t.vrtx_deg[k]) +
+	    	if 	(curr_1t.vrtx_deg[k] != 2) {
+	    		mults[k] += 0.5 * step * (2 - curr_1t.vrtx_deg[k]) +
 	    					0.5 * step * (2 - olddegs[k]);
 	    	}
 	    }
 
 	    /* store degrees */
 		for (k = 0; k < n; k++) {
-			olddegs[k] = temp1t.vrtx_deg[k];
+			olddegs[k] = curr_1t.vrtx_deg[k];
 		}
 
 
@@ -119,7 +117,7 @@ int pr_lagrange_vj(environment *env, int mode, double ub, double *lb, double *ge
 	} /* end main for loop */
 
 	graph_delete(&local_graph);
-	tree_delete(&temp1t);
+	tree_delete(&curr_1t);
 	free(mults);
 
 	return 0;

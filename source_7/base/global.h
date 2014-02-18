@@ -18,6 +18,8 @@ extern int verbosity;
 #define FLO 	1
 #define DOUBLE 	2
 
+#define EPSILON 0.0001
+
 /* some maths */
 #define PI				3.141592
 #define EARTH_RADIUS	6378.388
@@ -74,8 +76,14 @@ extern int verbosity;
 
 #define	DEFAULT_SOLVER					BB
 #define	DEFAULT_NUM_THREADS 			1
-#define	DEFAULT_CALLBAKS_OPTION			FALSE
 #define	DEFAULT_VERBOSITY 				SILENT
+
+#define	DEFAULT_CALLBAKS_OPTION			FALSE
+#define	DEFAULT_PROXIMITY_OPTION		FALSE
+#define	DEFAULT_LOCALBRANCHING_OPTION	FALSE
+#define	DEFAULT_HARDFIXING_OPTION		FALSE
+#define	DEFAULT_RINSPOLISHING_OPTION	FALSE
+
 
 /* configuration file */
 #define CONFIG_FILE	"config"

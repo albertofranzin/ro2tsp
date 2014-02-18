@@ -28,7 +28,12 @@ typedef struct _parameters {
 											/* the heuristic algorithm */
 	unsigned int	solver;					/* chosen solver */
 	unsigned int	num_threads;			/* number of threads */
+
 	int				callbacks_option;		/* whether to use callbacks */
+	int				proximity_option;
+	int				localbranching_option;
+	int				hardfixing_option;
+	int				rinspolishing_option;
 
 } parameters;
 

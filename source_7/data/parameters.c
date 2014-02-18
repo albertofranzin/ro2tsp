@@ -18,7 +18,13 @@ int parameters_init(parameters *pars) {
 
 	pars->solver					= -1;
 	pars->num_threads				= -1;
+
 	pars->callbacks_option			= -1;
+	pars->proximity_option			= -1;
+	pars->localbranching_option		= -1;
+	pars->hardfixing_option			= -1;
+	pars->rinspolishing_option		= -1;
+
 	return 0;
 
 }
@@ -44,7 +50,13 @@ int parameters_delete(parameters *pars) {
 
 	pars->solver					= -1;
 	pars->num_threads				= -1;
+
 	pars->callbacks_option			= -1;
+	pars->proximity_option			= -1;
+	pars->localbranching_option		= -1;
+	pars->hardfixing_option			= -1;
+	pars->rinspolishing_option		= -1;
+
 	return 0;
 
 }

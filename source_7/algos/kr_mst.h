@@ -9,6 +9,7 @@
 #include "../base/global.h"
 #include "../base/utils.h"
 
+#include "../data/arraylist.h"
 #include "../data/graph.h"
 #include "../data/tree.h"
 #include "../data/set.h"
@@ -30,5 +31,7 @@
 * @note					-
 */
 int kr_mst(int *edges, int num_edges, set *vertexset, tree *t, int* status);
+
+int kr_mst2(arraylist *edgelist, set *vertexset, tree *t, int* status);
 
 #endif /* KR_MST_H_ */

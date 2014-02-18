@@ -4,7 +4,7 @@
 int pr_mst(graph *g, tree* t, int root, int *status) {
 
 	*status = 0;
-	int i, j, k, cstr;
+	int i, k, cstr;
 	int nextVertex;
 	double w, wmin;
 
@@ -18,7 +18,7 @@ int pr_mst(graph *g, tree* t, int root, int *status) {
 						/* is such that the cost of the edge (pred[v], v) is */
 						/* minimum among the costs of all the edges between */
 						/* some visited vertex and v */
-	double 	cost[n];	/* cost[v] is the cost of the edge (pred[v], v) */
+	//double 	cost[n];	/* cost[v] is the cost of the edge (pred[v], v) */
 
 
 	visited[root]	= TRUE;
@@ -28,7 +28,7 @@ int pr_mst(graph *g, tree* t, int root, int *status) {
 			visited[i] = FALSE;
 			if (g->edge_cstr[get_idx(root, i)] != FORBIDDEN) {
 				pred[i] = root;
-				cost[i] = g->edge_cost[get_idx(root, i)];
+				//cost[i] = g->edge_cost[get_idx(root, i)];
 			}
 			else {
 				pred[i] = -1;
@@ -79,12 +79,12 @@ int pr_mst(graph *g, tree* t, int root, int *status) {
 
 				if (cstr == FORCED || (cstr == FREE && pred[i] < 0)) {
 					pred[i] = nextVertex;
-					cost[i] = w;
+					//cost[i] = w;
 				}
 				else if (cstr == FREE) {
 					if (w < g->edge_cost[get_idx(pred[i], i)]) {
 						pred[i] = nextVertex;
-						cost[i] = w;
+						//cost[i] = w;
 					}
 				}
 

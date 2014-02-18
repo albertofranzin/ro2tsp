@@ -8,6 +8,6 @@
 #include <math.h>
 #include "../base/global.h"
 
-int radix_sort(int *input_edges, int *output_edges, int num_edges, int* weights, int wmin, int wmax, int b);
+int radix_sort(int *input_edges, int *output_edges, int num_edges, double* weights, double wmin, double wmax, int b);
 
 #endif /* RADIX_SORT_H_ */

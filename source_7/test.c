@@ -32,8 +32,8 @@
 #include "./algos/pr_lagrange_hk.h"
 #include "./algos/pr_lagrange_vj.h"
 
-#include "./solvers/pr_bb.h"
-#include "./solvers/kr_bb.h"
+#include "./solvers/bb/pr_bb.h"
+#include "./solvers/bb/kr_bb.h"
 
 
 int* idx_to_v1	= NULL;
@@ -59,26 +59,46 @@ int main() {
 
 	setup_problem_tsplib(&pars, &env);
 
+
+	//double opt = 3323;	// burma14x*
+	//double opt = 6859;	// ulysses16
+	//double opt = 7013;	// ulysses22
+
+	//double opt = 10628;	// att48
+	//double opt = 1610;	// bayg29
+	//double opt = 2020;	// bays29
+	//double opt = 55209;	// gr96
+	//double opt = 2085;	// gr17
+	//double opt = 2707;	// gr21
+	//double opt = 1272;	// gr24
+	//double opt = 5046;	// gr48
+	//double opt = 11461;	// hk48
+	//double opt = 937;		// fri26
+	//double opt = 25395;	// brazil58x
+	//double opt = 699;		// dantzig42
+	//double opt = 1273;	// swiss42x
+
+
 	//double opt = 7542;	// berlin52
-	//double opt = 426; 	// eil51
-	double opt = 675; 	// st70
+	double opt = 426; 	// eil51
+	//double opt = 675; 	// st70
 	//double opt = 538; 	// eil76
 	//double opt = 108159; 	// pr76
 	//double opt = 1211; 	// rat99
 	//double opt = 7910; 	// rd100
-	//double opt = 21282; 	// kroA100
-	//double opt = 22141; 	// kroB100
-	//double opt = 20749;	// kroC100
-	//double opt = 21294; 	// kroD100
-	//double opt = 22068; 	// kroE100
+	//double opt = 21282; 	// kroA100x
+	//double opt = 22141; 	// kroB100x
+	//double opt = 20749;	// kroC100x
+	//double opt = 21294; 	// kroD100x
+	//double opt = 22068; 	// kroE100x
 	//double opt = 629; 	// eil101
 	//double opt = 14379; 	// lin105
 	//double opt = 44303; 	// pr107
 	//double opt = 59030;	// pr124
-	//double opt = 118282;	// bier127
+	//double opt = 118282;	// bier127x
 	//double opt = 6110;	// ch130
 	//double opt = 96772;	// pr136
-	//double opt = 58537;	// pr144
+	//ouble opt = 58537;	// pr144
 	//double opt = 6528;	// ch150
 	//double opt = 26524;	// kroA150
 	//double opt = 26130;	// kroB150
@@ -96,8 +116,6 @@ int main() {
 	//double opt = 34643;	// p654
 	//double opt = 259045;	// pr1002
 	//double opt = 224094;	// u1060
-
-
 
 	/* TEST: PLOT MAIN GRAPH ***************************************/
 	/*
@@ -334,22 +352,24 @@ int main() {
 	/* TEST: BB KRUSKAL *******************************************/
 
 	int i, st;
-	double lb, gen_step, time_interval;
-	double ub		= opt * 1.01;
-	env.global_ub	= opt * 1.01;
+	double best_lb, time_interval;
+	double ub		= ceil(opt * 1.01);
+	env.global_ub	= ceil(opt * 1.01);
 	int n			= pars.num_vertices;
 	clock_t start, end;
 
-	tree best1t;
-	tree_init(&best1t);
-	tree_setup(&best1t, n);
+	tree best_1t;
+	tree_init(&best_1t);
+	tree_setup(&best_1t, n);
 
-	pr_lagrange_hk(&env, ub, 20000, 20000, 100, &best1t, &lb, &st);
+	double *best_mults = (double*)malloc(n * sizeof(double));
+
+	pr_lagrange_hk(&env, ub, 20000, 20000, 100, &best_1t, best_mults, &best_lb, &st);
 
 	int *rmvedges  		= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 	int num_rmvedges;
 
-	reduce(&(env.main_graph), &best1t, lb, ub, rmvedges, &num_rmvedges);
+	reduce(&(env.main_graph), &best_1t, best_mults, best_lb, ub, rmvedges, &num_rmvedges);
 
 	for (i = 0; i < num_rmvedges; i++) {
 		graph_set_edge_cstr(&(env.main_graph), rmvedges[i], FORBIDDEN);
@@ -406,8 +426,16 @@ int main() {
 
 	double new_ub;
 
+
+	stats.num_nodes 	= 0;
+	stats.num_levels 	= 0;
+	stats.curr_node 	= 0;
+	stats.curr_level 	= 0;
+
 	start = clock();
 	//pr_bb(&env, &stats);
+	env.genascent_mults = (double*)malloc(n * sizeof(double));
+
 	kr_bb(&env, &stats, &edgelist, &part1t, &partvs, &new_ub);
 	end = clock();
 	time_interval = (end - start) / (double)CLOCKS_PER_SEC;
@@ -417,6 +445,7 @@ int main() {
 
 	printf("time = %.2f\n", time_interval);
 	printf("upper bound = %.2f\n", env.global_ub);
+
 	plot_tree(&(env.global_1t), &(env.vertices), NULL);
 
 

@@ -14,6 +14,6 @@
 #include "../base/plot.h"
 
 /* we assume that g is a complete graph */
-int reduce(graph *g, tree *min1t, double lb, double ub, int *rmvedges, int *num_rmvedges);
+int reduce(graph *g, tree *min1t, double *mults, double lb, double ub, int *rmvedges, int *num_rmvedges);
 
 #endif /* REDUCE_H_ */

@@ -52,7 +52,7 @@ TSPLIB_INSTANCE_OPTION = TRUE
 # 			and if TSPLIB_INSTANCE_OPTION = TRUE
 # options:	- any valid path
 #		
-TSPLIB_FILE_PATH = ../TSPLIB/st70.tsp
+TSPLIB_FILE_PATH = ../../TSPLIB/eil51.tsp
 
 # Chosen heuristic algorithm
 # options:
@@ -70,10 +70,10 @@ NUM_HEUR_TRIALS = 10
 
 # Chosen solver
 # options:
-# 			- BB
+# 			- BRANCH_AND_BOUND
 #			- CPLEX
 #
-SOLVER = BB
+SOLVER = BRANCH_AND_BOUND
 
 
 # Number of threads
@@ -90,6 +90,37 @@ NUM_THREADS = 1
 #
 CALLBACKS_OPTION = FALSE
 
+
+# Use proximity.
+# options:
+#			- TRUE
+#			- FALSE
+#
+PROXIMITY_OPTION = FALSE
+
+
+# Use localbranching.
+# options:
+#			- TRUE
+#			- FALSE
+#
+LOCALBRANCHING_OPTION = FALSE
+
+
+# Use hardfixing.
+# options:
+#			- TRUE
+#			- FALSE
+#
+HARDFIXING_OPTION = FALSE
+
+
+# Use rinspolishing.
+# options:
+#			- TRUE
+#			- FALSE
+#
+RINSPOLISHING_OPTION = FALSE
 
 # Verbosity level
 # options:
