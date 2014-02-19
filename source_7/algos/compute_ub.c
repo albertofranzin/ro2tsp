@@ -1,6 +1,7 @@
 #include "../algos/compute_ub.h"
 
 int compute_ub(graph *g, int algo, cycle *best_c, double *best_ub, int *ones, int *zeros) {
+	printf("O HAI\n");
 
 	int n = g->vrtx_num;
 	int i;

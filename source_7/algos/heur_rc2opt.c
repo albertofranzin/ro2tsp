@@ -16,6 +16,8 @@ int heur_rc2opt(graph  *g, cycle  *best_c, double *best_ub, int *ones, int *zero
     rc_params *rcp		= (rc_params*)malloc(num_threads * sizeof(rc_params));
     cycle     *cycles	= (cycle*)malloc(num_threads * sizeof(cycle));
 
+    printf("num threads %d\n", num_threads);
+
     for (i = 0; i < num_threads; ++i) {
     	cycle_init(&cycles[i]);
     }

@@ -94,7 +94,7 @@ int main() {
 	statistics_init(&stats);
 
 	setup_parameters_default(&pars);
-
+	
 	setup_parameters_config(CONFIG_FILE, &pars);
 
 	setup_problem_tsplib(&pars, &env);
@@ -139,7 +139,7 @@ int main() {
 	//double opt = 96772;	// pr136
 	//double opt = 58537;	// pr144
 	//double opt = 6528;	// ch150
-	double opt = 26524;	// kroA150
+	// double opt = 26524;	// kroA150
 	//double opt = 26130;	// kroB150
 	//double opt = 73682;	// pr152
 	//double opt = 42080;	// u159
@@ -159,7 +159,7 @@ int main() {
 
 	int n			= pars.num_vertices;
 	int i;
-	/*
+	/**/
 	int *ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 	int *zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
@@ -171,7 +171,7 @@ int main() {
 	cycle temp_c;
 	cycle_init(&temp_c);
 
-
+/*
 	for (i = 0; i < n; i++) {
 
 		srand(i);
@@ -189,10 +189,11 @@ int main() {
 
 	}
 
-
+*/
 
 	//heur_2opt(&(env.main_graph), &best_c, &best_ub);
 	//heur_3opt(&(env.main_graph), &best_c, &best_ub);
+	printf("kshfjsjfsjfsj\n");
 
 	compute_ub(&(env.main_graph), RC23OPT, &best_c, &best_ub, ones, zeros);
 
@@ -204,7 +205,7 @@ int main() {
 
 	exit(1);
 
-	*/
+	/**/
 
 
 
@@ -528,7 +529,7 @@ int main() {
 	printf("num edges = %d : num removed edges = %d\n", (n * (n - 1)) / 2, num_rmvedges);
 	printf("ratio = %.2f\n", num_rmvedges / (double)((n * (n - 1)) / 2) * 100.0);
 	printf("lower bound = %.2f\n", best_lb);
-	printf("ratio = %.2f\n", best_lb / opt * 100.00);
+	//printf("ratio = %.2f\n", best_lb / opt * 100.00);
 
 	for (i = 0; i < num_rmvedges; i++) {
 		graph_set_edge_cstr(&(env.main_graph), rmvedges[i], FORBIDDEN);
