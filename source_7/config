@@ -1,0 +1,141 @@
+# Config file
+# Available parameters are listed below, one per line.
+# You can comment the parameters you don't want to set,
+# default values will be used.
+
+
+# Use a random instance												
+# options:															
+# 			- TRUE															
+# 			- FALSE				
+#											
+RANDOM_INSTANCE_OPTION = FALSE
+
+
+# Use a random seed													
+# note:		the choice is significant only if RANDOM_INSTANCE_OPTION = TRUE	
+# options: 															
+# 			- TRUE
+#			- FALSE													
+#	
+RANDOM_SEED_OPTION = FALSE
+
+
+# Seed													
+# note:		the choice is significant only if RANDOM_INSTANCE_OPTION = TRUE
+#			and if RANDOM_SEED_OPTION = FALSE
+# options: 															
+# 			- any integer													
+#	
+SEED = 0
+
+
+# Number of vertices of the graph
+# note:		the choice is significant only if RANDOM_INSTANCE_OPTION = TRUE
+# options:
+# 			- any integer greater than 0
+#
+NUM_VERTICES = 10
+
+
+# Use a tsplib instance
+# note:		the choice is significant only if RANDOM_INSTANCE_OPTION = FALSE
+# options:	
+#			- TRUE									
+#			- FALSE
+#						
+TSPLIB_INSTANCE_OPTION = TRUE
+
+
+# Location of TSP-formatted file, from TSPLIB
+# note:		the choice is significant only if RANDOM_INSTANCE_OPTION = FALSE 
+# 			and if TSPLIB_INSTANCE_OPTION = TRUE
+# options:	- any valid path
+#		
+TSPLIB_FILE_PATH = ../../TSPLIB/kroA150x.tsp
+
+# Chosen heuristic algorithm
+# options:
+#			- NN
+#
+HEUR_ALGO = NN
+
+
+# Number of heuristic trials when using an heuristic algorithm
+# options:
+#			- any integer greater than 0
+#
+NUM_HEUR_TRIALS = 10
+
+
+# Chosen solver
+# options:
+# 			- BRANCH_AND_BOUND
+#			- CPLEX
+#
+SOLVER = BRANCH_AND_BOUND
+
+
+# Number of threads
+# options:
+#			- any integer greater than 0
+#
+NUM_THREADS = 1
+
+
+# Use callbacks.
+# options:
+#			- TRUE
+#			- FALSE
+#
+CALLBACKS_OPTION = FALSE
+
+
+# Use proximity.
+# options:
+#			- TRUE
+#			- FALSE
+#
+PROXIMITY_OPTION = FALSE
+
+
+# Use localbranching.
+# options:
+#			- TRUE
+#			- FALSE
+#
+LOCALBRANCHING_OPTION = FALSE
+
+
+# Use hardfixing.
+# options:
+#			- TRUE
+#			- FALSE
+#
+HARDFIXING_OPTION = FALSE
+
+
+# Use rinspolishing.
+# options:
+#			- TRUE
+#			- FALSE
+#
+RINSPOLISHING_OPTION = FALSE
+
+# Verbosity level
+# options:
+#			- SILENT
+#			- ESSENTIAL
+#			- USEFUL
+#			- ANNOYING
+#
+VERBOSITY = ANNOYING
+
+
+
+
+
+
+
+
+
