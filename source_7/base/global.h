@@ -102,7 +102,7 @@ extern int verbosity;
 #define NUM_TRIALS_RC2OPT	160000
 
 /* utils, main ... */
-#define NUM_THREADS			1
+#define NUM_THREADS			4
 
 
 #endif /* GLOBAL_H_ */

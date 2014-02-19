@@ -19,4 +19,5 @@
 
 int compute_ub(graph *g, int algo, cycle *best_c, double *best_ub, int *ones, int *zeros);
 
-#endif /* COMPUTE_UB_H_ */
+#endif
+/* COMPUTE_UB_H_ */

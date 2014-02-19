@@ -53,7 +53,6 @@ int setup_parameters_config(char *configPath, parameters *pars) {
 
 	/* beginning file scan */
 	while (fgets(line, sizeof line, configFile) != NULL) {
-
 		lineLen = strlen(line) - 1;
 
 		/* skip empty lines */
@@ -158,7 +157,7 @@ int setup_parameters_config(char *configPath, parameters *pars) {
 				pars->hardfixing_option = TRUE;
 			break;
 			case 2301 : /* HARDFIXING_OPTION = FALSE */
-				if (pars->solver != CPLEX) 					break;
+				// if (pars->solver != CPLEX) 					break;
 				pars->hardfixing_option = FALSE;
 			break;
 			case 2400 : /* RINSPOLISHING_OPTION = TRUE */
@@ -202,6 +201,7 @@ int setup_parameters_config(char *configPath, parameters *pars) {
 
 	} /* end while loop (line-by-line file scan) */
 
+	
 	fclose(configFile);
 
 	return 0;
