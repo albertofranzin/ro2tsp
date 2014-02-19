@@ -17,6 +17,7 @@ CFLAGS = -L. -lro2ds -lconcorde $(CHECK) $(CPLEX_COMPILER_OPT) $(CPLEX_LINKER_OP
 
 all: test
 
+
 test: buildLib $(NOMEFILE)
 	gcc $(NOMEFILE) -o $@ $(CFLAGS)
 # cleanComp

@@ -5,8 +5,9 @@ int counting_sort(int *input_edges, int *output_edges, int num_edges, double* we
 
 	printf("initialize\n");
 	int i, temp, total;
-	int  num_keys 	= (int)(wmax - wmin + 1.0);
+	int  num_keys 	= (int)(wmax - wmin + 1);
 	int *count_keys = (int*)calloc(num_keys, sizeof(int));
+	printf("num keys = %d\n", num_keys);
 
 	printf("first step\n");
 	for (i = 0; i < num_edges; i++) {
@@ -22,7 +23,9 @@ int counting_sort(int *input_edges, int *output_edges, int num_edges, double* we
 	}
 
 	printf("third step\n");
+	printf("Num edges = %d\n", num_edges);
 	for (i = 0; i < num_edges; i++) {
+		printf("i = %d, %d\n", i, (int)(weights[input_edges[i]] - wmin));
 		output_edges[ count_keys[ (int)(weights[input_edges[i]] - wmin) ] ] = input_edges[i];
 					  count_keys[ (int)(weights[input_edges[i]] - wmin) ]  += 1;
 	}

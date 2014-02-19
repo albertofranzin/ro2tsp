@@ -179,7 +179,7 @@ int setup_parameters_config(char *configPath, parameters *pars) {
 			case 2502 : /* VERBOSITY = USEFUL */
 				verbosity = USEFUL;
 			break;
-			break;
+			//break;
 			case 2503 : /* VERBOSITY = ANNOYING */
 				verbosity = ANNOYING;
 			break;
