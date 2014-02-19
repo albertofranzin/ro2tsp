@@ -42,7 +42,7 @@ buildLib: arraylist.o coords.o cycle.o environment.o graph.o list.o parameters.o
 	kr_mst.o kr_onetree.o kr_lagrange_vj.o \
 	propagate.o setncheck.o edgesel.o vertexsel.o pr_bb.o kr_bb.o
 	ar r libro2ds.a *.o
-	rm *.o
+	# rm *.o
 
 # data structures
 arraylist.o: data/arraylist.h data/arraylist.c
@@ -170,11 +170,13 @@ cleanComp:
 	clear
 	-rm test
 	-rm test.a
+	-rm libro2ds.a
 	-rm *.gch
 
 clean:
 	clear
 	-rm test
 	-rm test.a
+	-rm libro2ds.a
 	-rm *.o
 	-rm *.gch

@@ -9,14 +9,12 @@ int heur_rc2opt(graph  *g, cycle  *best_c, double *best_ub, int *ones, int *zero
     int num_total_trials 	= NUM_TRIALS_RC2OPT / n;
     int num_threads			= NUM_THREADS;
 
-    printf("random cycles: %d threads, each with up to %d trials\n",
-    num_threads, (int)(NUM_TRIALS_RC2OPT / n / num_threads));
+    //printf("random cycles: %d threads, each with up to %d trials\n",
+    //num_threads, (int)(NUM_TRIALS_RC2OPT / n / num_threads));
 
     pthread_t *thread	= (pthread_t*)malloc(num_threads * sizeof(pthread_t));
     rc_params *rcp		= (rc_params*)malloc(num_threads * sizeof(rc_params));
     cycle     *cycles	= (cycle*)malloc(num_threads * sizeof(cycle));
-
-    printf("num threads %d\n", num_threads);
 
     for (i = 0; i < num_threads; ++i) {
     	cycle_init(&cycles[i]);
@@ -156,7 +154,7 @@ void *rc_thread(void *p) {
 		heur_2opt(rcp->g, &temp_c, &ccost);
 
 		if (i == 0 || ccost < min) {
-			printf("update! ub = %.2f\n", ccost);
+			// printf("update! ub = %.2f\n", ccost);
 			cycle_copy(&temp_c, rcp->c);
 			min = ccost;
 
