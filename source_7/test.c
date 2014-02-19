@@ -50,9 +50,9 @@ int* idx_to_v1	= NULL;
 int* idx_to_v2	= NULL;
 int verbosity	= SILENT;
 
-int main() {
+int main(int argc, char **argv) {
 
-	printf("Welcome to ro2tsp project!\n");
+	//printf("Welcome to ro2tsp project!\n");
 
 	/*
 	int q;
@@ -96,6 +96,7 @@ int main() {
 	setup_parameters_default(&pars);
 	
 	setup_parameters_config(CONFIG_FILE, &pars);
+	setup_parameters_commandline(argc, argv, &pars);
 
 	setup_problem_tsplib(&pars, &env);
 
@@ -156,6 +157,7 @@ int main() {
 	//double opt = 259045;	// pr1002
 	//double opt = 224094;	// u1060
 
+	//return(0);
 
 	int n			= pars.num_vertices;
 	int i;
@@ -165,41 +167,105 @@ int main() {
 
 	double temp_ub, best_ub;
 
+	clock_t t1, t2;
+
 	cycle best_c;
 	cycle_init(&best_c);
-
 	cycle temp_c;
 	cycle_init(&temp_c);
+	t1 = clock();
+	compute_ub(&(env.main_graph), NN, &best_c, &best_ub, ones, zeros);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	free(ones);
+	free(zeros);
 
-/*
-	for (i = 0; i < n; i++) {
+	/***********************************/
 
-		srand(i);
-		heur_rc(&(env.main_graph), &temp_c, &temp_ub);
-		//heur_nn(&(env.main_graph), &temp_c, i, &temp_ub);
-		heur_2opt(&(env.main_graph), &temp_c, &temp_ub);
-		heur_3opt(&(env.main_graph), &temp_c, &temp_ub);
+	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
-		printf("i = %d : temp ub = %.2f : percent = %.2f\n", i, temp_ub, (temp_ub / opt - 1.0) * 100.0);
+	//cycle best_c;
+	cycle_init(&best_c);
+	//cycle temp_c;
+	cycle_init(&temp_c);
+	t1 = clock();
+	compute_ub(&(env.main_graph), NN2OPT, &best_c, &best_ub, ones, zeros);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	free(ones);
+	free(zeros);
 
-		if (i == 0 || temp_ub < best_ub) {
-			best_ub = temp_ub;
-			cycle_copy(&temp_c, &best_c);
-		}
+	/***********************************/
 
-	}
+	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
-*/
+	//cycle best_c;
+	//cycle_init(&best_c);
+	//cycle temp_c;
+	//cycle_init(&temp_c);
+	t1 = clock();
+	//compute_ub(&(env.main_graph), NN23OPT, &best_c, &best_ub, ones, zeros);
+	heur_3opt(&(env.main_graph), &best_c, &best_ub);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	free(ones);
+	free(zeros);
 
-	//heur_2opt(&(env.main_graph), &best_c, &best_ub);
-	//heur_3opt(&(env.main_graph), &best_c, &best_ub);
-	printf("kshfjsjfsjfsj\n");
+	/**************************/
 
-	compute_ub(&(env.main_graph), RC23OPT, &best_c, &best_ub, ones, zeros);
+	// ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	// zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
-	plot_cycle(&best_c, &(env.vertices), NULL);
-	printf("best ub = %.2f\n", best_ub);
 
+	// //cycle best_c;
+	// cycle_init(&best_c);
+	// //cycle temp_c;
+	// cycle_init(&temp_c);
+	// t1 = clock();
+	// //compute_ub(&(env.main_graph), RC, &best_c, &best_ub, ones, zeros);
+	// t2 = clock();
+	// //plot_cycle(&best_c, &(env.vertices), NULL);
+	// //printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	// free(ones);
+	// free(zeros);
+
+	/***********************************/
+
+	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+
+	//cycle best_c;
+	cycle_init(&best_c);
+	//cycle temp_c;
+	cycle_init(&temp_c);
+	t1 = clock();
+	compute_ub(&(env.main_graph), RC2OPT, &best_c, &best_ub, ones, zeros);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	free(ones);
+	free(zeros);
+
+	/**************************/
+
+	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+
+	//cycle best_c;
+	//cycle_init(&best_c);
+	//cycle temp_c;
+	//cycle_init(&temp_c);
+	t1 = clock();
+	//compute_ub(&(env.main_graph), RC23OPT, &best_c, &best_ub, ones, zeros);
+	heur_3opt(&(env.main_graph), &best_c, &best_ub);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
 	free(ones);
 	free(zeros);
 

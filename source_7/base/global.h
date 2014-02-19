@@ -97,12 +97,13 @@ extern int verbosity;
 #define RC            		3
 #define RC2OPT       		4
 #define RC23OPT       		5
+#define NN23OPT             6
 
 #define NUM_TRIALS_RC       1000000
 #define NUM_TRIALS_RC2OPT	160000
 
 /* utils, main ... */
-#define NUM_THREADS			4
+#define NUM_THREADS			8
 
 
 #endif /* GLOBAL_H_ */

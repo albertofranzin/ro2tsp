@@ -1,7 +1,6 @@
 #include "../algos/compute_ub.h"
 
 int compute_ub(graph *g, int algo, cycle *best_c, double *best_ub, int *ones, int *zeros) {
-	printf("O HAI\n");
 
 	int n = g->vrtx_num;
 	int i;
@@ -34,6 +33,12 @@ int compute_ub(graph *g, int algo, cycle *best_c, double *best_ub, int *ones, in
 		heur_nn2opt(g, best_c, best_ub);
 	}
 
+	if (algo == NN23OPT) {
+		heur_nn2opt(g, best_c, best_ub);
+		heur_3opt(g, best_c, best_ub);
+		heur_2opt(g, best_c, best_ub);
+	}
+
 	if (algo == RC2OPT) {
 		heur_rc2opt(g, best_c, best_ub, ones, zeros);
 	}
@@ -41,7 +46,7 @@ int compute_ub(graph *g, int algo, cycle *best_c, double *best_ub, int *ones, in
 	if (algo == RC23OPT) {
 		heur_rc2opt(g, best_c, best_ub, ones, zeros);
 	    heur_3opt(g, best_c, best_ub);
-
+	    heur_2opt(g, best_c, best_ub);
 	}
 
 	cycle_delete(&temp_c);
