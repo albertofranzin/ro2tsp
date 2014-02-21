@@ -243,12 +243,10 @@ int main(int argc, char **argv) {
 	int i;
 
 	int st;
-
-	// upper bounds
-	//double ub		= 44303; //ceil(opt * 1.01);
-	double ub		= ceil(opt * 1.01);
-	//env.global_ub	= 44303; //ceil(opt * 1.01);
-	env.global_ub	= ceil(opt * 1.01);
+	double ub		= 44303; //ceil(opt * 1.01);
+	//double ub		= ceil(opt * 1.01);
+	env.global_ub	= 44303; //ceil(opt * 1.01);
+	//env.global_ub	= ceil(opt * 1.01);
 
 	clock_t start, end;
 
@@ -298,6 +296,7 @@ int main(int argc, char **argv) {
 	tree_init(&prvjgen_1t);
 	tree_setup(&prvjgen_1t, n);
 
+
 	tree krvj_1t;
 	tree_init(&krvj_1t);
 	tree_setup(&krvj_1t, n);
@@ -322,17 +321,16 @@ int main(int argc, char **argv) {
 	set_init(&krvjgen_part_vs);
 	set_setup(&krvjgen_part_vs, n);
 
+
 	tree best_1t;
 	tree_init(&best_1t);
 	tree_setup(&best_1t, n);
+
 
 	double *prhk_mults	= (double*)malloc(n * sizeof(double));
 	double *prvj_mults	= (double*)malloc(n * sizeof(double));
 	double *krvj_mults	= (double*)malloc(n * sizeof(double));
 	double *best_mults	= (double*)malloc(n * sizeof(double));
-
-
-
 
 
 	pr_lagrange_hk(&env, ub, &prhk_1t, prhk_mults, &prhk_lb, &st);
@@ -344,9 +342,6 @@ int main(int argc, char **argv) {
 	kr_lagrange_vj(&env, INITASCENT, ub, &edgelist, &krvj_part_1t, &krvj_part_vs, &krvj_1t, krvj_mults, &krvj_lb, &st);
 
 	kr_lagrange_vj(&env, GENASCENT, ub, &edgelist, &krvjgen_part_1t, &krvjgen_part_vs, &krvjgen_1t, krvj_mults, &krvjgen_lb, &st);
-
-
-
 
 	printf("pr hk     lower bound = %.2f : %.2f\n", prhk_lb / opt * 100.0, prhk_lb);
 	printf("pr vj     lower bound = %.2f : %.2f\n", prvj_lb / opt * 100.0, prvj_lb);
@@ -440,7 +435,6 @@ int main(int argc, char **argv) {
 	printf("time                = %.2f\n", time_interval);
 	//plot_tree(&(env.global_1t), &(env.vertices), NULL);
 
-
 	printf("End\n");
 
 
@@ -452,5 +446,6 @@ int main(int argc, char **argv) {
 
 
 	return EXIT_SUCCESS;
+
 
 }

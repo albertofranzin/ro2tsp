@@ -14,14 +14,14 @@ extern int* idx_to_v2;
 
 typedef struct _pair {
 
-	int		idx;
-	double	val;
+	int	idx;
+	int	val;
 
 } pair;
 
 int reverse(int *a, int i, int j);
 
-int merge(int *a1, int n1, int *a2, int n2, int *a, double *w);
+int merge(int *a1, int n1, int *a2, int n2, int *a, int *w);
 
 
 /**

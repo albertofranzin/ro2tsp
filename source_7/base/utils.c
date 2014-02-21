@@ -35,6 +35,38 @@ int reverse(int *a, int i, int j) {
 	return 0;
 }
 
+
+int merge(int *a1, int n1, int *a2, int n2, int *a, int *w) {
+
+	int curr1, curr2, i1, i2, i;
+
+	i = i1 = i2 = 0;
+
+	while (i1 < n1 && i2 < n2) {
+		curr1 = a1[i1];
+		curr2 = a2[i2];
+		if (w[curr1] < w[curr2]) {
+			a[i++] = curr1;
+			i1++;
+		}
+		else {
+			a[i++] = curr2;
+			i2++;
+		}
+	}
+	while (i1 < n1) {
+		a[i++] = a1[i1];
+		i1++;
+	}
+	while (i2 < n2) {
+		a[i++] = a2[i2];
+		i2++;
+	}
+
+	return 0;
+}
+
+/*
 int merge(int *a1, int n1, int *a2, int n2, int *a, double *w) {
 
 	int curr1, curr2, i1, i2, i;
@@ -64,6 +96,7 @@ int merge(int *a1, int n1, int *a2, int n2, int *a, double *w) {
 
 	return 0;
 }
+*/
 
 int compare_pairs(const void *a, const void *b) {
 
