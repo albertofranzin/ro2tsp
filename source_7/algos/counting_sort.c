@@ -1,20 +1,17 @@
 #include "../algos/counting_sort.h"
 
 
-int counting_sort(int *input_edges, int *output_edges, int num_edges, double* weights, double wmin, double wmax) {
+int counting_sort(int *input_edges, int *output_edges, int num_edges, int* weights, int wmin, int wmax) {
 
-	printf("initialize\n");
 	int i, temp, total;
-	int  num_keys 	= (int)(wmax - wmin + 1);
+	int  num_keys 	= wmax - wmin + 1;
 	int *count_keys = (int*)calloc(num_keys, sizeof(int));
-	printf("num keys = %d\n", num_keys);
 
-	printf("first step\n");
+
 	for (i = 0; i < num_edges; i++) {
-		count_keys[ (int)(weights[input_edges[i]] - wmin) ] += 1;
+		count_keys[ weights[input_edges[i]] - wmin ] += 1;
 	}
 
-	printf("second step\n");
 	total 		= 0;
 	for (i = 0; i < num_keys; i++) {
 		temp 			= count_keys[i];
@@ -22,16 +19,13 @@ int counting_sort(int *input_edges, int *output_edges, int num_edges, double* we
 		total	   	   += temp;
 	}
 
-	printf("third step\n");
-	printf("Num edges = %d\n", num_edges);
+
 	for (i = 0; i < num_edges; i++) {
-		printf("i = %d, %d\n", i, (int)(weights[input_edges[i]] - wmin));
-		output_edges[ count_keys[ (int)(weights[input_edges[i]] - wmin) ] ] = input_edges[i];
-					  count_keys[ (int)(weights[input_edges[i]] - wmin) ]  += 1;
+		output_edges[ count_keys[ weights[input_edges[i]] - wmin ] ] = input_edges[i];
+					  count_keys[ weights[input_edges[i]] - wmin ]  += 1;
 	}
 
 	free(count_keys);
-	printf("exit\n");
 	return 0;
 
 }

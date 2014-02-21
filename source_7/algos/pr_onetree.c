@@ -38,6 +38,7 @@ int pr_onetree(graph *g, tree *min1t, int *status) {
 		}
 	}
 
+
 	if ((min1t->vrtx_deg[0] == 0 && (v1 < 0 || v2 < 0)) ||
 		(min1t->vrtx_deg[0] == 1 &&  v1 < 0			  ) ){
 		*status = 1;

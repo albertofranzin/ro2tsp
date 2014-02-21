@@ -4,22 +4,27 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 
 	*status = 0;
 
-	int i, j, k, st, my_edge;
-	double step, base_step, wmin, wmax, z;
+	/*
+	int cns_count = 0;
+	int rxs_count = 0;
+	int qks_count = 0;
+	*/
+
+	int i, j, k, st, my_edge, flag;
+	double step, base_step;
+	int wmin, wmax;
+	double z;
+	int K, M;
+	int time_qks, time_rxs, time_cns;
 
 	int n				= env->main_graph.vrtx_num;
 	int	num_edges		= edgelist->size;
 	int num_mstedges, num_oneedges, num_unchgedges, num_chgedges;
 
-	double beta;
-	int b, sorting_mode;
-
-	double f, modwmin, modwmax;
-
-	int integer;
+	int b, d, f, old_f;
 
 	/* multipliers */
-	double	*mults	= (double*)malloc(n * sizeof(double));
+	int	*mults	= (int*)malloc(n * sizeof(int));
 	/* vertex-degrees in the previous step */
 	int *olddegs	= (int*)malloc(n * sizeof(int));
 	/* set of edges incident to 0 */
@@ -32,9 +37,10 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 	int *unsrt_chgedges	= (int*)malloc(num_edges * sizeof(int));
 
 	/* weights of (possibly all) the edges */
-	double *weights		= (double*)malloc(((n * (n - 1)) / 2) * sizeof(double));
-	double *modweights	= (double*)malloc(((n * (n - 1)) / 2) * sizeof(double));
-	double *oldweights	= (double*)malloc(((n * (n - 1)) / 2) * sizeof(double));
+	int *weights	= (int*)malloc(((n * (n - 1)) / 2) * sizeof(int));
+	int *modweights	= (int*)malloc(((n * (n - 1)) / 2) * sizeof(int));
+	//int *oldweights	= (int*)malloc(((n * (n - 1)) / 2) * sizeof(int));
+	int oldweight;
 
 	num_mstedges = num_oneedges = 0;
 	my_edge = edgelist->next[edgelist->capacity];
@@ -46,7 +52,7 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 		else {
 			oneedges[num_oneedges++] = my_edge;
 		}
-		weights[my_edge] = env->main_graph.edge_cost[my_edge];
+		weights[my_edge] = (int)rint(env->main_graph.edge_cost[my_edge]);
 		my_edge = edgelist->next[my_edge];
 
 	}
@@ -76,11 +82,9 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 	double val1			= 2.0 * (max_num_step - 1.0) * (max_num_step - 2.0);
 	double val2			= max_num_step * (2.0 * max_num_step - 3.0);
 
-	printf("start loop\n");
 	while (num_step < max_num_step) {
 
 		num_step++;
-		printf("num step = %d\n", num_step);
 
 	    /* compute minimum 1-tree */
 		tree_copy(part_1t, &curr_1t);
@@ -96,7 +100,9 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 		if (num_step == 1) {
 			for (k = 0; k < n; k++) {
 				olddegs[k]	= curr_1t.vrtx_deg[k];
-				mults[k]	= 0.0;
+				mults[k]	= 0;
+				f 			= 1;
+				old_f		= 1;
 			}
 		}
 
@@ -105,8 +111,8 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 		for (k = 0; k < n; k++) {
 			my_edge = curr_1t.edges[k];
 			z += env->main_graph.edge_cost[my_edge]
-						   - mults[get_v1(my_edge)]
-						   - mults[get_v2(my_edge)];
+			   - (double)mults[get_v1(my_edge)] / f
+			   - (double)mults[get_v2(my_edge)] / f;
 		    /* why not z += weights[my_edge]??? FORCED
 		     * edges in curr_1t are not stored in
 		     * mstedges and their weights are not
@@ -114,19 +120,19 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 		     */
 		}
 		for (k = 1; k < n; k++) {
-			z += mults[k] * 2.0;
+			z += ((double)mults[k] / f) * 2;
 		}
 
 		/* update solution */
 		if (z > *best_lb || num_step == 1) {
-			//printf("update! z = %d\n", z);
+			//printf("update! z = %.2f\n", z);
 
 			/* update best 1-tree */
 			tree_copy(&curr_1t, best_1t);
 			*best_lb	= z;
 
 			for (i = 0; i < n; i++) {
-				best_mults[i] = mults[i];
+				best_mults[i] = (double)mults[i] / f;
 			}
 
 			if 	(mode == INITASCENT) {
@@ -143,44 +149,27 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 
 	    /* update step */
 		step = base_step * ((num_step*num_step - 3.0*(max_num_step-1.0)*num_step + val2) / val1);
-		//printf("step = %.20f\n", step);
+		//printf("step = %.8f\n", step);
 
-		if 		(step >= 1.0					)	{ sorting_mode = 0; 			}
-		else if (step >= 0.1 &&	step < 1.0		) 	{ sorting_mode = 1; f = 10; 	}
-		else if (step >= 0.01 && step < 0.1		)	{ sorting_mode = 1; f = 100; 	}
-		else if (step >= 0.001 && step < 0.01	)	{ sorting_mode = 1; f = 1000; 	}
-		//else if (step >= 0.0001 && step < 0.001	) 	{ sorting_mode = 1; f = 10000; 	}
-		else if (step < 0.001					) 	{ sorting_mode = 1; f = 10000; 	}
-		//else if (step < 1.0					)	{ sorting_mode = 2; 			}
+		old_f = f;
+
+
+		if 		(step >= 1.0					) f = 10;
+		else if (step >= 0.1 &&	step < 1.0		) f = 100;
+		else if (step >= 0.01 && step < 0.1		) f = 1000;
+		else if (step  < 0.01					) f = 10000;
 
 		if (step == 0.0) break;
 
-	    /* update  multipliers */
-		if (sorting_mode == 0) {
-			for (k = 1; k < n; k++) {
-				if 	(curr_1t.vrtx_deg[k] != 2) {
-					mults[k] += 0.5 * step * (2 - curr_1t.vrtx_deg[k]) +
-								0.5 * step * (2 - olddegs[k]);
-					mults[k]   = (int)rint(mults[k]);
-				}
-			}
-		}
-		if (sorting_mode == 1) {
-			for (k = 1; k < n; k++) {
-				if 	(curr_1t.vrtx_deg[k] != 2) {
-					mults[k] += 0.5 * step * (2 - curr_1t.vrtx_deg[k]) +
-	    						0.5 * step * (2 - olddegs[k]);
-					integer   = (int)rint(mults[k] * f);
-					mults[k]  = integer / f;
-				}
-			}
-		}
-		if (sorting_mode == 2) {
-			for (k = 1; k < n; k++) {
-				if 	(curr_1t.vrtx_deg[k] != 2) {
-					mults[k] += 0.5 * step * (2 - curr_1t.vrtx_deg[k]) +
-	    						0.5 * step * (2 - olddegs[k]);
-				}
+
+		if (f < old_f) f = old_f;
+
+		for (k = 1; k < n; k++) {
+			if 	(curr_1t.vrtx_deg[k] != 2) {
+				mults[k] *= (f / old_f);
+				mults[k] += (int)rint(
+				(0.5 * step * (2 - curr_1t.vrtx_deg[k]) +
+				 0.5 * step * (2 - olddegs[k]))   	* f);
 			}
 		}
 
@@ -189,94 +178,112 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 			olddegs[k] = curr_1t.vrtx_deg[k];
 		}
 
+		/*
 		for (k = 0; k < num_mstedges; k++) {
-			my_edge = mstedges[k];
-			oldweights[my_edge] = weights[my_edge];
+			oldweights[mstedges[k]] =
+			weights[mstedges[k]] * (f / old_f);
 		}
+		*/
 
 	    /* update edge-costs */
 		for (k = 0; k < num_oneedges; k++) {
 			my_edge = oneedges[k];
 			i 		= get_v1(my_edge);
 			j 		= get_v2(my_edge);
-	    	weights[my_edge] = env->main_graph.edge_cost[my_edge] -
-	    			                          mults[i] - mults[j];
+	    	weights[my_edge] = (int)rint(env->main_graph.edge_cost[my_edge]) * f
+	    												   - mults[i] - mults[j];
 		}
 
-		num_chgedges = num_unchgedges = 0;
-
+		num_chgedges = num_unchgedges = 0; flag = FALSE;
 		for (k = 0; k < num_mstedges; k++) {
+
 			my_edge = mstedges[k];
 			i 		= get_v1(my_edge);
 			j 		= get_v2(my_edge);
-		    weights[my_edge] = env->main_graph.edge_cost[my_edge] -
-		    		                          mults[i] - mults[j];
-			if (k == 0 || weights[my_edge] > wmax) wmax = weights[my_edge];
-			if (k == 0 || weights[my_edge] < wmin) wmin = weights[my_edge];
+			oldweight 		 = weights[mstedges[k]] * (f / old_f);
+		    weights[my_edge] = (int)rint(env->main_graph.edge_cost[my_edge]) * f
+		    		                             	 	   - mults[i] - mults[j];
 
-		    if (weights[my_edge] != oldweights[my_edge]) {
-		    	unsrt_chgedges[num_chgedges++]		= my_edge;
+		    if (weights[my_edge] != oldweight) {
+		    	unsrt_chgedges[num_chgedges++] = my_edge;
+
+		    	if (flag == FALSE) {
+					wmin = weights[my_edge];
+					wmax = weights[my_edge];
+					flag = TRUE;
+		    	}
+		    	else if (weights[my_edge] < wmin) {
+		    		wmin = weights[my_edge];
+		    	}
+		    	else if (weights[my_edge] > wmax) {
+		    		wmax = weights[my_edge];
+		    	}
+
 		    }
 		    else {
-		    	srt_unchgedges[num_unchgedges++]	= my_edge;
+		    	srt_unchgedges[num_unchgedges++] = my_edge;
 		    }
 		}
 
-		printf("start sorting\n");
-		if (sorting_mode == 1) {
-			for (k = 0; k < num_mstedges; k++) {
-				modweights[mstedges[k]] = (int)(weights[mstedges[k]] * f);
-			}
-			modwmin = wmin * f;
-			modwmax = wmax * f;
-		}
 
-		if (sorting_mode == 0) {
-			printf("start sorting 0\n");
-			if (num_chgedges >= n)	b = num_chgedges;
-			else					b = n;
-			beta = (wmax - wmin + 1) / ((n * (n - 1)) / 2);
+		M 	= num_chgedges;						/* number of edges to be sorted */
+		K 	= wmax - wmin + 1;					/* number of keys */
+		b 		= M;							/* base used by radix sort -> b = M good choice */
+		d 		= (int)ceil(log2(K) / log2(b));	/* iteration of radix sort main loop */
 
-			if (wmax - wmin + 1 < n || beta < 4 * log2(beta) / log2(b) + 1.0) { /* counting or radix? */
-				printf("counting sort\n");
-				counting_sort(unsrt_chgedges, srt_chgedges, num_chgedges, weights, wmin, wmax);
+		//printf("num chg = %d : %.2f\n", M, (double)num_chgedges / ((n * (n - 1)) / 2));
+
+		time_qks = M * M;		/* quick-sort worst case time complexity */
+		time_cns = 2 * M + K;	/* counting sort */
+		time_rxs = 3 * M * ceil(log2(K) / log(b));
+
+
+		if (d % 2 == 0) {
+
+			if (time_qks < time_cns && time_qks < time_rxs + M) {
+				//qks_count++;
+				compare_sort(unsrt_chgedges, srt_chgedges, num_chgedges, weights);
 			}
+
 			else {
-				printf("radix sort\n");
-				radix_sort(unsrt_chgedges, srt_chgedges, num_chgedges, weights, wmin, wmax, b);
+				if (time_rxs + M < time_cns) {
+					//rxs_count++;
+					radix_sort(unsrt_chgedges, srt_chgedges, num_chgedges, weights, wmin, wmax, b);
+				}
+				else {
+					//cns_count++;
+					counting_sort(unsrt_chgedges, srt_chgedges, num_chgedges, weights, wmin, wmax);
+				}
 			}
 		}
-		if (sorting_mode == 1) {
-			printf("start sorting 1\n");
-			if (num_chgedges >= n)	b = num_chgedges;
-			else					b = n;
-			beta = (modwmax - modwmin + 1) / ((n * (n - 1)) / 2);
 
-			if (modwmax - modwmin + 1 < n || beta < 4 * log2(beta) / log2(b) + 1.0) {
-				printf("counting sort\n");
-				printf("num chgedges = %d\n", num_chgedges);
-				printf("modwmin = %.2f\n", modwmin);
-				printf("modwmax = %.2f\n", modwmax);
-				counting_sort(unsrt_chgedges, srt_chgedges, num_chgedges, modweights, modwmin, modwmax);
+		else {
+
+			if (time_qks < time_cns && time_qks < time_rxs) {
+				//qks_count++;
+				compare_sort(unsrt_chgedges, srt_chgedges, num_chgedges, weights);
 			}
+
 			else {
-				printf("radix sort\n");
-				radix_sort(unsrt_chgedges, srt_chgedges, num_chgedges, modweights, modwmin, modwmax, b);
+				if (time_rxs < time_cns) {
+					//rxs_count++;
+					radix_sort(unsrt_chgedges, srt_chgedges, num_chgedges, weights, wmin, wmax, b);
+				}
+				else {
+					//cns_count++;
+					counting_sort(unsrt_chgedges, srt_chgedges, num_chgedges, weights, wmin, wmax);
+				}
 			}
 		}
-		if (sorting_mode == 2) {
-			printf("start sorting 2\n");
-			compare_sort(unsrt_chgedges, srt_chgedges, num_chgedges, weights);
-		}
 
-		printf("start merging\n");
 		merge(srt_chgedges, num_chgedges, srt_unchgedges, num_unchgedges, mstedges, weights);
 
-		printf("end sorting\n");
 
 	} /* end main for loop */
 
-	printf("end loop\n");
+	//printf("qks = %d\n", qks_count);
+	//printf("rxs = %d\n", rxs_count);
+	//printf("cns = %d\n", cns_count);
 
 	free(mults);
 	free(olddegs);
@@ -286,7 +293,6 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 	free(srt_chgedges);
 	free(unsrt_chgedges);
 	free(weights);
-	free(oldweights);
 	free(modweights);
 	tree_delete(&curr_1t);
 	set_delete(&curr_vs);

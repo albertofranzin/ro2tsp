@@ -9,6 +9,6 @@
 #include "../base/global.h"
 #include "../base/utils.h"
 
-int compare_sort(int *input_edges, int *output_edges, int num_edges, double* weights);
+int compare_sort(int *input_edges, int *output_edges, int num_edges, int* weights);
 
 #endif /* COMPARE_SORT_H_ */

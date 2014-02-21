@@ -1,16 +1,22 @@
 #include "../algos/pr_lagrange_hk.h"
 
-int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_noimprov, int alpha_ht, tree* t, double *best_mults, double *best_lb, int *status) {
+int pr_lagrange_hk(environment *env, double ub, tree* t, double *best_mults, double *best_lb, int *status) {
 
 	*status = 0;
 	int integer;
 
 	int i, j, st;
+	int n 				= (env->main_graph).vrtx_num;
+
+	double alpha		= 2.0;
 	int num_step		= 0;
 	int num_noimprov 	= 0;
-	int n 				= env->main_graph.vrtx_num;
-	double a 			= ALPHA;
+	int max_num_step 		= (n * n) / 2 + n;
+	int max_num_noimprov 	= max_num_step;
+	int alpha_ht			= (int)(ceil((double)max_num_step / (log2(alpha) - log2(0.001))) / 2.0);
+
 	double z, step, sqnorm;
+
 
 	double 	*mults		= (double*)calloc(n, sizeof(double));
 
@@ -22,16 +28,17 @@ int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_no
 	tree_init(&curr_1t);
 	tree_setup(&curr_1t, n);
 
+
 	while (num_step < max_num_step) {
 
 		num_step++;
 
 		if (num_step % 1000 == 0) printf("num step = %d\n", num_step);
 
-
 	    /* compute minimum 1-tree */
 		tree_empty(&curr_1t);
 		pr_onetree(&local_graph, &curr_1t, &st);
+
 
 		/* no spanning tree exists */
 		if (st != 0) {
@@ -51,7 +58,6 @@ int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_no
 		/* update solution */
 		if (z > *best_lb || num_step == 1) {
 			//printf("update! z = %.2f\n", z);
-
 			for (i = 0; i < n; i++) {
 				best_mults[i] = mults[i];
 			}
@@ -65,8 +71,8 @@ int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_no
 		/* stop condition */
 		if (num_noimprov > max_num_noimprov) break;
 	    if (num_noimprov > alpha_ht) {
-	    	a /= 2.0;
-	    	alpha_ht *= 2; /* mod */
+	    	alpha /= 2.0;
+	    	//alpha_ht *= 2; /* mod */
 	    }
 
 	    sqnorm = 0.0;
@@ -76,7 +82,7 @@ int pr_lagrange_hk(environment *env, double ub, int max_num_step, int max_num_no
 	    if (sqnorm == 0.0) break;
 
 	    /* update step */
-	    step = a * (ub - z) / sqnorm;
+	    step = alpha * (ub - z) / sqnorm;
 
 	    /* update  multipliers */
 	    for (i = 0; i < n; i++) {

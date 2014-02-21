@@ -32,7 +32,6 @@ int heur_3opt(graph *g, cycle *cyc, double* ub) {
 
 
 	    counter++;
-	    printf("counter %d, delta %f\n", counter, delta);
 	    changed = FALSE;
 
 
@@ -40,6 +39,8 @@ int heur_3opt(graph *g, cycle *cyc, double* ub) {
 	    	for (j = i+2; j < n; j++) {
 	    		for (k = j+2; k < n; k++) {
 
+
+	    			//printf("i = %d, j = %d, k = %d\n", i, j, k);
 
 	    			a = vertices[i];
 	    			b = vertices[(i+1)%n];
@@ -79,26 +80,26 @@ int heur_3opt(graph *g, cycle *cyc, double* ub) {
 	    						g->edge_cost[get_idx(d, f)] -
 	    						oldweight;
 	    			/* case 0: aedcbf */
-	    			/*deltas[4] = g->edge_cost[get_idx(a, e)] +
+	    			deltas[4] = g->edge_cost[get_idx(a, e)] +
 	    						g->edge_cost[get_idx(d, c)] +
 	    						g->edge_cost[get_idx(b, f)] -
 	    						oldweight;
-	    			/ * case 0:  acbdef * /
+	    			/* case 0:  acbdef */
 	    			deltas[5] = g->edge_cost[get_idx(a, c)] +
 	    						g->edge_cost[get_idx(b, d)] +
 	    						g->edge_cost[get_idx(e, f)] -
 	    						oldweight;
-	    			/ * case 0: abcedf * /
+	    			/* case 0: abcedf */
 	    			deltas[6] = g->edge_cost[get_idx(a, b)] +
 	    						g->edge_cost[get_idx(c, e)] +
 	    						g->edge_cost[get_idx(d, f)] -
-	    						oldweight;*/
+	    						oldweight;
 
 
 	    			delta = 0.0;
 	    			for (l = 0; l < 7; l++) {
-	    				//if (deltas[h] < 0.0) {
-	    				if (deltas[l] < delta ) {
+	    				if (deltas[l] < 0.0) {
+	    				//if (deltas[l] < delta ) {
 	    					delta = deltas[l];
 	    					h = l;
 	    					//break;
@@ -108,6 +109,7 @@ int heur_3opt(graph *g, cycle *cyc, double* ub) {
 	    			if (delta < 0.0) {
 
 	    				ccost += delta;
+
 
 	    				if (h == 0) {
 	    					reverse(vertices, j+1, k);
@@ -127,15 +129,15 @@ int heur_3opt(graph *g, cycle *cyc, double* ub) {
 	    					reverse(vertices, i+1, j);
 	    					reverse(vertices, j+1, k);
 	    				}
-	    				/*if (h == 4) { / * change 2 edges only * /
+	    				if (h == 4) { /* change 2 edges only */
 	    					reverse(vertices, i+1, k);
 	    				}
-	    				if (h == 5) { / * change 2 edges only * /
+	    				if (h == 5) { /* change 2 edges only */
 	    					reverse(vertices, i+1, j);
 	    				}
-	    				if (h == 6) { / * change 2 edges only * /
+	    				if (h == 6) { /* change 2 edges only */
 	    					reverse(vertices, j+1, k);
-	    				}*/
+	    				}
 
 
 	    				changed = TRUE;

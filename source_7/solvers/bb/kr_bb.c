@@ -5,10 +5,13 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 
 	stats->curr_node++;
 
-	if (stats->curr_node % 1 == 0) printf("NODE = %d, LEV = %d\n", stats->curr_node, stats->curr_level);
-
 	int n				= (env->main_graph).vrtx_num;
 	double *curr_mults 	= (double*)malloc(n * sizeof(double));
+
+	if (stats->curr_node % 100 == 0) printf("NODE = %d, LEV = %d\n",
+			stats->curr_node, stats->curr_level);
+	//printf("active edges = %.2f\n", (double)(edgelist->size) / ((n * (n - 1)) / 2) * 100.0);
+
 
 	int i, k, st;
 	int v;
@@ -42,6 +45,7 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 		}
 		*/
 		kr_lagrange_vj(env, INITASCENT, env->global_ub, edgelist, part_1t, part_vs, &curr_1t, curr_mults, &curr_lb, &st);
+		//kr_lagrange_vj(env, INITASCENT, env->global_ub, edgelist, part_1t, part_vs, &curr_1t, curr_mults, &curr_lb, &st);
 		/*
 		for (i = 0; i < n; i++) {
 			env->genascent_mults[i] = curr_mults[i];
@@ -49,6 +53,7 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 		*/
 	}
 	else {
+		kr_lagrange_vj(env, INITASCENT, env->global_ub, edgelist, part_1t, part_vs, &curr_1t, curr_mults, &curr_lb, &st);
 		/*
 		kr_onetree2(&(env->main_graph), edgelist, part_vs, part_1t, &curr_1t, &st);
 		if (st != 0) {
@@ -61,9 +66,18 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 			curr_mults[i] = 0.0;
 		}
 		*/
-		printf("general lagrange\n");
-		kr_lagrange_vj(env, INITASCENT, env->global_ub, edgelist, part_1t, part_vs, &curr_1t, curr_mults,  &curr_lb, &st);
-		printf("end general lagrange\n");
+		//printf("general lagrange\n");
+		/*
+		if (stats->curr_level < 5) {
+			tree_delete(&curr_1t);
+			tree_setup(&curr_1t, n);
+			pr_lagrange_hk(env, env->global_ub, 20000, 20000, 100, &curr_1t, curr_mults, &curr_lb, &st);
+		}
+		else {
+			kr_lagrange_vj(env, INITASCENT, env->global_ub, edgelist, part_1t, part_vs, &curr_1t, curr_mults,  &curr_lb, &st);
+		}
+		*/
+		//printf("end general lagrange\n");
 		/*
 		for (i = 0; i < n; i++) {
 			curr_mults[i] = env->genascent_mults[i];
@@ -124,7 +138,7 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 	curr_gap = env->global_ub - curr_lb;
 
 	/* reduce */
-	printf("reduce\n");
+	//printf("reduce\n");
 	reduction = FALSE;
 	if (curr_gap < *gap - delta) {
 		reduction = TRUE;
@@ -144,11 +158,11 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 	}
 
 	/* vertex selection*/
-	printf("vertex selection\n");
+	//printf("vertex selection\n");
 	vertexsel(env, &curr_1t, &v);
 
 	/* edge selection */
-	printf("edge selection\n");
+	//printf("edge selection\n");
 	edgesel(env, &curr_1t, v, &e1, &e2);
 
 
@@ -159,7 +173,7 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 	 	 	 	 	 	 	   */
 
 		/* check if feasible */
-		printf("first branch\n");
+		//printf("first branch\n");
 		tree_copy(part_1t, &subproblem_part_1t);
 		set_copy(part_vs, &subproblem_part_vs);
 
@@ -178,15 +192,15 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 
 		/* recursive call */
 		if (st == 0) {
-			printf("Hi, I'm node %d, level %d, and I go down...\n", stats->curr_node, stats->curr_level);
+			//printf("Hi, I'm node %d, level %d, and I go down...\n", stats->curr_node, stats->curr_level);
 			stats->curr_level++;
 			kr_bb(env, stats, edgelist, &subproblem_part_1t, &subproblem_part_vs, &curr_gap);
 			stats->curr_level--;
-			printf("Hi, I'm node %d, level %d, and I'm back!...\n", stats->curr_node, stats->curr_level);
+			//printf("Hi, I'm node %d, level %d, and I'm back!...\n", stats->curr_node, stats->curr_level);
 		}
 
 		/* rollback propagate */
-		printf("rollback propagate\n");
+		//printf("rollback propagate\n");
 		for (i = nm - 1; i >= 0; i--) {
 			arraylist_insert_next(edgelist, tmppreds[i], modedges[i]);
 			graph_set_edge_cstr(&(env->main_graph), modedges[i], FREE);
@@ -195,7 +209,7 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 		/* FORCE e1, FORBID e2 */
 
 		/* check if feasible */
-		printf("second branch\n");
+		//printf("second branch\n");
 		tree_copy(part_1t, &subproblem_part_1t);
 		set_copy(part_vs, &subproblem_part_vs);
 
@@ -214,15 +228,15 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 
 		/* recursive call */
 		if (st == 0) {
-			printf("Hi, I'm node %d, level %d, and I go down...\n", stats->curr_node, stats->curr_level);
+			//printf("Hi, I'm node %d, level %d, and I go down...\n", stats->curr_node, stats->curr_level);
 			stats->curr_level++;
 			kr_bb(env, stats, edgelist, &subproblem_part_1t, &subproblem_part_vs, &curr_gap);
 			stats->curr_level--;
-			printf("Hi, I'm node %d, level %d, and I'm back!...\n", stats->curr_node, stats->curr_level);
+			//printf("Hi, I'm node %d, level %d, and I'm back!...\n", stats->curr_node, stats->curr_level);
 		}
 
 		/* rollback propagate */
-		printf("rollback propagate\n");
+		//printf("rollback propagate\n");
 		for (i = nm - 1; i >= 0; i--) {
 			arraylist_insert_next(edgelist, tmppreds[i], modedges[i]);
 			graph_set_edge_cstr(&(env->main_graph), modedges[i], FREE);
@@ -249,15 +263,15 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 		setncheck(env, edgelist, &subproblem_part_1t, &subproblem_part_vs, modedges, modcstrs, tmppreds, &nm, &st);
 
 		if (st == 0) {
-			printf("Hi, I'm node %d, level %d, and I go down...\n", stats->curr_node, stats->curr_level);
+			//printf("Hi, I'm node %d, level %d, and I go down...\n", stats->curr_node, stats->curr_level);
 			stats->curr_level++;
 			kr_bb(env, stats, edgelist, &subproblem_part_1t, &subproblem_part_vs, &curr_gap);
 			stats->curr_level--;
-			printf("Hi, I'm node %d, level %d, and I'm back!...\n", stats->curr_node, stats->curr_level);
+			//printf("Hi, I'm node %d, level %d, and I'm back!...\n", stats->curr_node, stats->curr_level);
 		}
 
 		/* rollback propagate */
-		printf("rollback propagate\n");
+		//printf("rollback propagate\n");
 		for (i = nm - 1; i >= 0; i--) {
 			arraylist_insert_next(edgelist, tmppreds[i], modedges[i]);
 			graph_set_edge_cstr(&(env->main_graph), modedges[i], FREE);
@@ -266,7 +280,7 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 	}
 
 	/* rollback reduce */
-	printf("rollback reduce\n");
+	//printf("rollback reduce\n");
 	if (reduction == TRUE) {
 		for (i = num_rmvedges - 1; i >= 0; i--) {
 			graph_set_edge_cstr(&(env->main_graph), rmvedges[i], rmvcstrs[i]);

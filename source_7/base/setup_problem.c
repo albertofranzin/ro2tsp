@@ -339,7 +339,7 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 		            q2 = cosf(latitude1  - latitude2);
 		            q3 = cosf(latitude1  + latitude2);
 		        	graph_insert_edge(&(env->main_graph), get_idx(i, j),
-		        			(EARTH_RADIUS * acosf(0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0),
+		        			(int)round(EARTH_RADIUS * acosf(0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0),
 		        			FREE);
 		        }
 
@@ -354,7 +354,7 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 		        }
 		        if (pars->tsplib_file_format == MAN_2D) {	/* MANHATTAN 2D */
 		        	graph_insert_edge(&(env->main_graph), get_idx(i, j),
-		        			(fabs(x1 - x2) + fabs(y1 - y2)),
+		        			(int)(fabs(x1 - x2) + fabs(y1 - y2)),
 		        			FREE);
 		        }
 		        if (pars->tsplib_file_format == CEIL_2D) {	/* CEIL 2D */
