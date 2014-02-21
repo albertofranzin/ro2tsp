@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 	//double opt = 699;		// dantzig42
 	//double opt = 1273;	// swiss42x
 	//double opt = 7542;	// berlin52
-	double opt = 426; 	// eil51
+	//double opt = 426; 	// eil51
 	//double opt = 675; 	// st70
 	//double opt = 538; 	// eil76
 	//double opt = 108159; 	// pr76
@@ -103,6 +103,7 @@ int main(int argc, char **argv) {
 	//double opt = 118282;	// bier127x
 	//double opt = 6110;	// ch130
 	//double opt = 96772;	// pr136
+	//double opt = 69853; // gr137
 	//double opt = 58537;	// pr144
 	//double opt = 6528;	// ch150
 	//double opt = 26524;	// kroA150
@@ -111,6 +112,7 @@ int main(int argc, char **argv) {
 	//double opt = 42080;	// u159
 	//double opt = 2323;	// rat195
 	//double opt = 15780;	// d198
+	double opt = 40160;// gr202
 	//double opt = 3919;	// tsp225
 	//double opt = 126643;	// ts225
 	//double opt = 80369;	// pr226
@@ -243,9 +245,9 @@ int main(int argc, char **argv) {
 	int i;
 
 	int st;
-	double ub		= 44303; //ceil(opt * 1.01);
+	double ub		= 40885; //ceil(opt * 1.01);
 	//double ub		= ceil(opt * 1.01);
-	env.global_ub	= 44303; //ceil(opt * 1.01);
+	env.global_ub	= 40885; //ceil(opt * 1.01);
 	//env.global_ub	= ceil(opt * 1.01);
 
 	clock_t start, end;

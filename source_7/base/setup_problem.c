@@ -331,6 +331,10 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 		        y2 = env->vertices.y[j];
 
 		        if (pars->tsplib_file_format == GEO) { 		/* GEOGRAPHIC */
+		        	fract      = x1 - (int)x1;
+		        	latitude1  = PI * ((int)x1 + 5.0 * fract / 3.0) / 180.0;
+		        	fract      = y1 - (int)y1;
+		        	longitude1 = PI * ((int)y1 + 5.0 * fract / 3.0) / 180.0;
 		        	fract      = x2 -  (int)x2;
 		            latitude2  = PI * ((int)x2 + 5.0 * fract / 3.0) / 180.0;
 		            fract      = y2 -  (int)y2;
@@ -339,7 +343,7 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 		            q2 = cosf(latitude1  - latitude2);
 		            q3 = cosf(latitude1  + latitude2);
 		        	graph_insert_edge(&(env->main_graph), get_idx(i, j),
-		        			(int)round(EARTH_RADIUS * acosf(0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0),
+		        			(int)(EARTH_RADIUS * acosf(0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0),
 		        			FREE);
 		        }
 
