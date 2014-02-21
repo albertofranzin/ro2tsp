@@ -1,11 +1,11 @@
 #include "../algos/radix_sort.h"
 
 
-int radix_sort(int *input_edges, int *output_edges, int num_edges, double* weights, double wmin, double wmax, int b) {
+int radix_sort(int *input_edges, int *output_edges, int num_edges, int* weights, int wmin, int wmax, int b) {
 
 
-	int i, j, p, temp, total;
-	int k 		= wmax - wmin + 1; 				/* keys 0, 1, ..., k - 1 */
+	int i, j, p, temp, total, idx;
+	int k 		= wmax - wmin + 1; 		/* keys 0, 1, ..., k - 1 */
 	int d 		= (int)ceil(log2(k) / log2(b)); /* max number of digits using base b notation */
 	int *count 	= (int*)malloc(b * sizeof(int));
 	int *pt;
@@ -16,7 +16,8 @@ int radix_sort(int *input_edges, int *output_edges, int num_edges, double* weigh
 		memset(count, '\0', b * sizeof(int));
 
 		for (j = 0; j < num_edges; j++) {
-			count[ (((int)(weights[input_edges[j]] - wmin)) / p) % b ] += 1;
+			//idx = (int)(weights[input_edges[j]] - wmin);
+			count[ ((weights[input_edges[j]] - wmin) / p) % b ] += 1;
 		}
 
 		total = 0;
@@ -27,8 +28,8 @@ int radix_sort(int *input_edges, int *output_edges, int num_edges, double* weigh
 		}
 
 		for (j = 0; j < num_edges; j++) {
-			output_edges[ count[ (((int)(weights[input_edges[j]] - wmin)) / p) % b ] ] = input_edges[j];
-						  count[ (((int)(weights[input_edges[j]] - wmin)) / p) % b ]  += 1;
+			output_edges[ count[ ((weights[input_edges[j]] - wmin) / p) % b ] ] = input_edges[j];
+						  count[ ((weights[input_edges[j]] - wmin) / p) % b ]  += 1;
 		}
 
 

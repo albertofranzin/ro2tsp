@@ -52,38 +52,6 @@ int verbosity	= SILENT;
 
 int main(int argc, char **argv) {
 
-	//printf("Welcome to ro2tsp project!\n");
-
-	/*
-	int q;
-	int *a = (int*)malloc(10 * sizeof(int));
-
-	a[0] = 0;
-	a[1] = 1;
-	a[2] = 2;
-	a[3] = 3;
-	a[4] = 4;
-	a[5] = 5;
-	a[6] = 6;
-	a[7] = 7;
-	a[8] = 8;
-	a[9] = 9;
-
-	for (q = 0; q < 10; q++) {
-		printf("%d\n", a[q]);
-	}
-
-	move_back(a, 0, 4, 8);
-
-	printf("*************\n");
-
-	for (q = 0; q < 10; q++) {
-		printf("%d\n", a[q]);
-	}
-
-	exit(1);
-	*/
-
 	parameters pars;
 	parameters_init(&pars);
 
@@ -103,7 +71,6 @@ int main(int argc, char **argv) {
 	//double opt = 3323;	// burma14x*
 	//double opt = 6859;	// ulysses16
 	//double opt = 7013;	// ulysses22
-
 	//double opt = 10628;	// att48
 	//double opt = 1610;	// bayg29
 	//double opt = 2020;	// bays29
@@ -117,185 +84,8 @@ int main(int argc, char **argv) {
 	//double opt = 25395;	// brazil58x
 	//double opt = 699;		// dantzig42
 	//double opt = 1273;	// swiss42x
-
-
 	//double opt = 7542;	// berlin52
-	//double opt = 426; 	// eil51
-	//double opt = 675; 	// st70
-	//double opt = 538; 	// eil76
-	//double opt = 108159; 	// pr76
-	//double opt = 1211; 	// rat99
-	//double opt = 7910; 	// rd100
-	//double opt = 21282; 	// kroA100x
-	//double opt = 22141; 	// kroB100x
-	//double opt = 20749;	// kroC100x
-	//double opt = 21294; 	// kroD100x
-	//double opt = 22068; 	// kroE100x
-	//double opt = 629; 	// eil101
-	//double opt = 14379; 	// lin105
-	//double opt = 44303; 	// pr107
-	//double opt = 59030;	// pr124
-	//double opt = 118282;	// bier127x
-	//double opt = 6110;	// ch130
-	//double opt = 96772;	// pr136
-	//double opt = 58537;	// pr144
-	//double opt = 6528;	// ch150
-	// double opt = 26524;	// kroA150
-	//double opt = 26130;	// kroB150
-	//double opt = 73682;	// pr152
-	//double opt = 42080;	// u159
-	//double opt = 2323;	// rat195
-	//double opt = 15780;	// d198
-	//double opt = 3919;	// tsp225
-	//double opt = 126643;	// ts225
-	//double opt = 80369;	// pr226
-	//double opt = 42029;	// lin318
-	//double opt = 35002;	// d493
-	//double opt = 36905; 	// u574
-	//double opt = 6773;	// rat575
-	//double opt = 34643;	// p654
-	//double opt = 259045;	// pr1002
-	//double opt = 224094;	// u1060
-
-	//return(0);
-
-	int n			= pars.num_vertices;
-	int i;
-	/**/
-	int *ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	int *zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-
-	double temp_ub, best_ub;
-
-	clock_t t1, t2;
-
-	cycle best_c;
-	cycle_init(&best_c);
-	cycle temp_c;
-	cycle_init(&temp_c);
-	t1 = clock();
-	compute_ub(&(env.main_graph), NN, &best_c, &best_ub, ones, zeros);
-	t2 = clock();
-	//plot_cycle(&best_c, &(env.vertices), NULL);
-	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-	free(ones);
-	free(zeros);
-
-	/***********************************/
-
-	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-
-	//cycle best_c;
-	cycle_init(&best_c);
-	//cycle temp_c;
-	cycle_init(&temp_c);
-	t1 = clock();
-	compute_ub(&(env.main_graph), NN2OPT, &best_c, &best_ub, ones, zeros);
-	t2 = clock();
-	//plot_cycle(&best_c, &(env.vertices), NULL);
-	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-	free(ones);
-	free(zeros);
-
-	/***********************************/
-
-	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-
-	//cycle best_c;
-	//cycle_init(&best_c);
-	//cycle temp_c;
-	//cycle_init(&temp_c);
-	t1 = clock();
-	//compute_ub(&(env.main_graph), NN23OPT, &best_c, &best_ub, ones, zeros);
-	heur_3opt(&(env.main_graph), &best_c, &best_ub);
-	t2 = clock();
-	//plot_cycle(&best_c, &(env.vertices), NULL);
-	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-	free(ones);
-	free(zeros);
-
-	/**************************/
-
-	// ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	// zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-
-
-	// //cycle best_c;
-	// cycle_init(&best_c);
-	// //cycle temp_c;
-	// cycle_init(&temp_c);
-	// t1 = clock();
-	// //compute_ub(&(env.main_graph), RC, &best_c, &best_ub, ones, zeros);
-	// t2 = clock();
-	// //plot_cycle(&best_c, &(env.vertices), NULL);
-	// //printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-	// free(ones);
-	// free(zeros);
-
-	/***********************************/
-
-	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-
-	//cycle best_c;
-	cycle_init(&best_c);
-	//cycle temp_c;
-	cycle_init(&temp_c);
-	t1 = clock();
-	compute_ub(&(env.main_graph), RC2OPT, &best_c, &best_ub, ones, zeros);
-	t2 = clock();
-	//plot_cycle(&best_c, &(env.vertices), NULL);
-	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-	free(ones);
-	free(zeros);
-
-	/**************************/
-
-	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-
-	//cycle best_c;
-	//cycle_init(&best_c);
-	//cycle temp_c;
-	//cycle_init(&temp_c);
-	t1 = clock();
-	//compute_ub(&(env.main_graph), RC23OPT, &best_c, &best_ub, ones, zeros);
-	heur_3opt(&(env.main_graph), &best_c, &best_ub);
-	t2 = clock();
-	//plot_cycle(&best_c, &(env.vertices), NULL);
-	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-	free(ones);
-	free(zeros);
-
-	exit(1);
-
-	/**/
-
-
-
-	//double opt = 3323;	// burma14x*
-	//double opt = 6859;	// ulysses16
-	//double opt = 7013;	// ulysses22
-
-	//double opt = 10628;	// att48
-	//double opt = 1610;	// bayg29
-	//double opt = 2020;	// bays29
-	//double opt = 55209;	// gr96
-	//double opt = 2085;	// gr17
-	//double opt = 2707;	// gr21
-	//double opt = 1272;	// gr24
-	//double opt = 5046;	// gr48
-	//double opt = 11461;	// hk48
-	//double opt = 937;		// fri26
-	//double opt = 25395;	// brazil58x
-	//double opt = 699;		// dantzig42
-	//double opt = 1273;	// swiss42x
-
-
-	//double opt = 7542;	// berlin52
-	//double opt = 426; 	// eil51
+	double opt = 426; 	// eil51
 	//double opt = 675; 	// st70
 	//double opt = 538; 	// eil76
 	//double opt = 108159; 	// pr76
@@ -332,415 +122,323 @@ int main(int argc, char **argv) {
 	//double opt = 259045;	// pr1002
 	//double opt = 224094;	// u1060
 
-	/* TEST: PLOT MAIN GRAPH ***************************************/
 	/*
-	plot_graph(&(env.main_graph), &(env.vertices), NULL);
-	*/
-
-
-
-	/* TEST: TREE ROOTING *****************************************/
-	/*
-	int st, i;
-	int n = pars.num_vertices;
-
-	tree my1t;
-	tree_init(&my1t);
-	tree_setup(&my1t, n);
-	onetree_prim(&(env.main_graph), &my1t, &st);
-	for (i = 0; i < n; i++) my1t.vrtx_pred[i] = -1;
-
-	tree_rooting(&my1t, 0);
-	plot_tree(&my1t, &(env.vertices), NULL);
-	for (i = 0; i < n; i++) {
-		printf("vertex = %d : pred = %d\n", i, my1t.vrtx_pred[i]);
-	}
-	printf("\n");
-
-	tree myt;
-	tree_init(&myt);
-	tree_setup(&myt, n);
-	mst_prim(&(env.main_graph), &myt, 0, &st);
-	for (i = 0; i < n; i++) myt.vrtx_pred[i] = -1;
-
-	tree_rooting(&myt, 0);
-	plot_tree(&myt, &(env.vertices), NULL);
-	for (i = 0; i < n; i++) {
-		printf("vertex = %d : pred = %d\n", i, myt.vrtx_pred[i]);
-	}
-	printf("\n");
-
-	tree_delete(&myt);
-	tree_delete(&my1t);
-	*/
-
-	/* TEST: LAGRANGE PRIM HK *************************************/
-	/*
-	int i, st, nr;
-	double lb, gen_step, time_interval;
-	double ub		= opt * 1.05;
 	int n			= pars.num_vertices;
+	int i;
+
+	// **
+	int *ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	int *zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+
+	double temp_ub, best_ub;
+
+	clock_t t1, t2;
+
+	cycle best_c;
+	cycle_init(&best_c);
+	cycle temp_c;
+	cycle_init(&temp_c);
+	t1 = clock();
+	compute_ub(&(env.main_graph), NN, &best_c, &best_ub, ones, zeros);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	free(ones);
+	free(zeros);
+
+	// ***********************************
+
+	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+
+	//cycle best_c;
+	cycle_init(&best_c);
+	//cycle temp_c;
+	cycle_init(&temp_c);
+	t1 = clock();
+	compute_ub(&(env.main_graph), NN2OPT, &best_c, &best_ub, ones, zeros);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	free(ones);
+	free(zeros);
+
+	// ***********************************
+
+	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+
+	//cycle best_c;
+	//cycle_init(&best_c);
+	//cycle temp_c;
+	//cycle_init(&temp_c);
+	t1 = clock();
+	//compute_ub(&(env.main_graph), NN23OPT, &best_c, &best_ub, ones, zeros);
+	heur_3opt(&(env.main_graph), &best_c, &best_ub);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	free(ones);
+	free(zeros);
+
+	// **************************
+
+	// ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	// zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+
+
+	// //cycle best_c;
+	// cycle_init(&best_c);
+	// //cycle temp_c;
+	// cycle_init(&temp_c);
+	// t1 = clock();
+	// //compute_ub(&(env.main_graph), RC, &best_c, &best_ub, ones, zeros);
+	// t2 = clock();
+	// //plot_cycle(&best_c, &(env.vertices), NULL);
+	// //printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	// free(ones);
+	// free(zeros);
+
+	// ***********************************
+
+	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+
+	//cycle best_c;
+	cycle_init(&best_c);
+	//cycle temp_c;
+	cycle_init(&temp_c);
+	t1 = clock();
+	compute_ub(&(env.main_graph), RC2OPT, &best_c, &best_ub, ones, zeros);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	free(ones);
+	free(zeros);
+
+	// **************************
+
+	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+
+	//cycle best_c;
+	//cycle_init(&best_c);
+	//cycle temp_c;
+	//cycle_init(&temp_c);
+	t1 = clock();
+	//compute_ub(&(env.main_graph), RC23OPT, &best_c, &best_ub, ones, zeros);
+	heur_3opt(&(env.main_graph), &best_c, &best_ub);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	free(ones);
+	free(zeros);
+
+	exit(1);
+
+	// **
+	*/
+
+	int n			= pars.num_vertices;
+	int i;
+
+	int st;
+
+	// upper bounds
+	//double ub		= 44303; //ceil(opt * 1.01);
+	double ub		= ceil(opt * 1.01);
+	//env.global_ub	= 44303; //ceil(opt * 1.01);
+	env.global_ub	= ceil(opt * 1.01);
+
 	clock_t start, end;
 
-	tree best1t;
-	tree_init(&best1t);
-	tree_setup(&best1t, n);
+	double time_interval;
 
-	start = clock();
-	pr_lagrange_hk(&env, ub, 20000, 20000, 100, &best1t, &lb, &st);
-	end = clock();
-	time_interval = (end - start) / (double)CLOCKS_PER_SEC;
-
-	plot_tree(&best1t, &(env.vertices), NULL);
-	printf("time = %.2f\n", time_interval);
-
-	tree_delete(&best1t);
-	*/
-
-	/* TEST: LAGRANGE PRIM VJ *************************************/
-	/*
-	int i, st, nr;
-	double lb, gen_step, time_interval;
-	int n			= pars.num_vertices;
-	clock_t start, end;
-
-	tree best1t;
-	tree_init(&best1t);
-	tree_setup(&best1t, n);
-
-	start = clock();
-	pr_lagrange_vj(&env, &lb, &gen_step, &best1t, &st);
-	end = clock();
-	time_interval = (end - start) / (double)CLOCKS_PER_SEC;
-
-	plot_tree(&best1t, &(env.vertices), NULL);
-	printf("time = %.2f\n", time_interval);
-
-	tree_delete(&best1t);
-	*/
-
-
-	/* TEST: LAGRANGE KRUSKAL VJ **********************************/
-	/*
-	int i, st, nr;
-	double lb, gen_step, time_interval;
-	int n			= pars.num_vertices;
-	clock_t start, end;
-
-	tree best1t;
-	tree_init(&best1t);
-	tree_setup(&best1t, n);
-
-	int num_edges 	= (n * (n - 1)) / 2;
-	int *unsrtedges	= (int*)malloc(num_edges * sizeof(int));
-	int *srtedges	= (int*)malloc(num_edges * sizeof(int));
-	int	*weights	= (int*)malloc(num_edges * sizeof(int));
-	int wmin 		= (int)(env.main_graph).edge_cost[0];
-	int wmax 		= (int)(env.main_graph).edge_cost[0];
-
-	for (i = 0; i < num_edges; i++) {
-		unsrtedges[i]	= i;
-		weights[i]		= (int)(env.main_graph).edge_cost[i];
-		if (weights[i] < wmin) wmin = weights[i];
-		if (weights[i] > wmax) wmax = weights[i];
-	}
-
-	counting_sort(unsrtedges, srtedges, num_edges, weights, wmin, wmax);
-
-	arraylist edgelist;
-	arraylist_init(&edgelist);
-	arraylist_setup(&edgelist, num_edges);
-
-	int tail = num_edges;
-	for (i = 0; i < num_edges; i++) {
-		arraylist_insert_pred(&edgelist, tail, srtedges[i]);
-	}
-
-	start = clock();
-	kr_lagrange_vj(&env, &edgelist, &best1t, &lb, &gen_step, &st);
-	end = clock();
-	time_interval = (end - start) / (double)CLOCKS_PER_SEC;
-
-	plot_tree(&best1t, &(env.vertices), NULL);
-	printf("time = %.2f\n", time_interval);
-
-	tree_delete(&best1t);
-	arraylist_delete(&edgelist);
-	*/
-
-	/* TEST: REDUCE ***********************************************/
-	/*
-	int i, st, nr;
-	int n			= pars.num_vertices;
-	double ub		= opt * 1.01;
-	double lb;
-
-	tree best1t;
-	tree_init(&best1t);
-	tree_setup(&best1t, n);
-
-	pr_lagrange_hk(&env, ub, 20000, 20000, 100, &best1t, &lb, &st);
-
-	reduce(&(env.main_graph), &best1t, lb, ub, &nr);
-
-	//plot_graph(&(env.main_graph), &(env.vertices), NULL);
-
-	printf("num edges = %d : num removed edges = %d\n", (n * (n - 1)) / 2, nr);
-	printf("ratio = %.2f\n", nr / (double)((n * (n - 1)) / 2) * 100.0);
-	tree_delete(&best1t);
-	*/
-
-	/* TEST: LAGRANGE KRUSKAL + REDUCE ****************************/
-	/*
-	int i, st, nr;
-	double lb, gen_step, time_interval;
-	double ub		= opt * 1.01;
-	int n			= pars.num_vertices;
-	clock_t start, end;
-
-	tree best1t;
-	tree_init(&best1t);
-	tree_setup(&best1t, n);
-
-	//pr_lagrange_hk(&env, ub, 20000, 20000, 100, &best1t, &lb, &st);
-	//reduce(&(env.main_graph), &best1t, lb, ub, &nr);
-
-	int num_edges;
-	int *unsrtedges	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	int *srtedges	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	int	*weights	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	int wmin 		= (int)(env.main_graph).edge_cost[0];
-	int wmax 		= (int)(env.main_graph).edge_cost[0];
-
-	num_edges = 0;
-	for (i = 0; i < (n * (n - 1)) / 2; i++) {
-		if (env.main_graph.edge_cstr[i] == FREE) {
-			unsrtedges[num_edges++]	= i;
-			weights[i]		= (int)(env.main_graph).edge_cost[i];
-			if (weights[i] < wmin) wmin = weights[i];
-			if (weights[i] > wmax) wmax = weights[i];
-		}
-	}
-
-	counting_sort(unsrtedges, srtedges, num_edges, weights, wmin, wmax);
+	/* sort edges */
 
 	arraylist edgelist;
 	arraylist_init(&edgelist);
 	arraylist_setup(&edgelist, (n * (n - 1)) / 2);
 
+	int num_edges, wmin, wmax;
+	int *unsrt_edges	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	int *srt_edges		= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	int *weights		= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+
+	num_edges = 0;
+	wmin = wmax = (int)rint((env.main_graph).edge_cost[0]);
+	for (i = 0; i < (n * (n - 1)) / 2; i++) {
+		if (env.main_graph.edge_cstr[i] == FREE) {
+			unsrt_edges[num_edges++]	= i;
+			weights[i]		= (int)rint((env.main_graph).edge_cost[i]);
+			if (weights[i] < wmin) wmin = weights[i];
+			if (weights[i] > wmax) wmax = weights[i];
+		}
+	}
+	counting_sort(unsrt_edges, srt_edges, num_edges, weights, wmin, wmax);
+
 	int tail = edgelist.capacity;
 	for (i = 0; i < num_edges; i++) {
-		arraylist_insert_pred(&edgelist, tail, srtedges[i]);
+		arraylist_insert_pred(&edgelist, tail, srt_edges[i]);
 	}
 
-	start = clock();
-	kr_lagrange_vj(&env, &edgelist, &best1t, &lb, &gen_step, &st);
-	end = clock();
-	time_interval = (end - start) / (double)CLOCKS_PER_SEC;
+	/* compute 1-tree */
 
-	plot_tree(&best1t, &(env.vertices), NULL);
-	printf("num edges = %d : num removed edges = %d\n", (n * (n - 1)) / 2, nr);
-	printf("ratio = %.2f\n", nr / (double)((n * (n - 1)) / 2) * 100.0);
-	printf("time = %.2f\n", time_interval);
+	double  prhk_lb, prvj_lb, prvjgen_lb, krvj_lb, krvjgen_lb, best_lb;
 
-	tree_delete(&best1t);
-	arraylist_delete(&edgelist);
-	*/
+	tree prhk_1t;
+	tree_init(&prhk_1t);
+	tree_setup(&prhk_1t, n);
 
-	/* TEST: BB PRIM **********************************************/
-	/*
-	double time_interval;
-	clock_t start, end;
+	tree prvj_1t;
+	tree_init(&prvj_1t);
+	tree_setup(&prvj_1t, n);
 
-	env.global_ub = opt * 1.05;
+	tree prvjgen_1t;
+	tree_init(&prvjgen_1t);
+	tree_setup(&prvjgen_1t, n);
 
-	start = clock();
-	pr_bb(&env, &stats);
-	end = clock();
-	time_interval = (end - start) / (double)CLOCKS_PER_SEC;
+	tree krvj_1t;
+	tree_init(&krvj_1t);
+	tree_setup(&krvj_1t, n);
 
-	printf("time = %.2f\n", time_interval);
-	printf("upper bound = %.2f\n", env.global_ub);
-	plot_tree(&(env.global_1t), &(env.vertices), NULL);
-	*/
+	tree krvj_part_1t;
+	tree_init(&krvj_part_1t);
+	tree_setup(&krvj_part_1t, n);
 
-	/* TEST: BB KRUSKAL *******************************************/
+	set krvj_part_vs;
+	set_init(&krvj_part_vs);
+	set_setup(&krvj_part_vs, n);
 
-	int st;
-	double best_lb, time_interval;
-	double ub		= 26633; //ceil(opt * 1.01);
-	env.global_ub	= 26633; //ceil(opt * 1.01);
-	//int n			= pars.num_vertices;
-	clock_t start, end;
+	tree krvjgen_1t;
+	tree_init(&krvjgen_1t);
+	tree_setup(&krvjgen_1t, n);
+
+	tree krvjgen_part_1t;
+	tree_init(&krvjgen_part_1t);
+	tree_setup(&krvjgen_part_1t, n);
+
+	set krvjgen_part_vs;
+	set_init(&krvjgen_part_vs);
+	set_setup(&krvjgen_part_vs, n);
 
 	tree best_1t;
 	tree_init(&best_1t);
 	tree_setup(&best_1t, n);
 
-	double *best_mults = (double*)malloc(n * sizeof(double));
-
-	pr_lagrange_hk(&env, ub, 20000, 20000, 100, &best_1t, best_mults, &best_lb, &st);
-
-	/*
-	printf("percent = %.2f\n", best_lb / opt * 100.0);
-	exit(1);
-	*/
+	double *prhk_mults	= (double*)malloc(n * sizeof(double));
+	double *prvj_mults	= (double*)malloc(n * sizeof(double));
+	double *krvj_mults	= (double*)malloc(n * sizeof(double));
+	double *best_mults	= (double*)malloc(n * sizeof(double));
 
 
-	int *rmvedges  		= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+
+
+
+	pr_lagrange_hk(&env, ub, &prhk_1t, prhk_mults, &prhk_lb, &st);
+
+	pr_lagrange_vj(&env, INITASCENT, ub, &krvj_1t, prvj_mults, &prvj_lb, &st);
+
+	pr_lagrange_vj(&env, GENASCENT, ub, &krvjgen_1t, prvj_mults, &prvjgen_lb, &st);
+
+	kr_lagrange_vj(&env, INITASCENT, ub, &edgelist, &krvj_part_1t, &krvj_part_vs, &krvj_1t, krvj_mults, &krvj_lb, &st);
+
+	kr_lagrange_vj(&env, GENASCENT, ub, &edgelist, &krvjgen_part_1t, &krvjgen_part_vs, &krvjgen_1t, krvj_mults, &krvjgen_lb, &st);
+
+
+
+
+	printf("pr hk     lower bound = %.2f : %.2f\n", prhk_lb / opt * 100.0, prhk_lb);
+	printf("pr vj     lower bound = %.2f : %.2f\n", prvj_lb / opt * 100.0, prvj_lb);
+	printf("pr vj gen lower bound = %.2f : %.2f\n", prvjgen_lb / opt * 100.0, prvjgen_lb);
+	printf("kr vj     lower bound = %.2f : %.2f\n", krvj_lb / opt * 100.0, krvj_lb);
+	printf("kr vj gen lower bound = %.2f : %.2f\n", krvjgen_lb / opt * 100.0, krvjgen_lb);
+
+	int best 	= 0;
+	best_lb 	= prhk_lb;
+	if (prvj_lb > best_lb) {
+		best_lb	= prvj_lb;
+		best 	= 1;
+	}
+	if (krvj_lb > best_lb) {
+		best_lb	= krvj_lb;
+		best 	= 2;
+	}
+
+	if (best == 0) {
+		tree_copy(&prhk_1t, &best_1t);
+		for (i = 0; i < n; i++) {
+			best_mults[i] = prhk_mults[i];
+		}
+		best_lb = prhk_lb;
+	}
+	if (best == 1) {
+		tree_copy(&prvj_1t, &best_1t);
+		for (i = 0; i < n; i++) {
+			best_mults[i] = prvj_mults[i];
+		}
+		best_lb = prvj_lb;
+	}
+
+	if (best == 2) {
+		for (i = 0; i < n; i++) {
+			best_mults[i] = krvj_mults[i];
+		}
+		tree_copy(&krvj_1t, &best_1t);
+		best_lb = krvj_lb;
+	}
+
+
+	printf("best lower bound = %.2f : %.2f\n", best_lb / opt * 100.0, best_lb);
+
 	int num_rmvedges;
+	int *rmvedges  	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
+	tree_rooting(&best_1t, 0);
 	reduce(&(env.main_graph), &best_1t, best_mults, best_lb, ub, rmvedges, &num_rmvedges);
 
 	printf("num edges = %d : num removed edges = %d\n", (n * (n - 1)) / 2, num_rmvedges);
 	printf("ratio = %.2f\n", num_rmvedges / (double)((n * (n - 1)) / 2) * 100.0);
 	printf("lower bound = %.2f\n", best_lb);
-	//printf("ratio = %.2f\n", best_lb / opt * 100.00);
+	printf("ratio = %.2f\n", best_lb / opt * 100.00);
 
 	for (i = 0; i < num_rmvedges; i++) {
+		arraylist_remove(&edgelist, rmvedges[i]);
 		graph_set_edge_cstr(&(env.main_graph), rmvedges[i], FORBIDDEN);
 	}
 
-	int num_edges;
-	int *unsrtedges		= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	int *srtedges		= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	double	*weights	= (double*)malloc((n * (n - 1)) / 2 * sizeof(double));
-	double wmin 		= (env.main_graph).edge_cost[0];
-	double wmax 		= (env.main_graph).edge_cost[0];
+	/* branch & bound */
 
-	num_edges = 0;
-	for (i = 0; i < (n * (n - 1)) / 2; i++) {
-		if (env.main_graph.edge_cstr[i] == FREE) {
-			unsrtedges[num_edges++]	= i;
-			weights[i]		= (env.main_graph).edge_cost[i];
-			if (weights[i] < wmin) wmin = weights[i];
-			if (weights[i] > wmax) wmax = weights[i];
-		}
-	}
+	double gap;
 
-	counting_sort(unsrtedges, srtedges, num_edges, weights, wmin, wmax);
+	tree part_1t;
+	tree_init(&part_1t);
+	tree_setup(&part_1t, n);
 
-	arraylist edgelist;
-	arraylist_init(&edgelist);
-	arraylist_setup(&edgelist, (n * (n - 1)) / 2);
-
-	int tail = edgelist.capacity;
-	for (i = 0; i < num_edges; i++) {
-		arraylist_insert_pred(&edgelist, tail, srtedges[i]);
-	}
-
-	tree part1t;
-	tree_init(&part1t);
-	tree_setup(&part1t, n);
-	set partvs;
-	set_init(&partvs);
-	set_setup(&partvs, n);
-
-	/*********************************************************/
-	/*
-	env.path_node = -1;
-	env.path_tree 	= (tree*)malloc( n * sizeof(tree));
-	for (i = 0; i < n; i++) {
-		tree_init(&(env.path_tree[i]));
-		tree_setup(&(env.path_tree[i]), n);
-	}
-	env.path_lb	= (double*)malloc( n * sizeof(double));
-	env.rmvedges	= (int*)   malloc((n * (n - 1)) / 2 * sizeof(int));
-	env.begin		= (int*)   malloc( n * sizeof(int));
-	*/
-	/*********************************************************/
-
-	double new_ub;
-
+	set part_vs;
+	set_init(&part_vs);
+	set_setup(&part_vs, n);
 
 	stats.num_nodes 	= 0;
 	stats.num_levels 	= 0;
 	stats.curr_node 	= 0;
 	stats.curr_level 	= 0;
 
-	start = clock();
-	//pr_bb(&env, &stats);
-	env.genascent_mults = (double*)malloc(n * sizeof(double));
-
-	kr_bb(&env, &stats, &edgelist, &part1t, &partvs, &new_ub);
-	end = clock();
-	time_interval = (end - start) / (double)CLOCKS_PER_SEC;
-
-	printf("num edges = %d : num removed edges = %d\n", (n * (n - 1)) / 2, num_rmvedges);
-	printf("ratio = %.2f\n", num_rmvedges / (double)((n * (n - 1)) / 2) * 100.0);
-
-	printf("time = %.2f\n", time_interval);
-	printf("upper bound = %.2f\n", env.global_ub);
-
-	plot_tree(&(env.global_1t), &(env.vertices), NULL);
-
-
-
-	/* TEST: KRUSKAL **********************************************/
-	/*
-	int i, st, nr;
-	double lb, gen_step, time_interval;
-	double ub		= opt * 1.01;
-	env.global_ub	= opt * 1.01;
-	int n			= pars.num_vertices;
-	clock_t start, end;
-
-	tree best1t;
-	tree_init(&best1t);
-	tree_setup(&best1t, n);
-
-	//pr_lagrange_hk(&env, ub, 20000, 20000, 100, &best1t, &lb, &st);
-	//reduce(&(env.main_graph), &best1t, lb, ub, &nr);
-
-	int num_edges;
-	int *unsrtedges		= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	int *srtedges		= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-
-	double *weights		= (double*)malloc((n * (n - 1)) / 2 * sizeof(double));
-	double  wmin 		= (int)(env.main_graph).edge_cost[0];
-	double  wmax 		= (int)(env.main_graph).edge_cost[0];
-
-	num_edges = 0;
-	for (i = 0; i < (n * (n - 1)) / 2; i++) {
-		if (env.main_graph.edge_cstr[i] == FREE) {
-			unsrtedges[num_edges++]	= i;
-			weights[i]		= (env.main_graph).edge_cost[i];
-			if (weights[i] < wmin) wmin = weights[i];
-			if (weights[i] > wmax) wmax = weights[i];
-		}
-	}
-
-	counting_sort(unsrtedges, srtedges, num_edges, weights, wmin, wmax);
-
-	arraylist edgelist;
-	arraylist_init(&edgelist);
-	arraylist_setup(&edgelist, (n * (n - 1)) / 2);
-
-	int tail = edgelist.capacity;
-	for (i = 0; i < num_edges; i++) {
-		arraylist_insert_pred(&edgelist, tail, srtedges[i]);
-	}
-
-	tree part1t;
-	tree_init(&part1t);
-	tree_setup(&part1t, n);
-	set partvs;
-	set_init(&partvs);
-	set_setup(&partvs, n);
+	tree_copy(&best_1t, &(env.global_1t)); /* if lagrange 1-tree is optimal.. */
 
 	start = clock();
-	//kr_lagrange_vj(&env, &edgelist, &part1t, &partvs, INITASCENT, ub, &best1t, &lb, &gen_step, &st);
-	pr_lagrange_vj(&env, INITASCENT, ub, &lb, &gen_step, &best1t, &st);
+	kr_bb(&env, &stats, &edgelist, &part_1t, &part_vs, &gap);
 	end = clock();
+
 	time_interval = (end - start) / (double)CLOCKS_PER_SEC;
-
-	printf("num edges = %d : num removed edges = %d\n", (n * (n - 1)) / 2, nr);
-	printf("ratio = %.2f\n", nr / (double)((n * (n - 1)) / 2) * 100.0);
-	printf("time = %.2f\n", time_interval);
-
-	printf("lower bound = %.2f\n", lb);
-	plot_tree(&best1t, &(env.vertices), NULL);
-	*/
+	printf("num edges           = %d\n", (n * (n - 1)) / 2);
+	printf("removed             = %d\n", num_rmvedges);
+	printf("ratio               = %.2f\n", num_rmvedges / (double)((n * (n - 1)) / 2) * 100.0);
+	printf("initial lower bound = %.2f\n", best_lb);
+	printf("initial upper bound = %.2f\n", ub);
+	printf("final upper bound   = %.2f\n", env.global_ub);
+	printf("time                = %.2f\n", time_interval);
+	//plot_tree(&(env.global_1t), &(env.vertices), NULL);
 
 
 	printf("End\n");

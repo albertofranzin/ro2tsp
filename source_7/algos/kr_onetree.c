@@ -1,6 +1,6 @@
 #include "../algos/kr_onetree.h"
 
-int kr_onetree(int *mstedges, int num_mstedges, int *oneedges, int num_oneedges, double *weights, set *vertexset, tree* min1t, int *status) {
+int kr_onetree(int *mstedges, int num_mstedges, int *oneedges, int num_oneedges, int *weights, set *vertexset, tree* min1t, int *status) {
 
 	*status = 0;
 	int i, st;
@@ -8,7 +8,7 @@ int kr_onetree(int *mstedges, int num_mstedges, int *oneedges, int num_oneedges,
 	/* consider the edges incident to 0 and take
 	 * the two less-cost ones among them */
 	int e1, e2;
-	double min;
+	int min;
 	e1 = e2 = -1;
 
 	for (i = 0; i < num_oneedges; i++) {

@@ -18,6 +18,7 @@
 
 #include "../../algos/kr_onetree.h"
 #include "../../algos/kr_lagrange_vj.h"
+#include "../../algos/pr_lagrange_hk.h"
 
 #include "../../algos/reduce.h"
 
