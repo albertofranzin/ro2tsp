@@ -12,6 +12,9 @@ int pr_lagrange_hk(environment *env, double ub, tree* t, double *best_mults, dou
 	int num_step		= 0;
 	int num_noimprov 	= 0;
 	int max_num_step 		= (n * n) / 2 + n;
+	if (n > 350) {
+		max_num_step = 50000;
+	}
 	int max_num_noimprov 	= max_num_step;
 	int alpha_ht			= (int)(ceil((double)max_num_step / (log2(alpha) - log2(0.001))) / 2.0);
 
@@ -33,7 +36,7 @@ int pr_lagrange_hk(environment *env, double ub, tree* t, double *best_mults, dou
 
 		num_step++;
 
-		if (num_step % 1000 == 0) printf("num step = %d\n", num_step);
+		//if (num_step % 1000 == 0) printf("num step = %d\n", num_step);
 
 	    /* compute minimum 1-tree */
 		tree_empty(&curr_1t);
@@ -64,6 +67,7 @@ int pr_lagrange_hk(environment *env, double ub, tree* t, double *best_mults, dou
 			tree_copy(&curr_1t, t);
 			*best_lb		= z;
 			num_noimprov	= -1;
+			//printf("pr_lagrange_hk %d %.6f %f\n", num_step, z, ub);
 
 		}
 		num_noimprov++;

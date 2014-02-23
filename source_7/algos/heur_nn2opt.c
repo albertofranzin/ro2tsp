@@ -16,7 +16,7 @@ int heur_nn2opt(graph *g, cycle *best_c, double *best_ub) {
     	heur_nn(g, &temp_c, i, &ccost);
     	heur_2opt(g, &temp_c, &ccost);
         //getchar();
-        printf("2opt : %d/%d\n",i+1, n);
+        //printf("2opt : %d/%d\n",i+1, n);
 
     	if (i == 0 || ccost < *best_ub) {
     		//printf("update! ub = %.2f\n", *best_ub);

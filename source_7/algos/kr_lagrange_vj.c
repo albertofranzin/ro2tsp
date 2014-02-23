@@ -124,8 +124,8 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 		}
 
 		/* update solution */
+		//printf("%d %.4f %f\n", num_step, z, ub);
 		if (z > *best_lb || num_step == 1) {
-			//printf("update! z = %.2f\n", z);
 
 			/* update best 1-tree */
 			tree_copy(&curr_1t, best_1t);

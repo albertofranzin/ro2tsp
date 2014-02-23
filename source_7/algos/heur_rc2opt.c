@@ -42,7 +42,7 @@ int heur_rc2opt(graph  *g, cycle  *best_c, double *best_ub, int *ones, int *zero
 
     // initially, all zeros - just saves time later
     for (i = 0; i < n*(n-1)/2; ++i) {
-    	zs[i] = 1;
+    	zeros[i] = 1;
     }
 
     memset(os, 0, (n * (n - 1)) / 2 *sizeof(int));
@@ -84,13 +84,13 @@ int heur_rc2opt(graph  *g, cycle  *best_c, double *best_ub, int *ones, int *zero
     	for (j = 0; j < n*(n-1)/2; ++j) {
     		if(rcp[i].zeros[j] == 0) zeros[j] = 0;
     		if(rcp[i].ones[j] == 1)  os[j]++;
-    	}
+        }
 
     } /* end thread joining */
 
     for (j = 0; j < n*(n-1)/2; ++j) {
-    	if(os[j] == num_threads) {
-    		ones[j] = 1;
+        if(os[j] == num_threads) {
+            ones[j] = 1;
     	}
     	else {
     		ones[j] = 0;
@@ -169,7 +169,7 @@ void *rc_thread(void *p) {
 					idx = x * (x - 1) / 2 + y;
 				}
 				zs[idx] = 0;
-				os[idx] = 1;
+				os[idx] += 1;
 			}
 		}
 
