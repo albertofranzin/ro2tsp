@@ -4,6 +4,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "../base/global.h"
 
 #include "../data/coords.h"
@@ -36,6 +37,8 @@ typedef struct _environment {
 	 	 	 	 	 	 	 * each set is associated to a red-node */
 
 	double	*genascent_mults;
+
+	clock_t   start_time;
 
 } environment;
 

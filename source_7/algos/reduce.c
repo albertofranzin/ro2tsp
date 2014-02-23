@@ -1,5 +1,6 @@
 #include "../algos/reduce.h"
 
+
 int reduce(graph *g, tree *min1t, double *mults, double lb, double ub, int *rmvedges, int *num_rmvedges)  {
 
 	int n	= g->vrtx_num;			/* number of vertices */
@@ -20,7 +21,6 @@ int reduce(graph *g, tree *min1t, double *mults, double lb, double ub, int *rmve
 	 */
 	double min;
 	for (i = 0; i < n; i++) {
-
 		if (i == 0 || mults[i] > min) {
 			min = mults[i];
 		}

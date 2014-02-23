@@ -8,8 +8,8 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 	int n				= (env->main_graph).vrtx_num;
 	double *curr_mults 	= (double*)malloc(n * sizeof(double));
 
-	if (stats->curr_node % 100 == 0) printf("NODE = %d, LEV = %d\n",
-			stats->curr_node, stats->curr_level);
+	/*if (stats->curr_node % 100 == 0) printf("NODE = %d, LEV = %d\n",
+			stats->curr_node, stats->curr_level);*/
 	//printf("active edges = %.2f\n", (double)(edgelist->size) / ((n * (n - 1)) / 2) * 100.0);
 
 
@@ -109,7 +109,7 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 	}
 
 	if (onetree_is_cycle(&curr_1t)) {
-		printf("update! ub = %.2f\n", ceil(curr_lb));
+		//printf("update! ub = %.2f\n", ceil(curr_lb));
 
 		tree_copy(&curr_1t, &(env->global_1t));
 		if (ceil(curr_lb) - curr_lb > EPSILON) {
@@ -165,6 +165,14 @@ int kr_bb(environment *env, statistics *stats, arraylist *edgelist, tree *part_1
 	//printf("edge selection\n");
 	edgesel(env, &curr_1t, v, &e1, &e2);
 
+
+	clock_t curr_time = clock();
+
+	if ((double)(curr_time - env->start_time) / CLOCKS_PER_SEC > 2000) {
+		printf("time limit reached, stopping. CURRENT BEST SOLUTION : %f ; GAP : %f%% ; NODES : %d\n",
+				env->global_ub, 100.0* (env->global_ub - env->global_lb)/env->global_lb, stats->curr_node);
+		exit(1);
+	}
 
 	if (e1 >= 0 && e2 >= 0) { /* the case e2 < 0 can't be applied here:
 							   * if e2 < 0 then there are exactly 3

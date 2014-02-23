@@ -218,36 +218,54 @@ int main(int argc, char **argv) {
 	free(ones);
 	free(zeros);
 
-	// **************************
+	// **************************/
 
-	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	int i, n			= pars.num_vertices;
+	double best_ub;
+	int *ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	int *zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	clock_t t1 = 0, t2 = 0;
 
-	//cycle best_c;
-	//cycle_init(&best_c);
-	//cycle temp_c;
-	//cycle_init(&temp_c);
-	t1 = clock();
-	//compute_ub(&(env.main_graph), RC23OPT, &best_c, &best_ub, ones, zeros);
-	heur_3opt(&(env.main_graph), &best_c, &best_ub);
-	t2 = clock();
+	cycle best_c;
+	cycle_init(&best_c);
+	cycle temp_c;
+	cycle_init(&temp_c);
+
+	//t1 = clock();
+	compute_ub(&(env.main_graph), RC23OPT, &best_c, &best_ub, ones, zeros);
+	//heur_3opt(&(env.main_graph), &best_c, &best_ub);
+	//t2 = clock();
 	//plot_cycle(&best_c, &(env.vertices), NULL);
 	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-	free(ones);
-	free(zeros);
 
-	exit(1);
+	int num_edges = n * (n-1) / 2;
+	int ksjdfh = 0;
+	for (i = 0 ; i < num_edges ; i++) {
+		if (zeros[i] == 1){
+			graph_set_edge_cstr(&(env.main_graph), i, FORBIDDEN);
+			ksjdfh++;
+		}
+		else if (ones[i] == 1) {
+			graph_set_edge_cstr(&(env.main_graph), i, FORCED);
+			ksjdfh++;
+		}
+	}
+	printf("removed by zeros and ones %d\n", ksjdfh);
+	//getchar();
+	//free(ones);
+	//free(zeros);
+
+	//exit(1);
 
 	// **
-	*/
+	/**/
 
-	int n			= pars.num_vertices;
-	int i;
+	//int i;
 
 	int st;
-	double ub		= 40885; //ceil(opt * 1.01);
+	double ub		= best_ub;//40885; //ceil(opt * 1.01);
 	//double ub		= ceil(opt * 1.01);
-	env.global_ub	= 40885; //ceil(opt * 1.01);
+	env.global_ub	= ub; //40885; //ceil(opt * 1.01);
 	//env.global_ub	= ceil(opt * 1.01);
 
 	clock_t start, end;
@@ -260,7 +278,8 @@ int main(int argc, char **argv) {
 	arraylist_init(&edgelist);
 	arraylist_setup(&edgelist, (n * (n - 1)) / 2);
 
-	int num_edges, wmin, wmax;
+	int //num_edges, 
+	wmin, wmax;
 	int *unsrt_edges	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 	int *srt_edges		= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 	int *weights		= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
@@ -345,11 +364,11 @@ int main(int argc, char **argv) {
 
 	kr_lagrange_vj(&env, GENASCENT, ub, &edgelist, &krvjgen_part_1t, &krvjgen_part_vs, &krvjgen_1t, krvj_mults, &krvjgen_lb, &st);
 
-	printf("pr hk     lower bound = %.2f : %.2f\n", prhk_lb / opt * 100.0, prhk_lb);
+	/*printf("pr hk     lower bound = %.2f : %.2f\n", prhk_lb / opt * 100.0, prhk_lb);
 	printf("pr vj     lower bound = %.2f : %.2f\n", prvj_lb / opt * 100.0, prvj_lb);
 	printf("pr vj gen lower bound = %.2f : %.2f\n", prvjgen_lb / opt * 100.0, prvjgen_lb);
 	printf("kr vj     lower bound = %.2f : %.2f\n", krvj_lb / opt * 100.0, krvj_lb);
-	printf("kr vj gen lower bound = %.2f : %.2f\n", krvjgen_lb / opt * 100.0, krvjgen_lb);
+	printf("kr vj gen lower bound = %.2f : %.2f\n", krvjgen_lb / opt * 100.0, krvjgen_lb);*/
 
 	int best 	= 0;
 	best_lb 	= prhk_lb;
@@ -357,7 +376,7 @@ int main(int argc, char **argv) {
 		best_lb	= prvj_lb;
 		best 	= 1;
 	}
-	if (krvj_lb > best_lb) {
+	/**/if (krvj_lb > best_lb) {
 		best_lb	= krvj_lb;
 		best 	= 2;
 	}
@@ -368,7 +387,7 @@ int main(int argc, char **argv) {
 			best_mults[i] = prhk_mults[i];
 		}
 		best_lb = prhk_lb;
-	}
+	}/**/
 	if (best == 1) {
 		tree_copy(&prvj_1t, &best_1t);
 		for (i = 0; i < n; i++) {
@@ -377,16 +396,17 @@ int main(int argc, char **argv) {
 		best_lb = prvj_lb;
 	}
 
-	if (best == 2) {
+	/**/if (best == 2) {
 		for (i = 0; i < n; i++) {
 			best_mults[i] = krvj_mults[i];
 		}
 		tree_copy(&krvj_1t, &best_1t);
 		best_lb = krvj_lb;
-	}
+	}/**/
 
+	env.global_lb = best_lb;
 
-	printf("best lower bound = %.2f : %.2f\n", best_lb / opt * 100.0, best_lb);
+	//printf("best lower bound = %.2f : %.2f\n", best_lb / opt * 100.0, best_lb);
 
 	int num_rmvedges;
 	int *rmvedges  	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
@@ -397,12 +417,13 @@ int main(int argc, char **argv) {
 	printf("num edges = %d : num removed edges = %d\n", (n * (n - 1)) / 2, num_rmvedges);
 	printf("ratio = %.2f\n", num_rmvedges / (double)((n * (n - 1)) / 2) * 100.0);
 	printf("lower bound = %.2f\n", best_lb);
-	printf("ratio = %.2f\n", best_lb / opt * 100.00);
+	/*printf("ratio = %.2f\n", best_lb / opt * 100.00);*/
 
 	for (i = 0; i < num_rmvedges; i++) {
 		arraylist_remove(&edgelist, rmvedges[i]);
 		graph_set_edge_cstr(&(env.main_graph), rmvedges[i], FORBIDDEN);
 	}
+
 
 	/* branch & bound */
 
@@ -423,7 +444,10 @@ int main(int argc, char **argv) {
 
 	tree_copy(&best_1t, &(env.global_1t)); /* if lagrange 1-tree is optimal.. */
 
+	printf("initial gap : %f%%\n", 100.0* (env.global_ub - env.global_lb)/env.global_lb);
+
 	start = clock();
+	env.start_time = start;
 	kr_bb(&env, &stats, &edgelist, &part_1t, &part_vs, &gap);
 	end = clock();
 

@@ -66,7 +66,7 @@ int pr_lagrange_vj(environment *env, int mode, double ub, tree *best_1t, double 
 
 		/* update solution */
 		if (z > *best_lb || num_step == 1) {
-			//printf("update! z = %.2f\n", z);
+			//printf("%d %.4f %f\n", num_step, z, ub);
 
 			/* update best 1-tree */
 			tree_copy(&curr_1t, best_1t);
