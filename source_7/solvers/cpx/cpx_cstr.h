@@ -116,7 +116,7 @@ int cpx_cstr_proximity_cutoff(environment	*env,
  * @param  cut_set    list of nodes in separated set
  * @return            status of the function
  */
-int cpx_cstr_maxflow(environment	*ce,
+int cpx_cstr_maxflow(environment	*env,
                      double			*x,
                      int    	   **ret_comps,
                      int    	   **ret_compscount,

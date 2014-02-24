@@ -162,3 +162,128 @@ int cpx_cstr_sec(environment	*env,
 	return 0;
 }
 
+int cpx_cstr_proximity_cutoff(environment   *env,
+                              double        *x_feas,
+                              int            x_feas_size,
+                              double         theta,
+                              cpx_cstr 		*c) {
+
+
+	int    n       = env->main_graph.vrtx_num;
+	int    numcols = n * (n - 1) / 2;
+	int    idx;
+	double z_feas;
+
+	if (x_feas_size != numcols || c->max_nzcnt < numcols) return 1;
+	/**
+	 * could be replaced with
+	 * assert(x_feas_size == numcols && c->max_nzcnt >= numcols);
+	 */
+
+	sprintf(c->rowname, "cutoff_cstr");
+
+	z_feas = 0.0;
+	for (idx = 0; idx < x_feas_size; idx++) {
+		if (x_feas[idx] > 0.9) {
+			z_feas += env->main_graph.edge_cost[idx];
+			//vrtx_from_idx(&ce->T, &i, &j, idx);
+			//z_feas += graph_get_edge_cost(&ce->G, i, j);
+		}
+	}
+
+	for (idx = 0; idx < numcols; idx++) {
+		//vrtx_from_idx(&ce->T, &i, &j, idx);
+		(c->rmatind)[idx] = idx;
+		(c->rmatval)[idx] = env->main_graph.edge_cost[idx];
+		//(c->rmatval)[idx] = graph_get_edge_cost(&ce->G, i, j);
+
+	}
+
+	c->nzcnt   = numcols;
+	c->rmatbeg = 0;
+	c->rhs     = z_feas - theta;
+	c->sense   = 'L';
+
+	return 0;
+
+}
+
+int cpx_cstr_maxflow(environment 	*env,
+                     double  		*x,
+                     int    	   **ret_comps,
+                     int    	   **ret_compscount,
+                     int     		*ret_ncomps,
+                     int    	   **cut_set,
+                     int     		*cscount,
+                     double			*minval) {
+
+	int status = 0;
+	int i, j, idx;
+	int n       = env->main_graph.vrtx_num;
+    int numcols = n * (n-1) / 2;
+
+    int  ncomp;
+    int *compscount,
+    	*comps,
+    	*elist;
+
+    elist = malloc(2 * numcols * sizeof(int));
+    for (idx = 0 ; idx < numcols ; idx++) {
+    	i = get_v1(idx);
+    	j = get_v2(idx);
+    	//vrtx_from_idx(&ce->T, &i, &j, idx);
+    	elist[2*idx]     = i;
+    	elist[2*idx + 1] = j;
+    }
+
+    int retval = CCcut_connect_components(n, numcols, elist, x, &ncomp,
+    											  &compscount, &comps);
+    assert(!retval);
+
+    printf("retval %d\n", retval);
+
+    /*int current_node = 0, curr_cc;
+    for (curr_cc = 0; curr_cc < ncomp; curr_cc++) {
+      printf("CC #%d:", curr_cc);
+      for (i = 0; i < compscount[curr_cc]; i++) {
+        printf(" %d", comps[current_node]);
+        current_node++;
+      }
+      printf("\n");
+    }
+    getchar();*/
+
+    if(ncomp == 1) {
+    	double cutval;
+    	int   *cut,
+    	  cutcount;
+
+    	int retval = CCcut_mincut(n, numcols, elist, x, &cutval, &cut,
+    													   &cutcount);
+
+    	printf("Ret: %d, cutcount = %d\n", retval, cutcount);
+    	printf("%lf\n", cutval);
+
+        /*for (i = 0; i < cutcount; i++) {
+          printf("%d ", cut[i]);
+        }
+        printf("\n");*/
+
+    	if (cutval < 2.0) {
+    		//printf("lakhskjsnd\n");
+    		*cut_set = cut;
+    		//getchar();
+    		*cscount = cutcount;
+    		*minval  = cutval;
+    	}
+
+    	//getchar();
+    }
+
+    *ret_comps      = comps;
+    *ret_compscount = compscount;
+    *ret_ncomps     = ncomp;
+
+
+    return status;
+}
