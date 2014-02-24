@@ -25,6 +25,7 @@ int cpx_preprocessing(CPXENVptr	 	cplexenv,
 
 	compute_ub(&(env->main_graph), RC23OPT, &best_cycle, &best_ub, ones, zeros);
 	env->global_ub = best_ub;
+	cycle_copy(&best_cycle, &(env->global_cycle));
 	printf("# preprocessing : initial upper-bound         = %.2f\n", env->global_ub);
 
 

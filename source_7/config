@@ -52,7 +52,7 @@ TSPLIB_INSTANCE_OPTION = TRUE
 # 			and if TSPLIB_INSTANCE_OPTION = TRUE
 # options:	- any valid path
 #		
-TSPLIB_FILE_PATH = ../../tsplib/st70.tsp
+TSPLIB_FILE_PATH = ../../tsplib/eil51.tsp
 
 # Chosen heuristic algorithm
 # options:

@@ -26,7 +26,6 @@ typedef struct _flow {
 
 } flow;
 
-
 /**
  * solve the problem using Miliotis' approach
  * @param env   CPLEX environment
@@ -38,8 +37,14 @@ typedef struct _flow {
  * @param solstat CPLEX status of the solution
  * @return    status of the function
  */
-int cpx_solve_miliotis(environment *env, parameters *pars, statistics *stats);
-
+int cpx_solve_miliotis(CPXENVptr   	cplexenv,
+                       CPXLPptr    	lp,
+                       environment *env,
+                       parameters  *pars,
+                       statistics  *stats,
+                       double      *x,
+                       int          x_size,
+                       int         *solstat);
 
 /**
  * [cpx_subtour_callback description]
