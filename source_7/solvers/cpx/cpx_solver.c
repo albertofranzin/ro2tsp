@@ -89,8 +89,12 @@ int cpx_solver(environment *env, statistics *stats, parameters *pars) {
 	start = clock();
 
 	if (pars->proximity_option == TRUE) {
-		status = cpx_solve_proximity(env, lp, env, pars, stats,
+		status = cpx_solve_proximity(cplexenv, lp, env, pars, stats,
 			                     x, n * (n - 1) / 2, &solstat);
+	}
+	else if (pars->localbranching_option == TRUE) {
+		status = cpx_solve_local_branching(cplexenv, lp, env, pars, stats,
+									   x, n * (n - 1) / 2, &solstat);
 	}
 	else if (pars->rinspolishing_option == TRUE) {
 		status = cpx_solve_rins(cplexenv, lp, env, pars, stats, NULL, NULL,

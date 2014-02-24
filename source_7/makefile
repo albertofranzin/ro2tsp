@@ -43,7 +43,7 @@ buildLib: arraylist.o coords.o cycle.o environment.o graph.o list.o parameters.o
 	kr_mst.o kr_onetree.o kr_lagrange_vj.o \
 	propagate.o setncheck.o edgesel.o vertexsel.o pr_bb.o kr_bb.o \
 	cpx_cstr.o cpx_create_problem.o cpx_setup_problem.o cpx_set_parameters.o cpx_preprocessing.o \
-	cpx_solve_iterative.o cpx_solve_miliotis.o cpx_solve_rins.o cpx_solve_hardfixing.o cpx_solve_proximity.o cpx_solver.o
+	cpx_solve_iterative.o cpx_solve_miliotis.o cpx_solve_rins.o cpx_solve_hardfixing.o cpx_solve_proximity.o cpx_solve_local_branching.o cpx_solver.o
 	ar r libro2ds.a *.o
 	# rm *.o
 
@@ -183,7 +183,9 @@ cpx_solve_hardfixing.o: solvers/cpx/cpx_solve_hardfixing.h solvers/cpx/cpx_solve
 
 cpx_solve_proximity.o: solvers/cpx/cpx_solve_proximity.h solvers/cpx/cpx_solve_proximity.c
 	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_solve_proximity.c
-	
+
+cpx_solve_local_branching.o: solvers/cpx/cpx_solve_local_branching.h solvers/cpx/cpx_solve_local_branching.c
+	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_solve_local_branching.c
 		
 cpx_solver.o: solvers/cpx/cpx_solver.h solvers/cpx/cpx_solver.c
 	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_solver.c
