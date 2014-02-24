@@ -30,7 +30,7 @@ int cpx_solve_iterative(environment *env, parameters *pars, statistics *stats) {
 		exit(1);
 	}
 	#ifdef DEBUG
-	if (ce->pars->verbosity >= ANNOYING) {
+	if (pars->verbosity >= ANNOYING) {
 		printf("solvers/cpx/cpx_solver.c :: before entering cpx_set_parameters\n");
 	}
 	#endif
@@ -43,7 +43,7 @@ int cpx_solve_iterative(environment *env, parameters *pars, statistics *stats) {
 	    exit(1);
 	}
 	#ifdef DEBUG
-	if (ce->pars->verbosity >= ANNOYING) {
+	if (pars->verbosity >= ANNOYING) {
 		printf("solvers/cpx/cpx_solver.c :: before entering cpx_preprocessing\n");
 	}
 	#endif
