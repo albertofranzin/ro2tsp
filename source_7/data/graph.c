@@ -1,6 +1,7 @@
 #include "../data/graph.h"
 
 
+
 int graph_init(graph *g) {
 
 	g->vrtx_num 	= -1;
@@ -10,6 +11,7 @@ int graph_init(graph *g) {
 	g->edge_cost	= NULL;
 	g->edge_cstr	= NULL;
 	g->edge_flag	= NULL;
+	g->edge_delta   = NULL;
 	return 0;
 
 }
@@ -41,6 +43,10 @@ int graph_delete(graph *g) {
 	if (g->edge_flag != NULL) {
 		free(g->edge_flag);
 		g->edge_flag = NULL;
+	}
+	if (g->edge_delta != NULL) {
+		free(g->edge_delta);
+		g->edge_delta = NULL;
 	}
 	return 0;
 
@@ -76,6 +82,9 @@ int graph_setup(graph *g, int n) {
 	if (g->edge_flag != NULL) {
 		free(g->edge_flag);
 	}
+	if (g->edge_delta != NULL) {
+		free(g->edge_delta);
+	}
 
 	int i;
 	int ne = (n * (n - 1)) / 2;
@@ -86,6 +95,7 @@ int graph_setup(graph *g, int n) {
 	g->edge_cost 	= (double*)malloc(ne * sizeof(double));
 	g->edge_cstr 	= (int*)malloc(ne * sizeof(int));
 	g->edge_flag 	= (int*)malloc(ne * sizeof(int));
+	g->edge_delta 	= (double*)malloc(ne * sizeof(double));
 
     for (i = 0; i < n; i++ ) {
         g->vrtx_deg[i]	= 0;
@@ -97,6 +107,7 @@ int graph_setup(graph *g, int n) {
         g->edge_cost[i]	= 0.0;
         g->edge_cstr[i]	= FREE;
         g->edge_flag[i]	= FALSE;
+        g->edge_delta[i]= 0.0;
     }
     return 0;
 
@@ -123,6 +134,10 @@ int graph_copy(graph *from, graph *to) {
 	if (to->edge_flag != NULL) {
 		free(to->edge_flag);
 	}
+	if (to->edge_delta != NULL) {
+		free(to->edge_delta);
+	}
+
 
 	int i;
 	int n			= from->vrtx_num;
@@ -134,6 +149,8 @@ int graph_copy(graph *from, graph *to) {
 	to->edge_cost	= (double*)malloc(ne * sizeof(double));
 	to->edge_cstr 	= (int*)malloc(ne * sizeof(int));
 	to->edge_flag 	= (int*)malloc(ne * sizeof(int));
+	to->edge_delta 	= (double*)malloc(ne * sizeof(double));
+
 	for (i = 0; i < n; i++) {
 		to->vrtx_deg[i]	= from->vrtx_deg[i];
 		to->vrtx_frc[i] = from->vrtx_frc[i];
@@ -143,6 +160,7 @@ int graph_copy(graph *from, graph *to) {
 		to->edge_cost[i] = from->edge_cost[i];
 		to->edge_cstr[i] = from->edge_cstr[i];
 		to->edge_flag[i] = from->edge_flag[i];
+		to->edge_delta[i] = from->edge_delta[i];
 	}
 	return 0;
 

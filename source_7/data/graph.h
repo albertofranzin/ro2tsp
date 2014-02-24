@@ -7,6 +7,7 @@
 #include "../base/utils.h"
 
 
+
 typedef struct _graph {
 
 	int		vrtx_num;	/* number of vertices */
@@ -21,6 +22,8 @@ typedef struct _graph {
 	int		*edge_flag;	/* list of flags, one for each edge; */
 						/* if the edge is present, then its flag */
 						/* should be setted equal to 1 */
+	double  *edge_delta;
+
 } graph;
 
 /**
