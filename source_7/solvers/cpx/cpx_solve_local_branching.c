@@ -16,7 +16,8 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	int lbc_counter = 0;
 	int i, j, idx, status;
 	//int k, iter, cid_counter;
-	clock_t start_time, elapsed_time, total_time_limit, node_time_limit, now;
+	clock_t node_time_limit;
+	//clock_t total_time_limit, elapsed_time, start_time, now;
 
 	double rhs = 10;//ce->init_ub;
 
@@ -86,7 +87,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	int first     = TRUE;
 	int diversify = FALSE;
 	int dv        = 0;
-	int dv_max    = 100000; // ????
+	//int dv_max    = 100000; // ????
 	int lcr;                // last constraint row
 
 
@@ -103,7 +104,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	memset(x_opt, 0., sizeof(double)*numcols);
 	memcpy(cur_x_opt, x_feas, sizeof(double)*numcols);
 	// set time controls
-	start_time = clock();
+	//start_time = clock();
 
 	//printf("Set node time limit to CPLEX: %f\n", node_time_limit); // commentato: node_time_limit NON INIZIALIZZATO
 	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, 10);
@@ -179,7 +180,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	             solstat == 102  ) {
 
 	    	// retrieve solution coefficients
-	        status = CPXgetx(env, lp, x, 0, numcols-1);
+	        status = CPXgetx(cplexenv, lp, x, 0, numcols-1);
 	        if (status) {
 	        	fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
 	        	fprintf(stderr, "CPXgetx : %d\n", status);
@@ -429,12 +430,15 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	    } // end switch
 
 	    // check time
-	    now = clock();
+	    //now = clock();
 	    printf("before time_elapsed()\n");
-	    elapsed_time = time_elapsed(start_time, now);
-	    if (elapsed_time > total_time_limit || dv > dv_max) {
+	   //elapsed_time = time_elapsed(start_time, now);
+
+	    /*
+	    if (elapsed_time > total_time_limit || dv > dv_max) { // commentato: total_time_limit NON INIZIALIZZATO
 	    	termination = TRUE;
 	    }
+	    */
 
 	    printf("before second addmipstarts\n");
 	    j = 0;
@@ -453,6 +457,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	} // end while termination
 
 	//printf("Set node time limit to CPLEX: %f\n", node_time_limit); // commentato: node_time_limit type clock_t non double
+	node_time_limit = 100; // non presente nell'originale: nvalore a caso, altrimenti node_time_limit NON INIZIALIZZATO
 	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, node_time_limit);
 	if (status) {
 		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_local_branching.c :: ");
