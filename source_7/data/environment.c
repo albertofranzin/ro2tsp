@@ -6,6 +6,7 @@ int environment_init(environment *env) {
 	coords_init(&(env->vertices));
 	graph_init(&(env->main_graph));
 	tree_init(&(env->global_1t));
+	cycle_init(&(env->global_cycle));
 	env->global_ub 	= -1.0;
 	env->global_lb 	= -1.0;
 	env->gen_step	= -1.0;
@@ -36,6 +37,7 @@ int environment_delete(environment *env) {
 	coords_init(&(env->vertices));
 	graph_init(&(env->main_graph));
 	tree_init(&(env->global_1t));
+	cycle_init(&(env->global_cycle));
 	env->global_ub	= -1.0;
 	env->global_lb	= -1.0;
 	env->gen_step	= -1.0;

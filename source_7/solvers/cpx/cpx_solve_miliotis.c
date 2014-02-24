@@ -1,87 +1,20 @@
 #include "../../solvers/cpx/cpx_solve_miliotis.h"
 
-int cpx_solve_miliotis(environment *env, parameters *pars, statistics *stats) {
+int cpx_solve_miliotis(CPXENVptr   	cplexenv,
+                       CPXLPptr    	lp,
+                       environment *env,
+                       parameters  *pars,
+                       statistics  *stats,
+                       double      *x,
+                       int          x_size,
+                       int         *solstat) {
 
-
-	CPXENVptr cplexenv;
-	CPXLPptr  lp;
 
 	int status = 0;
 
-	/* create problem */
-	status = cpx_create_problem(&cplexenv, &lp, "problem");
-	if (status) {
-		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c.c:\n"
-	                    "function: cpx_solve_miliotis.c:\n"
-	                    "cpx_create_problem : %d\n", status);
-	    exit(1);
-	}
-	#ifdef DEBUG
-	if (pars->verbosity >= ANNOYING) {
-		printf("solvers/cpx/cpx_it.c :: before entering cpx_setup_problem\n");
-	}
-	#endif
-
-	status = cpx_setup_problem(cplexenv, lp, env, pars);
-	if (status) {
-		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c.c:\n"
-	                    "function: cpx_solve_miliotis.c:\n"
-	                    "cpx_setup_problem : %d\n", status);
-		exit(1);
-	}
-	#ifdef DEBUG
-	if (ce->pars->verbosity >= ANNOYING) {
-		printf("solvers/cpx/cpx_solver.c :: before entering cpx_set_parameters\n");
-	}
-	#endif
-
-	status = cpx_set_parameters(cplexenv, lp, env, pars);
-	if (status) {
-		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c.c:\n"
-	                    "function: cpx_solve_miliotis.c:\n"
-	                    "cpx_set_parameters : %d\n", status);
-	    exit(1);
-	}
-	#ifdef DEBUG
-	if (ce->pars->verbosity >= ANNOYING) {
-		printf("solvers/cpx/cpx_solver.c :: before entering cpx_preprocessing\n");
-	}
-	#endif
-
-
-	/* preprocessing */
-	status = cpx_preprocessing(cplexenv, lp, env, pars, stats);
-	if (status) {
-		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c.c:\n"
-	                    "function: cpx_solve_miliotis.c:\n"
-	                    "preprocessing : %d\n", status);
-	    exit(1);
-	}
-
-
-	/* write problem to file */
-	status = CPXwriteprob(cplexenv, lp, "myprob.lp", "LP");
-	if (status) {
-		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c.c:\n"
-	                    "function: cpx_solve_miliotis.c:\n"
-	                    "CPXwriteprob : %d\n", status);
-	    exit(1);
-	}
-
-
-	/* ------------------------------------------------------------------------------------ */
-
-	clock_t start, end;
-	double time_interval;
-	start = clock();
-
-
-	int n 		= env->main_graph.vrtx_num;
-	int numcols = (n * (n - 1)) / 2;
-	double *x	= (double *)calloc(numcols, sizeof(double));
-	int x_size  = numcols;
-	env->mylp   = lp;
-	//int solstat;
+	int n       = env->main_graph.vrtx_num;
+	int numcols = n * (n - 1) / 2;
+	//int vrtx_comp[n];
 
 	//status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_DYNAMIC);
 	status = CPXsetintparam (cplexenv, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_TRADITIONAL);
@@ -195,7 +128,7 @@ int cpx_solve_miliotis(environment *env, parameters *pars, statistics *stats) {
 	}
 
 	status = CPXgetstat(cplexenv, lp);
-	//solstat = status;
+	*solstat = status;
 	if (status == 103) return 0;
 
 
@@ -209,29 +142,6 @@ int cpx_solve_miliotis(environment *env, parameters *pars, statistics *stats) {
 	            		"CPXgetx : %d\n", status);
 		return 1;
 	}
-
-
-
-
-	/* setup output, retrieving edges whose corresponding variable
-	 * is close enough to 1 (tolerance should be much higher, but...)
-	 */
-	int my_edge;
-	double opt = 0.0;
-	tree_delete(&(env->global_1t));
-	tree_setup(&(env->global_1t), n);
-	for (my_edge = 0; my_edge < numcols; my_edge++) {
-		if (x[my_edge] > 0.9) {
-			tree_insert_edge(&(env->global_1t), my_edge);
-			opt += env->main_graph.edge_cost[my_edge];
-		}
-	}
-
-	end = clock();
-	time_interval = (end - start) / (double)CLOCKS_PER_SEC;
-	printf("opt                 = %.2f\n", opt);
-	printf("time                = %.2f\n", time_interval);
-	free(x);
 
 	return 0;
 }

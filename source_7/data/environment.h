@@ -11,6 +11,8 @@
 #include "../data/coords.h"
 #include "../data/graph.h"
 #include "../data/tree.h"
+#include "../data/cycle.h"
+
 
 /**
 * @brief    Problem environment.
@@ -20,6 +22,7 @@ typedef struct _environment {
 	coords 	vertices;		/* coordinates of the vertices */
 	graph 	main_graph;		/* initial graph */
 	tree	global_1t;		/* best 1-tree (tour) */
+	cycle	global_cycle;	/* best 1-tree (tour) */
 	double  global_ub;		/* best upper-bound */
 	double	global_lb;		/* best lower-bound */
 

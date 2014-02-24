@@ -45,8 +45,10 @@
 #include "./solvers/bb/pr_bb.h"
 #include "./solvers/bb/kr_bb.h"
 
+#include "./solvers/cpx/cpx_solver.h"
 #include "./solvers/cpx/cpx_solve_iterative.h"
 #include "./solvers/cpx/cpx_solve_miliotis.h"
+#include "./solvers/cpx/cpx_solve_rins.h"
 
 int* idx_to_v1	= NULL;
 int* idx_to_v2	= NULL;
@@ -72,8 +74,12 @@ int main(int argc, char **argv) {
 
 	/* START CPLEX */
 
-	cpx_solve_miliotis(&env, &pars, &stats);
-	//cpx_solve_iterative(&env, &pars, &stats);
+	pars.proximity_option		= FALSE;
+	pars.hardfixing_option 		= FALSE;
+	pars.localbranching_option 	= FALSE;
+	pars.rinspolishing_option 	= FALSE;
+	pars.callbacks_option 		= FALSE;
+	cpx_solver(&env, &stats, &pars);
 	plot_tree(&(env.global_1t), &(env.vertices), NULL);
 	exit(1);
 
