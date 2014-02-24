@@ -45,6 +45,7 @@
 #include "./solvers/bb/pr_bb.h"
 #include "./solvers/bb/kr_bb.h"
 
+#include "./solvers/cpx/cpx_solve_iterative.h"
 
 int* idx_to_v1	= NULL;
 int* idx_to_v2	= NULL;
@@ -67,6 +68,15 @@ int main(int argc, char **argv) {
 	setup_parameters_commandline(argc, argv, &pars);
 
 	setup_problem_tsplib(&pars, &env);
+
+	/* START CPLEX */
+
+
+	cpx_solve_iterative(&env, &pars, &stats);
+	plot_tree(&(env.global_1t), &(env.vertices), NULL);
+	exit(1);
+
+	/* END CPLEX */
 
 	//double opt = 3323;	// burma14x*
 	//double opt = 6859;	// ulysses16

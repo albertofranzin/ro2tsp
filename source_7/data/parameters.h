@@ -29,11 +29,15 @@ typedef struct _parameters {
 	unsigned int	solver;					/* chosen solver */
 	unsigned int	num_threads;			/* number of threads */
 
+	/* cplex */
+
 	int				callbacks_option;		/* whether to use callbacks */
 	int				proximity_option;
 	int				localbranching_option;
 	int				hardfixing_option;
 	int				rinspolishing_option;
+
+	int 			verbosity;
 
 } parameters;
 
