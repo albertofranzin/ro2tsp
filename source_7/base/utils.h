@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "../base/global.h"
 
 
@@ -83,5 +84,12 @@ short par_hash(char* parName, char* parValue);
 */
 short tsp_hash(char* parName, char* parValue);
 
+/**
+ * compute difference in seconds between two clock_t times
+ * @param  start start time
+ * @param  end   end time
+ * @return       seconds passed between start and end
+ */
+double time_elapsed(clock_t start, clock_t end);
 
 #endif /* UTILS_H_ */

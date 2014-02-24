@@ -340,3 +340,9 @@ short tsp_hash(char* parName, char* parValue) {
 	return 0;
 
 }
+
+inline double time_elapsed(clock_t start, clock_t end) {
+
+	return (double) (end - start) / CLOCKS_PER_SEC;
+
+}

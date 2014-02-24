@@ -24,6 +24,7 @@
 #include "../../solvers/cpx/cpx_solve_rins.h"
 #include "../../solvers/cpx/cpx_solve_hardfixing.h"
 #include "../../solvers/cpx/cpx_solve_proximity.h"
+#include "../../solvers/cpx/cpx_solve_local_branching.h"
 
 
 /**
