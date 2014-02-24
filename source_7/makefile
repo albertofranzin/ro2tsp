@@ -40,7 +40,8 @@ buildLib: arraylist.o coords.o cycle.o environment.o graph.o list.o parameters.o
 	heur_nn.o heur_rc.o heur_2opt.o heur_3opt.o heur_nn2opt.o heur_rc2opt.o compute_ub.o \
 	pr_mst.o pr_onetree.o pr_lagrange_hk.o pr_lagrange_vj.o \
 	kr_mst.o kr_onetree.o kr_lagrange_vj.o \
-	propagate.o setncheck.o edgesel.o vertexsel.o pr_bb.o kr_bb.o
+	propagate.o setncheck.o edgesel.o vertexsel.o pr_bb.o kr_bb.o \
+	cpx_cstr.o cpx_create_problem.o cpx_setup_problem.o cpx_set_parameters.o cpx_preprocessing.o cpx_solve_iterative.o
 	ar r libro2ds.a *.o
 	# rm *.o
 
@@ -151,6 +152,23 @@ kr_bb.o: solvers/bb/kr_bb.h solvers/bb/kr_bb.c
 	gcc $(CFLAGS) $(PAR) -c solvers/bb/kr_bb.c
 	
 # solvers: cpx
+cpx_cstr.o: solvers/cpx/cpx_cstr.h solvers/cpx/cpx_cstr.c
+	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_cstr.c
+	
+cpx_create_problem.o: solvers/cpx/cpx_create_problem.h solvers/cpx/cpx_create_problem.c
+	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_create_problem.c
+
+cpx_setup_problem.o: solvers/cpx/cpx_setup_problem.h solvers/cpx/cpx_setup_problem.c
+	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_setup_problem.c
+
+cpx_set_parameters.o: solvers/cpx/cpx_set_parameters.h solvers/cpx/cpx_set_parameters.c
+	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_set_parameters.c
+	
+cpx_preprocessing.o: solvers/cpx/cpx_preprocessing.h solvers/cpx/cpx_preprocessing.c
+	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_preprocessing.c
+	
+cpx_solve_iterative.o: solvers/cpx/cpx_solve_iterative.h solvers/cpx/cpx_solve_iterative.c
+	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_solve_iterative.c
 
 # base (common utilities)
 plot.o: base/plot.h base/plot.c
