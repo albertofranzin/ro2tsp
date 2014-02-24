@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <ilcplex/cplex.h>
 #include "../base/global.h"
 
 #include "../data/coords.h"
