@@ -67,6 +67,7 @@ int main(int argc, char **argv) {
 
 	setup_parameters_default(&pars);
 	
+
 	setup_parameters_config(CONFIG_FILE, &pars);
 	setup_parameters_commandline(argc, argv, &pars);
 
@@ -74,7 +75,7 @@ int main(int argc, char **argv) {
 
 	/* START CPLEX */
 
-	pars.proximity_option		= FALSE;
+	pars.proximity_option		= TRUE;
 	pars.hardfixing_option 		= FALSE;
 	pars.localbranching_option 	= FALSE;
 	pars.rinspolishing_option 	= FALSE;

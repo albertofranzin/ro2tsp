@@ -55,7 +55,6 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 	int 	haveVertexCoords = FALSE;
 	int 	haveEdgeCosts	 = FALSE;
 
-
 	while(fgets(line, sizeof line, tsplibFile) != NULL) {
 
 		lineLen = strlen(line) - 1;
@@ -395,6 +394,7 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 #endif
 
 	return 0;
+
 
 }
 

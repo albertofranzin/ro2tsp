@@ -194,16 +194,16 @@ int reduce(graph *g, tree *min1t, double *mults, double lb, double ub, int *rmve
 
 		//if (deltas[my_edge] != 0.0) {
 		if (deltas[my_edge] > min) {
-			deltas[my_edge] = g->edge_cost[my_edge]
-			               - mults[get_v1(my_edge)]
-	                       - mults[get_v2(my_edge)]
-			                      - deltas[my_edge];
+			g->edge_delta[my_edge] = g->edge_cost[my_edge]
+			                      - mults[get_v1(my_edge)]
+			                      - mults[get_v2(my_edge)]
+			                             - deltas[my_edge];
 		}
 		else {
-			deltas[my_edge] = 0.0;
+			g->edge_delta[my_edge] = 0.0;
 		}
 
-		if (lb + deltas[my_edge] > ub &&
+		if (lb + g->edge_delta[my_edge] > ub &&
 		   g->edge_cstr[my_edge] == FREE) {
 			rmvedges[*num_rmvedges] = my_edge;
 			*num_rmvedges += 1;
