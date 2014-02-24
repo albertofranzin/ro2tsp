@@ -41,7 +41,7 @@ buildLib: arraylist.o coords.o cycle.o environment.o graph.o list.o parameters.o
 	pr_mst.o pr_onetree.o pr_lagrange_hk.o pr_lagrange_vj.o \
 	kr_mst.o kr_onetree.o kr_lagrange_vj.o \
 	propagate.o setncheck.o edgesel.o vertexsel.o pr_bb.o kr_bb.o \
-	cpx_cstr.o cpx_create_problem.o cpx_setup_problem.o cpx_set_parameters.o cpx_preprocessing.o cpx_solve_iterative.o
+	cpx_cstr.o cpx_create_problem.o cpx_setup_problem.o cpx_set_parameters.o cpx_preprocessing.o cpx_solve_iterative.o cpx_solve_miliotis.o
 	ar r libro2ds.a *.o
 	# rm *.o
 
@@ -169,6 +169,9 @@ cpx_preprocessing.o: solvers/cpx/cpx_preprocessing.h solvers/cpx/cpx_preprocessi
 	
 cpx_solve_iterative.o: solvers/cpx/cpx_solve_iterative.h solvers/cpx/cpx_solve_iterative.c
 	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_solve_iterative.c
+
+cpx_solve_miliotis.o: solvers/cpx/cpx_solve_miliotis.h solvers/cpx/cpx_solve_miliotis.c
+	gcc $(CFLAGS) $(PAR) -c solvers/cpx/cpx_solve_miliotis.c
 
 # base (common utilities)
 plot.o: base/plot.h base/plot.c

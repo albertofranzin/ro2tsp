@@ -38,6 +38,10 @@ typedef struct _environment {
 
 	double	*genascent_mults;
 
+	/* cplex */
+
+	CPXLPptr mylp;
+
 	clock_t   start_time;
 
 } environment;

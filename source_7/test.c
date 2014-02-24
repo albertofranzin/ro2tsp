@@ -46,6 +46,7 @@
 #include "./solvers/bb/kr_bb.h"
 
 #include "./solvers/cpx/cpx_solve_iterative.h"
+#include "./solvers/cpx/cpx_solve_miliotis.h"
 
 int* idx_to_v1	= NULL;
 int* idx_to_v2	= NULL;
@@ -71,8 +72,8 @@ int main(int argc, char **argv) {
 
 	/* START CPLEX */
 
-
-	cpx_solve_iterative(&env, &pars, &stats);
+	cpx_solve_miliotis(&env, &pars, &stats);
+	//cpx_solve_iterative(&env, &pars, &stats);
 	plot_tree(&(env.global_1t), &(env.vertices), NULL);
 	exit(1);
 
