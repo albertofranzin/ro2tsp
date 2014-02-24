@@ -22,6 +22,9 @@
 #include "../../solvers/cpx/cpx_solve_iterative.h"
 #include "../../solvers/cpx/cpx_solve_miliotis.h"
 #include "../../solvers/cpx/cpx_solve_rins.h"
+#include "../../solvers/cpx/cpx_solve_hardfixing.h"
+#include "../../solvers/cpx/cpx_solve_proximity.h"
+
 
 /**
  * cpx_solver

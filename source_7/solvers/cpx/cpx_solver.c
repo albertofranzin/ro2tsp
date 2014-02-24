@@ -88,9 +88,17 @@ int cpx_solver(environment *env, statistics *stats, parameters *pars) {
 
 	start = clock();
 
-	if (pars->rinspolishing_option == TRUE) {
+	if (pars->proximity_option == TRUE) {
+		status = cpx_solve_proximity(env, lp, env, pars, stats,
+			                     x, n * (n - 1) / 2, &solstat);
+	}
+	else if (pars->rinspolishing_option == TRUE) {
 		status = cpx_solve_rins(cplexenv, lp, env, pars, stats, NULL, NULL,
 											 x, n * (n - 1) / 2, &solstat);
+	}
+	else if (pars->hardfixing_option == TRUE) {
+		status = cpx_solve_hardfixing(cplexenv, lp, env, pars, stats, NULL, NULL,
+				                                   x, n * (n - 1) / 2, &solstat);
 	}
 	else {
 
