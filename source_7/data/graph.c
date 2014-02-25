@@ -44,6 +44,7 @@ int graph_delete(graph *g) {
 		free(g->edge_flag);
 		g->edge_flag = NULL;
 	}
+
 	if (g->edge_delta != NULL) {
 		free(g->edge_delta);
 		g->edge_delta = NULL;

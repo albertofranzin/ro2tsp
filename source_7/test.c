@@ -73,6 +73,7 @@ int main(int argc, char **argv) {
 
 	setup_problem_tsplib(&pars, &env);
 
+
 	/* START CPLEX */
 
 	pars.proximity_option		= TRUE;
@@ -81,7 +82,7 @@ int main(int argc, char **argv) {
 	pars.rinspolishing_option 	= FALSE;
 	pars.callbacks_option 		= FALSE;
 	cpx_solver(&env, &stats, &pars);
-	plot_tree(&(env.global_1t), &(env.vertices), NULL);
+	//plot_tree(&(env.global_1t), &(env.vertices), NULL);
 	exit(1);
 
 	/* END CPLEX */
@@ -240,7 +241,7 @@ int main(int argc, char **argv) {
 
 	int i, n			= pars.num_vertices;
 	double best_ub;
-	int *ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	/*int *ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 	int *zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 	clock_t t1 = 0, t2 = 0;
 
@@ -255,9 +256,9 @@ int main(int argc, char **argv) {
 	//t2 = clock();
 	//plot_cycle(&best_c, &(env.vertices), NULL);
 	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-
+*/
 	int num_edges = n * (n-1) / 2;
-	int ksjdfh = 0;
+	/*int ksjdfh = 0;
 	for (i = 0 ; i < num_edges ; i++) {
 		if (zeros[i] == 1){
 			graph_set_edge_cstr(&(env.main_graph), i, FORBIDDEN);
@@ -268,7 +269,7 @@ int main(int argc, char **argv) {
 			ksjdfh++;
 		}
 	}
-	printf("removed by zeros and ones %d\n", ksjdfh);
+	printf("removed by zeros and ones %d\n", ksjdfh);*/
 	//getchar();
 	//free(ones);
 	//free(zeros);
@@ -281,7 +282,7 @@ int main(int argc, char **argv) {
 	//int i;
 
 	int st;
-	double ub		= best_ub;//40885; //ceil(opt * 1.01);
+	double ub		= 208383; //best_ub;//40885; //ceil(opt * 1.01);
 	//double ub		= ceil(opt * 1.01);
 	env.global_ub	= ub; //40885; //ceil(opt * 1.01);
 	//env.global_ub	= ceil(opt * 1.01);

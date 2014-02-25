@@ -15,6 +15,9 @@ int cpx_solve_iterative(CPXENVptr    cplexenv,
 	int numcols = n * (n - 1) / 2;
 	int vrtx_comp[n];
 
+	clock_t t1, t2;
+	double maxtime = 3600;
+
 	status = CPXsetintparam (cplexenv, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_DYNAMIC);
 	//status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_TRADITIONAL);
 	if (status) {
@@ -115,7 +118,18 @@ int cpx_solve_iterative(CPXENVptr    cplexenv,
 
 	while (numcomp != 1) {
 
+		// set time limit
+		// printf("maxtime %f\n", maxtime);
+		status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, maxtime);
+		if (status) {
+			fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_iterative.c:\n"
+							"function: cpx_solve_iterative:\n"
+							"CPXsetdblparam : %d\n", status);
+			return 1;
+		}
+
 		/* optimize */
+		t1 = clock();
 		status = CPXmipopt(cplexenv, lp);
 		if (status) {
 			fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_iterative.c:\n"
@@ -123,6 +137,7 @@ int cpx_solve_iterative(CPXENVptr    cplexenv,
 							"CPXmipopt : %d\n", status);
 			return 1;
 		}
+		t2 = clock();
 
 		/* retrieve solution status
 		 * exit if CPXMIP_INFEASIBLE */
@@ -211,6 +226,12 @@ int cpx_solve_iterative(CPXENVptr    cplexenv,
 			printf("# SECs added: %d\n", numcomp);
 
 		} /* end if numcomp > 1 */
+
+		maxtime = maxtime - (double)(t2 - t1) / CLOCKS_PER_SEC;
+		if (maxtime <= 0) {
+			numcomp = 1;
+			printf("time limit reached\n");
+		}
 
 	} /* end while */
 
