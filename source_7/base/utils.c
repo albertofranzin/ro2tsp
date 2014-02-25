@@ -328,6 +328,7 @@ short tsp_hash(char* parName, char* parValue) {
 		strcmp(parValue, "COORD_DISPLAY") == 0)
 		return 1600;
 
+
 	if (strcmp(parName, "NODE_COORD_SECTION") == 0)
 		return 1700;
 

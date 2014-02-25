@@ -14,7 +14,13 @@ int cpx_preprocessing(CPXENVptr	 	cplexenv,
 	double best_ub;
 
 
-
+	status = CPXsetdblparam(cplexenv, CPX_PARAM_TRELIM, 2048);
+	if (status) {
+		fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
+	                    "function: cpx_preprocessing:\n"
+	                    "CPXsetdblparam (CPX_PARAM_TRELIM): %d\n", status);
+	    return status;
+	}
 
 
 	/* compute initial upper-bound */

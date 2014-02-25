@@ -116,9 +116,11 @@ int setup_problem_tsplib(parameters *pars, environment *env) {
 	        {
 
 	        	coords_delete(&(env->vertices));
+
 	            graph_delete(&(env->main_graph));
 
 	            coords_setup(&(env->vertices), pars->num_vertices);
+
 	            graph_setup(&(env->main_graph), pars->num_vertices);
 
 	            const char delimiters[] = " ";
