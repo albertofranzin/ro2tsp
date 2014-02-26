@@ -15,6 +15,10 @@ int cpx_solve_proximity(CPXENVptr    cplexenv,
 	int numcols		= n * (n - 1) / 2;
 	double theta 	= 1.0;
 
+	double maxtime = 3600;
+
+	clock_t t1, t2;
+
 	double *x_feas 	= malloc(numcols * sizeof(double));
 	cpx_cstr cutoff;
 	cpx_cstr_init(&cutoff);
@@ -82,6 +86,10 @@ int cpx_solve_proximity(CPXENVptr    cplexenv,
 	    printf("numcols = %d\n", CPXgetnumcols(env, lp));
 	    printf("numrows = %d\n", CPXgetnumrows(env, lp));
 	    */
+	   	
+	   	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, maxtime);
+
+	   	t1 = clock();
 		cpx_solve_iterative(cplexenv, lp, env, pars, stats,
 				                 x_feas, numcols, &status);
 	    //printf("NUMCOLS = %d\n", CPXgetnumcols(env, lp));
@@ -90,10 +98,16 @@ int cpx_solve_proximity(CPXENVptr    cplexenv,
 	    printf("numrows = %d\n", CPXgetnumrows(env, lp));
 	    printf("============================\n");
 	    */
+	   	t2 = clock();
+	   	maxtime = maxtime - (double)(t2 - t1) / CLOCKS_PER_SEC;
+	   	if (maxtime <= 0) {
+	   		iter = 1;
+	   		printf("time limit reached\n");
+	   	}
 
 		if (status == 103) {printf("CIAO!\n"); break; }
 		printf("SOLSTAT = %d\n", status);
-		getchar();
+		//getchar();
 
 		for (idx = 0; idx < numcols; idx++) {
 			x[idx] = x_feas[idx];
