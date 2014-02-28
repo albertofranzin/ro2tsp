@@ -1,0 +1,14 @@
+937.00 0.00
+removed by zeros and ones 276
+num edges = 325 : num removed edges = 13
+ratio = 4.00
+lower bound = 937.00
+initial gap : 0.000043%
+num edges           = 325
+removed             = 13
+ratio               = 4.00
+initial lower bound = 937.00
+initial upper bound = 937.00
+final upper bound   = 937.00
+time                = 0.00
+End

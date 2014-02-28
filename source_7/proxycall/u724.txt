@@ -1,0 +1,81 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 43860.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 41653.00
+applying reduction...
+# preprocessing : removed edges               = 15684
+# preprocessing : ratio removed edges         = 5.99
+iter = 0
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 2
+# hello callback!
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+SOLSTAT = 101
+feas. sol = 43854.000000
+# discarded fat edges = 15948
+opt                 = 43854.00
+time                = 625.94
+

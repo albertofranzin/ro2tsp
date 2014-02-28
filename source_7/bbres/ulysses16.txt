@@ -1,0 +1,14 @@
+6859.00 0.00
+removed by zeros and ones 89
+num edges = 120 : num removed edges = 15
+ratio = 12.50
+lower bound = 6859.00
+initial gap : 0.000000%
+num edges           = 120
+removed             = 15
+ratio               = 12.50
+initial lower bound = 6859.00
+initial upper bound = 6859.00
+final upper bound   = 6859.00
+time                = 0.00
+End

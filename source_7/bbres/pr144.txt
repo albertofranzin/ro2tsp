@@ -1,0 +1,14 @@
+58571.00 0.00
+removed by zeros and ones 10063
+num edges = 10296 : num removed edges = 15
+ratio = 0.15
+lower bound = 58216.25
+initial gap : 0.609366%
+num edges           = 10296
+removed             = 15
+ratio               = 0.15
+initial lower bound = 58216.25
+initial upper bound = 58571.00
+final upper bound   = 58537.00
+time                = 0.10
+End

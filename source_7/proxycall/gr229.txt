@@ -1,0 +1,52 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 136432.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 133318.00
+applying reduction...
+# preprocessing : removed edges               = 17351
+# preprocessing : ratio removed edges         = 66.46
+iter = 0
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 4
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 4
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 4
+# hello callback!
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 2
+SOLSTAT = 101
+feas. sol = 136072.000000
+# discarded fat edges = 18435
+opt                 = 136072.00
+time                = 4.19

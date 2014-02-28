@@ -1,0 +1,14 @@
+49395.00 0.00
+removed by zeros and ones 34025
+num edges = 34716 : num removed edges = 0
+ratio = 0.00
+lower bound = 49020.18
+initial gap : 0.764614%
+num edges           = 34716
+removed             = 0
+ratio               = 0.00
+initial lower bound = 49020.18
+initial upper bound = 49395.00
+final upper bound   = 49135.00
+time                = 14.33
+End

@@ -1,0 +1,19 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 2707.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 2707.00
+applying reduction...
+# preprocessing : removed edges               = 189
+# preprocessing : ratio removed edges         = 90.00
+Error in /base/setup_problem.c:
+function: setup_problem_tsplib:
+setup_problem_tsplib : errcode 3
+Fatal error in solvers/cpx/cpx_solve_miliotis.c:
+function: cpx_solve_miliotis:
+CPXpresolve : 1117
+iter = 0
+SOLSTAT = 0
+feas. sol = 2707.000000
+# discarded fat edges = 184
+opt                 = 2707.00
+time                = 0.00
