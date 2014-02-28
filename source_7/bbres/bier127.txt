@@ -1,0 +1,14 @@
+119003.00 0.00
+removed by zeros and ones 7660
+num edges = 8001 : num removed edges = 8
+ratio = 0.10
+lower bound = 118068.00
+initial gap : 0.791917%
+num edges           = 8001
+removed             = 8
+ratio               = 0.10
+initial lower bound = 118068.00
+initial upper bound = 119003.00
+final upper bound   = 118282.00
+time                = 0.68
+End

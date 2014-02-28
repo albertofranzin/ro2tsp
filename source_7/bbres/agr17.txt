@@ -1,0 +1,14 @@
+2085.00 0.00
+removed by zeros and ones 106
+num edges = 136 : num removed edges = 12
+ratio = 8.82
+lower bound = 2085.00
+initial gap : 0.000000%
+num edges           = 136
+removed             = 12
+ratio               = 8.82
+initial lower bound = 2085.00
+initial upper bound = 2085.00
+final upper bound   = 2085.00
+time                = 0.00
+End

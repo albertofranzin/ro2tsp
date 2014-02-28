@@ -1,0 +1,14 @@
+2707.00 0.00
+removed by zeros and ones 171
+num edges = 210 : num removed edges = 39
+ratio = 18.57
+lower bound = 2707.00
+initial gap : -0.000000%
+num edges           = 210
+removed             = 39
+ratio               = 18.57
+initial lower bound = 2707.00
+initial upper bound = 2707.00
+final upper bound   = 2707.00
+time                = 0.00
+End

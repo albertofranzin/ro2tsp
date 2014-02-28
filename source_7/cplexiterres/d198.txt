@@ -1,0 +1,24 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 15863.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 15712.00
+applying reduction...
+# preprocessing : removed edges               = 15915
+# preprocessing : ratio removed edges         = 81.60
+# SECs added: 30
+# SECs added: 18
+# SECs added: 15
+# SECs added: 8
+# SECs added: 7
+# SECs added: 7
+# SECs added: 8
+# SECs added: 6
+# SECs added: 4
+# SECs added: 4
+# SECs added: 5
+# SECs added: 5
+# SECs added: 5
+# SECs added: 3
+# SECs added: 2
+opt                 = 15780.00
+time                = 136.32

@@ -1,0 +1,14 @@
+42543.00 0.00
+removed by zeros and ones 12190
+num edges = 12561 : num removed edges = 8
+ratio = 0.06
+lower bound = 41925.00
+initial gap : 1.474062%
+num edges           = 12561
+removed             = 8
+ratio               = 0.06
+initial lower bound = 41925.00
+initial upper bound = 42543.00
+final upper bound   = 42168.00
+time                = 57.40
+End

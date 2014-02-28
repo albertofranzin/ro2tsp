@@ -1,0 +1,14 @@
+676.00 0.00
+removed by zeros and ones 2238
+num edges = 2415 : num removed edges = 21
+ratio = 0.87
+lower bound = 671.00
+initial gap : 0.745187%
+num edges           = 2415
+removed             = 21
+ratio               = 0.87
+initial lower bound = 671.00
+initial upper bound = 676.00
+final upper bound   = 675.00
+time                = 0.33
+End

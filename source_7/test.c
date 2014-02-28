@@ -76,11 +76,11 @@ int main(int argc, char **argv) {
 
 	/* START CPLEX */
 
-	pars.proximity_option		= TRUE;
+	pars.proximity_option		= FALSE;
 	pars.hardfixing_option 		= FALSE;
 	pars.localbranching_option 	= FALSE;
 	pars.rinspolishing_option 	= FALSE;
-	pars.callbacks_option 		= FALSE;
+	pars.callbacks_option 		= TRUE;
 	cpx_solver(&env, &stats, &pars);
 	//plot_tree(&(env.global_1t), &(env.vertices), NULL);
 	exit(1);

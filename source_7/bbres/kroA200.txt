@@ -1,0 +1,7 @@
+29575.00 0.00
+removed by zeros and ones 19387
+num edges = 19900 : num removed edges = 1
+ratio = 0.01
+lower bound = 29065.00
+initial gap : 1.754692%
+time limit reached, stopping. CURRENT BEST SOLUTION : 29522.000000 ; GAP : 1.572342% ; NODES : 102781

@@ -1,0 +1,16 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 7542.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 7542.00
+applying reduction...
+# preprocessing : removed edges               = 1260
+# preprocessing : ratio removed edges         = 95.02
+iter = 0
+Fatal error in solvers/cpx/cpx_solve_iterative.c:
+function: cpx_solve_iterative:
+CPXpresolve : 1117
+SOLSTAT = 0
+feas. sol = 7542.000000
+# discarded fat edges = 1245
+opt                 = 7542.00
+time                = 0.00
