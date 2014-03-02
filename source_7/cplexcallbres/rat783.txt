@@ -1,0 +1,162 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 9186.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 8773.00
+applying reduction...
+# preprocessing : removed edges               = 24481
+# preprocessing : ratio removed edges         = 8.00
+# hello callback!
+node 120 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 66
+# hello callback!
+node 233 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 37
+# hello callback!
+node 260 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 23
+# hello callback!
+node 318 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 18
+# hello callback!
+node 458 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 30
+# hello callback!
+node 824 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 18
+# hello callback!
+node 849 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 14
+# hello callback!
+node 905 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 8
+# hello callback!
+node 963 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 7
+# hello callback!
+node 1076 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 9
+# hello callback!
+node 1181 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 7
+# hello callback!
+node 1213 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 4
+# hello callback!
+node 1222 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 5
+# hello callback!
+node 1250 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 4
+# hello callback!
+node 1583 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 18
+# hello callback!
+node 1747 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 9
+# hello callback!
+node 1773 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 3
+# hello callback!
+node 1777 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 3
+# hello callback!
+node 1778 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 3
+# hello callback!
+node 1783 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 2
+# hello callback!
+node 1784 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 2
+# hello callback!
+node 1969 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 17
+# hello callback!
+node 2110 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 3
+# hello callback!
+node 2130 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 3
+# hello callback!
+node 2140 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 2
+# hello callback!
+node 2140 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# hello callback!
+node 2200 ; best current solution: 8870.000000
+# hello callback!
+node 2600 ; best current solution: 8855.000000
+# SECs added: 3
+# hello callback!
+node 3000 ; best current solution: 8855.000000
+# SECs added: 2
+# hello callback!
+node 3011 ; best current solution: 8855.000000
+# SECs added: 6
+# hello callback!
+node 3200 ; best current solution: 8855.000000
+# hello callback!
+node 3600 ; best current solution: 8839.000000
+# SECs added: 2
+# hello callback!
+node 3800 ; best current solution: 8839.000000
+# SECs added: 2
+# hello callback!
+node 4000 ; best current solution: 8839.000000
+# hello callback!
+node 7000 ; best current solution: 8829.000000
+# SECs added: 3
+# hello callback!
+node 7400 ; best current solution: 8829.000000
+# SECs added: 3
+# hello callback!
+node 9000 ; best current solution: 8829.000000
+# SECs added: 2
+# hello callback!
+node 10000 ; best current solution: 8829.000000
+# hello callback!
+node 10750 ; best current solution: 8825.000000
+# SECs added: 8
+# hello callback!
+node 11200 ; best current solution: 8825.000000
+# hello callback!
+node 12000 ; best current solution: 8824.000000
+# hello callback!
+node 13000 ; best current solution: 8822.000000
+# SECs added: 2
+# hello callback!
+node 15084 ; best current solution: 8822.000000
+# SECs added: 5
+# hello callback!
+node 15089 ; best current solution: 8822.000000
+# SECs added: 4
+# hello callback!
+node 19000 ; best current solution: 8822.000000
+# SECs added: 5
+# hello callback!
+node 19374 ; best current solution: 8822.000000
+# SECs added: 7
+# hello callback!
+node 19707 ; best current solution: 8822.000000
+# SECs added: 6
+# hello callback!
+node 19875 ; best current solution: 8822.000000
+# SECs added: 5
+# hello callback!
+node 20600 ; best current solution: 8822.000000
+# hello callback!
+node 20797 ; best current solution: 8821.000000
+# hello callback!
+node 20800 ; best current solution: 8813.000000
+# hello callback!
+node 20900 ; best current solution: 8812.000000
+# hello callback!
+node 22000 ; best current solution: 8808.000000
+# hello callback!
+node 48000 ; best current solution: 8806.000000
+# SECs added: 2
+^C
+real	74m13.279s
+user	138m44.176s
+sys	0m10.628s
+

@@ -92,7 +92,7 @@ int cpx_solve_miliotis(CPXENVptr   	cplexenv,
 						"CPXsetlazyconstraintcallbackfunc : %d\n", status);
 		return 1;
 	}
-	//status = CPXsetusercutcallbackfunc(env, cpx_callback_maxflow, ce);
+	status = CPXsetusercutcallbackfunc(cplexenv, cpx_callback_maxflow, env);
 	if (status) {
 		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
 						"function: cpx_solve_miliotis:\n"
@@ -109,13 +109,24 @@ int cpx_solve_miliotis(CPXENVptr   	cplexenv,
 		return status;
 	}
 
+	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, 3600);
+	status = CPXsetdblparam(cplexenv, CPX_PARAM_TRELIM, 3000);
 
+	clock_t t1 = clock(), t2;
 	status = CPXmipopt(cplexenv, lp);
 	if (status) {
 		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
 						"function: cpx_solve_miliotis:\n"
 						"CPXmipopt : %d\n", status);
 		return 1;
+	}
+
+	t2 = clock();
+	long nodes_total = CPXgetnodecnt (cplexenv, lp);
+	printf("nodes processed : %d\n", nodes_total);
+	if ((double)(t2 - t1) / CLOCKS_PER_SEC >= 3600) {
+		printf("time limit reached\n");
+		return 0;
 	}
 
 
@@ -176,6 +187,13 @@ int CPXPUBLIC cpx_callback_miliotis(CPXENVptr cplexenv,
 						"CPXgetcallbacklp : %d\n", status);
 		return 1;
 	}
+
+	double currbest, timestamp;
+	long nodes_done;
+	status = CPXgetcallbackinfo(cplexenv, cbdata, wherefrom, CPX_CALLBACK_INFO_BEST_INTEGER, &currbest);
+	status = CPXgetcallbackinfo(cplexenv, cbdata, wherefrom, CPX_CALLBACK_INFO_ENDTIME, &timestamp);
+	status = CPXgetcallbackinfo(cplexenv, cbdata, wherefrom, CPX_CALLBACK_INFO_NODE_COUNT_LONG, &nodes_done);
+	printf("node %d ; best current solution: %f\n", nodes_done, currbest);
 
 	prenumcols = CPXgetnumcols(cplexenv, prelp);
 
@@ -380,6 +398,8 @@ int CPXPUBLIC cpx_callback_maxflow(CPXENVptr  cplexenv,
 		return 0;
 	}
 
+	printf("# maxflow callback\n");
+
 	//cpx_env* ce = (cpx_env*)cbhandle;
 	//int n = ce->G.n;
 	environment* env 	 = (environment*)cbhandle;
@@ -427,15 +447,15 @@ int CPXPUBLIC cpx_callback_maxflow(CPXENVptr  cplexenv,
 
 	status = cpx_cstr_maxflow(env, x, &comps, &compscount, &ncomp, &cut, &cutcount, &minval);
 
-	printf("%d\n", cutcount);
+	//printf("%d\n", cutcount);
 	//getchar();
 
 	if (ncomp == 1 && cutcount > 0) {
-		printf("in: if cutcount > 0\n");
+		/*printf("in: if cutcount > 0\n");
 		for (i = 0; i < cutcount; i++) {
 			printf("%d ", cut[i]);
 		}
-		printf("\n");
+		printf("\n");*/
 
 
 		int nflows = cutcount * (n - cutcount);

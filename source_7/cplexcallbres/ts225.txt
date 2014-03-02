@@ -1,0 +1,79 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 126809.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 115605.00
+applying reduction...
+# preprocessing : removed edges               = 2445
+# preprocessing : ratio removed edges         = 9.70
+# hello callback!
+# SECs added: 13
+# hello callback!
+# SECs added: 12
+# hello callback!
+# SECs added: 12
+# hello callback!
+# SECs added: 10
+# hello callback!
+# SECs added: 8
+# hello callback!
+# SECs added: 8
+# hello callback!
+# SECs added: 10
+# hello callback!
+# SECs added: 11
+# hello callback!
+# SECs added: 12
+# hello callback!
+# SECs added: 9
+# hello callback!
+# SECs added: 5
+# hello callback!
+# SECs added: 5
+# hello callback!
+# SECs added: 4
+# hello callback!
+# SECs added: 12
+# hello callback!
+# SECs added: 11
+# hello callback!
+# SECs added: 7
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 7
+# hello callback!
+# SECs added: 4
+# hello callback!
+# SECs added: 5
+# hello callback!
+# SECs added: 6
+# hello callback!
+# SECs added: 6
+# hello callback!
+# SECs added: 4
+# hello callback!
+# SECs added: 8
+# hello callback!
+# SECs added: 6
+# hello callback!
+# SECs added: 7
+# hello callback!
+# SECs added: 4
+# hello callback!
+# SECs added: 6
+# hello callback!
+# SECs added: 6
+# hello callback!
+# SECs added: 4
+# hello callback!
+# SECs added: 5
+# hello callback!
+# SECs added: 5
+# hello callback!
+# SECs added: 7
+Fatal error in solvers/cpx/cpx_solve_miliotis.c:
+function: cpx_solve_miliotis:
+CPXgetx : 1217
+
+real	36m36.787s
+user	36m36.122s

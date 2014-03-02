@@ -240,7 +240,7 @@ int cpx_cstr_maxflow(environment 	*env,
     											  &compscount, &comps);
     assert(!retval);
 
-    printf("retval %d\n", retval);
+    //printf("retval %d\n", retval);
 
     /*int current_node = 0, curr_cc;
     for (curr_cc = 0; curr_cc < ncomp; curr_cc++) {
@@ -261,8 +261,8 @@ int cpx_cstr_maxflow(environment 	*env,
     	int retval = CCcut_mincut(n, numcols, elist, x, &cutval, &cut,
     													   &cutcount);
 
-    	printf("Ret: %d, cutcount = %d\n", retval, cutcount);
-    	printf("%lf\n", cutval);
+    	//printf("Ret: %d, cutcount = %d\n", retval, cutcount);
+    	//printf("%lf\n", cutval);
 
         /*for (i = 0; i < cutcount; i++) {
           printf("%d ", cut[i]);
