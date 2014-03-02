@@ -1,0 +1,17 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 9073.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 9015.00
+applying reduction...
+# preprocessing : removed edges               = 346
+# preprocessing : ratio removed edges         = 85.22
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 3
+# hello callback!
+error: cpx_cstr_init

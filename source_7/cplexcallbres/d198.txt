@@ -1,0 +1,63 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 15863.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 15712.00
+applying reduction...
+# preprocessing : removed edges               = 15915
+# preprocessing : ratio removed edges         = 81.60
+# hello callback!
+# SECs added: 30
+# hello callback!
+# SECs added: 15
+# hello callback!
+# SECs added: 14
+# hello callback!
+# SECs added: 8
+# hello callback!
+# SECs added: 14
+# hello callback!
+# SECs added: 10
+# hello callback!
+# SECs added: 8
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 8
+# hello callback!
+# SECs added: 7
+# hello callback!
+# SECs added: 5
+# hello callback!
+# SECs added: 6
+# hello callback!
+# SECs added: 6
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 5
+# hello callback!
+# SECs added: 4
+# hello callback!
+# SECs added: 2
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 3
+# hello callback!
+# SECs added: 3
+# hello callback!
+# hello callback!
+# SECs added: 6
+# hello callback!
+# SECs added: 3
+# hello callback!
+# hello callback!
+# hello callback!
+# hello callback!
+# hello callback!
+opt                 = 15780.00
+time                = 6.19
