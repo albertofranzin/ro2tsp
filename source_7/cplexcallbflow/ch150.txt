@@ -1,0 +1,152 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 6616.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 6491.00
+applying reduction...
+# preprocessing : removed edges               = 9023
+# preprocessing : ratio removed edges         = 80.74
+# maxflow callback
+# hello callback!
+node 6 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 15
+# hello callback!
+node 17 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 7
+# hello callback!
+node 20 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 8
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 40 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 2
+# maxflow callback
+# hello callback!
+node 48 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 2
+# hello callback!
+node 52 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# hello callback!
+node 55 ; best current solution: 6590.000000
+# SECs added: 2
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 85 ; best current solution: 6590.000000
+# SECs added: 6
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 104 ; best current solution: 6590.000000
+# SECs added: 4
+# hello callback!
+node 115 ; best current solution: 6590.000000
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 245 ; best current solution: 6568.000000
+# SECs added: 5
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 274 ; best current solution: 6568.000000
+# SECs added: 3
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 299 ; best current solution: 6568.000000
+# maxflow callback
+# hello callback!
+node 319 ; best current solution: 6562.000000
+# SECs added: 4
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 399 ; best current solution: 6562.000000
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 495 ; best current solution: 6549.000000
+# SECs added: 2
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 843 ; best current solution: 6549.000000
+# hello callback!
+node 851 ; best current solution: 6540.000000
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 916 ; best current solution: 6538.000000
+nodes processed : 960
+opt                 = 6528.00
+time                = 1.13

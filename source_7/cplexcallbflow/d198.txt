@@ -1,0 +1,189 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 15863.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 15712.00
+applying reduction...
+# preprocessing : removed edges               = 15915
+# preprocessing : ratio removed edges         = 81.60
+# maxflow callback
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 29
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 106 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 10
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 148 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 10
+# maxflow callback
+# hello callback!
+node 153 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 5
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 416 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 8
+# maxflow callback
+# hello callback!
+node 425 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 2
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 458 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 2
+# maxflow callback
+# hello callback!
+node 463 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 478 ; best current solution: 15823.000000
+# SECs added: 4
+# hello callback!
+node 483 ; best current solution: 15823.000000
+# SECs added: 3
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 513 ; best current solution: 15823.000000
+# SECs added: 2
+# hello callback!
+node 513 ; best current solution: 15823.000000
+# SECs added: 2
+# hello callback!
+node 513 ; best current solution: 15823.000000
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 530 ; best current solution: 15797.000000
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 630 ; best current solution: 15795.000000
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 1131 ; best current solution: 15781.000000
+# SECs added: 3
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# hello callback!
+node 1278 ; best current solution: 15781.000000
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+# maxflow callback
+nodes processed : 1734
+opt                 = 15780.00
+time                = 2.82

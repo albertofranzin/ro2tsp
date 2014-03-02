@@ -1,0 +1,52 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 48816.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 47380.00
+applying reduction...
+# preprocessing : removed edges               = 29432
+# preprocessing : ratio removed edges         = 66.06
+# hello callback!
+node 10 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 22
+# hello callback!
+node 97 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 18
+# hello callback!
+node 275 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 15
+# hello callback!
+node 768 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 13
+# hello callback!
+node 788 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 5
+# hello callback!
+node 796 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 3
+# hello callback!
+node 11225 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# hello callback!
+node 11400 ; best current solution: 48745.000000
+# hello callback!
+node 13000 ; best current solution: 48483.000000
+# hello callback!
+node 13600 ; best current solution: 48361.000000
+# hello callback!
+node 16800 ; best current solution: 48349.000000
+# hello callback!
+node 20000 ; best current solution: 48315.000000
+# SECs added: 2
+# hello callback!
+node 20600 ; best current solution: 48315.000000
+# hello callback!
+node 24600 ; best current solution: 48281.000000
+# hello callback!
+node 26000 ; best current solution: 48238.000000
+# hello callback!
+node 26000 ; best current solution: 48231.000000
+^C
+
+real	7m45.875s
+user	15m18.695s
+sys	0m4.350s
+
