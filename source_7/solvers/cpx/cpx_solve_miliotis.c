@@ -92,7 +92,7 @@ int cpx_solve_miliotis(CPXENVptr   	cplexenv,
 						"CPXsetlazyconstraintcallbackfunc : %d\n", status);
 		return 1;
 	}
-	status = CPXsetusercutcallbackfunc(cplexenv, cpx_callback_maxflow, env);
+	//status = CPXsetusercutcallbackfunc(cplexenv, cpx_callback_maxflow, env);
 	if (status) {
 		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
 						"function: cpx_solve_miliotis:\n"
@@ -109,8 +109,8 @@ int cpx_solve_miliotis(CPXENVptr   	cplexenv,
 		return status;
 	}
 
-	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, 3600);
-	status = CPXsetdblparam(cplexenv, CPX_PARAM_TRELIM, 3000);
+	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, 500);
+	//status = CPXsetdblparam(cplexenv, CPX_PARAM_TRELIM, 500);
 
 	clock_t t1 = clock(), t2;
 	status = CPXmipopt(cplexenv, lp);
@@ -124,7 +124,7 @@ int cpx_solve_miliotis(CPXENVptr   	cplexenv,
 	t2 = clock();
 	long nodes_total = CPXgetnodecnt (cplexenv, lp);
 	printf("nodes processed : %d\n", nodes_total);
-	if ((double)(t2 - t1) / CLOCKS_PER_SEC >= 3600) {
+	if ((double)(t2 - t1) / CLOCKS_PER_SEC >= 500) {
 		printf("time limit reached\n");
 		return 0;
 	}
@@ -398,7 +398,7 @@ int CPXPUBLIC cpx_callback_maxflow(CPXENVptr  cplexenv,
 		return 0;
 	}
 
-	printf("# maxflow callback\n");
+	//printf("# maxflow callback\n");
 
 	//cpx_env* ce = (cpx_env*)cbhandle;
 	//int n = ce->G.n;
