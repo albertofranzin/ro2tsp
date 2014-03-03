@@ -1,0 +1,51 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 634.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 628.00
+applying reduction...
+# preprocessing : removed edges               = 4481
+# preprocessing : ratio removed edges         = 88.73
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 94
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 94
+# hello callback!
+node 1 ; best current solution: 634.000000
+# SECs added: 4
+# hello callback!
+node 1 ; best current solution: 634.000000
+# SECs added: 2
+# hello callback!
+node 1 ; best current solution: 634.000000
+# SECs added: 2
+# hello callback!
+node 1 ; best current solution: 634.000000
+# hello callback!
+node 1 ; best current solution: 632.000000
+# SECs added: 2
+# hello callback!
+node 2 ; best current solution: 632.000000
+# hello callback!
+node 2 ; best current solution: 631.000000
+# SECs added: 3
+# hello callback!
+node 2 ; best current solution: 631.000000
+# SECs added: 5
+# hello callback!
+node 2 ; best current solution: 631.000000
+# SECs added: 2
+# hello callback!
+node 2 ; best current solution: 631.000000
+# SECs added: 2
+# hello callback!
+node 2 ; best current solution: 631.000000
+# hello callback!
+node 4 ; best current solution: 630.000000
+# SECs added: 3
+# hello callback!
+node 4 ; best current solution: 630.000000
+nodes processed : 27
+opt                 = 629.00
+time                = 37.07

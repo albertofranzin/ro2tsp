@@ -38,6 +38,7 @@ int cpx_solve_rins(CPXENVptr   	 cplexenv,
 
 	status = CPXsetintparam(cplexenv, CPX_PARAM_RINSHEUR, 50);
 	status = CPXsetintparam(cplexenv, CPX_PARAM_POLISHAFTERNODE, 0);
+	status = CPXsetdblparam(cplexenv,CPX_PARAM_POLISHAFTERTIME, 0);
 
 	if (pars->callbacks_option == TRUE) {
 		status = cpx_solve_miliotis(cplexenv, lp, env, pars, stats,

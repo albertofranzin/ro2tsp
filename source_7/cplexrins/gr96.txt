@@ -1,0 +1,64 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 55589.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 54571.00
+applying reduction...
+# preprocessing : removed edges               = 3749
+# preprocessing : ratio removed edges         = 82.21
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 58
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 58
+# hello callback!
+node 1 ; best current solution: 55589.000000
+# SECs added: 5
+# hello callback!
+node 1 ; best current solution: 55589.000000
+# SECs added: 2
+# hello callback!
+node 1 ; best current solution: 55589.000000
+# SECs added: 4
+# hello callback!
+node 1 ; best current solution: 55589.000000
+# SECs added: 8
+# hello callback!
+node 1 ; best current solution: 55589.000000
+# SECs added: 3
+# hello callback!
+node 1 ; best current solution: 55589.000000
+# hello callback!
+node 1 ; best current solution: 55404.000000
+# SECs added: 2
+# hello callback!
+node 2 ; best current solution: 55404.000000
+# SECs added: 2
+# hello callback!
+node 2 ; best current solution: 55404.000000
+# SECs added: 3
+# hello callback!
+node 2 ; best current solution: 55404.000000
+# SECs added: 5
+# hello callback!
+node 2 ; best current solution: 55404.000000
+# hello callback!
+node 3 ; best current solution: 55328.000000
+# hello callback!
+node 3 ; best current solution: 55323.000000
+# hello callback!
+node 3 ; best current solution: 55292.000000
+# SECs added: 6
+# hello callback!
+node 3 ; best current solution: 55292.000000
+# SECs added: 3
+# hello callback!
+node 3 ; best current solution: 55292.000000
+# hello callback!
+node 3 ; best current solution: 55237.000000
+# SECs added: 2
+# hello callback!
+node 3 ; best current solution: 55237.000000
+nodes processed : 101
+opt                 = 55210.00
+time                = 355.47
