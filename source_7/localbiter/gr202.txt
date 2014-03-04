@@ -1,0 +1,63 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 40766.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 40055.00
+applying reduction...
+# preprocessing : removed edges               = 13055
+# preprocessing : ratio removed edges         = 64.31
+# SECs added: 24
+# SECs added: 11
+# SECs added: 6
+# SECs added: 7
+# SECs added: 2
+# SECs added: 4
+# SECs added: 4
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 3
+# SECs added: 3
+objval = 40160.000000 (vs 40766.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+objval = 40160.000000 (vs 40160.000000)
+^C
+real	0m54.000s
+user	3m42.805s
+sys	0m2.48

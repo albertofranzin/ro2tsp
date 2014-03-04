@@ -1,0 +1,23 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 108395.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 105100.00
+applying reduction...
+# preprocessing : removed edges               = 1865
+# preprocessing : ratio removed edges         = 65.44
+# SECs added: 8
+# SECs added: 7
+# SECs added: 7
+# SECs added: 4
+# SECs added: 4
+# SECs added: 3
+# SECs added: 4
+# SECs added: 3
+# SECs added: 4
+objval = 108159.000000 (vs 108395.000000)
+^C
+real	0m26.036s
+user	0m51.320s
+sys	0m1.522s
+
+

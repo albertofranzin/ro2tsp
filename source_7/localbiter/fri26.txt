@@ -1,0 +1,22 @@
+Error in /base/setup_problem.c:
+function: setup_problem_tsplib:
+setup_problem_tsplib : errcode 3
+computing upper-bound...
+# preprocessing : initial upper-bound         = 937.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 937.00
+applying reduction...
+# preprocessing : removed edges               = 287
+# preprocessing : ratio removed edges         = 88.31
+# SECs added: 2
+objval = 937.000000 (vs 937.000000)
+Fatal error in solvers/cpx/cpx_solve_iterative.c:
+function: cpx_solve_iterative:
+CPXpresolve : 1117
+Fatal error in solvers/cpx/cpx_local_branching :: CPXgetx : 1217
+Failed to get node solution.
+
+real	0m0.156s
+user	0m0.962s
+sys	0m0.008s
+
