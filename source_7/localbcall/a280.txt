@@ -1,0 +1,95 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 2627.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 2566.00
+applying reduction...
+# preprocessing : removed edges               = 29041
+# preprocessing : ratio removed edges         = 74.35
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 146
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 14
+# hello callback!
+node 30 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 9
+# hello callback!
+node 40 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 4
+# hello callback!
+node 60 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 4
+# hello callback!
+node 60 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 2
+# hello callback!
+node 62 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# hello callback!
+node 200 ; best current solution: 2588.000000
+# hello callback!
+node 370 ; best current solution: 2582.000000
+# hello callback!
+node 470 ; best current solution: 2581.000000
+nodes processed : 1319
+objval = 2579.000000 (vs 2627.000000)
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+^C
+real	1m36.023s
+user	6m38.965s
+sys	0m0.227s
+
+

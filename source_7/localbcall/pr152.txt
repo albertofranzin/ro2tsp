@@ -1,0 +1,71 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 74021.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 73209.00
+applying reduction...
+# preprocessing : removed edges               = 9481
+# preprocessing : ratio removed edges         = 82.62
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 95
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 95
+# hello callback!
+node 0 ; best current solution: 74021.000000
+# SECs added: 40
+# hello callback!
+node 0 ; best current solution: 74021.000000
+# SECs added: 16
+# hello callback!
+node 0 ; best current solution: 74021.000000
+# SECs added: 28
+# hello callback!
+node 0 ; best current solution: 74021.000000
+# SECs added: 9
+# hello callback!
+node 8 ; best current solution: 74021.000000
+# SECs added: 18
+# hello callback!
+node 8 ; best current solution: 74021.000000
+# SECs added: 13
+# hello callback!
+node 10 ; best current solution: 74021.000000
+# SECs added: 10
+# hello callback!
+node 19 ; best current solution: 74021.000000
+# SECs added: 10
+# hello callback!
+node 24 ; best current solution: 74021.000000
+# SECs added: 11
+# hello callback!
+node 25 ; best current solution: 74021.000000
+# SECs added: 7
+# hello callback!
+node 25 ; best current solution: 74021.000000
+# SECs added: 4
+# hello callback!
+node 28 ; best current solution: 74021.000000
+# SECs added: 3
+# hello callback!
+node 28 ; best current solution: 74021.000000
+# SECs added: 3
+# hello callback!
+node 198 ; best current solution: 74021.000000
+# SECs added: 2
+# hello callback!
+node 198 ; best current solution: 74021.000000
+# hello callback!
+node 478 ; best current solution: 73978.000000
+nodes processed : 806
+objval = 73682.000000 (vs 74021.000000)
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+nodes processed : 0
+^C
+
+real	0m15.642s
+user	1m24.837s
+sys	0m0.068s
+

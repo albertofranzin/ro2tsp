@@ -1,0 +1,74 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 59087.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 58068.00
+applying reduction...
+# preprocessing : removed edges               = 6357
+# preprocessing : ratio removed edges         = 83.36
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 77
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 77
+# hello callback!
+node 0 ; best current solution: 59087.000000
+# SECs added: 6
+# hello callback!
+node 28 ; best current solution: 59087.000000
+# SECs added: 19
+# hello callback!
+node 29 ; best current solution: 59087.000000
+# SECs added: 9
+# hello callback!
+node 46 ; best current solution: 59087.000000
+# SECs added: 5
+# hello callback!
+node 76 ; best current solution: 59087.000000
+# SECs added: 10
+# hello callback!
+node 151 ; best current solution: 59087.000000
+# SECs added: 4
+# hello callback!
+node 372 ; best current solution: 59087.000000
+# SECs added: 4
+# hello callback!
+node 396 ; best current solution: 59087.000000
+# SECs added: 3
+# hello callback!
+node 472 ; best current solution: 59087.000000
+# SECs added: 3
+# hello callback!
+node 508 ; best current solution: 59087.000000
+# SECs added: 3
+# hello callback!
+node 1000 ; best current solution: 59087.000000
+# SECs added: 2
+# hello callback!
+node 1313 ; best current solution: 59087.000000
+# SECs added: 4
+# hello callback!
+node 1553 ; best current solution: 59087.000000
+# SECs added: 2
+# hello callback!
+node 2832 ; best current solution: 59087.000000
+# hello callback!
+node 3517 ; best current solution: 59066.000000
+# SECs added: 5
+# hello callback!
+node 5225 ; best current solution: 59066.000000
+# SECs added: 2
+# hello callback!
+node 6075 ; best current solution: 59066.000000
+nodes processed : 6527
+objval = 59030.000000 (vs 59087.000000)
+Fatal error in solvers/cpx/cpx_solve_miliotis.c:
+function: cpx_solve_miliotis:
+CPXpresolve : 1117
+Fatal error in solvers/cpx/cpx_local_branching :: CPXgetx : 1217
+Failed to get node solution.
+
+real	0m11.371s
+user	0m55.682s
+sys	0m0.016s
+

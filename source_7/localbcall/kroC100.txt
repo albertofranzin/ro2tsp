@@ -1,0 +1,48 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 20769.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 20473.00
+applying reduction...
+# preprocessing : removed edges               = 4338
+# preprocessing : ratio removed edges         = 87.64
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 88
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 88
+# hello callback!
+node 0 ; best current solution: 20769.000000
+# SECs added: 13
+# hello callback!
+node 0 ; best current solution: 20769.000000
+# SECs added: 9
+# hello callback!
+node 24 ; best current solution: 20769.000000
+# SECs added: 6
+# hello callback!
+node 26 ; best current solution: 20769.000000
+# SECs added: 5
+# hello callback!
+node 29 ; best current solution: 20769.000000
+# SECs added: 4
+# hello callback!
+node 178 ; best current solution: 20769.000000
+# hello callback!
+node 219 ; best current solution: 20749.000000
+# SECs added: 2
+# hello callback!
+node 228 ; best current solution: 20749.000000
+# SECs added: 2
+nodes processed : 236
+objval = 20749.000000 (vs 20769.000000)
+Fatal error in solvers/cpx/cpx_solve_miliotis.c:
+function: cpx_solve_miliotis:
+CPXpresolve : 1117
+Fatal error in solvers/cpx/cpx_local_branching :: CPXgetx : 1217
+Failed to get node solution.
+
+real	0m6.484s
+user	0m40.939s
+sys	0m0.032s
+

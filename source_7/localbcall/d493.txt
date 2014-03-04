@@ -1,0 +1,65 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 35987.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 34829.00
+applying reduction...
+# preprocessing : removed edges               = 31841
+# preprocessing : ratio removed edges         = 26.25
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 108
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 56
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# hello callback!
+node 0 ; best current solution: 35987.000000
+# SECs added: 34
+# hello callback!
+node 20 ; best current solution: 35987.000000
+# SECs added: 30
+# hello callback!
+node 200 ; best current solution: 35987.000000
+# SECs added: 13
+# hello callback!
+node 293 ; best current solution: 35987.000000
+# SECs added: 27
+# hello callback!
+node 560 ; best current solution: 35987.000000
+# SECs added: 15
+# hello callback!
+node 600 ; best current solution: 35987.000000
+# SECs added: 7
+# hello callback!
+node 987 ; best current solution: 35987.000000
+# SECs added: 22
+# hello callback!
+node 1000 ; best current solution: 35987.000000
+# hello callback!
+node 1077 ; best current solution: 35840.000000
+# SECs added: 19
+# hello callback!
+node 1155 ; best current solution: 35840.000000
+# SECs added: 19
+# hello callback!
+node 1200 ; best current solution: 35840.000000
+# SECs added: 3
+# hello callback!
+node 1300 ; best current solution: 35840.000000
+# SECs added: 7
+# hello callback!
+node 1400 ; best current solution: 35840.000000
+# SECs added: 17
+# hello callback!
+node 1400 ; best current solution: 35840.000000
+# SECs added: 2
+nodes processed : 1500
+try to get value
+Fatal error in solvers/cpx/cpx_local_branching :: case 107 :: CPXgetobjval : 1217
+Failed to obtain objective value.
+
+real	7m24.361s
+user	28m10.188s
+sys	0m1.049s
+

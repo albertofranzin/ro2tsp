@@ -1,0 +1,45 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 28743.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 27420.00
+applying reduction...
+# preprocessing : removed edges               = 31201
+# preprocessing : ratio removed edges         = 22.09
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 116
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# hello callback!
+node 0 ; best current solution: 28743.000000
+# SECs added: 51
+# hello callback!
+node 60 ; best current solution: 28743.000000
+# SECs added: 43
+# hello callback!
+node 200 ; best current solution: 28743.000000
+# SECs added: 10
+# hello callback!
+node 379 ; best current solution: 28743.000000
+# SECs added: 18
+# hello callback!
+node 600 ; best current solution: 28743.000000
+# SECs added: 15
+# hello callback!
+node 699 ; best current solution: 28743.000000
+# SECs added: 20
+# hello callback!
+node 730 ; best current solution: 28743.000000
+# SECs added: 9
+# hello callback!
+node 800 ; best current solution: 28743.000000
+# SECs added: 7
+nodes processed : 866
+try to get value
+Fatal error in solvers/cpx/cpx_local_branching :: case 107 :: CPXgetobjval : 1217
+Failed to obtain objective value.
+
+real	9m11.132s
+user	38m57.606s
+sys	0m1.456s
+

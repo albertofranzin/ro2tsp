@@ -109,7 +109,7 @@ int cpx_solve_miliotis(CPXENVptr   	cplexenv,
 		return status;
 	}
 
-	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, 3600);
+	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, 500);
 	//status = CPXsetdblparam(cplexenv, CPX_PARAM_TRELIM, 500);
 
 	clock_t t1 = clock(), t2;
