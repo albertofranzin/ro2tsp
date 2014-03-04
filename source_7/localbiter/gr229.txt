@@ -1,0 +1,30 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 137176.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 133318.00
+applying reduction...
+# preprocessing : removed edges               = 15068
+# preprocessing : ratio removed edges         = 57.72
+# SECs added: 25
+# SECs added: 17
+# SECs added: 14
+# SECs added: 11
+# SECs added: 4
+# SECs added: 4
+# SECs added: 4
+# SECs added: 7
+# SECs added: 6
+# SECs added: 3
+# SECs added: 2
+# SECs added: 3
+# SECs added: 3
+objval = 134602.000000 (vs 137176.000000)
+time limit reached
+# problem solved!
+opt                 = 589.00
+time                = 200.89
+
+real	1m51.276s
+user	7m52.723s
+sys	0m4.966s
+

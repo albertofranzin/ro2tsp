@@ -1,0 +1,63 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 427.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 423.00
+applying reduction...
+# preprocessing : removed edges               = 1132
+# preprocessing : ratio removed edges         = 88.78
+# SECs added: 3
+# SECs added: 2
+objval = 426.000000 (vs 427.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+objval = 426.000000 (vs 426.000000)
+^C
+
+real	0m1.837s
+user	0m8.070s
+sys	0m0.081s
+

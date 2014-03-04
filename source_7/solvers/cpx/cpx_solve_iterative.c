@@ -16,7 +16,7 @@ int cpx_solve_iterative(CPXENVptr    cplexenv,
 	int vrtx_comp[n];
 
 	clock_t t1, t2;
-	double maxtime = 500;
+	double maxtime = 60000;
 
 	status = CPXsetintparam (cplexenv, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_DYNAMIC);
 	//status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_TRADITIONAL);
@@ -120,7 +120,7 @@ int cpx_solve_iterative(CPXENVptr    cplexenv,
 
 		// set time limit
 		// printf("maxtime %f\n", maxtime);
-		status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, maxtime);
+		//status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, maxtime);
 		if (status) {
 			fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_iterative.c:\n"
 							"function: cpx_solve_iterative:\n"

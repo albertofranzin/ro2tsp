@@ -106,15 +106,10 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	// set time controls
 	//start_time = clock();
 
-	//printf("Set node time limit to CPLEX: %f\n", node_time_limit); // commentato: node_time_limit NON INIZIALIZZATO
-	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, 10);
-	if (status) {
-		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_local_branching.c :: ");
-	    fprintf(stderr, "failed to set the timeout, error %d.\n", status);
-	    exit(1);
-	}
 
 	// cycle begins!
+	clock_t t1, t2;
+	double maxtime = 200;
 	while (!termination) {
 
 		if (rhs < BIG) {
@@ -131,8 +126,26 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 		}
 
 		//tl = fmin(tl, total_time_limit - elapsed_time);
-	    status = cpx_solve_iterative(cplexenv, lp, env, pars, stats,
+
+		//printf("Set node time limit to CPLEX: %f\n", node_time_limit); // commentato: node_time_limit NON INIZIALIZZATO
+		status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, 500);
+		if (status) {
+			fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_local_branching.c :: ");
+		    fprintf(stderr, "failed to set the timeout, error %d.\n", status);
+		    exit(1);
+		}
+		t1 = clock();
+	    // status = cpx_solve_iterative(cplexenv, lp, env, pars, stats,
+	    // 		                     x_opt, numcols, &solstat);
+	    status = cpx_solve_miliotis(cplexenv, lp, env, pars, stats,
 	    		                     x_opt, numcols, &solstat);
+	    t2 = clock();
+	    maxtime = maxtime - (double)(t2 - t1) / CLOCKS_PER_SEC;
+	    if (maxtime <=0) {
+	    	printf("time limit reached\n");
+	    	termination = TRUE;
+	    	break;
+	    }
 	    //getchar();
 
 	    //int numsubtrs = 0;
@@ -166,7 +179,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	    }
 		#endif
 		*/
-	    printf("solution status is %d\n", solstat);
+	    // printf("solution status is %d\n", solstat);
 	    // if no suitable solution is found, then stop here
 	    // else, retrieve current solution and follow on adding SECs
 	    if (solstat == 107 ||  // timed out, integer solution exists
@@ -216,7 +229,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	    		//printf("b\n");
 	    	}
 	    	if (rhs >= BIG) {
-	    		printf("101/102: rhs >= BIG\n");
+	    		//printf("101/102: rhs >= BIG\n");
 	    		termination = TRUE;
 	    		break;
 	    	}
@@ -226,13 +239,13 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	    	rhs       = radius;
 	    	memcpy(cur_x_opt, x, sizeof(x));
 	    	// reverse last constraint
-	    	printf("101/102: before getnumrows\n");
+	    	//printf("101/102: before getnumrows\n");
 	    	lcr = CPXgetnumrows(cplexenv, lp);
 	    	char asense[1];
 	    	int inds[1];
 	    	asense[0]	= 'G';
 	    	inds[0] 	= lcr-1;
-	    	printf("101/102: before chgsense\n");
+	    	//printf("101/102: before chgsense\n");
 	    	status = CPXchgsense(cplexenv, lp, 1, inds, asense);
 	    	if (status) {
 	    		fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
@@ -242,7 +255,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	    	}
 	    	double arhs[1];
 	    	arhs[0] = rhs + 1;
-	    	printf("101/102: before chgrhs\n");
+	    	//printf("101/102: before chgrhs\n");
 	    	status = CPXchgrhs(cplexenv, lp, 1, inds, arhs);
 	    	if (status) {
 	    		fprintf(stderr, "Fatal error in solvers/cpx/cpx_local_branching :: ");
@@ -250,7 +263,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	    		fprintf(stderr, "Failed to invert constraint.\n");
 	    		exit(1);
 	    	}
-	    	printf("101/102 : well done\n");
+	    	//printf("101/102 : well done\n");
 	    break;
 
 	    case 103: // problem is infeasible
@@ -431,7 +444,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 
 	    // check time
 	    //now = clock();
-	    printf("before time_elapsed()\n");
+	    //printf("before time_elapsed()\n");
 	   //elapsed_time = time_elapsed(start_time, now);
 
 	    /*
@@ -440,7 +453,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	    }
 	    */
 
-	    printf("before second addmipstarts\n");
+	    //printf("before second addmipstarts\n");
 	    j = 0;
 	    for (i = 0; i < numcols; i++) {
 	    	if (x_opt[i] >= 0.99) {
@@ -452,7 +465,7 @@ int cpx_solve_local_branching(CPXENVptr   	 cplexenv,
 	    //int mipstartindices[1] = {0};
 	    // status = CPXchgmipstarts(env, lp, 1, mipstartindices, n, beg, stindx, startx, NULL);
 	    status = CPXaddmipstarts(cplexenv, lp, 1, n, beg, stindx, startx, NULL, NULL);
-	    printf("after second addmipstarts\n");
+	    //printf("after second addmipstarts\n");
 
 	} // end while termination
 

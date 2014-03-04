@@ -1,0 +1,25 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 2627.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 2566.00
+applying reduction...
+# preprocessing : removed edges               = 29041
+# preprocessing : ratio removed edges         = 74.35
+# SECs added: 15
+# SECs added: 13
+# SECs added: 10
+# SECs added: 6
+# SECs added: 4
+# SECs added: 3
+objval = 2579.000000 (vs 2627.000000)
+time limit reached
+Fatal error in solvers/cpx/cpx_solve_local_branching.c :: CPXgetobjval : 1217
+Failed to obtain objective value.
+# problem solved!
+opt                 = 20.00
+time                = 200.61
+
+real	4m20.480s
+user	9m40.604s
+sys	0m2.728s
+

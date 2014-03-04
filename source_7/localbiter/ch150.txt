@@ -1,0 +1,25 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 6591.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 6491.00
+applying reduction...
+# preprocessing : removed edges               = 9519
+# preprocessing : ratio removed edges         = 85.18
+# SECs added: 15
+# SECs added: 8
+# SECs added: 5
+# SECs added: 6
+# SECs added: 4
+# SECs added: 2
+# SECs added: 5
+objval = 6528.000000 (vs 6591.000000)
+Fatal error in solvers/cpx/cpx_solve_iterative.c:
+function: cpx_solve_iterative:
+CPXpresolve : 1117
+Fatal error in solvers/cpx/cpx_local_branching :: CPXgetx : 1217
+Failed to get node solution.
+
+real	0m18.832s
+user	1m39.196s
+sys	0m0.293s
+

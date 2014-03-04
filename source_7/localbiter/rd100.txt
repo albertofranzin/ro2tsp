@@ -1,0 +1,52 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 7913.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 7900.00
+applying reduction...
+# preprocessing : removed edges               = 4738
+# preprocessing : ratio removed edges         = 95.72
+# SECs added: 11
+# SECs added: 5
+# SECs added: 3
+# SECs added: 2
+objval = 7910.000000 (vs 7913.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+objval = 7910.000000 (vs 7910.000000)
+^C
+real	0m8.516s
+user	0m43.397s
+sys	0m0.152s
+
+

@@ -1,0 +1,37 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 675.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 671.00
+applying reduction...
+# preprocessing : removed edges               = 2220
+# preprocessing : ratio removed edges         = 91.93
+# SECs added: 13
+# SECs added: 6
+# SECs added: 4
+# SECs added: 2
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+objval = 675.000000 (vs 675.000000)
+^C
+
+real	0m2.033s
+user	0m11.763s
+sys	0m0.076s
+
