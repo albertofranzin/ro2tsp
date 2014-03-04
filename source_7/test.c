@@ -77,8 +77,8 @@ int main(int argc, char **argv) {
 	/* START CPLEX */
 
 	pars.proximity_option		= FALSE;
-	pars.hardfixing_option 		= FALSE;
-	pars.localbranching_option 	= TRUE;
+	pars.hardfixing_option 		= TRUE;
+	pars.localbranching_option 	= FALSE;
 	pars.rinspolishing_option 	= FALSE;
 	pars.callbacks_option 		= TRUE;
 	cpx_solver(&env, &stats, &pars);

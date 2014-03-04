@@ -16,7 +16,7 @@ int cpx_solve_iterative(CPXENVptr    cplexenv,
 	int vrtx_comp[n];
 
 	clock_t t1, t2;
-	double maxtime = 60000;
+	double maxtime = 3600;
 
 	status = CPXsetintparam (cplexenv, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_DYNAMIC);
 	//status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_TRADITIONAL);

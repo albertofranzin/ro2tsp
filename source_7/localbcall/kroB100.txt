@@ -1,0 +1,74 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 22278.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 21834.00
+applying reduction...
+# preprocessing : removed edges               = 4005
+# preprocessing : ratio removed edges         = 80.91
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 79
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 79
+# hello callback!
+node 0 ; best current solution: 22278.000000
+# SECs added: 21
+# hello callback!
+node 0 ; best current solution: 22278.000000
+# SECs added: 10
+# hello callback!
+node 0 ; best current solution: 22278.000000
+# SECs added: 5
+# hello callback!
+node 0 ; best current solution: 22278.000000
+# SECs added: 2
+# hello callback!
+node 2 ; best current solution: 22278.000000
+# SECs added: 6
+# hello callback!
+node 10 ; best current solution: 22278.000000
+# SECs added: 3
+# hello callback!
+node 13 ; best current solution: 22278.000000
+# SECs added: 3
+# hello callback!
+node 69 ; best current solution: 22278.000000
+# SECs added: 5
+# hello callback!
+node 73 ; best current solution: 22278.000000
+# SECs added: 4
+# hello callback!
+node 98 ; best current solution: 22278.000000
+# SECs added: 5
+# hello callback!
+node 107 ; best current solution: 22278.000000
+# SECs added: 2
+# hello callback!
+node 112 ; best current solution: 22278.000000
+# SECs added: 2
+# hello callback!
+node 114 ; best current solution: 22278.000000
+# SECs added: 2
+# hello callback!
+node 146 ; best current solution: 22278.000000
+# SECs added: 2
+# hello callback!
+node 199 ; best current solution: 22278.000000
+# SECs added: 3
+# hello callback!
+node 204 ; best current solution: 22278.000000
+# hello callback!
+node 300 ; best current solution: 22179.000000
+nodes processed : 301
+objval = 22141.000000 (vs 22278.000000)
+Fatal error in solvers/cpx/cpx_solve_miliotis.c:
+function: cpx_solve_miliotis:
+CPXpresolve : 1117
+Fatal error in solvers/cpx/cpx_local_branching :: CPXgetx : 1217
+Failed to get node solution.
+
+real	0m6.866s
+user	0m39.925s
+sys	0m0.044s
+
