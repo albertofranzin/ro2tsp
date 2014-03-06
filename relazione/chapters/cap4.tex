@@ -1,0 +1,113 @@
+\chapter{Euristici}
+Analizziamo infine alcune tecniche euristiche usate per calcolare una soluzione ammissibile, anche se in generale subottima, da impiegare come punto di partenza per il subgradiente lagrangiano, il branch-and-bound o una risoluzione basata su MIP, ma anche per calcolare una soluzione a sé stante. In questa sezione esponiamo e confrontiamo euristici basati sia sulla formulazione generale del problema, sia sul modello MIP.
+
+\section{Euristici basati sulla formulazione del problema}
+\subsection{Nearest Neighbour}
+Il primo euristico che analizziamo è anche quello forse più intuitivo, l’algoritmo nearest neighbour. Partendo da un nodo qualsiasi, l’algoritmo esegue una scelta greedy scegliendo l’arco di costo minimo tra quelli che collegano il nodo a nodi non già precedentemente visitati, fino a che tutti i nodi non sono stati visitati, al che l’algoritmo ritorna al nodo di partenza con l’unico arco possibile.
+
+L’idea è molto semplice e ``naturale’’, ma la scelta localmente ottima può, nel corso delle iterazioni, spingere l’algoritmo verso zone in cui ci sono diversi nodi molto vicini, costringendo poi la selezione di archi di costo elevato per muoversi verso i rimanenti nodi del grafo. Ciò risulta evidente osservando il risultato dell’esecuzione dell’algoritmo su un grafo, quando si notano archi che attraversano lunghi tratti per collegare due nodi distanti tra loro. Una possibile idea per attenuare in parte il problema è quella di eseguire più volte la ricerca, partendo da diversi nodi del grafo.
+
+\subsection{$k$-opt}
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{images/2opt}
+    \caption{Scambio di archi in 2-opt.}
+    \label{fig:2opt}
+  \end{center}
+\end{figure}
+Un’idea molto naturale che nasce dall’osservazione del risultato dell’algoritmo NN su istanze del TSP, o perlomeno su istanze del TSP che rispettano la disuguaglianza triangolare, è quella di scambiare due archi che si incrociano, secondo l’operazione in figura \ref{fig:2opt}. Tale operazione è chiamata 2-opt (\citet*{croes1958method}). Il risultato è quello di collegare in maniera localmente ottima due coppie di nodi.
+
+Questa procedura può essere estesa a più coppie di nodi. Ad esempio, lo scambio di archi tra 3 coppie di nodi è detta 3-opt, e, in generale, su $k$ coppie di nodi si definisce un’operazione $k$-opt. Queste operazioni sono applicabili a qualsiasi tour hamiltoniano, per migliorare la soluzione corrente, ottenuta con un algoritmo euristico. Nel nostro caso abbiamo applicato 2-opt e 3-opt a cicli ottenuti con NN, e a cicli generati in maniera casuale. Nel primo caso l’idea è quella di migliorare una soluzione che si suppone già sufficientemente buona. Nel secondo caso invece di ottiene un circuito in genere pessimo dal punto di vista del costo, e molto intricato se osservato, ma molto veloce da calcolare e che può essere migliorato di molto; questo permette di generare moltissimi cicli e testare il loro ``potenziale’’ applicando gli step di $k$-ottimalità in un tempo relativamente contenuto.
+
+Dal punto di vista teorico le operazioni $k$-opt costituiscono una ricerca locale in un intorno della soluzione corrente. Non sono quindi garantiti il raggiungimento della soluzione ottima, né la sua certificazione come tale. Al crescere di k la ricerca si estende a intorni di raggio sempre maggiore, a scapito tuttavia del tempo di calcolo e della complessità dell’algoritmo, che già per $k=3$ diventa molto oneroso. Queste procedure sono comunque alla base degli euristici Lin-Kernighan (\citet*{lin1973effective}) e Lin-Kernighan-Helsgaun (\citet*{helsgaun2000effective}), ad oggi i più efficaci euristici per il TSP in letteratura.
+
+\subsection{Branch-and-bound con prefissaggio}
+Abbiamo inoltre provato un approccio ispirato a RINS (si veda la sezione \ref{sec:rins}), basato sulle soluzioni calcolate dall’euristico di partenza. L’idea è valutare le soluzioni calcolate ad ogni iterazione dell’euristico (in particolare RC+2opt, che genera molti cicli potenzialmente diversi, mentre NN+2opt restituirà un numero limitato di cicli distinti) e confidare nel fatto che gli archi selezionati in tutte le iterazioni sono parte della soluzione ottima; allo stesso modo, gli archi sempre scartati da tutte le iterazioni dell’euristico sono considerati esclusi anche dalla soluzione ottima. Vengono così fissate a zero le variabili corrispondenti agli archi scartati, e a 1 le variabili relative agli archi sempre presenti nelle varie soluzioni. Viene quindi lanciato il branch-and-bound, che agirà sulle variabili non fissate.
+
+Ovviemente, non c’è nessuna garanzia che questo metodo porti alla soluzione ottima (basti pensare al caso limite in cui viene eseguita una sola iterazione dell’euristico: tutte le variabili verranno fissate al valore che assumono nella soluzione euristica, il branch-and-bound non ha gradi di libertà, e la soluzione ritornata sarà quella calcolata dall’euristico), ma possiamo sperare che se molte iterazioni concordano su alcune variabili, il loro valore sarà molto probabilmente lo stesso della soluzione ottima.
+
+\section{Euristici basati su modello MIP}
+L’altra tipologia di euristici che abbiamo analizzato e testato appartiene ad un filone di ricerca sviluppatosi negli ultimi anni, in seguito al diffondersi di software commerciali e non per la risoluzione di modelli MIP, e alla loro sempre maggiore potenza. Sono conosciuti come \textit{matheuristics}, crasi tra ``euristici’’ e ``programmazione matematica’’.
+
+Anche in questo caso si tratta di tecniche di ricerca locale, che tuttavia sfruttano i solver MIP a scatola chiusa per esplorare in maniera più efficiente un intorno dello spazio delle soluzioni.
+
+\subsection{Hard Fixing}
+Il primo euristico MIP-based che abbiamo trattato è detto Hard Fixing, in quanto prevede il fissaggio di alcune variabili, lasciando che il solver risolva il sottoproblema così determinato. La scelta di quali variabili fissare è decisa dall’utente (eventualmente in maniera casuale).
+
+La ricerca parte da una soluzione ammissibile iniziale precedentemente calcolata, fornita al solver. Al modello originale (intero o rilassato da risolvere mediante cutting plane) viene aggiunto un vincolo
+FORMULA
+che specifica una massima distanza di Hamming tra la soluzione ammissibile iniziale e le soluzioni che il solver può generare. Dal punto di vista geometrico questo equivale a imporre un massimo raggio dell’intorno della soluzione in cui cercare soluzioni miglioranti. Dal punto di vista dell’albero di branching, invece, l’effetto è di un salto in un sottoalbero del branch-and-cut, motivo per cui tale tecnica è detta anche \textit{diving}.
+
+Il raggio dell’intorno è il parametro che determina il trade-off tra qualità della soluzione e tempo impiegato: un valore basso di $k$ restringe l’intorno, permettendo di trovare velocemente una soluzione migliorante, se presente, ma limitando le possibilità di miglioramento. Al contrario, un valore molto alto rende il vincolo inutile, facendo tendere la ricerca ad una ricerca globale.
+
+\subsection{Local Branching}
+Local Branching (\citet*{fischetti2003local}) è la seconda tecnica matheuristic presentata, concettualmente simile alla precedente, ma che lascia al solver la scelta di quali variabili fissare e quali invece considerare per la ricerca dell’ottimo locale. Local Branching implementa un branch-and-bound in cui ad ogni nodo viene risolto il problema mediante il MIP solver. Viene poi effettuato un branching tramite un vincolo 
+\begin{equation}
+  \Delta(x, \tilde{x}) \leq k \label{eqn:localbconst}
+\end{equation}
+dove $x$ è una generica soluzione, $\tilde{x}$ è la soluzione incumbent, e $\Delta(x, \tilde{x})$ è la distanza di Hamming tra le due soluzioni. Il vincolo \ref{eqn:localbconst} partiziona le soluzioni derivate in due sottoalberi, uno contenente le soluzioni che differiscono al più di $k$ variabili dalla soluzione corrente al nodo, e uno contenente le soluzioni che differiscono di almeno $k+1$ variabili dalla soluzione al nodo.
+
+\subsection{Proximity Search}
+Proximity Search (\citet*{fischetti2012proximity}) è una tecnica euristica più recente che ricerca una soluzione migliore in un intorno dell’incumbent dato da un parametro di prossimità $\theta$. Il metodo impiegato da Proximity Search consiste nel sostituire alla funzione obiettivo originale 
+\begin{equation}
+  \min c^Tx
+\end{equation}
+una nuova funzione obiettivo 
+\begin{equation}
+  \min\Delta(x, \tilde{x})
+\end{equation}
+e aggiungendo un nuovo vincolo
+\begin{equation}
+  c^Tx \leq c^T\tilde{x} - \theta \label{eqn:cutoffconst}
+\end{equation}
+dove $\tilde{x}$ è la soluzione incumbent corrente, e $\Delta(x, \tilde{x})$ è la distanza di Hamming tra l'incumbent e una soluzione generica $x$. Il vincolo \ref{eqn:cutoffconst} è chiamato \textit{vincolo di cutoff} che specifica di quanto le soluzioni ammissibili possono discostari dalla precedente, in termini di costo. L’idea alla base di questo procedimento è di cercare soluzioni miglioranti in un intorno ristretto, iterando questa ricerca partendo ogni volta dal nuovo incumbent, fino a che non viene raggiunta una qualche condizione di terminazione.
+
+Nell'articolo originale vengono proposte alcune varianti a Proximity Search, con alcune idee per migliorare le prestazioni. La versione da noi implementata prevede il ricentramento della funzione obiettivo a partire da una soluzione euristica precedentemente calcolata.
+
+\subsection{RINS+Polishing}\label{sec:rins}
+L’ultimo metodo di questa categoria è dato da una combinazione di due euristici presenti in CPLEX, rispettivamente RINS (\citet*{danna2005exploring}) e Polishing (\citet*{rothberg2007evolutionary}). RINS risolve il rilassamento continuo del problema, individa le variabili che sono già intere nella soluzione frazionaria ottima e concordano con la soluzione euristica iniziale, le fissa nel modello intero e risolve il problema così ristretto, più semplice del problema originale avendo limitato la ricerca ad un numero inferiore di variabili, ma senza la garanzia di poter raggiungere la soluzione ottima. Polishing invece è un post-processing che esegue un genetico a partire dalla soluzione incumbent; in CPLEX viene eseguito come ultima operazione, lanciata quando si verifica una predeterminata condizione (ad esempio un certo numero di nodi valutati, o un certo tempo trascorso).
+
+\section{Risultati computazionali}
+Dato che lo scopo di queste soluzioni è la ricerca ``veloce’’ di una soluzione ``buona’’, i test sono stati effettuati con un tempo più limitato di quello concesso ai metodi per la risoluzione all’ottimo del problema.
+\subsection{NN e $k$-opt}
+Abbiamo implementato e testato gli euristici 2-opt e 3-opt, applicandoli a cicli generati sia con algoritmo Nearest Neighbour (partendo da ogni nodo del grafo) che generando casualmente l’ordine dei nodi (metodo chiamato d’ora in avanti RC). Il numero delle iterazioni di RC è stato calcolato in maniera tale da cercare di limitare il tempo di esecuzione, dato che la 2-ottimalità di un circuito generato casualmente di, ad esempio, 100 nodi richiede molte più iterazioni della 2-ottimalità di un grafo di 30 nodi. Tuttavia, poiché RC richiede un numero relativamente elevato di iterazioni per poter sperare di ottenere qualche soluzione accettabile, è stato implementato in parallelo, con un diverso seme per ogni thread.
+
+Sia per NN che RC, ad ogni ciclo calcolato viene applicato 2-opt; al termine, sulla migliore soluzione vengono applicati, in sequenza, 3-opt e nuovamente 2-opt. Si è scelto di applicare 3-opt solo sulla migliore soluzione a causa della sua pesantezza; la successiva applicazione di 2-opt permette di limare ulteriormente il bound. Ovviamente, non c’è nessuna garanzia che questa scelta porti al miglior risultato, ovvero l’applicare lo step 3-opt solo alla miglior soluzione potrebbe non essere la scelta ottimale dal punto di vista della qualità della soluzione ottenuta. Anche in questo caso si è comunque scelto un compromesso tra qualità della soluzione e tempo impiegato per ottenerla.
+
+NN+2opt permette di trovare la soluzione ottima per cicli più piccoli, mentre RC+2opt riesce ad individuare il tour ottimo anche per istanze fino a circa 100 nodi, e ad ottenere buoni bound anche per istanze di dimensioni maggiori. La causa principale per cui le prestazioni di RC2opt peggiorano al crescere delle istanze è da cercarsi nel fatto che, cercando di bilanciare la qualità del risultato con i tempi necessari ad ottenerlo, al crescere delle dimensioni delle istanze si effettuano sempre meno iterazioni, con la conseguenza che le possibilità di trovare una buona soluzione si riducono sempre di più. Molto probabilmente, il mantenere un elevato numero di iterazioni a prescindere dalla dimensione dell’istanza contribuirebbe al raggiungimento di soluzioni migliori, a scapito tuttavia del tempo di esecuzione, che crescerebbe in maniera enorme.
+
+Chiaramente, 3-opt permette di migliorare anche di molto la soluzione ritornata. Date le prestazioni riportate nella tabella, come euristico di partenza per le altre prove è stato usato il RC+232opt. AD ECCEZIONE DEL B\&B?
+
+\subsection{B\&B con prefissaggio}
+Riportiamo ora i risultati dei test del branch-and-bound con prefissaggio delle variabili in seguito agli euristici. L’euristico usato, come detto più sopra, è RC+232opt. Come il branch-and-bound non limitato, anche questa versione euristica è stata testata sulle istanze di taglia inferiore ai 300 nodi, con un tempo limite di 2000 secondi. Segnaliamo inoltre che questa versione euristica del branch-and-bound ha risolto (trovando la soluzione ottima) l’istanza \texttt{lin318} in poco più di 40 minuti.
+
+Nele istanze più grandi il branch-and-bound, anche se limitato a poche centinaia di variabili, non è riuscito a trovare l’ottimo (locale) nel tempo dato. In alcune di esse, non è stato nemmeno rilevato alcun miglioramento del bound iniziale. Tuttavia, nelle rimanenti istanze testate, l’algoritmo ha sempre trovato l’ottimo globale (ad eccezione di \texttt{u159}, in cui è stata trovata una soluzione di costo di poco superiore all’ottimo), in un tempo considerevolmente ridotto rispetto al branch-and-bound presentato nel capitolo 2. Sono state inoltre affrontate e risolte istanze che altrimenti sarebbero state proibitive, come \texttt{pr264}.
+
+Chiaramente le prestazioni del RC+2opt a monte del B\&B influenzano fortemente l’esito di quest’ultimo: aumentare il numero di iterazioni aumenta di conseguenza le probabilità di ottenere un bound di partenza migliore e una soluzione di costo minore, ma aumenta allo stesso tempo anche la possibilità di trovare un circuito che non si ``allinea’’ a quelli precedentemente trovati, riducendo quindi il numero di variabili che si possono fissare. Al contrario, con meno iterazioni in genere ci saranno tendenzialmente più variabili fissate, ma la soluzione finale sarà cercata in uno spazio delle soluzioni più limitato, con minori garanzie sulla sua qualità.
+
+\subsection{Hard Fixing}
+Abbiamo implementato e testato Hard Fixing sfruttando le informazioni sugli archi ricavate dall’euristico, nella maniera già descritta nel paragrafo precedente, imponendo così in primo luogo le variabili su cui tutte le iterazioni di RC+2opt concordano. Poi, tra le rimanenti variabili, in maniera casuale abbiamo selezionato quelle da imporre, e ad esse è stato assegnato il valore identificato dalla miglior soluzione dell’euristico iniziale.
+
+Il raggio dell’intorno, dopo alcuni test su istanze medio-grandi del testbed usato, è stato posto a 1000; valori inferiori come 10, 20, 100, 500, portavano il solver a terminare quasi immediatamente senza alcun miglioramento dell’incumbent. Per istanze di taglia ``piccola’’, ovviamente, questo vincolo è poco o per nulla significativo; istanze di tagli limitata, comunque, vengono facilmente risolte all’ottimo (in alcuni casi anche dagli euristici di partenza), motivo per cui la scelta di un euristico basato su MIP ha poco senso. Vengono comunque riportati per completezza i risultati ottenuti su tutte le istanze di prova usate. Come per gli altri euristici, è stato assegnato un tempo limite per ciascuna istanza di 500 secondi.
+
+L’implementazione che fa uso di callback ha risolto all’ottimo locale in tempi molto brevi (pochi secondi) quasi tutte le istanze. Quella basata su risoluzione iterativa, invece, in parecchi casi ha fallito l’individuazione di una soluzione nei tempi dati, segno evidente di come il dover risolvere da capo il modello sia un compito eccessivamente pesante rispetto alla possibilità di muoversi all’interno dello spazio delle soluzioni ammissibili, in particolar modo in un contesto euristico.
+
+\subsection{Local branching}
+Abbiamo testato Local Branching sia usando il solver iterativo, sia la sua versione basata su callbacks, assegnando al solver un tempo limite di 500 secondi.
+
+\subsection{Proximity Search}
+La tecnica Proximity Search è stata implementata e testata con un tempo limite di 500 secondi; la ricerca veniva terminata al raggiungimento del time limit o della prima soluzione migliorante.
+
+\subsection{RINS+Polishing}
+Abbiamo inoltre testato sulle medesime istanze gli euristici RINS e Polishing presenti in CPLEX. Anche in questo caso il tempo limite assegnato è stato di 500 secondi, in cui, a partire da una soluzione iniziale precedentemente calcolata con RC+232opt, è stato eseguito RINS al 50\% dei nodi del branch-and-cut fino alla prima soluzione, momento in cui il b\&c è stato fermato e si è lanciato il Polishing per il tempo rimanente.
+
+Su istanze di dimensioni limitata, RINS+Polishing ha ottenuto buone soluzioni, spesso raggiungendo l’ottimo, senza tuttavia poterlo certificare (essendo il Polishing un algoritmo genetico). In particolare, questo euristico è stato anche l’unico in grado di trovare la soluzione ottima dell’istanza \texttt{ts225}. Anche sulle istanze più grandi del testbed, nel tempo dato è stato possibile individuare soluzioni di buona qualità, molto vicine all’ottimo.
+
+\section{Commenti}
+Gli euristici basati su k-opt permettono di ottenere buoni risultati su istanze anche di taglie relativamente elevate. Tuttavia, partire da una soluzione calcolata con NN permette di ottenere un numero limitato di istanze diverse, mentre RC+2opt/232opt, che ha a suo favore un più elevato potenziale, diventa computazionalmente sempre più pesante al crescere delle istanze. Possiamo tuttavia affermare che, tra le varianti implementate, RC2opt è l’euristico che, con maggior tempo di calcolo a disposizione, è in grado di fornire i migliori risultati; inoltre, è parallelizzabile in maniera molto naturale. Tale affermazione è supportata dalla percentuale decrescente di archi eliminati, che da molto elevata per istanze di taglia limitata, scende progressivamente mano a mano che aumenta il numero di nodi nel grafo: cio è ovviamente dovuto a bound peggiori.
+
+Il branch-and-bound con prefissaggio delle variabili si è rivelato molto efficace su istanze di taglia moderata (< 300 nodi), spesso trovando l’ottimo globale, ma non ci sono indizi che suggeriscano una sua reale applicabilità a istanze più grandi di 300 nodi. In altre parole, la sua qualità è quella di accelerare la risoluzione di istanze che con ogni probabilità sono alla portata di un normale branch-and-bound (come quello presentato nel capitolo 2), se questo fosse eseguito per un tempo maggiore (qualche ora). Le istanze più difficili, come \texttt{ts225}, rimangono al di fuori della sua portata. Il vantaggio ottenuto sul tempo viene tuttavia pagato in termini di garanzia dell’ottimalità della soluzione individuata.
+
+Gli euristici basati su risolutori MIP sono quindi, tra le soluzioni analizzate, quelle a cui rivolgersi per attaccare istanze di dimensioni più elevate. Hard Fixing converge all’ottimo locale molto velocemente, anche se in maniera poco predicibile e poco dipendente dall’effettiva dimensione dell’istanza; per di più, la qualità della soluzione ritornata è legata alla scelta delle variabili imposte, scelta che richiede della conoscenza pregressa del dominio per poter essere effettuata con cognizione di causa. Proximity Search si è rivelata più efficace di Local Branching. La coppia di euristici interni a CPLEX RINS+Polishing, fornisce risultati molto buoni nei tempi dati, cosa tuttavia poco sorprendente data la qualità del solver. L’operazione di crossing over dell’algoritmo genetico su cui si basa Polishing permette di esplorare maggiormente lo spazio di ricerca, mentre le altre tecniche analizzate, così come il Branch-and-bound con prefissaggio, sono limitate ad un intorno della soluzione iniziale fornita (sia pure ``mobile’’, nel caso di Proximity Search). Inoltre, il fatto di essere implementazioni interne a CPLEX consente loro di sfruttare a pieno le potenzialità e il tuning del solver, cosa preclusa alle nostre implementazioni, sia per l’uso limitato del solver consentito alle implementazioni ``esterne’’ (come ad esempio la disabilitazione di dynamic search quando vengono usate le callback), sia per la nostra minore conoscenza del solver.
+
+La principale difficoltà nell’implementare euristici usando un MIP solver, perlomeno basandosi su CPLEX o altre soluzioni commerciali, sta nel fatto che i risolutori commerciali nascondono il più possibile all’utente il proprio funzionamento interno per proteggere i propri segreti industriali, e di conseguenza diventa più difficile capire se l’algoritmo implementato è corretto, totalmente errato, o migliorabile, o individuare la causa degli errori che si possono verificare.

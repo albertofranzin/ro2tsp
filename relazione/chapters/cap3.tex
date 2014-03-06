@@ -1,0 +1,73 @@
+\chapter{Risolutori basato sul modello MIP}
+La seconda via studiata per risolvere in maniera esatta il TSP è la formulazione del problema come problema di programmazione lineare mista intera, in cui alcune variabili sono vincolate all'interezza, mentre su altre tale vincolo è rilassato e possono assumere valori continui. Il modello viene poi risolto con il solver commerciale CPLEX, disponibile gratuitamente per uso accademico e di studio. Esistono vari MIP solver commerciali e open source, che si basano sostanzialmente su un branch-and-cut eseguito sul rilassamento continuo del problema, in cui ad ogni nodo un pool di tagli ed euristici viene applicato sulla soluzione valutata.
+
+\section{Modello del TSP}
+INSERIRE MODELLO
+
+\subsection{Preprocessing}
+Il subgradiente lagrangiano fornisce un lower bound rispetto alla soluzione ottima, mentre varie tecniche euristiche (cap. 4) permettono di calcolare una soluzione ammissibile, quindi un upper bound al valore dell'ottimo. Possiamo sfruttare queste informazioni per ``aiutare'' la risoluzione del modello, imponendo al risolutore di escludere dal calcolo le variabili corrispondenti agli archi che possiamo determinare a priori non saranno presenti nella soluzione ottima.
+
+Questo procedimento si può effettuare COME?
+
+Un altro intervento preliminare che possiamo compiere è fornire al solver una soluzione intera ammissibile da cui partire per un ``raffinamento'' verso la soluzione ottima. Anche in questo caso, la soluzione iniziale si può calcolare con un algoritmo euristico (cap. 4).
+
+\subsection{Rilassamento}\label{sec:relaxelsecs}
+Il modello proposto è computazionalmente intrattabile; la causa principale di questa situazione risiede nel numero dei vincoli di aciclicità. Possiamo quindi rilassare il problema eliminando i SECs, e risolvere il problema così modificato. In genere, una soluzione al problema rilassato conterrà dei sottocicli; in tal caso possiamo individuarli, vietarli mediante appositi vincoli aggiunti come cutting planes e risolvere il nuovo problema. L'idea alla base di tale procedimento è che solo una piccola parte dei SECs sono effettivamente necessari per la corretta risoluzione del modello, mentre la maggior parte di loro non verrà mai violata da soluzioni di sufficiente qualità, pertanto la loro inclusione risulta solo in un appesantimento del modello MIP.
+
+\section{Risoluzione iterativa}
+Il primo procedimento di risoluzione analizzato consiste nell'applicare in maniera diretta la procedura descritta nella sezione Rilassamento \ref{sec:relaxelsecs}. L'algoritmo itera i seguenti passi:
+\begin{enumerate}[noitemsep]
+  \item risoluzione del modello rilassato per eliminazione dei vincoli SEC;
+  \item individuazione dei sottocicli;
+  \begin{enumerate}[noitemsep]
+    \item se presenti, aggiunta dei relativi vincoli al modello;
+    \item altrimenti, è stato individuato il ciclo hamiltoniano di costo minimo, e l'algoritmo termina.
+  \end{enumerate}
+\end{enumerate}
+
+Questa procedura implementa un metodo duale, che individua soluzioni di costo migliore dell'ottimo, ma non ammissibili in quanto contenenti sottocicli. La prima soluzione composta di un solo ciclo sarà quindi la soluzione ottima.
+
+Note sull'implementazione?
+
+\section{Risoluzione con callback ``alla Miliotis''}
+Un secondo metodo di risoluzione, la cui implementazione in CPLEX è resa possibile dal meccanismo delle callback, è quello proposto da Miliotis \citep{miliotis1978using}, che valuta l'incumbent nel corso della risoluzione, invece che al termine della procedura come fa il metodo precedente. In particolare, non appena ad un nodo viene individuata una soluzione intera, su di essa viene immediatamente valutata la presenza o meno di sottocicli. Se presenti, essi vengono aggiunti come tagli, altrimenti l'esecuzione può terminare, avendo trovato l'ottimo globale. Tale procedura segue un metodo primale, ovvero che attraversa una serie di soluzioni ammissibili subottime fino a raggiungere la soluzione ottima.
+
+Il meccanismo delle callback è un paradigma di implementazione che prevede l'esecuzione di un metodo fornito dallo sviluppatore al verificarsi di un particolare evento, per gestire la situazione nella maniera più appropriata. Nel nostro caso, CPLEX fornisce callbacks per eventi diversi che possono occorrere durante la risoluzione di un modello, o per accedere ad alcune informazioni sullo stato della risoluzione (informative callbacks). Per motivi di segretezza commerciale alcune funzionalità di CPLEX vengono tuttavia disabilitate con l'uso delle callback. Le callback che permettono di analizzare l'incumbent sono dette in CPLEX \textit{lazy constraints}, perché invocate solo quando è presente una soluzione, al contrario delle callback di tipo \textit{user cut} che vengono valutate ad ogni nodo dell'albero di branching.
+
+\section{Risoluzione con callback sulla soluzione frazionaria}
+Abbiamo menzionato la possibilità di invocare delle callback ad ogni nodo dell'albero decisionale sulla soluzione frazionaria corrente, valutando l'eventuale violazione dei vincoli di eliminazione dei sottocicli con le callback \textit{user cut}.
+
+In generale, una soluzione frazionaria avrà una forma del tipo illustrato in FIGURA, dove su ogni nodo incidono un numero di archi maggiore di 2, ma pesati in maniera tale da rispettare comunque il vincolo di grado.
+
+Il problema da risolvere in una soluzione così composta è un problema di flusso massimo su archi di capacità 1 (essendo le variabili degli archi binarie). CONTINUARE
+
+L'implementazione di tale procedimento è stata invece effettuata basandoci sul problema duale del max-flow, ovvero la determinazione del taglio minimo nel grafo, usando le funzioni per il calcolo del min cut implementate nel software Concorde. Tali metodi richiedono la connessione del grafo. Se tale condizione è verificata, il metodo \texttt{CCmincut} ritorna l'insieme di nodi $S$ costituenti un taglio minimo nel grafo così partizionato in $S$ e $V\setminus S$; in questo caso, si impone in vincolo VINCOLO. Se invece il grafo con archi frazionari non è connesso, si aggiungono vincoli mirati a spezzare le componenti connesse e rendere il grafo connesso.
+
+Poiché le user cut callbacks vengono invocate ad ogni nodo dell'albero decisionale, esse possono rallentare enormemente l'esecuzione, rendendo impraticabile la risoluzione di problemi di medio-grandi dimensioni. Una possibile strategia è quella di applicare la ricerca dei vincoli violati solo nei nodi a bassa profondità, o su una frazione dei nodi scelta con qualche criterio (ad es: in una certa percentuale di nodi, scelti a caso).
+
+\section{Risultati computazionali}
+Nelle tabelle RIFERIMENTO mostriamo i risultati ottenuti con i metodi esatti basati su CPLEX, imponendo un tempo limite di un ora per ogni soluzione. Si può facilmente notare come nella maggior parte dei casi le soluzioni con callback siano decisamente più performanti rispetto alla soluzione iterativa, con alcune significative eccezioni. Vi sono istanze di taglia elevata che non sono state risolte nei tempi dati; in un caso non è stato nemmeno possibile trovare una soluzione ammissibile, sintomo di come sia consigliabile fornire una soluzione di partenza al solver. In altri casi l'implementazione basata su callbacks ha raggiunto la soluzione ottima, non riuscendo a certificarla nei tempi dati, situazione che con la versione iterativa non si può verificare.
+
+---
+
+Mostriamo inoltre due immagini (figura \ref{fig:updatingincumbent}) a titolo di esempio su come procede l'aggiornamento dell'incumbent. Vediamo chiaramente come, usando le callbacks, il solver all'inizio aggiorna la migliore soluzione molto velocemente, per poi rallentare vistosamente quando si avvicina all'ottimo globale, fatto poco sorprendente essendo una manifestazione dello stato di problema NP-completo del TSP. A differenza del subgradiente lagrangiano, che ``fatica'' a raggiungere la soluzione ottima pur rimanendo in un suo intorno, il MIP solver deve invece esplorare lo spazio delle soluzioni, attraversando l'intero (al caso peggiore) albero di branching.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.48\textwidth]{images/att532aggiornamento}
+    \includegraphics[width=0.48\textwidth]{images/rat575aggiornamento}
+    \caption{Aggiornamento dell'incumbent di \texttt{att532} e \texttt{rat575}.}
+    \label{fig:updatingincumbent}
+  \end{center}
+\end{figure}
+
+In entrambi i casi osserviamo un drastico miglioramento nelle prime iterazioni, che in seguito rallenta vistosamente. Per quanto riguarda \texttt{att532} l'ottimo viene trovato (all'incirca) all'iterazione 56000, mentre l'esecuzione termina con la certificazione dopo oltre 120000 iterazioni. L'ottimo di \texttt{rat575} invece viene trovato all'ultima iterazione prima che CPLEX venga terminato per aver ecceduto il time limit, senza quindi poter essere certificato; anche in questo caso, comunque, il trend dell'aggiornamento ricalca quello di \texttt{att532}, così come, in genere, di tutte le altre istanze. 
+
+\section{Commenti}
+La risoluzione con solver MIP permette di attaccare problemi che altrimenti non sarebbero risolvibili con un branch-and-bound classico. La risoluzione con metodo iterativo scandisce lo spazio analizzando le soluzioni in ordine crescente di costo, di modo che la prima soluzione intera senza sottocicli è la soluzione ottima. Soluzioni intere incontrate nella risoluzione precedentemente all'ottimo includono sottocicli, e vanno perciò vietate mediante cutting planes. La risoluzione mediante callback invece procede in maniera primale, individuando soluzioni ammissibili di costo sempre minore, fino a raggiungere la soluzione ottima.  Questo fornisce alla risoluzione con callback un comportamento \textit{anytime}, avendo sempre una soluzione incumbent sin dalla prima soluzione feasible trovata. Nel tempo limite di un'ora assegnato ad ogni istanza, non è sempre stato possibile individuare la soluzione ottima; tuttavia, il metodo con le callbacks ha permesso di individuare soluzioni di costo di poco superiore all'ottimo, fatto non possibile con il metodo iterativo. Come abbiamo visto dai grafici in figura \ref{fig:updatingincumbent}, questo non è comunque una garanzia dell'essere nei pressi della soluzione ottima, ovvero non è possibile stimare il tempo o il numero di iterazioni rimanenti prima di individuare il tour ottimo.
+
+Dal punto di vista delle prestazioni, la risoluzione con callback è più veloce, al costo di una maggiore occupazione di memoria. In particolare, l'uso delle callback sulla soluzione frazionaria aumenta di molto l'occupazione di RAM, essendo invocate ad ogni nodo dell'albero di branching. 
+
+Come risolutore di default, in base ai risultati ottenuti con i test precedentemente riportati, la soluzione consigliabile è quella basata sulle callback di tipo \textit{lazy constraints}, essendo quella che rende il miglior compromesso tra prestazioni e requisiti computazionali.
+
+Segnaliamo che in certi casi il solver ha terminato l'esecuzione ad un tempo superiore al tempo massimo assegnato: questo è dovuto al fatto che il controllo sul time limit viene effettuato quando il solver è in uno stato consistente, cosa che talvolta lo porta a ``sforare'' significativamente i limiti assegnati. Altra caratteristica dei solver MIP, dovuta alla loro natura di branch-and-cut, è il loro comportamento erratico che rende impredicibile l'esecuzione; le scelte di branching effettuate all'interno del solver dipendono da molti fattori, spesso al di fuori della possibilità di intervento dell'utente. Oltre a questo, soluzioni come Dynamic Search per l'attraversamento dell'albero sono tenute nascoste all'utente, cosa che limita ulteriormente la possibilità di comprensione dell'esecuzione \footnote{Ad esempio, all'interno di una callback non è possibile ottenere un timestamp, perciò non si può valutare il tempo trascorso ed eventualmente abortire l'esecuzione. Anche il nodo in cui l'incumbent viene aggiornato è tenuto nascosto, e viene mostrato solo il suo valore arrotondato.}.
