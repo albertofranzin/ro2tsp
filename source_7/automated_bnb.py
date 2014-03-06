@@ -19,7 +19,7 @@ for i in output:
     result_subp = subprocess.Popen(["./test", "--file", i], stdout=subprocess.PIPE)#, shell=True)
     (results, err) = result_subp.communicate()
     # print results, err
-    outfilename = "cplexrins/" + instance + ".txt"
+    outfilename = "hfiter/" + instance + ".txt"
     with open(outfilename, "w") as outfile:
         outfile.write("{}".format(results))
     

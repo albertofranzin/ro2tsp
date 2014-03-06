@@ -124,7 +124,7 @@ int cpx_solve_miliotis(CPXENVptr   	cplexenv,
 	t2 = clock();
 	long nodes_total = CPXgetnodecnt (cplexenv, lp);
 	printf("nodes processed : %d\n", nodes_total);
-	if ((double)(t2 - t1) / CLOCKS_PER_SEC >= 3600) {
+	if ((double)(t2 - t1) / CLOCKS_PER_SEC >= 500) {
 		printf("time limit reached\n");
 		return 0;
 	}

@@ -1,0 +1,18 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 50330.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 48456.00
+applying reduction...
+# preprocessing : removed edges               = 31244
+# preprocessing : ratio removed edges         = 14.50
+hardfixing
+Fatal error in solvers/cpx/cpx_solve_iterative.c:
+function: cpx_solve_iterative:
+CPXpresolve : 1117
+opt                 = 0.00
+time                = 0.04
+
+real	14m39.094s
+user	62m24.141s
+sys	0m1.017s
+

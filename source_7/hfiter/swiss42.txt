@@ -1,0 +1,10 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 1273.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 1272.00
+applying reduction...
+# preprocessing : removed edges               = 794
+# preprocessing : ratio removed edges         = 92.22
+hardfixing
+opt                 = 1273.00
+time                = 0.01

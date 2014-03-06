@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 	pars.hardfixing_option 		= TRUE;
 	pars.localbranching_option 	= FALSE;
 	pars.rinspolishing_option 	= FALSE;
-	pars.callbacks_option 		= TRUE;
+	pars.callbacks_option 		= FALSE;
 	cpx_solver(&env, &stats, &pars);
 	//plot_tree(&(env.global_1t), &(env.vertices), NULL);
 	exit(1);

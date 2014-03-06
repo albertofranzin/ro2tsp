@@ -1,0 +1,61 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 53051.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 50500.00
+applying reduction...
+# preprocessing : removed edges               = 14072
+# preprocessing : ratio removed edges         = 14.44
+hardfixing
+# SECs added: 10
+# SECs added: 8
+# SECs added: 7
+# SECs added: 7
+# SECs added: 4
+# SECs added: 13
+# SECs added: 4
+# SECs added: 4
+# SECs added: 4
+# SECs added: 3
+# SECs added: 4
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 4
+# SECs added: 3
+# SECs added: 3
+# SECs added: 3
+# SECs added: 2
+# SECs added: 3
+# SECs added: 3
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 3
+# SECs added: 3
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 3
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+# SECs added: 2
+opt                 = 51507.00
+time                = 441.87
+
+real	6m14.284s
+user	26m4.365s
+sys	0m8.242s
+

@@ -161,33 +161,37 @@ int cpx_preprocessing(CPXENVptr	 	cplexenv,
 
 	    printf("hardfixing\n");
 
-	    int max_delta = 20, remaining = nf, tmp, target;
+	    int max_delta = 1000, remaining = nf, tmp, target, j;
 	    if (nf > max_delta) {
-	    	for (i = 0; i < nf; i++) {
+	    	/*for (i = 0; i < nf; i++) {
 	    		tmp = notfixed[i];
 	    		target = rand() % remaining;
 	    		notfixed[i] = notfixed[target + i];
 	    		notfixed[target + i] = tmp;
 	    		remaining--;
+	    	}*/
+
+	    	double *tmpvals = calloc(numcols, sizeof(double));
+	    	for (i = 0 ; i < n ; i++) {
+	    		j = get_idx(env->global_cycle.vrtx_idx[i], env->global_cycle.vrtx_idx[(i+1) % n]);
+	    		tmpvals[j] = 1.0;
 	    	}
-	    	i = 0;
-	    	for ( ; i < nf - max_delta ; i++) {
-	    		ind_fa[i] = notfixed[i];
-	    		if (rand() % 2 == 0) {
-		    		lu_fa[i]      = 'B';
-		    		bd_fa[i]      = 0.0;
-	    		} else {
-		    		lu_fa[i]      = 'B';
-		    		bd_fa[i]      = 1.0;
-	    		}
+
+	    	for (i = 0; i < nf - max_delta ; i++) {
+	    		ind_fa[i]     = notfixed[i];
+	    		lu_fa[i]      = 'B';
+	    		bd_fa[i]      = tmpvals[notfixed[i]];
+	    		//printf("%f\n", tmpvals[notfixed[i]]);
 	    	}
-	    }
-	    //status = CPXchgbds(cplexenv, lp, nf - max_delta, ind_fa, lu_fa, bd_fa);
-	    if (status) {
-	    	fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
-	    					"function: cpx_preprocessing:\n"
-	                    	"CPXchgbds: %d\n", status);
-	    	return status;
+	    	free(tmpvals);
+	    	//getchar();
+		    status = CPXchgbds(cplexenv, lp, nf - max_delta, ind_fa, lu_fa, bd_fa);
+		    if (status) {
+		    	fprintf(stderr, "Fatal error in solvers/cpx/cpx_preprocessing.c:\n"
+		    					"function: cpx_preprocessing:\n"
+		                    	"CPXchgbds: %d\n", status);
+		    	return status;
+		    }
 	    }
 
 

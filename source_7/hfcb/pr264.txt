@@ -1,0 +1,70 @@
+computing upper-bound...
+# preprocessing : initial upper-bound         = 49395.00
+computing lower-bound...
+# preprocessing : initial lower-bound         = 49005.00
+applying reduction...
+# preprocessing : removed edges               = 29731
+# preprocessing : ratio removed edges         = 85.64
+hardfixing
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# SECs added: 204
+# hello callback!
+node 0 ; best current solution: 999999999999999926539781176481198923508803215199467887262646419780362305536.000000
+# hello callback!
+node 0 ; best current solution: 49395.000000
+# SECs added: 4
+# hello callback!
+node 195 ; best current solution: 49395.000000
+# SECs added: 18
+# hello callback!
+node 938 ; best current solution: 49395.000000
+# SECs added: 14
+# hello callback!
+node 983 ; best current solution: 49395.000000
+# SECs added: 7
+# hello callback!
+node 990 ; best current solution: 49395.000000
+# SECs added: 9
+# hello callback!
+node 994 ; best current solution: 49395.000000
+# SECs added: 8
+# hello callback!
+node 1006 ; best current solution: 49395.000000
+# SECs added: 4
+# hello callback!
+node 1245 ; best current solution: 49395.000000
+# SECs added: 10
+# hello callback!
+node 1265 ; best current solution: 49395.000000
+# SECs added: 8
+# hello callback!
+node 1266 ; best current solution: 49395.000000
+# SECs added: 5
+# hello callback!
+node 1270 ; best current solution: 49395.000000
+# SECs added: 5
+# hello callback!
+node 1276 ; best current solution: 49395.000000
+# SECs added: 2
+# hello callback!
+node 1303 ; best current solution: 49395.000000
+# SECs added: 4
+# hello callback!
+node 1305 ; best current solution: 49395.000000
+# SECs added: 2
+# hello callback!
+node 2394 ; best current solution: 49395.000000
+# hello callback!
+node 2425 ; best current solution: 49197.000000
+# SECs added: 2
+# hello callback!
+node 2428 ; best current solution: 49197.000000
+nodes processed : 2440
+opt                 = 49135.00
+time                = 1.85
+
+real	1m21.242s
+user	6m4.899s
+sys	0m0.140s
+
