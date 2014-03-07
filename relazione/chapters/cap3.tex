@@ -52,6 +52,7 @@ Poiché le user cut callbacks vengono invocate ad ogni nodo dell'albero decision
 
 \section{Risultati computazionali}
 \begin{scriptsize}
+\begin{landscape}
     \begin{longtabu} to \linewidth {c|rr|rS[table-format=6.2]|rS[table-format=6.2]|rS[table-format=6.2]}
     \toprule
     \multicolumn{3}{c}{} & \multicolumn{2}{c}{Iterativo} & \multicolumn{2}{c}{Lazy constraints cbs.} & \multicolumn{2}{c}{User cut cbs.} \\
@@ -128,6 +129,7 @@ ulysses16 & 6859 & 6859 & 6859 & 0.00 & 6859 & 0.01  & 6859 & 0.01 \\
 ulysses22 & 7013 & 7013 & 7013 & 0.02 & 7013 & 0.00  & 7013 & 0.00 \\
 \bottomrule
     \end{longtabu}
+\end{landscape}
 \end{scriptsize}
 I test sono stati effettuati su una macchina con processore Intel Core i7 quad-core con hyperthreading a 2,40GHz e 4 GB di RAM. Nelle tabella \ref{tab:cplexres} mostriamo i risultati ottenuti con i metodi esatti basati su CPLEX, imponendo un tempo limite di un'ora per ogni soluzione. I valori mancanti indicano che non è stata individuata alcuna soluzione ammissibile nei tempi dati, o che l'esecuzione è stata abortita anticipatamente (soprattutto per eccessivo uso di memoria, nel caso delle user cut callback). I tempi talvolta eccedono i 3600 secondi, a causa dell'implementazione interna a CPLEX del controllo sul time limit.
 
