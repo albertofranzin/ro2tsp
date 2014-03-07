@@ -216,10 +216,17 @@ int compute_rc(graph  *G,
   } // end thread joining
 
   for (j = 0; j < n*(n-1)/2; ++j) {
-    if(os[j] == num_of_threads)
+    if(os[j] == num_of_threads){
       ones[j] = 1;
+                printf("thread %d, one %d\n", i, j);
+            getchar();
+    }
     else
       ones[j] = 0;
+    if (zeros[j] == 1) {
+        printf("thread %d, zero %d\n", i, j);
+        getchar();
+    }
   }
 
   /*for (i = 0; i < n; ++i) {

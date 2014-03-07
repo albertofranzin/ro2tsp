@@ -76,14 +76,14 @@ int main(int argc, char **argv) {
 
 	/* START CPLEX */
 
-	pars.proximity_option		= FALSE;
-	pars.hardfixing_option 		= TRUE;
+	/*pars.proximity_option		= FALSE;
+	pars.hardfixing_option 		= FALSE;
 	pars.localbranching_option 	= FALSE;
 	pars.rinspolishing_option 	= FALSE;
 	pars.callbacks_option 		= FALSE;
 	cpx_solver(&env, &stats, &pars);
 	//plot_tree(&(env.global_1t), &(env.vertices), NULL);
-	exit(1);
+	exit(1);*/
 
 	/* END CPLEX */
 
@@ -143,11 +143,11 @@ int main(int argc, char **argv) {
 	//double opt = 259045;	// pr1002
 	//double opt = 224094;	// u1060
 
-	/*
+	/**/
 	int n			= pars.num_vertices;
 	int i;
 
-	// **
+	// ***/
 	int *ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 	int *zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
@@ -204,21 +204,21 @@ int main(int argc, char **argv) {
 
 	// **************************
 
-	// ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	// zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
 
-	// //cycle best_c;
-	// cycle_init(&best_c);
-	// //cycle temp_c;
-	// cycle_init(&temp_c);
-	// t1 = clock();
-	// //compute_ub(&(env.main_graph), RC, &best_c, &best_ub, ones, zeros);
-	// t2 = clock();
-	// //plot_cycle(&best_c, &(env.vertices), NULL);
-	// //printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-	// free(ones);
-	// free(zeros);
+	//cycle best_c;
+	cycle_init(&best_c);
+	//cycle temp_c;
+	cycle_init(&temp_c);
+	t1 = clock();
+	//compute_ub(&(env.main_graph), RC, &best_c, &best_ub, ones, zeros);
+	t2 = clock();
+	//plot_cycle(&best_c, &(env.vertices), NULL);
+	//printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	free(ones);
+	free(zeros);
 
 	// ***********************************
 
@@ -237,26 +237,28 @@ int main(int argc, char **argv) {
 	free(ones);
 	free(zeros);
 
+
 	// **************************/
 
-	int i, n			= pars.num_vertices;
-	double best_ub;
-	/*int *ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	int *zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	clock_t t1 = 0, t2 = 0;
+	//int i, n			= pars.num_vertices;
+	//double best_ub;
+	/**/ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	//clock_t t1 = 0, t2 = 0;
 
-	cycle best_c;
-	cycle_init(&best_c);
-	cycle temp_c;
-	cycle_init(&temp_c);
+	// cycle best_c;
+	// cycle_init(&best_c);
+	// cycle temp_c;
+	// cycle_init(&temp_c);
 
-	//t1 = clock();
+	t1 = clock();
 	compute_ub(&(env.main_graph), RC23OPT, &best_c, &best_ub, ones, zeros);
 	//heur_3opt(&(env.main_graph), &best_c, &best_ub);
-	//t2 = clock();
+	t2 = clock();
 	//plot_cycle(&best_c, &(env.vertices), NULL);
 	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-*/
+	exit(1);
+/**/
 	int num_edges = n * (n-1) / 2;
 	/*int ksjdfh = 0;
 	for (i = 0 ; i < num_edges ; i++) {

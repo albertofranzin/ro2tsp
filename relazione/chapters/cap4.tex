@@ -1,23 +1,23 @@
-\chapter{Euristici}
+\chapter{Euristici}\label{sec:capheur}
 Analizziamo infine alcune tecniche euristiche usate per calcolare una soluzione ammissibile, anche se in generale subottima, da impiegare come punto di partenza per il subgradiente lagrangiano, il branch-and-bound o una risoluzione basata su MIP, ma anche per calcolare una soluzione a sé stante. In questa sezione esponiamo e confrontiamo euristici basati sia sulla formulazione generale del problema, sia sul modello MIP.
 
 \section{Euristici basati sulla formulazione del problema}
 \subsection{Nearest Neighbour}
-Il primo euristico che analizziamo è anche quello forse più intuitivo, l’algoritmo nearest neighbour. Partendo da un nodo qualsiasi, l’algoritmo esegue una scelta greedy scegliendo l’arco di costo minimo tra quelli che collegano il nodo a nodi non già precedentemente visitati, fino a che tutti i nodi non sono stati visitati, al che l’algoritmo ritorna al nodo di partenza con l’unico arco possibile.
+Il primo euristico che analizziamo è anche quello forse più intuitivo, l’algoritmo Nearest Neighbour (NN). Partendo da un nodo qualsiasi, l’algoritmo esegue una scelta greedy scegliendo l’arco di costo minimo tra quelli che collegano il nodo a nodi non già precedentemente visitati, fino a che tutti i nodi non sono stati visitati, al che l’algoritmo ritorna al nodo di partenza con l’unico arco possibile.
 
 L’idea è molto semplice e ``naturale’’, ma la scelta localmente ottima può, nel corso delle iterazioni, spingere l’algoritmo verso zone in cui ci sono diversi nodi molto vicini, costringendo poi la selezione di archi di costo elevato per muoversi verso i rimanenti nodi del grafo. Ciò risulta evidente osservando il risultato dell’esecuzione dell’algoritmo su un grafo, quando si notano archi che attraversano lunghi tratti per collegare due nodi distanti tra loro. Una possibile idea per attenuare in parte il problema è quella di eseguire più volte la ricerca, partendo da diversi nodi del grafo.
 
 \subsection{$k$-opt}
 \begin{figure}
   \begin{center}
-    \includegraphics[width=0.7\textwidth]{images/2opt}
+    \includegraphics[width=0.6\textwidth]{images/2opt}
     \caption{Scambio di archi in 2-opt.}
     \label{fig:2opt}
   \end{center}
 \end{figure}
 Un’idea molto naturale che nasce dall’osservazione del risultato dell’algoritmo NN su istanze del TSP, o perlomeno su istanze del TSP che rispettano la disuguaglianza triangolare, è quella di scambiare due archi che si incrociano, secondo l’operazione in figura \ref{fig:2opt}. Tale operazione è chiamata 2-opt (\citet*{croes1958method}). Il risultato è quello di collegare in maniera localmente ottima due coppie di nodi.
 
-Questa procedura può essere estesa a più coppie di nodi. Ad esempio, lo scambio di archi tra 3 coppie di nodi è detta 3-opt, e, in generale, su $k$ coppie di nodi si definisce un’operazione $k$-opt. Queste operazioni sono applicabili a qualsiasi tour hamiltoniano, per migliorare la soluzione corrente, ottenuta con un algoritmo euristico. Nel nostro caso abbiamo applicato 2-opt e 3-opt a cicli ottenuti con NN, e a cicli generati in maniera casuale. Nel primo caso l’idea è quella di migliorare una soluzione che si suppone già sufficientemente buona. Nel secondo caso invece di ottiene un circuito in genere pessimo dal punto di vista del costo, e molto intricato se osservato, ma molto veloce da calcolare e che può essere migliorato di molto; questo permette di generare moltissimi cicli e testare il loro ``potenziale’’ applicando gli step di $k$-ottimalità in un tempo relativamente contenuto.
+Questa procedura può essere estesa a più coppie di nodi. Ad esempio, lo scambio di archi tra 3 coppie di nodi è detta 3-opt, e, in generale, su $k$ coppie di nodi si definisce un’operazione $k$-opt. Queste operazioni sono applicabili a qualsiasi tour hamiltoniano, per migliorare la soluzione corrente, ottenuta con un algoritmo euristico. Nel nostro caso abbiamo applicato 2-opt e 3-opt a cicli ottenuti con NN, e a cicli generati in maniera casuale. Nel primo caso l’idea è quella di migliorare una soluzione che si suppone già sufficientemente buona. Nel secondo caso invece di ottiene un circuito in genere pessimo dal punto di vista del costo, e molto intricato se osservato, ma molto veloce da calcolare e che può essere migliorato di molto; questo permette di generare moltissimi cicli e testare il loro ``potenziale’’ applicando gli step di $k$-ottimalità in un tempo relativamente contenuto. Quest'ultimo procedimento è chiamato di seguito RC, per random cycle.
 
 Dal punto di vista teorico le operazioni $k$-opt costituiscono una ricerca locale in un intorno della soluzione corrente. Non sono quindi garantiti il raggiungimento della soluzione ottima, né la sua certificazione come tale. Al crescere di k la ricerca si estende a intorni di raggio sempre maggiore, a scapito tuttavia del tempo di calcolo e della complessità dell’algoritmo, che già per $k=3$ diventa molto oneroso. Queste procedure sono comunque alla base degli euristici Lin-Kernighan (\citet*{lin1973effective}) e Lin-Kernighan-Helsgaun (\citet*{helsgaun2000effective}), ad oggi i più efficaci euristici per il TSP in letteratura.
 
@@ -68,18 +68,168 @@ Nell'articolo originale vengono proposte alcune varianti a Proximity Search, con
 L’ultimo metodo di questa categoria è dato da una combinazione di due euristici presenti in CPLEX, rispettivamente RINS (\citet*{danna2005exploring}) e Polishing (\citet*{rothberg2007evolutionary}). RINS risolve il rilassamento continuo del problema, individa le variabili che sono già intere nella soluzione frazionaria ottima e concordano con la soluzione euristica iniziale, le fissa nel modello intero e risolve il problema così ristretto, più semplice del problema originale avendo limitato la ricerca ad un numero inferiore di variabili, ma senza la garanzia di poter raggiungere la soluzione ottima. Polishing invece è un post-processing che esegue un genetico a partire dalla soluzione incumbent; in CPLEX viene eseguito come ultima operazione, lanciata quando si verifica una predeterminata condizione (ad esempio un certo numero di nodi valutati, o un certo tempo trascorso).
 
 \section{Risultati computazionali}
-Dato che lo scopo di queste soluzioni è la ricerca ``veloce’’ di una soluzione ``buona’’, i test sono stati effettuati con un tempo più limitato di quello concesso ai metodi per la risoluzione all’ottimo del problema.
-\subsection{NN e $k$-opt}
+Dato che lo scopo di queste soluzioni è la ricerca ``veloce’’ di una soluzione ``buona’’, i test sono stati effettuati con un tempo più limitato di quello concesso ai metodi per la risoluzione all’ottimo del problema. I test sono stati effettuati su una macchina con processore Intel Core i7 quad-core con hyperthreading a 2,40GHz e 4 GB di RAM.
+
+\subsection{NN, RC e $k$-opt}
+\begin{scriptsize}
+\begin{center}
+    \begin{longtabu} to \linewidth {c|S[table-format=2.2]S[table-format=1.2]|S[table-format=2.2]S[table-format=3.2]|S[table-format=1.2]S[table-format=4.2]|S[table-format=1.2]S[table-format=4.2]|S[table-format=1.2]S[table-format=4.2]|rr}
+    \toprule
+    \multicolumn{1}{c}{} & \multicolumn{2}{c}{NN} & \multicolumn{2}{c}{NN+2-opt} & \multicolumn{2}{c}{NN+232opt} & \multicolumn{2}{c}{RC+2-opt} & \multicolumn{2}{c}{RC+232opt} \\
+%    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-9}
+    Istanza & $z^\prime [\%]$ & T [s] & $z^\prime [\%]$ & T [s] & $z^\prime [\%]$ & T [s] & $z^\prime [\%]$ & T [s] & $z^\prime [\%]$ & T [s] & $z$ & $z^*$ \\
+    \midrule
+    \endhead
+\label{tab:koptres}
+a280 & 13.42 & 0.07 & 1.18 & 5.41 & 0.00 & 6.57 & 0.99 & 349.21 & 0.15 & 350.73 &       2623  & 2579\\
+ali535 & 15.69 & 0.5 & 2.14 & 148.11 & 0.00 & 175.02 & 1.56 & 2174.07 & 0.13 & 2217.43 &     208383 & 202310 \\
+\textbf{att48} & 13.02 & 0.0 & 1.18 & 0.02 & 0.24 & 0.02 & \textbf{0.00} & 6.63 & \textbf{0.00} & 6.63 &      10628 & 10628 \\
+att532 & 17.25 & 0.7 & 1.98 & 170.93 & 0.00 & 194.74 & 1.32 & 2103.6 & 0.94 & 2117.32 &      28474   & 27686 \\
+\textbf{berlin52} & 8.47 & 0.0 & \textbf{0.00} & 0.01 & \textbf{0.00} & 0.01 & \textbf{0.00} & 5.25 & \textbf{0.00} & 5.25 &       7542 & 7542 \\
+bier127 & 12.56 & 0.01 & 1.25 & 0.4 & 0.57 & 0.45 & 0.00 & 58.89 & 0.00 & 58.93 &     119003 & 118282 \\
+ch130 & 16.16 & 0.01 & 2.00 & 0.66 & 1.60 & 0.76 & 0.67 & 69.62 & 0.00 & 69.73 &       6137 & 6110 \\
+ch150 & 8.53 & 0.02 & 1.25 & 0.87 & 0.75 & 0.98 & 0.72 & 92.75 & 0.00 & 92.91 &       6554 & 6528 \\
+d198 & 10.75 & 0.03 & 0.51 & 2.66 & 0.00 & 3.24 & 0.78 & 187.61 & 0.78 & 187.73 &      15909 & 15780 \\
+d493 & 13.53 & 0.37 & 1.49 & 93.02 & 0.00 & 120.43 & 2.90 & 1484.83 & 1.66 & 1502.71 &      35401 & 35002 \\
+d657 & 19.56 & 0.82 & 1.14 & 372.95 & 0.13 & 445.91 & 1.73 & 3101.57 & 0.00 & 3159.41 &      50330 & 48912 \\
+eil101 & 15.66 & 0.01 & 0.16 & 0.16 & 0.16 & 0.18 & 0.00 & 26.68 & 0.00 & 26.71 &        645 & 629 \\
+eil51 & 12.88 & 0.0 & 0.23 & 0.02 & 0.00 & 0.02 & 0.00 & 7.79 & 0.00 & 7.79 &        427 & 426 \\
+eil76 & 11.97 & 0.0 & 1.66 & 0.08 & 0.92 & 0.1 & 0.00 & 19.75 & 0.00 & 19.77 &        543 & 538 \\
+fl417 & 16.10 & 0.32 & 2.45 & 59.48 & 1.29 & 65.86 & 0.54 & 1325.16 & 0.00 & 1338.92 &      11961 & 11861 \\
+\textbf{fri26} & 2.99 & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.97 & \textbf{0.00} & 0.97 & 937 & 937  \\
+gil262 & 15.93 & 0.07 & 1.48 & 7.63 & 0.70 & 8.86 & 1.23 & 333.08 & 0.00 & 335.72 & 2435 & 2378 \\
+gr137 & 19.99 & 0.02 & 0.47 & 0.8 & 0.31 & 0.86 & 0.67 & 76.64 & {0.00} & 76.75 &      70400 & 69853 \\
+\textbf{gr17} & 4.46 & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.48 & \textbf{0.00} & 0.48 & 2085 & 2085 \\
+gr202 & 14.40 & 0.04 & 1.20 & 2.31 & 0.66 & 2.76 & 1.25 & 164.52 & {0.00} & 164.8 &      40885 & 40160 \\
+\textbf{gr21} & 10.93 & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.8 & \textbf{0.00} & 0.8 & 2707 & 2707  \\
+gr229 & 15.41 & 0.05 & 1.08 & 6.14 & 0.17 & 7.28 & 1.27 & 256.6 & {0.00} & 257.81 &     136466 & 134602 \\
+\textbf{gr24} & 22.09 & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 1.05 & \textbf{0.00} & 1.05 & 1272 & 1272  \\
+\textbf{gr48} & 15.74 & 0.0 & 1.09 & 0.02 & 1.09 & 0.02 & \textbf{0.00} & 6.0 & \textbf{0.00} & 6.0 & 5046 & 5046  \\
+gr666 & 15.49 & 0.8 & 0.45 & 339.88 & {0.00} & 382.32 & 2.61 & 3282.66 & 0.95 & 3357.81 &     303958 & 294358 \\
+gr96 & 16.84 & 0.01 & 1.06 & 0.14 & 0.10 & 0.16 & 0.00 & 23.23 & {0.00} & 23.25 &      55633 & 55209 \\
+\textbf{hk48 }& 5.90 & 0.0 & 1.44 & 0.01 & 1.08 & 0.01 & \textbf{0.00} & 7.64 & \textbf{0.00} & 7.64 &      11461 & 11461 \\
+\textbf{kroA100} & 16.05 & 0.0 & 1.91 & 0.36 & 0.88 & 0.42 & \textbf{0.00} & 41.0 & \textbf{0.00} & 41.02 &      21282 & 21282 \\
+kroA150 & 17.39 & 0.02 & 1.63 & 1.29 & 0.32 & 1.46 & 0.60 & 106.91 & {0.00} & 107.07 &      26815 & 26524 \\
+kroA200 & 16.39 & 0.04 & 0.57 & 3.3 & {0.00} & 3.85 & 0.44 & 205.28 & 0.09 & 205.45 &      29679 & 29368 \\
+\textbf{kroB100} & 16.91 & 0.0 & 1.27 & 0.16 & 1.27 & 0.17 & 0.29 & 42.17 & \textbf{0.00} & 42.19 &      22141 & 22141 \\
+kroB150 & 19.63 & 0.02 & 0.78 & 1.63 & 0.43 & 1.8 & {0.00} & 104.87 & {0.00} & 104.93 &      26424 & 26130 \\
+kroB200 & 19.22 & 0.04 & 3.17 & 3.91 & 2.59 & 4.35 & 0.66 & 209.02 & {0.00} & 209.35 &      29683 & 29437 \\
+kroC100 & 13.92 & 0.01 & 1.33 & 0.17 & 0.40 & 0.2 & {0.00} & 43.81 & {0.00} & 43.83 &      20769 & 20749 \\
+kroD100 & 16.11 & 0.0 & 1.90 & 0.32 & 0.78 & 0.39 & 0.31 & 50.49 & {0.00} & 50.54 &      21404 & 21294 \\
+kroE100 & 12.14 & 0.0 & 2.25 & 0.32 & 1.82 & 0.35 & 0.30 & 39.26 & {0.00} & 39.29 &      22100 & 22068 \\
+\textbf{lin105} & 17.78 & 0.01 & 1.83 & 0.31 & 0.61 & 0.36 & 0.56 & 40.19 & \textbf{0.00} & 40.21 &      14379 & 14379 \\
+lin318 & 15.70 & 0.13 & 3.22 & 21.26 & 2.17 & 23.67 & 1.44 & 522.53 & {0.00} & 525.84 &      42525 & 42029 \\
+p654 & 23.44 & 0.68 & 0.32 & 392.56 & {0.00} & 409.6 & 0.47 & 3641.18 & 0.13 & 3674.83 &      34858  & 34643 \\
+pcb442 & 13.45 & 0.26 & 1.09 & 40.08 & {0.00} & 48.81 & 2.57 & 983.12 & 2.10 & 990.06 &      51960 & 50778 \\
+\textbf{pr107 }& 5.37 & 0.0 & \textbf{0.00} & 0.17 & \textbf{0.00} & 0.18 & 0.50 & 37.25 & 0.50 & 37.27 &      44303 & 44303 \\
+pr124 & 13.51 & 0.0 & 0.14 & 0.23 & {0.00} & 0.29 & {0.00} & 58.86 & {0.00} & 58.9 &      59076 & 59030 \\
+pr136 & 18.19 & 0.01 & 3.85 & 0.84 & 3.22 & 1.08 & 0.42 & 68.84 & {0.00} & 68.95 &      96920 & 96772 \\
+\textbf{pr144} & 4.15 & 0.01 & 0.23 & 0.3 & \textbf{0.00} & 0.48 & 0.11 & 75.42 & \textbf{0.00} & 75.52 &      58537 & 58537 \\
+pr152 & 7.78 & 0.02 & 0.84 & 0.8 & 0.44 & 0.91 & {0.00} & 82.6 & {0.00} & 82.66 &      73822 & 73682 \\
+pr226 & 14.84 & 0.04 & 0.93 & 2.95 & 0.43 & 3.41 & 0.04 & 206.03 & {0.00} & 206.37 &      80590 & 80369 \\
+pr264 & 10.32 & 0.07 & 3.05 & 4.92 & 2.17 & 6.28 & 0.52 & 308.98 & {0.00} & 310.0 &      49395 & 49135 \\
+pr299 & 19.39 & 0.08 & 1.87 & 11.78 & 0.82 & 13.33 & 0.99 & 478.07 & {0.00} & 479.44 &      48816 & 48191 \\
+pr439 & 17.34 & 0.24 & 2.61 & 49.24 & 0.65 & 67.79 & 0.97 & 1122.66 & {0.00} & 1137.23 &     108425 & 107217 \\
+pr76 & 20.78 & 0.0 & 0.62 & 0.07 & 0.60 & 0.09 & 0.03 & 13.95 & {0.00} & 13.97 &     108395 & 108159 \\
+rat195 & 10.54 & 0.03 & 0.85 & 1.72 & 0.38 & 1.93 & 0.51 & 165.58 & {0.00} & 166.06 &       2363 & 2323 \\
+rat575 & 13.30 & 0.53 & 0.72 & 159.83 & {0.00} & 182.16 & 1.49 & 2399.29 & 0.71 & 2424.01 &       7055 & 6773 \\
+rat783 & 15.47 & 1.61 & 1.28 & 649.3 & {0.00} & 750.62 & 2.22 & 5431.2 & 0.64 & 5544.48 &       9128 & 8806 \\
+rat99 & 17.98 & 0.0 & 0.82 & 0.17 & 0.57 & 0.2 & 0.16 & 31.67 & {0.00} & 31.69 &       1218 & 1211 \\
+rd100 & 19.08 & 0.0 & 2.27 & 0.2 & 2.00 & 0.22 & 0.08 & 27.97 & {0.00} & 27.99 &       7913 & 7910 \\
+rd400 & 17.89 & 0.22 & 1.28 & 44.92 & {0.00} & 52.53 & 1.98 & 948.75 & 0.20 & 964.19 &      15634 & 15281 \\
+st70 & 17.75 & 0.0 & 1.48 & 0.04 & 1.48 & 0.04 & {0.00} & 10.98 & {0.00} & 10.99 &        676 & 675 \\
+\textbf{swiss42} & 12.88 & 0.0 & 0.08 & 0.01 & 0.08 & 0.01 & \textbf{0.00} & 2.99 & \textbf{0.00} & 2.99 &       1273 & 1273 \\
+ts225 & 10.79 & 0.03 & 1.16 & 1.37 & {0.00} & 2.1 & 0.72 & 176.59 & {0.00} & 177.29 &     126809 & 126643 \\
+tsp225 & 14.14 & 0.05 & 1.10 & 3.96 & {0.00} & 4.5 & 1.07 & 223.56 & 1.07 & 223.75 &       4011 & 3916 \\
+u159 & 14.63 & 0.02 & 3.19 & 0.7 & 2.25 & 0.78 & 0.20 & 92.84 & {0.00} & 92.93 &      42389 & 42080 \\
+u574 & 19.28 & 0.52 & 1.38 & 180.69 & {0.00} & 217.07 & 1.65 & 2084.0 & 0.62 & 2111.26 &      38096 & 36905 \\
+u724 & 17.94 & 1.13 & 1.75 & 488.58 & {0.00} & 580.54 & 2.75 & 3661.33 & 1.83 & 3747.88 &      43073 & 41910 \\
+\textbf{ulysses16} & 15.80 & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.31 & \textbf{0.00} & 0.31 &       6859 & 6859 \\
+\textbf{ulysses22} & 16.63 & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.0 & \textbf{0.00} & 0.7 & \textbf{0.00} & 0.7 &       7023 & 7023 \\
+\bottomrule
+    \end{longtabu}
+    \end{center}
+\end{scriptsize}
+
 Abbiamo implementato e testato gli euristici 2-opt e 3-opt, applicandoli a cicli generati sia con algoritmo Nearest Neighbour (partendo da ogni nodo del grafo) che generando casualmente l’ordine dei nodi (metodo chiamato d’ora in avanti RC). Il numero delle iterazioni di RC è stato calcolato in maniera tale da cercare di limitare il tempo di esecuzione, dato che la 2-ottimalità di un circuito generato casualmente di, ad esempio, 100 nodi richiede molte più iterazioni della 2-ottimalità di un grafo di 30 nodi. Tuttavia, poiché RC richiede un numero relativamente elevato di iterazioni per poter sperare di ottenere qualche soluzione accettabile, è stato implementato in parallelo, con un diverso seme per ogni thread.
 
 Sia per NN che RC, ad ogni ciclo calcolato viene applicato 2-opt; al termine, sulla migliore soluzione vengono applicati, in sequenza, 3-opt e nuovamente 2-opt. Si è scelto di applicare 3-opt solo sulla migliore soluzione a causa della sua pesantezza; la successiva applicazione di 2-opt permette di limare ulteriormente il bound. Ovviamente, non c’è nessuna garanzia che questa scelta porti al miglior risultato, ovvero l’applicare lo step 3-opt solo alla miglior soluzione potrebbe non essere la scelta ottimale dal punto di vista della qualità della soluzione ottenuta. Anche in questo caso si è comunque scelto un compromesso tra qualità della soluzione e tempo impiegato per ottenerla.
+
+La tabella \ref{tab:koptres} va interpretata come segue: per ogni algoritmo testato sono riportati la differenza (in percentuale) rispetto al miglior risultato ottenuto tra gli euristici, e il tempo impiegato per ottenerla. Le ultime due colonne mostrano il miglior risultato ottenuto tra gli euristici, e il costo reale della soluzione ottima. I risultati in grassetto indicano che l'upper bound trovato dall'algoritmo è la soluzione ottima.
 
 NN+2opt permette di trovare la soluzione ottima per cicli più piccoli, mentre RC+2opt riesce ad individuare il tour ottimo anche per istanze fino a circa 100 nodi, e ad ottenere buoni bound anche per istanze di dimensioni maggiori. La causa principale per cui le prestazioni di RC2opt peggiorano al crescere delle istanze è da cercarsi nel fatto che, cercando di bilanciare la qualità del risultato con i tempi necessari ad ottenerlo, al crescere delle dimensioni delle istanze si effettuano sempre meno iterazioni, con la conseguenza che le possibilità di trovare una buona soluzione si riducono sempre di più. Molto probabilmente, il mantenere un elevato numero di iterazioni a prescindere dalla dimensione dell’istanza contribuirebbe al raggiungimento di soluzioni migliori, a scapito tuttavia del tempo di esecuzione, che crescerebbe in maniera enorme.
 
 Chiaramente, 3-opt permette di migliorare anche di molto la soluzione ritornata. Date le prestazioni riportate nella tabella, come euristico di partenza per le altre prove è stato usato il RC+232opt. AD ECCEZIONE DEL B\&B?
 
 \subsection{B\&B con prefissaggio}
+\begin{scriptsize}
+\begin{center}
+    \begin{longtabu} to \linewidth {c|rS[table-format=6.2]r|S[table-format=2.4]S[table-format=2.4]S[table-format=4.2]S[table-format=4.4]}
+    \toprule
+    %\multicolumn{1}{c}{} & \multicolumn{2}{c}{NN} & \multicolumn{2}{c}{NN+2-opt} & \multicolumn{2}{c}{NN+232opt} & \multicolumn{2}{c}{RC+2-opt} & \multicolumn{2}{c}{RC+232opt} \\
+%    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-9}
+    Istanza & UB & LB & $z^*$ & IG [\%] & FG [\%] & T [s] & AR [\%] \\
+    \midrule
+    \endhead
+\label{tab:bbconstres}
+a280 & 2627 & 2566.00 & 2627 & 2.3773 & 2.3773 & 2000.0 &  \\
+att48 & 10628 & 10604.00 & 10628 & 0.2263 & 0.0 & 0.01 & 7.5354 \\
+bays29 & 9073 & 9015.00 & 9073 & 0.6433 & 0.0 & 0.00 & 13.7931 \\
+berlin52 & 7542 & 7542.00 & 7542 & 0.0 & 0.0 & 0.00 & 5.2790 \\
+bier127 & 119003 & 118068.00 & 118282 & 0.7919 & 0.0 & 0.68 & 4.1619 \\
+ch130 & 6178 & 6075.50 & 6110 & 1.6871 & 0.0 & 45.46 & 4.2098 \\
+ch150 & 6657 & 6490.75 & 6528 & 2.5613 & 0.0 & 104.30 & 3.4093 \\
+d198 & 15863 & 15717.00 & 15781 & 0.9289 & 0.0 & 343.39 & 2.8867 \\
+eil101 & 634 & 627.50 & 629 & 1.0363 & 0.0 & 2.33 & 5.8613 \\
+eil51 & 427 & 422.50 & 426 & 1.0654 & 0.0 & 0.17 & 9.1764 \\
+eil76 & 546 & 537.00 & 538 & 1.6760 & 0.0 & 0.02 & 7.7543 \\
+fri26 & 937 & 937.00 & 937 & 0.0001 & 0.0 & 0.00 & 11.0769 \\
+gil262 & 2419 & 2355.50 & 2415 & 2.6959 & 2.5261 & 2000.0 &  \\
+gr137 & 70317 & 69120.25 & 69853 & 1.7314 & 0.0 & 18.86 & 3.5530 \\
+gr17 & 2085 & 2085.00 & 2085 & 0.0 & 0.0 & 0.00 & 12.5 \\
+gr202 & 41069 & 40055.00 & 40160 & 2.5315 & 0.0 & 116.25 & 2.8028 \\
+gr21 & 2707 & 2707.00 & 2707 & 0.0 & 0.0 & 0.00 & 0.0 \\
+gr229 & 137445 & 133317.02 & 136329 & 3.0963 & 2.2592 & 2000.0 &  \\
+gr24 & 1272 & 1271.98 & 1272 & 0.0014 & 0.0 & 0.00 & 12.6811 \\
+gr48 & 5046 & 4959.00 & 5046 & 1.7544 & 0.0 & 0.10 & 10.1950 \\
+gr96 & 55260 & 54570.50 & 55210 & 1.2635 & 0.0 & 1.80 & 5.3728 \\
+hk48 & 11461 & 11441.07 & 11461 & 0.1742 & 0.0 & 0.00 & 6.8262 \\
+kroA100 & 21282 & 20936.50 & 21282 & 1.6502 & 0.0 & 1.19 & 4.3434 \\
+kroA150 & 26842 & 26299.00 & 26524 & 2.0647 & 0.0 & 23.24 & 3.4541 \\
+kroA200 & 29575 & 29065.00 & 29522 & 1.7547 & 1.5723 & 2000.0 &  \\
+kroB100 & 22278 & 21834.00 & 22141 & 2.0335 & 0.0 & 1.44 & 5.0707 \\
+kroB150 & 26338 & 25732.50 & 26130 & 2.3531 & 0.0 & 622.89 & 3.4899 \\
+kroB200 & 30002 & 29176.50 & 29635 & 2.8293 & 1.5715 & 2000.0 &  \\
+kroC100 & 20769 & 20472.50 & 20749 & 1.4483 & 0.0 & 0.54 & 4.5858 \\
+kroD100 & 21395 & 21141.50 & 21294 & 1.1991 & 0.0 & 1.42 & 5.2525 \\
+kroE100 & 22260 & 21799.50 & 22068 & 2.1124 & 0.0 & 6.14 & 5.3535 \\
+lin105 & 14379 & 14370.50 & 14379 & 0.0592 & 0.0 & 0.01 & 2.8754 \\
+pr124 & 59087 & 58286.67 & 59030 & 1.3731 & 0.0 & 0.18 & 2.7930 \\
+pr136 & 97644 & 95934.49 & 96772 & 1.7820 & 0.0 & 302.71 & 4.3790 \\
+pr144 & 58571 & 58216.25 & 58537 & 0.6094 & 0.0 & 0.10 & 2.1173 \\
+pr152 & 74021 & 73234.50 & 73682 & 1.0739 & 0.0 & 2.48 & 2.5880 \\
+pr226 & 80590 & 80204.00 & 80369 & 0.4813 & 0.0 & 2.45 & 1.5496 \\
+pr264 & 49395 & 49020.18 & 49135 & 0.7647 & 0.0 & 14.33 & 1.990 \\
+pr299 & 48816 & 47380.00 & 48816 & 3.0308 & 3.0308 & 2000.0 &  \\
+pr76 & 108395 & 105120.00 & 108159 & 3.1155 & 0.0 & 11.76 & 6.8070 \\
+rat195 & 2386 & 2299.25 & 2323 & 3.7730 & 1.0330 & 2000.0 &  \\
+rat99 & 1218 & 1206.00 & 1211 & 0.9951 & 0.0 & 0.40 & 5.1535 \\
+rd100 & 7913 & 7899.33 & 7910 & 0.1730 & 0.0 & 0.11 & 3.7777 \\
+st70 & 676 & 671.00 & 675 & 0.7452 & 0.0 & 0.33 & 6.4596 \\
+swiss42 & 1273 & 1272.00 & 1273 & 0.0786 & 0.0 & 0.00 & 7.3170 \\
+ts225 & 126809 & 115605.00 & 126809 & 9.6916 & 9.6916 & 2000.0 &  \\
+tsp225 & 4047 & 3878.25 & 4047 & 4.3512 & 4.3512 & 2000.0 &  \\
+u159 & 42543 & 41925.00 & 42168 & 1.4741 & 0.0 & 57.40 & 2.8898 \\
+ulysses16 & 6859 & 6859.00 & 6859 & 0.0 & 0.0 & 0.00 & 13.3333 \\
+ulysses22 & 7013 & 7012.87 & 7013 & 0.0019 & 0.0 & 0.00 & 14.7186 \\
+\bottomrule
+    \end{longtabu}
+    \end{center}
+\end{scriptsize}
+
 Riportiamo ora i risultati dei test del branch-and-bound con prefissaggio delle variabili in seguito agli euristici. L’euristico usato, come detto più sopra, è RC+232opt. Come il branch-and-bound non limitato, anche questa versione euristica è stata testata sulle istanze di taglia inferiore ai 300 nodi, con un tempo limite di 2000 secondi. Segnaliamo inoltre che questa versione euristica del branch-and-bound ha risolto (trovando la soluzione ottima) l’istanza \texttt{lin318} in poco più di 40 minuti.
+
+Nella tabella \ref{tab:bbconstres} sono riportati, per ciascuna istanza, i due bound e il valore finale ottenuto, il gap iniziale percentuale tra i due bound, il gap percentuale finale ($0.0$ indica che l'istanza è stata risolta all'ottimo), il tempo impiegato e la percentuale di archi su cui il B\&B ha lavorato, cioè la percentuale di variabili non fissate dal preprocessing.
 
 Nele istanze più grandi il branch-and-bound, anche se limitato a poche centinaia di variabili, non è riuscito a trovare l’ottimo (locale) nel tempo dato. In alcune di esse, non è stato nemmeno rilevato alcun miglioramento del bound iniziale. Tuttavia, nelle rimanenti istanze testate, l’algoritmo ha sempre trovato l’ottimo globale (ad eccezione di \texttt{u159}, in cui è stata trovata una soluzione di costo di poco superiore all’ottimo), in un tempo considerevolmente ridotto rispetto al branch-and-bound presentato nel capitolo 2. Sono state inoltre affrontate e risolte istanze che altrimenti sarebbero state proibitive, come \texttt{pr264}.
 
@@ -104,7 +254,7 @@ Abbiamo inoltre testato sulle medesime istanze gli euristici RINS e Polishing pr
 Su istanze di dimensioni limitata, RINS+Polishing ha ottenuto buone soluzioni, spesso raggiungendo l’ottimo, senza tuttavia poterlo certificare (essendo il Polishing un algoritmo genetico). In particolare, questo euristico è stato anche l’unico in grado di trovare la soluzione ottima dell’istanza \texttt{ts225}. Anche sulle istanze più grandi del testbed, nel tempo dato è stato possibile individuare soluzioni di buona qualità, molto vicine all’ottimo.
 
 \section{Commenti}
-Gli euristici basati su k-opt permettono di ottenere buoni risultati su istanze anche di taglie relativamente elevate. Tuttavia, partire da una soluzione calcolata con NN permette di ottenere un numero limitato di istanze diverse, mentre RC+2opt/232opt, che ha a suo favore un più elevato potenziale, diventa computazionalmente sempre più pesante al crescere delle istanze. Possiamo tuttavia affermare che, tra le varianti implementate, RC2opt è l’euristico che, con maggior tempo di calcolo a disposizione, è in grado di fornire i migliori risultati; inoltre, è parallelizzabile in maniera molto naturale. Tale affermazione è supportata dalla percentuale decrescente di archi eliminati, che da molto elevata per istanze di taglia limitata, scende progressivamente mano a mano che aumenta il numero di nodi nel grafo: cio è ovviamente dovuto a bound peggiori.
+Gli euristici basati su $k$-opt permettono di ottenere buoni risultati su istanze anche di taglie relativamente elevate. Tuttavia, partire da una soluzione calcolata con NN permette di ottenere un numero limitato di istanze diverse, mentre RC+2opt/232opt, che ha a suo favore un più elevato potenziale, diventa computazionalmente sempre più pesante al crescere delle istanze. Possiamo tuttavia affermare che, tra le varianti implementate, RC2opt è l’euristico che, con maggior tempo di calcolo a disposizione, è in grado di fornire i migliori risultati; inoltre, è parallelizzabile in maniera molto naturale. Tale affermazione è supportata dalla percentuale decrescente di archi eliminati, che da molto elevata per istanze di taglia limitata, scende progressivamente mano a mano che aumenta il numero di nodi nel grafo: cio è ovviamente dovuto a bound peggiori.
 
 Il branch-and-bound con prefissaggio delle variabili si è rivelato molto efficace su istanze di taglia moderata (< 300 nodi), spesso trovando l’ottimo globale, ma non ci sono indizi che suggeriscano una sua reale applicabilità a istanze più grandi di 300 nodi. In altre parole, la sua qualità è quella di accelerare la risoluzione di istanze che con ogni probabilità sono alla portata di un normale branch-and-bound (come quello presentato nel capitolo 2), se questo fosse eseguito per un tempo maggiore (qualche ora). Le istanze più difficili, come \texttt{ts225}, rimangono al di fuori della sua portata. Il vantaggio ottenuto sul tempo viene tuttavia pagato in termini di garanzia dell’ottimalità della soluzione individuata.
 
