@@ -119,7 +119,7 @@
 #define DEFAULT_HEURISTIC_ALGO   NEAREST_NEIGHBOUR_2_OPT
 #define DEFAULT_HEURISTIC_TRIALS 1
 
-#define NUM_OF_THREADS  8
+#define NUM_OF_THREADS  1
 
 //------------------------------------------------------
 
