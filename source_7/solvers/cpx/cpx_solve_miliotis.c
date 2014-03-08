@@ -85,7 +85,7 @@ int cpx_solve_miliotis(CPXENVptr   	cplexenv,
 	if (x_size != numcols) return 1;
 
 	status = CPXsetlazyconstraintcallbackfunc(cplexenv, cpx_callback_miliotis, env);
-	//status = CPXsetincumbentcallbackfunc(env, cpx_callback_miliotis, ce);
+	//status = CPXsetincumbentcallbackfunc(cplexenv, cpx_callback_miliotis, env);
 	if (status) {
 		fprintf(stderr, "Fatal error in solvers/cpx/cpx_solve_miliotis.c:\n"
 						"function: cpx_solve_miliotis:\n"

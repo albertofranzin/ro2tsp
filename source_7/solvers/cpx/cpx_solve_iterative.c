@@ -16,7 +16,7 @@ int cpx_solve_iterative(CPXENVptr    cplexenv,
 	int vrtx_comp[n];
 
 	clock_t t1, t2;
-	double maxtime = 500;
+	double maxtime = 36000;
 
 	status = CPXsetintparam (cplexenv, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_DYNAMIC);
 	//status = CPXsetintparam (env, CPX_PARAM_MIPSEARCH, CPX_MIPSEARCH_TRADITIONAL);
@@ -111,7 +111,7 @@ int cpx_solve_iterative(CPXENVptr    cplexenv,
 	cpx_cstr_init(&sec);
 	cpx_cstr_setup(&sec, numcols);
 
-	int i, k, my_edge, my_comp, s1, s2;
+	int i, k, my_edge, my_comp, s1, s2, iters = 0;
 
 	int  numcomp		= 0;
 	int *components 	= (int*)malloc(n * sizeof(int));
@@ -151,6 +151,10 @@ int cpx_solve_iterative(CPXENVptr    cplexenv,
 			return status;
 		}
 
+
+		double zobjval;
+		status = CPXgetobjval(cplexenv, lp, &zobjval);
+		printf("objval: %f, iteration : %d\n", zobjval, iters++);
 
 		/* retrieve solution coefficients */
 		status = CPXgetx(cplexenv, lp, x, 0, numcols-1);

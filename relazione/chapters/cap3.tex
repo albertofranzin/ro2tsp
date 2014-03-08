@@ -110,20 +110,20 @@ pr226 & 80590 & 80092 & 80369 & 2062.50  & 80369 & 78.51 & 80369 & 3.07 \\
 pr264 & 49636 & 49010 &  &   & 49135 & 65.05 & 49135 & 1.06 \\
 pr299 & 48816 & 47380 & 48191 & 628.81 & 48191 & 4013.15 & 48231 &  \\
 pr439 & 108425 & 105929 & 106978 & 3683.16 & 107250 & 2011.72 &  & \\
-pr76 & 108274 & 105120 & 108159 & 12.21 & 108159 & 12.32 & 108307HELP & 1.09 \\
+pr76 & 108274 & 105120 & 108159 & 12.21 & 108159 & 12.32 & 108159 & 15.35 \\
 rat195 & 2371 & 2300 & 2323 & 114.32 & 2323 & 26.84 & 2323 & 9.10  \\
 rat575 & 7105 & 6724 & 6773 & 3224.39  & 6773 & 3021.12 &  & \\
 rat783 & 9186 & 8773 & 8806 & 3333.15 & 8806 & &   &   \\
 rat99 & 1213 & 1206 & 1211 & 0.54 & 1211 & 0.06 & 1211 & 0.06 \\
 rd100 & 7913 & 7900 & 7910 & 0.46  &  7910 & 0.35 & 7910 & 0.18  \\
-rd400 & 15666 & 15157 & 15281 & 841.03 & 15282 &  & 15298AA &   \\
+rd400 & 15666 & 15157 & 15281 & 841.03 & 15282 &  & 15302 &   \\
 st70 & 675 & 671 & 675 & 0.09  & 675 & 0.06 & 675 & 0.07 \\
 swiss42 & 1273 & 1272 & 1273 & 0.01  & 1273 & 0.00  & 1273 & 0.00\\
 ts225 & 126809 & 115605 &  &  &  & &  & \\
 tsp225 & 4047 & 3879 & 3916 & 165.70  & 3916 & 36.96 & 3916 & 35.26 \\
 u159 & 42624 & 41925 & 42080 & 2.16  & 42080 & 1.15 & 42080 & 0.41  \\
-u574 & 38334 & 36714 & 36905 & 1230.89 & 36907 & 3741.80 & - & \\
-u724 & 43860 & 41653 & 41821 & 3687.35  & 42003 & 3762.89 & - & \\
+u574 & 38334 & 36714 & 36905 & 1230.89 & 36907 & 3741.80 &  & \\
+u724 & 43860 & 41653 & 41821 & 3687.35  & 42003 & 3762.89 &  & \\
 ulysses16 & 6859 & 6859 & 6859 & 0.00 & 6859 & 0.01  & 6859 & 0.01 \\
 ulysses22 & 7013 & 7013 & 7013 & 0.02 & 7013 & 0.00  & 7013 & 0.00 \\
 \bottomrule
@@ -140,10 +140,19 @@ Si può facilmente notare come nella maggior parte dei casi le soluzioni con cal
 
 La risoluzione con callback user cut sulla soluzione frazionaria delle istanze più grandi è stata abortita quando l'occupazione di memoria diventava eccessiva.
 
-Mostriamo inoltre due immagini (figura \ref{fig:updatingincumbent}) a titolo di esempio su come procede l'aggiornamento dell'incumbent. Vediamo chiaramente come, usando le callbacks, il solver all'inizio aggiorna la migliore soluzione molto velocemente, per poi rallentare vistosamente quando si avvicina all'ottimo globale, fatto poco sorprendente essendo una manifestazione dello stato di problema NP-completo del TSP. A differenza del subgradiente lagrangiano, che ``fatica'' a raggiungere la soluzione ottima pur rimanendo in un suo intorno, il MIP solver deve invece esplorare lo spazio delle soluzioni, attraversando al caso peggiore l'intero albero di branching.
+Mostriamo inoltre due immagini a titolo di esempio su come procede l'aggiornamento dell'incumbent nella versione iterativa (figura \ref{fig:updatingincumbentiter}) e con le callback (figura \ref{fig:updatingincumbent}).
+
+Nella versione iterativa il costo della soluzione incumbent è sempre un lower bound della soluzione ottima, procedendo attraverso soluzioni di costo minore dell'ottimo ma inammissibili, fino a raggiungere la miglior soluzione ammissibile, che sarà la soluzione ottima; nel metodo che fa uso di callback, invece, la risoluzione attraversa soluzioni ammissibili ma subottime, fino a giungere alla soluzione ottima, che dovrà essere certificata.
+
+Vediamo chiaramente come in entrambe le versioni il solver all'inizio aggiorni la migliore soluzione molto velocemente, per poi rallentare vistosamente quando si avvicina all'ottimo globale, fatto poco sorprendente essendo una manifestazione dello stato di problema NP-completo del TSP. Il MIP solver deve infatti attraversare, al caso peggiore, l'intero albero di branching.
 
 \begin{figure}
   \begin{center}
+    \includegraphics[width=0.48\textwidth]{images/att532iteragg}
+    \includegraphics[width=0.48\textwidth]{images/rat575iteragg}
+    \caption{Aggiornamento dell'incumbent di \texttt{att532} e \texttt{rat575} nella risoluzione iterativa.}
+    \label{fig:updatingincumbentiter}
+
     \includegraphics[width=0.48\textwidth]{images/att532aggiornamento}
     \includegraphics[width=0.48\textwidth]{images/rat575aggiornamento}
     \caption{Aggiornamento dell'incumbent di \texttt{att532} e \texttt{rat575} nella risoluzione con callback.}
@@ -151,14 +160,12 @@ Mostriamo inoltre due immagini (figura \ref{fig:updatingincumbent}) a titolo di 
   \end{center}
 \end{figure}
 
-INSERIRE IMMAGINI ANCHE PER LA RISOLUZIONE ITERATIVA
-
 In entrambi i casi osserviamo un drastico miglioramento nelle prime iterazioni, che in seguito rallenta vistosamente. Per quanto riguarda \texttt{att532} l'ottimo viene trovato (all'incirca) all'iterazione 56000, mentre l'esecuzione termina con la certificazione dopo oltre 120000 iterazioni. L'ottimo di \texttt{rat575} invece viene trovato all'ultima iterazione prima che CPLEX venga terminato per aver ecceduto il time limit, senza quindi poter essere certificato; anche in questo caso, comunque, il trend dell'aggiornamento ricalca quello di \texttt{att532}, così come, in genere, di tutte le altre istanze. 
 
 \section{Commenti}
 La risoluzione con solver MIP permette di attaccare problemi che altrimenti non sarebbero risolvibili con un branch-and-bound classico. La risoluzione con metodo iterativo scandisce lo spazio analizzando le soluzioni in ordine crescente di costo, di modo che la prima soluzione intera senza sottocicli è la soluzione ottima. Soluzioni intere incontrate nella risoluzione precedentemente all'ottimo includono sottocicli, e vanno perciò vietate mediante cutting planes. La risoluzione mediante callback invece procede in maniera primale, individuando soluzioni ammissibili di costo sempre minore, fino a raggiungere la soluzione ottima.  Questo fornisce alla risoluzione con callback un comportamento \textit{anytime}, avendo sempre una soluzione incumbent sin dalla prima soluzione feasible trovata. Nel tempo limite di un'ora assegnato ad ogni istanza, non è sempre stato possibile individuare la soluzione ottima; tuttavia, il metodo con le callbacks ha permesso di individuare soluzioni di costo di poco superiore all'ottimo, fatto non possibile con il metodo iterativo. Come abbiamo visto dai grafici in figura \ref{fig:updatingincumbent}, questo non è comunque una garanzia dell'essere nei pressi della soluzione ottima, ovvero non è possibile stimare il tempo o il numero di iterazioni rimanenti prima di individuare il tour ottimo.
 
-Dal punto di vista delle prestazioni, la risoluzione con callback è più veloce, al costo di una maggiore occupazione di memoria. In particolare, l'uso delle callback sulla soluzione frazionaria aumenta di molto l'occupazione di RAM, essendo invocate ad ogni nodo dell'albero di branching. 
+Dal punto di vista delle prestazioni, la risoluzione con callback è più veloce, al costo di una maggiore occupazione di memoria. In particolare, l'uso delle callback sulla soluzione frazionaria aumenta di molto l'occupazione di RAM, essendo invocate ad ogni nodo dell'albero di branching.
 
 Come risolutore di default, in base ai risultati ottenuti con i test precedentemente riportati, la soluzione consigliabile è quella basata sulle callback di tipo \textit{lazy constraints}, essendo quella che rende il miglior compromesso tra prestazioni e requisiti computazionali.
 
