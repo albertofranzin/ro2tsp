@@ -15,7 +15,7 @@ int cpx_solve_proximity(CPXENVptr    cplexenv,
 	int numcols		= n * (n - 1) / 2;
 	double theta 	= 1.0;
 
-	double maxtime = 3600;
+	double maxtime = 500;
 
 	clock_t t1, t2;
 

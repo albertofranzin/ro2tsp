@@ -135,22 +135,27 @@ int cpx_preprocessing(CPXENVptr	 	cplexenv,
 	    char   *lu_fa    = (char *)calloc(numcols, sizeof(char));
 	    double *bd_fa    = (double *)calloc(numcols, sizeof(double));
 
+	    double *tmpvrtx  = (double *)calloc(numcols, sizeof(double));
 
-	    int cnto = 0, cntz = 0, nf = 0;
+	    int cnto = 0, cntz = 0, nf = 0, v1, v2, j;
 
+	    for (i = 0 ; i < n ; i++) {
+    		j = get_idx(env->global_cycle.vrtx_idx[i], env->global_cycle.vrtx_idx[(i+1) % n]);
+    		tmpvrtx[j] = 1.0;
+	    }
 
 	    for (i = 0; i < numcols; ++i) {
 
 	    	if (ones[i] == 1) {
 	    		indiceso[cnto] = i;
 	    		luo[cnto]      = 'B';
-	    		bdo[cnto]      = 1.0;
+	    		bdo[cnto]      = tmpvrtx[i];//1.0;
 	    		cnto++;
 	        }
 	    	else if (zeros[i] == 1) {
 	    		indicesz[cntz] = i;
 	    		luz[cntz]      = 'B';
-	    		bdz[cntz]      = 0.0;
+	    		bdz[cntz]      = tmpvrtx[i];//0.0;
 	    		cntz++;
 	    	}
 	    	else {
@@ -161,7 +166,7 @@ int cpx_preprocessing(CPXENVptr	 	cplexenv,
 
 	    printf("hardfixing\n");
 
-	    int max_delta = 1000, remaining = nf, tmp, target, j;
+	    int max_delta = 1000, remaining = nf, tmp, target;
 	    if (nf > max_delta) {
 	    	/*for (i = 0; i < nf; i++) {
 	    		tmp = notfixed[i];
@@ -171,19 +176,11 @@ int cpx_preprocessing(CPXENVptr	 	cplexenv,
 	    		remaining--;
 	    	}*/
 
-	    	double *tmpvals = calloc(numcols, sizeof(double));
-	    	for (i = 0 ; i < n ; i++) {
-	    		j = get_idx(env->global_cycle.vrtx_idx[i], env->global_cycle.vrtx_idx[(i+1) % n]);
-	    		tmpvals[j] = 1.0;
-	    	}
-
 	    	for (i = 0; i < nf - max_delta ; i++) {
 	    		ind_fa[i]     = notfixed[i];
 	    		lu_fa[i]      = 'B';
-	    		bd_fa[i]      = tmpvals[notfixed[i]];
-	    		//printf("%f\n", tmpvals[notfixed[i]]);
+	    		bd_fa[i]      = tmpvrtx[notfixed[i]];
 	    	}
-	    	free(tmpvals);
 	    	//getchar();
 		    status = CPXchgbds(cplexenv, lp, nf - max_delta, ind_fa, lu_fa, bd_fa);
 		    if (status) {
@@ -224,6 +221,7 @@ int cpx_preprocessing(CPXENVptr	 	cplexenv,
 	    free(ind_fa);
 	    free(lu_fa);
 	    free(bd_fa);
+	    free(tmpvrtx);
 
 	}
 
