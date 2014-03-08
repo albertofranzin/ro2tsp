@@ -35,17 +35,19 @@ Anche in questo caso si tratta di tecniche di ricerca locale, che tuttavia sfrut
 Il primo euristico MIP-based che abbiamo trattato è detto Hard Fixing, in quanto prevede il fissaggio di alcune variabili, lasciando che il solver risolva il sottoproblema così determinato. La scelta di quali variabili fissare è decisa dall’utente (eventualmente in maniera casuale).
 
 La ricerca parte da una soluzione ammissibile iniziale precedentemente calcolata, fornita al solver. Al modello originale (intero o rilassato da risolvere mediante cutting plane) viene aggiunto un vincolo
-FORMULA
-che specifica una massima distanza di Hamming tra la soluzione ammissibile iniziale e le soluzioni che il solver può generare. Dal punto di vista geometrico questo equivale a imporre un massimo raggio dell’intorno della soluzione in cui cercare soluzioni miglioranti. Dal punto di vista dell’albero di branching, invece, l’effetto è di un salto in un sottoalbero del branch-and-cut, motivo per cui tale tecnica è detta anche \textit{diving}.
-
-Il raggio dell’intorno è il parametro che determina il trade-off tra qualità della soluzione e tempo impiegato: un valore basso di $k$ restringe l’intorno, permettendo di trovare velocemente una soluzione migliorante, se presente, ma limitando le possibilità di miglioramento. Al contrario, un valore molto alto rende il vincolo inutile, facendo tendere la ricerca ad una ricerca globale.
-
-\subsection{Local Branching}
-Local Branching (\citet*{fischetti2003local}) è la seconda tecnica matheuristic presentata, concettualmente simile alla precedente, ma che lascia al solver la scelta di quali variabili fissare e quali invece considerare per la ricerca dell’ottimo locale. Local Branching implementa un branch-and-bound in cui ad ogni nodo viene risolto il problema mediante il MIP solver. Viene poi effettuato un branching tramite un vincolo 
 \begin{equation}
-  \Delta(x, \tilde{x}) \leq k \label{eqn:localbconst}
+  \Delta(x, \tilde{x}) \leq k \label{eqn:hfconst}
 \end{equation}
-dove $x$ è una generica soluzione, $\tilde{x}$ è la soluzione incumbent, e $\Delta(x, \tilde{x})$ è la distanza di Hamming tra le due soluzioni. Il vincolo \ref{eqn:localbconst} partiziona le soluzioni derivate in due sottoalberi, uno contenente le soluzioni che differiscono al più di $k$ variabili dalla soluzione corrente al nodo, e uno contenente le soluzioni che differiscono di almeno $k+1$ variabili dalla soluzione al nodo.
+che specifica una massima distanza di Hamming tra la soluzione ammissibile iniziale $\tilde{x}$ e le soluzioni $x$ che il solver può generare. Dal punto di vista geometrico questo equivale a imporre un massimo raggio dell’intorno della soluzione in cui cercare soluzioni miglioranti. Dal punto di vista dell’albero di branching, invece, l’effetto è di un salto in un sottoalbero del branch-and-cut, motivo per cui tale tecnica è detta anche \textit{diving}.
+
+Il raggio dell’intorno $k$ è il parametro che determina il trade-off tra qualità della soluzione e tempo impiegato: un valore basso di $k$ restringe l’intorno, permettendo di trovare velocemente una soluzione migliorante, se presente, ma limitando le possibilità di miglioramento. Al contrario, un valore molto alto rende il vincolo inutile, facendo tendere la ricerca ad una ricerca globale.
+
+% \subsection{Local Branching}
+% Local Branching (\citet*{fischetti2003local}) è la seconda tecnica matheuristic presentata, concettualmente simile alla precedente, ma che lascia al solver la scelta di quali variabili fissare e quali invece considerare per la ricerca dell’ottimo locale. Local Branching implementa un branch-and-bound in cui ad ogni nodo viene risolto il problema mediante il MIP solver. Viene poi effettuato un branching tramite un vincolo 
+% \begin{equation}
+%   \Delta(x, \tilde{x}) \leq k \label{eqn:localbconst}
+% \end{equation}
+% dove $x$ è una generica soluzione, $\tilde{x}$ è la soluzione incumbent, e $\Delta(x, \tilde{x})$ è la distanza di Hamming tra le due soluzioni. Il vincolo \ref{eqn:localbconst} partiziona le soluzioni derivate in due sottoalberi, uno contenente le soluzioni che differiscono al più di $k$ variabili dalla soluzione corrente al nodo, e uno contenente le soluzioni che differiscono di almeno $k+1$ variabili dalla soluzione al nodo.
 
 \subsection{Proximity Search}
 Proximity Search (\citet*{fischetti2012proximity}) è una tecnica euristica più recente che ricerca una soluzione migliore in un intorno dell’incumbent dato da un parametro di prossimità $\theta$. Il metodo impiegato da Proximity Search consiste nel sostituire alla funzione obiettivo originale 
@@ -338,16 +340,18 @@ Abbiamo implementato e testato Hard Fixing sfruttando le informazioni sugli arch
 
 Il raggio dell’intorno, dopo alcuni test su istanze medio-grandi del testbed usato, è stato posto a 1000; valori inferiori come 10, 20, 100, 500, portavano il solver a terminare quasi immediatamente senza alcun miglioramento dell’incumbent. Per istanze di taglia ``piccola’’, ovviamente, questo vincolo è poco o per nulla significativo; istanze di tagli limitata, comunque, vengono facilmente risolte all’ottimo (in alcuni casi anche dagli euristici di partenza), motivo per cui la scelta di un euristico basato su MIP ha poco senso. Vengono comunque riportati per completezza i risultati ottenuti su tutte le istanze di prova usate. Come per gli altri euristici, è stato assegnato un tempo limite per ciascuna istanza di 500 secondi.
 
-L’implementazione che fa uso di callback ha risolto all’ottimo locale in tempi molto brevi (pochi secondi) quasi tutte le istanze. Quella basata su risoluzione iterativa, invece, in parecchi casi ha fallito l’individuazione di una soluzione nei tempi dati, segno evidente di come il dover risolvere da capo il modello sia un compito eccessivamente pesante rispetto alla possibilità di muoversi all’interno dello spazio delle soluzioni ammissibili, in particolar modo in un contesto euristico.
+L’implementazione che fa uso di callback ha risolto all’ottimo locale in tempi molto brevi (pochi secondi) quasi tutte le istanze. Quella basata su risoluzione iterativa, invece, in parecchi casi impiegato tempi superiori, segno evidente di come il dover risolvere da capo il modello sia un compito eccessivamente pesante rispetto alla possibilità di muoversi all’interno dello spazio delle soluzioni ammissibili, in particolar modo in un contesto euristico.
 
-\subsection{Local branching}
-Abbiamo testato Local Branching sia usando il solver iterativo, sia la sua versione basata su callbacks, assegnando al solver un tempo limite di 500 secondi.
+% \subsection{Local branching}
+% Abbiamo testato Local Branching sia usando il solver iterativo, sia la sua versione basata su callbacks, assegnando al solver un tempo limite di 500 secondi.
 
-\subsection{Proximity Search}
-La tecnica Proximity Search è stata implementata e testata con un tempo limite di 500 secondi; la ricerca veniva terminata al raggiungimento del time limit o della prima soluzione migliorante.
+% \subsection{Proximity Search}
+La tecnica Proximity Search è stata implementata e testata con un tempo limite di 500 secondi; la ricerca partiva dalla soluzione calcolata con RC+23opt e veniva terminata al raggiungimento del time limit o della prima soluzione migliorante. Si nota come la versione basata su callbacks è generalmente molto più veloce di quella basata su CPLEX in modalità iterativa. In alcuni casi la soluzione individuata è la soluzione ottima; in molti altri casi, la veloce individuazione della prima soluzione migliorante suggerisce un rapido avvicinamento ad una buona soluzione, cosa auspicabile soprattutto per istanze di grandi dimensioni, o difficili (come \texttt{ts225}).
 
-\subsection{RINS+Polishing}
-Abbiamo inoltre testato sulle medesime istanze gli euristici RINS e Polishing presenti in CPLEX. Anche in questo caso il tempo limite assegnato è stato di 500 secondi, in cui, a partire da una soluzione iniziale precedentemente calcolata con RC+23opt, è stato eseguito RINS al 50\% dei nodi del branch-and-cut fino alla prima soluzione, momento in cui il b\&c è stato fermato e si è lanciato il Polishing per il tempo rimanente.
+Le prestazioni riportate mostrano comunque come una risoluzione limitata ad un numero ristretto di variabili sia molto performante anche rispetto ad un procedimento che valuta il modello intero. 
+
+%\subsection{RINS+Polishing}
+Abbiamo infine testato sulle medesime istanze gli euristici RINS e Polishing presenti in CPLEX. Anche in questo caso il tempo limite assegnato è stato di 500 secondi, in cui, a partire da una soluzione iniziale precedentemente calcolata con RC+23opt, è stato eseguito RINS al 50\% dei nodi del branch-and-cut fino alla prima soluzione, momento in cui il b\&c è stato fermato e si è lanciato il Polishing per il tempo rimanente.
 
 Su istanze di dimensioni limitata, RINS+Polishing ha ottenuto buone soluzioni, spesso raggiungendo l’ottimo, senza tuttavia poterlo certificare (essendo il Polishing un algoritmo genetico). In particolare, questo euristico è stato anche l’unico in grado di trovare la soluzione ottima dell’istanza \texttt{ts225}. Anche sulle istanze più grandi del testbed, nel tempo dato è stato possibile individuare soluzioni di buona qualità, molto vicine all’ottimo.
 
