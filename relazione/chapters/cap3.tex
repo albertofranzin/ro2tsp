@@ -38,11 +38,7 @@ Il meccanismo delle callback è un paradigma di implementazione che prevede l'es
 \section{Risoluzione con callback sulla soluzione frazionaria}
 Abbiamo menzionato la possibilità di invocare delle callback ad ogni nodo dell'albero decisionale sulla soluzione frazionaria corrente, valutando l'eventuale violazione dei vincoli di eliminazione dei sottocicli con le callback \textit{user cut}.
 
-In generale, una soluzione frazionaria avrà una forma del tipo illustrato in FIGURA, dove su ogni nodo incidono un numero di archi maggiore di 2, ma pesati in maniera tale da rispettare comunque il vincolo di grado.
-
-Il problema da risolvere in una soluzione così composta è un problema di flusso massimo su archi di capacità 1 (essendo le variabili degli archi binarie). CONTINUARE
-
-L'implementazione di tale procedimento è stata invece effettuata basandoci sul problema duale del max-flow, ovvero la determinazione del taglio minimo nel grafo, usando le funzioni per il calcolo del min cut implementate nel software Concorde. Tali metodi richiedono la connessione del grafo. Se tale condizione è verificata, il metodo \texttt{CCmincut} ritorna l'insieme di nodi $S$ costituenti un taglio minimo nel grafo così partizionato in $S$ e $V\setminus S$; in questo caso, si impone il vincolo
+In generale, una soluzione frazionaria avrà conterrà nodi su cui incidono un numero di archi maggiore di 2, ma pesati in maniera tale da rispettare comunque il vincolo di grado. Il problema da risolvere in una soluzione così composta è un problema di flusso massimo su archi di capacità 1 (essendo le variabili degli archi binarie), in cui è necessario imporre che per ogni insieme di nodi $S$ vi siano almeno due archi che collegano $S$ all'insieme complementare $V \setminus S$. L'implementazione di tale procedimento è stata invece effettuata basandoci sul problema duale del max-flow, ovvero la determinazione del taglio minimo nel grafo, usando le funzioni per il calcolo del min cut implementate nel software Concorde. Tali metodi richiedono la connessione del grafo. Se tale condizione è verificata, il metodo \texttt{CCmincut} ritorna l'insieme di nodi $S$ costituenti un taglio minimo nel grafo così partizionato in $S$ e $V\setminus S$; in questo caso, si impone il vincolo
 \begin{equation}
   \sum_{e \in \delta(S)}x_e \geq 2, \label{eqn:flowconst}
 \end{equation}
@@ -51,6 +47,9 @@ per rendere connesso il sottografo $S$ con il resto dei nodi. Se invece il grafo
 Poiché le user cut callbacks vengono invocate ad ogni nodo dell'albero decisionale, esse possono rallentare enormemente l'esecuzione, rendendo impraticabile la risoluzione di problemi di medio-grandi dimensioni. Una possibile strategia è quella di applicare la ricerca dei vincoli violati solo nei nodi a bassa profondità, o su una frazione dei nodi scelta con qualche criterio (ad es: in una certa percentuale di nodi, scelti a caso).
 
 \section{Risultati computazionali}
+\afterpage{%
+    \clearpage% Flush earlier floats (otherwise order might not be correct)
+    \thispagestyle{empty}% empty page style (?)
 \begin{scriptsize}
 \begin{landscape}
     \begin{longtabu} to \linewidth {c|rr|rS[table-format=6.2]|rS[table-format=6.2]|rS[table-format=6.2]}
@@ -129,15 +128,17 @@ ulysses16 & 6859 & 6859 & 6859 & 0.00 & 6859 & 0.01  & 6859 & 0.01 \\
 ulysses22 & 7013 & 7013 & 7013 & 0.02 & 7013 & 0.00  & 7013 & 0.00 \\
 \bottomrule
     \end{longtabu}
-\end{landscape}
+%    \end{landscape}
+\captionof{table}{Risultati della risoluzione con CPLEX iterativo, con lazy constraint callbacks e user cut callbacks.}% Add 'table' caption
+    \end{landscape}
+    \clearpage% Flush page
 \end{scriptsize}
-I test sono stati effettuati su una macchina con processore Intel Core i7 quad-core con hyperthreading a 2,40GHz e 4 GB di RAM. Nelle tabella \ref{tab:cplexres} mostriamo i risultati ottenuti con i metodi esatti basati su CPLEX, imponendo un tempo limite di un'ora per ogni soluzione. I valori mancanti indicano che non è stata individuata alcuna soluzione ammissibile nei tempi dati, o che l'esecuzione è stata abortita anticipatamente (soprattutto per eccessivo uso di memoria, nel caso delle user cut callback). I tempi talvolta eccedono i 3600 secondi, a causa dell'implementazione interna a CPLEX del controllo sul time limit.
+}
+I test riportati sono stati effettuati su una macchina con processore Intel Core i7 quad-core con hyperthreading a 2,40GHz e 4 GB di RAM. Nelle tabella \ref{tab:cplexres} mostriamo i risultati ottenuti con i metodi esatti basati su CPLEX, imponendo un tempo limite di un'ora per ogni soluzione. I valori mancanti indicano che non è stata individuata alcuna soluzione ammissibile nei tempi dati, o che l'esecuzione è stata abortita anticipatamente (soprattutto per eccessivo uso di memoria, nel caso delle user cut callback). I tempi talvolta eccedono i 3600 secondi, a causa dell'implementazione interna a CPLEX del controllo sul time limit. Le user cut callbacks vengono individuate sul 5\% dei nodi dell'albero di branching scelti in maniera casuale.
 
 Si può facilmente notare come nella maggior parte dei casi le soluzioni con callback siano decisamente più performanti rispetto alla soluzione iterativa, con alcune significative eccezioni. Vi sono istanze di taglia elevata che non sono state risolte nei tempi dati; in un caso non è stato nemmeno possibile trovare una soluzione ammissibile, sintomo di come sia consigliabile fornire una soluzione di partenza al solver. In altri casi l'implementazione basata su callbacks ha raggiunto la soluzione ottima, non riuscendo a certificarla nei tempi dati, situazione che con la versione iterativa non si può verificare.
 
 La risoluzione con callback user cut sulla soluzione frazionaria delle istanze più grandi è stata abortita quando l'occupazione di memoria diventava eccessiva.
-
----
 
 Mostriamo inoltre due immagini (figura \ref{fig:updatingincumbent}) a titolo di esempio su come procede l'aggiornamento dell'incumbent. Vediamo chiaramente come, usando le callbacks, il solver all'inizio aggiorna la migliore soluzione molto velocemente, per poi rallentare vistosamente quando si avvicina all'ottimo globale, fatto poco sorprendente essendo una manifestazione dello stato di problema NP-completo del TSP. A differenza del subgradiente lagrangiano, che ``fatica'' a raggiungere la soluzione ottima pur rimanendo in un suo intorno, il MIP solver deve invece esplorare lo spazio delle soluzioni, attraversando al caso peggiore l'intero albero di branching.
 
