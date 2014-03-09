@@ -76,14 +76,14 @@ int main(int argc, char **argv) {
 
 	/* START CPLEX */
 
-	pars.proximity_option		= FALSE;
+	/*pars.proximity_option		= FALSE;
 	pars.hardfixing_option 		= TRUE;
 	pars.localbranching_option 	= FALSE;
 	pars.rinspolishing_option 	= FALSE;
 	pars.callbacks_option 		= FALSE;
 	cpx_solver(&env, &stats, &pars);
 	//plot_tree(&(env.global_1t), &(env.vertices), NULL);
-	exit(1);
+	exit(1);*/
 
 	/* END CPLEX */
 
@@ -257,7 +257,6 @@ int main(int argc, char **argv) {
 	t2 = clock();
 	//plot_cycle(&best_c, &(env.vertices), NULL);
 	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-	exit(1);
 /**/
 	int num_edges = n * (n-1) / 2;
 	/*int ksjdfh = 0;
@@ -382,6 +381,8 @@ int main(int argc, char **argv) {
 	pr_lagrange_vj(&env, GENASCENT, ub, &krvjgen_1t, prvj_mults, &prvjgen_lb, &st);
 
 	kr_lagrange_vj(&env, INITASCENT, ub, &edgelist, &krvj_part_1t, &krvj_part_vs, &krvj_1t, krvj_mults, &krvj_lb, &st);
+
+	exit(1);
 
 	kr_lagrange_vj(&env, GENASCENT, ub, &edgelist, &krvjgen_part_1t, &krvjgen_part_vs, &krvjgen_1t, krvj_mults, &krvjgen_lb, &st);
 
