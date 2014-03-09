@@ -383,3 +383,126 @@ Il branch-and-bound con prefissaggio delle variabili si è rivelato molto effica
 Gli euristici basati su risolutori MIP sono quindi, tra le soluzioni analizzate, quelle a cui rivolgersi per attaccare istanze di dimensioni più elevate. Hard Fixing converge all’ottimo locale molto velocemente, anche se in maniera poco predicibile e poco dipendente dall’effettiva dimensione dell’istanza; per di più, la qualità della soluzione ritornata è legata alla scelta delle variabili imposte, scelta che richiede della conoscenza pregressa del dominio per poter essere effettuata con cognizione di causa. Proximity Search ha mostrato in molti casi un rapido aggiornamento iniziale, ma sulle istanze più grandi ha impiegato molto tempo ad aggiornare l'incumbent. La coppia di euristici interni a CPLEX RINS+Polishing, fornisce risultati molto buoni nei tempi dati, cosa tuttavia poco sorprendente data la qualità del solver. L’operazione di crossing over dell’algoritmo genetico su cui si basa Polishing permette di esplorare maggiormente lo spazio di ricerca, mentre le altre tecniche analizzate, così come il Branch-and-bound con prefissaggio, sono limitate ad un intorno della soluzione iniziale fornita (sia pure ``mobile’’, nel caso di Proximity Search). Inoltre, il fatto di essere implementazioni interne a CPLEX consente loro di sfruttare a pieno le potenzialità e il tuning del solver, cosa preclusa alle nostre implementazioni, sia per l’uso limitato del solver consentito alle implementazioni ``esterne’’ (come ad esempio la disabilitazione di dynamic search quando vengono usate le callback), sia per la nostra minore conoscenza del solver.
 
 La principale difficoltà nell’implementare euristici usando un MIP solver, perlomeno basandosi su CPLEX o altre soluzioni commerciali, sta nel fatto che i risolutori commerciali nascondono il più possibile all’utente il proprio funzionamento interno per proteggere i propri segreti industriali, e di conseguenza diventa più difficile capire se l’algoritmo implementato è corretto, totalmente errato, o migliorabile, o individuare la causa degli errori che si possono verificare.
+
+\afterpage{%
+    \clearpage% Flush earlier floats (otherwise order might not be correct)
+    \thispagestyle{empty}% empty page style (?)
+\begin{scriptsize}
+\begin{landscape}
+    \begin{longtabu} to \linewidth {c|rrS[table-format=6.2]S[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]}
+    \toprule
+    \multicolumn{1}{c}{} & \multicolumn{4}{c}{} & \multicolumn{3}{c}{BB-PR-1} & \multicolumn{3}{c}{BB} & \multicolumn{3}{c}{RC+2-opt} & \multicolumn{3}{c}{RC+23opt} \\
+%    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-9}
+    Istanza & $z^*$ & UB & LB & AR [\%] & \#L & \#N & T [s] & \#L & \#N & T [s] & \#L & \#N & T [s] & \#L & \#N & T [s]  \\
+    \midrule
+    \endhead
+\label{tab:bbres}
+att48	 &   10628 &   10628 &   10604 &   91.76  &    5 &   16 &   0.01  &     3 &    12 &    0.01 &     4 &     8 &    0.02  &     3 &     8 &    0.00 \\
+berlin52	 &    7542 &    7542 &    7542 &    96.08  &   1 &    1 &     0.00  &   1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
+bier127	 &  118282 &  118282 &  117431 &   87.59  &   34 &   583267 &    3600.01  &    36 &  3777582 & 3600.01 &    27 & 23466 &  470.43  &    25 & 33809 &   92.54 \\
+burma14	 &    3323 &    3323 &    3323 &      84.62  &    1 &   1 &  0.00  &  1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
+ch130	 &    6110 &    6110 &    6076 &      93.56  &  22 &  6771 &      43.14  &    29 & 56854 &   45.80 &    26 &  5361 &  101.07  &    31 & 43425 &   99.47 \\
+ch150	 &    6528 &    6528 &    6490 &      94.71  &    17 &   1605 &      16.74  &    23 & 10730 &   12.35 &    19 &   719 &   25.15  &    20 &  6582 &   21.09 \\
+dantzig42 	 &     699 &     699 &     697 &     90.48  &   3 &      5 &   0.00  &     4 &     7 &    0.00 &     3 &     5 &    0.01  &     3 &     6 &    0.00 \\
+eil101	 &     629 &     629 &     628 &     96  &     5 &       41 &       0.22  &    18 &  1034 &    0.54 &     5 &    28 &    0.43  &    15 &   258 &    0.33 \\
+eil51	 &     426 &     426 &     423 &    90.59  &    13 &      265 &       0.16  &    23 &  2560 &    0.36 &    13 &   263 &    0.34  &    14 &   216 &    0.09 \\
+eil76	 &     538 &     538 &     537 &   95.09  &    15 &       62 &       0.14  &    14 &   919 &    0.32 &    15 &    62 &    0.35  &     6 &    25 &    0.03 \\
+fri26	 &     937 &     937 &     937 &      92  &     1 &        1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
+gr137	 &   69853 &   69853 &   69104 &   89.54  &  18 &     3398 &      21.62  &    18 &  3367 &    3.15 &    15 &  1343 &   26.09  &    16 &  1882 &    4.92 \\
+gr17		 &    2085 &    2085 &    2085 &   87.50  &     1 &        1 &  0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
+gr21		 &    2707 &    2707 &    2707 &   90  &     1 &        1 &  0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
+gr24		 &    1272 &    1272 &    1270 &   85.87  &   2 &  4 &    0.00  &     3 &     6 &    0.00 &     2 &     4 &    0.01  &     3 &     6 &    0.00 \\
+gr48		 &    5046 &    5046 &    4959 &   82.18  &  12 &   495 &       0.23  &    16 &  1200 &    0.19 &    10 &   245 &    0.28  &    18 &  1059 &    0.34 \\
+gr96		 &   55209 &   55209 &   54571 &   88.18  &  16 &  752 &       1.97  &    14 &  1030 &    0.60 &    18 &   473 &    3.40  &    16 &   503 &    0.88 \\
+hk48		 &   11461 &   11461 &   11444 &   93.09  &  4 &       12 &       0.01  &     3 &     7 &    0.00 &     4 &     8 &    0.01  &     4 &     9 &    0.00 \\
+kroA100	 &   21282 &   21282 &   20937 &   87.09  &  21 &     4498 &      14.11  &    20 &  7276 &    4.33 &    20 &  4382 &   39.54  &    19 &  6429 &    9.72 \\
+kroA150	 &   26524 &   26524 &   26299 &   92.49  &  24 &    13369 &     133.40  &    27 & 31453 &   39.31 &    24 &  5858 &  184.97  &    28 & 20658 &   72.57 \\
+kroB100	 &   22141 &   22141 &   21834 &   86.22  &  20 &     2784 &       9.25  &    19 &  4113 &    2.50 &    19 &  2217 &   22.27  &    18 &  2089 &    3.51 \\
+kroB150	 &   26130 &   26130 &   25733 &   86.10  &  36 &   379961 &    3600.01  &    40 &969462 & 1158.50 &    34 &124041 & 3600.04  &    39 &792119 & 2499.05 \\
+kroC100	 &   20749 &   20749 &   20473 &   88.34  &  15 &      534 &       1.61  &    14 &  1154 &    0.68 &    16 &   735 &    6.28  &    16 &  1326 &    1.76 \\
+kroD100	 &   21294 &   21294 &   21142 &   91.92  &  11 &       73 &       0.27  &    11 &   121 &    0.08 &     6 &    19 &    0.24  &    12 &   149 &    0.24 \\
+kroE100	 &   22068 &   22068 &   21800 &   88.57  &  23 &     9148 &      29.42  &    27 & 18513 &   10.24 &    21 &  3043 &   29.07  &    21 &  4793 &    6.96 \\
+lin105	 &   14379 &   14379 &   14370 &   96.54  &  2 &        2 &       0.06  &     2 &     4 &    0.01 &     2 &     2 &    0.06  &     2 &     4 &    0.01 \\
+pr107	 &   44303 &   44303 &   43434 &   67.47  &   52 &   756475 &  3600.01  &    50 &  1706228 & 3600.01 &    15 &   401 &    5.60  &    11 &   400 &    2.62 \\ 
+pr124	 &   59030 &   59030 &   58068 &   84.21  &   19 &     1156 &     5.71  &    18 &  1426 &    1.38 &    16 &   667 &    9.47  &    17 &   898 &    2.42 \\
+pr136	 &   96772 &   96772 &   95935 &   90.94  &   39 &   262308 &    1800.89  &    37 &267236 &  284.37 &    32 & 72740 & 1556.00  &    36 & 94345 &  280.15 \\
+pr144	 &   58537 &   58537 &   58188 &   89.71  &   25 &     1520 &    12.35  &    14 &   235 &    0.35 &    14 &   281 &    7.31  &    13 &   108 &    0.51 \\
+pr226	 &   80369 &   80369 &   80092 &   94.06  &  44 &    29915 &     799.22  &    45 &138602 &  318.40 &    32 & 16284 & 1524.05  &    31 & 48247 &  311.15 \\
+pr264	 &   49135 &   49135 &   48991 &   94.85  &   42 &    68186 &    3600.01  &    47 &497384 & 3600.01 &    14 &   144 &   25.41  &    13 &   128 &    2.51 \\
+pr76		 &  108159 &  108159 &  105120 &   68.56  &  31 &   187548 &   246.89  &    30 &248822 &   90.01 &    31 &169070 &  586.97  &    29 &156224 &  132.36 \\
+rat99	 &    1211 &    1211 &    1206 &   95.32  &    9 &    37 &    0.15  &    25 &   966 &    0.46 &    12 &    46 &    0.42  &    10 &    57 &    0.08 \\
+rd100	 &    7910 &    7910 &    7900 &   95.98  &   13 &    51 &   0.19  &    10 &    45 &    0.03 &     4 &     8 &    0.13  &     5 &    23 &    0.04 \\
+st70		 &     675 &     675 &     671 &  91.84  &   14 &   490 &   0.68  &    32 &  5337 &    1.50 &     5 &    17 &    0.09  &    10 &    86 &    0.08 \\
+swiss42	 &    1273 &    1273 &    1272 &  91.99  &    3 &    8 &   0.00  &     3 &    10 &    0.00 &     3 &     8 &    0.01  &     3 &    10 &    0.00 \\
+u159		 &   42080 &   42080 &   41925 &  96.22  &    14 &  738 &   7.03  &    14 &   774 &    0.91 &    12 &   396 &   12.56  &    16 &   781 &    2.24 \\
+ulysses16 	 &    6859 &    6859 &    6859 &  86.67  &   1 &    1 &  0.00  &   1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
+ulysses22 	 &    7013 &    7013 &    7012 &  84.42  &   1 &    1 &  0.00  &   1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
+\bottomrule
+    \end{longtabu}
+    \captionof{table}{BB.}
+    \end{landscape}
+\clearpage
+\end{scriptsize}
+}
+
+
+\afterpage{%
+    \clearpage% Flush earlier floats (otherwise order might not be correct)
+    \thispagestyle{empty}% empty page style (?)
+\begin{scriptsize}
+\begin{landscape}
+    \begin{longtabu} to \linewidth {c|rrS[table-format=6.2]S[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]}
+    \toprule
+    \multicolumn{1}{c}{} & \multicolumn{4}{c}{} & \multicolumn{3}{c}{BB-PR-1} & \multicolumn{3}{c}{BB} & \multicolumn{3}{c}{RC+2-opt} & \multicolumn{3}{c}{RC+23opt} \\
+%    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-9}
+    Istanza & $z^*$ & UB & LB & AR [\%] & \#L & \#N & T [s] & \#L & \#N & T [s] & \#L & \#N & T [s] & \#L & \#N & T [s]  \\
+    \midrule
+    \endhead
+\label{tab:bbres2}
+att48 &   10628 &  10628 &  10604 & 91.76  &     5 &    11 &    0.01  &     4 &    13 &    0.01 &     3 &     8 &    0.00 &     3 &     8 &    0.00 \\
+berlin52 &    7542 &   7542 &   7542 & 96.08  &     1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
+bier127 &  118282 & 118282 & 117431 & 87.59  &    31 & 55092 &  424.40  &    27 & 43340 &  305.07 &    25 & 33809 &   92.54 &    30 & 28846 &   82.18 \\
+burma14 &    3323 &   3323 &   3323 & 84.62  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
+ch130 &    6110 &   6110 &   6076 & 93.56  &    31 & 52543 &  211.23  &    29 & 56556 &  215.54 &    31 & 43425 &   99.47 &    31 & 24303 &   56.88 \\
+ch150 &    6528 &   6528 &   6490 & 94.71  &    24 &  8368 &   42.71  &    22 &  8430 &   41.69 &    20 &  6582 &   21.09 &    24 &  4881 &   16.13 \\
+dantzig42  &     699 &    699 &    697 & 90.48  &     3 &     7 &    0.00  &     3 &     6 &    0.00 &     3 &     6 &    0.00 &     3 &     6 &    0.00 \\
+eil101 &     629 &    629 &    628 & 96.00  &    19 &   228 &    0.36  &    19 &   413 &    0.48 &    15 &   258 &    0.33 &    11 &   173 &    0.25 \\
+eil51 &     426 &    426 &    423 & 90.59  &    17 &   408 &    0.17  &    15 &   263 &    0.11 &    14 &   216 &    0.09 &    17 &   183 &    0.07 \\
+eil76 &     538 &    538 &    537 & 95.09  &     4 &    16 &    0.02  &     5 &    19 &    0.03 &     6 &    25 &    0.03 &     7 &    28 &    0.03 \\
+fri26 &     937 &    937 &    937 & 92.00  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
+gr137 &   69853 &  69853 &  69104 & 89.54  &    18 &  2336 &   13.46  &    17 &  2743 &   14.67 &    16 &  1882 &    4.92 &    18 &  1958 &    5.10 \\
+gr17	 &    2085 &   2085 &   2085 & 87.50  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
+gr21	 &    2707 &   2707 &   2707 & 90.00  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
+gr24	 &    1272 &   1272 &   1270 & 85.87  &     3 &     7 &    0.00  &     3 &     7 &    0.00 &     3 &     6 &    0.00 &     3 &     6 &    0.01 \\
+gr48	 &    5046 &   5046 &   4959 & 82.18  &    17 &  1204 &    0.58  &    16 &  1264 &    0.55 &    18 &  1059 &    0.34 &    14 &   556 &    0.19 \\
+gr96	 &   55209 &  55209 &  54571 & 88.18  &    16 &   693 &    1.99  &    16 &   671 &    1.88 &    16 &   503 &    0.88 &    15 &   404 &    0.68 \\
+hk48	 &   11461 &  11461 &  11444 & 93.09  &     3 &     6 &    0.00  &     4 &    10 &    0.00 &     4 &     9 &    0.00 &     4 &     9 &    0.00 \\
+kroA100 &   21282 &  21282 &  20937 & 87.09  &    20 &  8542 &   25.20  &    20 &  8091 &   22.14 &    19 &  6429 &    9.72 &    18 &  3276 &    5.20 \\
+kroA150 &   26524 &  26524 &  26299 & 92.49  &    29 & 21177 &  150.10  &    29 & 28110 &  186.48 &    28 & 20658 &   72.57 &    25 & 15121 &   53.86 \\
+kroB100 &   22141 &  22141 &  21834 & 86.22  &    16 &  2361 &    8.19  &    18 &  2661 &    8.95 &    18 &  2089 &    3.51 &    18 &  1271 &    2.30 \\
+kroB150 &   26130 &  26130 &  25733 & 86.10  &    39 &419667 & 3600.01  &    38 &446871 & 3600.01 &    39 &792119 & 2499.05 &    41 &498885 & 1623.01 \\
+kroC100 &   20749 &  20749 &  20473 & 88.34  &    17 &  1553 &    3.64  &    15 &  1760 &    3.90 &    16 &  1326 &    1.76 &    16 &  1216 &    1.67 \\
+kroD100 &   21294 &  21294 &  21142 & 91.92  &    14 &   210 &    0.44  &    11 &   183 &    0.39 &    12 &   149 &    0.24 &    10 &    86 &    0.13 \\
+kroE100 &   22068 &  22068 &  21800 & 88.57  &    26 &  9154 &   23.69  &    21 &  7024 &   16.65 &    21 &  4793 &    6.96 &    21 &  4402 &    6.55 \\
+lin105 &   14379 &  14379 &  14370 & 96.54  &     2 &     4 &    0.01  &     2 &     4 &    0.00 &     2 &     4 &    0.01 &     2 &     4 &    0.01 \\
+pr107 &   44303 &  44303 &  43434 & 67.47  &    49 & 81729 & 1135.39  &    31 & 56785 &  620.00 &    11 &   400 &    2.62 &    12 &   312 &    2.22 \\
+pr124 &   59030 &  59030 &  58068 & 84.21  &    15 &   945 &    6.77  &    19 &  1176 &    7.87 &    17 &   898 &    2.42 &    18 &   890 &    2.39 \\
+pr136 &   96772 &  96772 &  95935 & 90.94  &    36 &152514 & 1166.97  &    32 &129881 &  933.14 &    36 & 94345 &  280.15 &    33 &103237 &  296.93 \\
+pr144 &   58537 &  58537 &  58188 & 89.71  &    13 &   224 &    2.17  &    11 &   232 &    2.20 &    13 &   108 &    0.51 &    16 &   112 &    0.52 \\
+pr226 &   80369 &  80369 &  80092 & 94.06  &    63 &175451 & 3600.02  &    54 &250515 & 3600.01 &    31 & 48247 &  311.15 &    31 & 53452 &  337.83 \\
+pr264 &   49135 &  49135 &  48991 & 94.85  &    40 &  6552 &  208.34  &    22 &  1469 &   40.03 &    13 &   128 &    2.51 &    12 &   120 &    2.41 \\
+pr76	 &  108159 & 108159 & 105120 & 68.56  &    32 &225972 &  634.88  &    29 &206724 &  518.44 &    29 &156224 &  132.36 &    31 &225842 &  183.53 \\
+rat99 &    1211 &   1211 &   1206 & 95.32  &    14 &    90 &    0.14  &    10 &    67 &    0.10 &    10 &    57 &    0.08 &    10 &    57 &    0.08 \\
+rd100 &    7910 &   7910 &   7900 & 95.98  &     5 &    29 &    0.05  &     7 &    29 &    0.05 &     5 &    23 &    0.04 &     5 &    24 &    0.04 \\
+st70	 &     675 &    675 &    671 & 91.84  &    14 &   113 &    0.12  &    11 &    94 &    0.09 &    10 &    86 &    0.08 &     9 &    47 &    0.05 \\
+swiss42 &    1273 &   1273 &   1272 & 91.99  &     3 &    10 &    0.01  &     3 &    10 &    0.00 &     3 &    10 &    0.00 &     3 &    10 &    0.00 \\
+u159	 &   42080 &  42080 &  41925 & 96.22  &    15 &   401 &    1.88  &    15 &   613 &    2.64 &    16 &   781 &    2.24 &    18 &   677 &    2.07 \\
+ulysses16  &    6859 &   6859 &   6859 & 86.67  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
+ulysses22  &    7013 &   7013 &   7012 & 84.42  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
+\bottomrule
+    \end{longtabu}
+    \captionof{table}{BB.}
+    \end{landscape}
+\clearpage
+\end{scriptsize}
+}

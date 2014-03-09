@@ -90,9 +90,13 @@ int cpx_solve_proximity(CPXENVptr    cplexenv,
 	   	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, maxtime);
 
 	   	t1 = clock();
-		cpx_solve_iterative(cplexenv, lp, env, pars, stats,
-		//cpx_solve_miliotis(cplexenv, lp, env, pars, stats,
-				                 x_feas, numcols, &status);
+	   	if (pars->callbacks_option == TRUE) {
+	   		cpx_solve_miliotis(cplexenv, lp, env, pars, stats,
+	   								x_feas, numcols, &status);
+	   	} else {
+			cpx_solve_iterative(cplexenv, lp, env, pars, stats,
+					                x_feas, numcols, &status);
+	   	}
 	    //printf("NUMCOLS = %d\n", CPXgetnumcols(env, lp));
 	    /*
 	    printf("numcols = %d\n", CPXgetnumcols(env, lp));
