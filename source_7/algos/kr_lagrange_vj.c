@@ -232,6 +232,7 @@ int kr_lagrange_vj(environment *env, int mode, double ub, arraylist *edgelist, t
 		d 		= (int)ceil(log2(K) / log2(b));	/* iteration of radix sort main loop */
 
 		//printf("num chg = %d : %.2f\n", M, (double)num_chgedges / ((n * (n - 1)) / 2));
+		//printf("%.2f\n",(double)num_chgedges / ((n * (n - 1)) / 2));
 
 		time_qks = M * M;		/* quick-sort worst case time complexity */
 		time_cns = 2 * M + K;	/* counting sort */
