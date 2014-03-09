@@ -73,20 +73,6 @@ int main(int argc, char **argv) {
 
 	setup_problem_tsplib(&pars, &env);
 
-
-	/* START CPLEX */
-
-	/*pars.proximity_option		= FALSE;
-	pars.hardfixing_option 		= TRUE;
-	pars.localbranching_option 	= FALSE;
-	pars.rinspolishing_option 	= FALSE;
-	pars.callbacks_option 		= FALSE;
-	cpx_solver(&env, &stats, &pars);
-	//plot_tree(&(env.global_1t), &(env.vertices), NULL);
-	exit(1);*/
-
-	/* END CPLEX */
-
 	//double opt = 3323;	// burma14x*
 	//double opt = 6859;	// ulysses16
 	//double opt = 7013;	// ulysses22
@@ -131,7 +117,7 @@ int main(int argc, char **argv) {
 	//double opt = 42080;	// u159
 	//double opt = 2323;	// rat195
 	//double opt = 15780;	// d198
-	double opt = 40160;// gr202
+	//double opt = 40160;// gr202
 	//double opt = 3919;	// tsp225
 	//double opt = 126643;	// ts225
 	//double opt = 80369;	// pr226
@@ -143,21 +129,19 @@ int main(int argc, char **argv) {
 	//double opt = 259045;	// pr1002
 	//double opt = 224094;	// u1060
 
-	/**/
 	int n			= pars.num_vertices;
+	int num_edges   = n * (n-1) / 2;
 	int i;
-
-	// ***/
 	int *ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 	int *zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	cycle best_c;
+	cycle temp_c;
 
 	double temp_ub, best_ub;
 
 	clock_t t1, t2;
 
-	cycle best_c;
-	cycle_init(&best_c);
-	cycle temp_c;
+	/*cycle_init(&best_c);
 	cycle_init(&temp_c);
 	t1 = clock();
 	compute_ub(&(env.main_graph), NN, &best_c, &best_ub, ones, zeros);
@@ -165,16 +149,14 @@ int main(int argc, char **argv) {
 	//plot_cycle(&best_c, &(env.vertices), NULL);
 	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
 	free(ones);
-	free(zeros);
+	free(zeros);*/
 
 	// ***********************************
 
-	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	/*ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
-	//cycle best_c;
 	cycle_init(&best_c);
-	//cycle temp_c;
 	cycle_init(&temp_c);
 	t1 = clock();
 	compute_ub(&(env.main_graph), NN2OPT, &best_c, &best_ub, ones, zeros);
@@ -182,41 +164,38 @@ int main(int argc, char **argv) {
 	plot_cycle(&best_c, &(env.vertices), NULL);
 	//printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
 	free(ones);
-	free(zeros);
+	free(zeros);*/
 
 	// ***********************************
 
-	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	if (pars.heur_algo == NN || pars.heur_algo == ALL) {
+		ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+		zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
-	//cycle best_c;
-	//cycle_init(&best_c);
-	//cycle temp_c;
-	//cycle_init(&temp_c);
-	t1 = clock();
-	//compute_ub(&(env.main_graph), NN23OPT, &best_c, &best_ub, ones, zeros);
-	heur_3opt(&(env.main_graph), &best_c, &best_ub);
-	t2 = clock();
-	//plot_cycle(&best_c, &(env.vertices), NULL);
-	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-	free(ones);
-	free(zeros);
+		cycle_init(&best_c);
+		cycle_init(&temp_c);
+		t1 = clock();
+		compute_ub(&(env.main_graph), NN23OPT, &best_c, &best_ub, ones, zeros);
+		heur_3opt(&(env.main_graph), &best_c, &best_ub);
+		t2 = clock();
+		//plot_cycle(&best_c, &(env.vertices), NULL);
+		printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+		free(ones);
+		free(zeros);
+	}
 
 	// **************************
 
-	ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+	/*ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
-
-	//cycle best_c;
 	cycle_init(&best_c);
-	//cycle temp_c;
 	cycle_init(&temp_c);
 	t1 = clock();
 	compute_ub(&(env.main_graph), RC, &best_c, &best_ub, ones, zeros);
 	t2 = clock();
 	//plot_cycle(&best_c, &(env.vertices), NULL);
-	//printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
 	free(ones);
 	free(zeros);
 
@@ -232,61 +211,51 @@ int main(int argc, char **argv) {
 	t1 = clock();
 	compute_ub(&(env.main_graph), RC2OPT, &best_c, &best_ub, ones, zeros);
 	t2 = clock();
-	//plot_cycle(&best_c, &(env.vertices), NULL);
+	plot_cycle(&best_c, &(env.vertices), NULL);
 	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
 	free(ones);
-	free(zeros);
+	free(zeros);*/
 
 
 	// **************************/
 
-	//int i, n			= pars.num_vertices;
-	//double best_ub;
-	/**/ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
-	//clock_t t1 = 0, t2 = 0;
+	if (pars.heur_algo == ALL || pars.hardfixing_option == TRUE) {
+		ones	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
+		zeros	= (int*)malloc((n * (n - 1)) / 2 * sizeof(int));
 
-	// cycle best_c;
-	// cycle_init(&best_c);
-	// cycle temp_c;
-	// cycle_init(&temp_c);
+		cycle_init(&best_c);
+		cycle_init(&temp_c);
 
-	t1 = clock();
-	compute_ub(&(env.main_graph), RC23OPT, &best_c, &best_ub, ones, zeros);
-	//heur_3opt(&(env.main_graph), &best_c, &best_ub);
-	t2 = clock();
-	//plot_cycle(&best_c, &(env.vertices), NULL);
-	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
-/**/
-	int num_edges = n * (n-1) / 2;
-	/*int ksjdfh = 0;
-	for (i = 0 ; i < num_edges ; i++) {
-		if (zeros[i] == 1){
-			graph_set_edge_cstr(&(env.main_graph), i, FORBIDDEN);
-			ksjdfh++;
+		t1 = clock();
+		compute_ub(&(env.main_graph), RC23OPT, &best_c, &best_ub, ones, zeros);
+		//heur_3opt(&(env.main_graph), &best_c, &best_ub);
+		t2 = clock();
+		//plot_cycle(&best_c, &(env.vertices), NULL);
+		printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+
+		if (pars.hardfixing_option == TRUE) {
+			int zo_removed = 0;
+			for (i = 0 ; i < num_edges ; i++) {
+				if (zeros[i] == 1){
+					graph_set_edge_cstr(&(env.main_graph), i, FORBIDDEN);
+					zo_removed++;
+				}
+				else if (ones[i] == 1) {
+					graph_set_edge_cstr(&(env.main_graph), i, FORCED);
+					zo_removed++;
+				}
+			}
+			printf("removed by zeros and ones %d\n", zo_removed);
 		}
-		else if (ones[i] == 1) {
-			graph_set_edge_cstr(&(env.main_graph), i, FORCED);
-			ksjdfh++;
-		}
+
+		free(ones);
+		free(zeros);
 	}
-	printf("removed by zeros and ones %d\n", ksjdfh);*/
-	//getchar();
-	//free(ones);
-	//free(zeros);
 
-	//exit(1);
-
-	// **
-	/**/
-
-	//int i;
 
 	int st;
-	double ub		= best_ub; //best_ub;//40885; //ceil(opt * 1.01);
-	//double ub		= ceil(opt * 1.01);
-	env.global_ub	= ub; //40885; //ceil(opt * 1.01);
-	//env.global_ub	= ceil(opt * 1.01);
+	double ub		= best_ub;
+	env.global_ub	= ub;
 
 	clock_t start, end;
 
@@ -395,7 +364,7 @@ int main(int argc, char **argv) {
 		best_lb	= prvj_lb;
 		best 	= 1;
 	}
-	/**/if (krvj_lb > best_lb) {
+	if (krvj_lb > best_lb) {
 		best_lb	= krvj_lb;
 		best 	= 2;
 	}
@@ -406,7 +375,7 @@ int main(int argc, char **argv) {
 			best_mults[i] = prhk_mults[i];
 		}
 		best_lb = prhk_lb;
-	}/**/
+	}
 	if (best == 1) {
 		tree_copy(&prvj_1t, &best_1t);
 		for (i = 0; i < n; i++) {
@@ -415,13 +384,13 @@ int main(int argc, char **argv) {
 		best_lb = prvj_lb;
 	}
 
-	/**/if (best == 2) {
+	if (best == 2) {
 		for (i = 0; i < n; i++) {
 			best_mults[i] = krvj_mults[i];
 		}
 		tree_copy(&krvj_1t, &best_1t);
 		best_lb = krvj_lb;
-	}/**/
+	}
 
 	env.global_lb = best_lb;
 
@@ -467,7 +436,11 @@ int main(int argc, char **argv) {
 
 	start = clock();
 	env.start_time = start;
-	kr_bb(&env, &stats, &edgelist, &part_1t, &part_vs, &gap);
+	if (pars.solver == BB) {
+		kr_bb(&env, &stats, &edgelist, &part_1t, &part_vs, &gap);
+	} else {
+		cpx_solver(&env, &stats, &pars);
+	}
 	end = clock();
 
 	time_interval = (end - start) / (double)CLOCKS_PER_SEC;
@@ -484,13 +457,13 @@ int main(int argc, char **argv) {
 
 
 
-	parameters_delete(&pars);
+
+	//parameters_delete(&pars);
 	environment_delete(&env);
 	statistics_delete(&stats);
 	delete_convtable();
 
 
 	return EXIT_SUCCESS;
-
 
 }
