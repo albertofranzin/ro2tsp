@@ -283,7 +283,7 @@ int main(int argc, char **argv) {
 	//int i;
 
 	int st;
-	double ub		= 208383; //best_ub;//40885; //ceil(opt * 1.01);
+	double ub		= best_ub; //best_ub;//40885; //ceil(opt * 1.01);
 	//double ub		= ceil(opt * 1.01);
 	env.global_ub	= ub; //40885; //ceil(opt * 1.01);
 	//env.global_ub	= ceil(opt * 1.01);
@@ -328,7 +328,6 @@ int main(int argc, char **argv) {
 	tree prhk_1t;
 	tree_init(&prhk_1t);
 	tree_setup(&prhk_1t, n);
-
 	tree prvj_1t;
 	tree_init(&prvj_1t);
 	tree_setup(&prvj_1t, n);
@@ -376,13 +375,11 @@ int main(int argc, char **argv) {
 
 	pr_lagrange_hk(&env, ub, &prhk_1t, prhk_mults, &prhk_lb, &st);
 
-	pr_lagrange_vj(&env, INITASCENT, ub, &krvj_1t, prvj_mults, &prvj_lb, &st);
+	pr_lagrange_vj(&env, INITASCENT, ub, &prvj_1t, prvj_mults, &prvj_lb, &st);
 
 	pr_lagrange_vj(&env, GENASCENT, ub, &krvjgen_1t, prvj_mults, &prvjgen_lb, &st);
 
 	kr_lagrange_vj(&env, INITASCENT, ub, &edgelist, &krvj_part_1t, &krvj_part_vs, &krvj_1t, krvj_mults, &krvj_lb, &st);
-
-	exit(1);
 
 	kr_lagrange_vj(&env, GENASCENT, ub, &edgelist, &krvjgen_part_1t, &krvjgen_part_vs, &krvjgen_1t, krvj_mults, &krvjgen_lb, &st);
 
