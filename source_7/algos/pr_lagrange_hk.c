@@ -42,7 +42,6 @@ int pr_lagrange_hk(environment *env, double ub, tree* t, double *best_mults, dou
 		tree_empty(&curr_1t);
 		pr_onetree(&local_graph, &curr_1t, &st);
 
-
 		/* no spanning tree exists */
 		if (st != 0) {
 			*status = st;
