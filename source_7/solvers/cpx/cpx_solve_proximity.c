@@ -90,8 +90,8 @@ int cpx_solve_proximity(CPXENVptr    cplexenv,
 	   	status = CPXsetdblparam(cplexenv, CPX_PARAM_TILIM, maxtime);
 
 	   	t1 = clock();
-		//cpx_solve_iterative(cplexenv, lp, env, pars, stats,
-		cpx_solve_miliotis(cplexenv, lp, env, pars, stats,
+		cpx_solve_iterative(cplexenv, lp, env, pars, stats,
+		//cpx_solve_miliotis(cplexenv, lp, env, pars, stats,
 				                 x_feas, numcols, &status);
 	    //printf("NUMCOLS = %d\n", CPXgetnumcols(env, lp));
 	    /*
@@ -106,7 +106,7 @@ int cpx_solve_proximity(CPXENVptr    cplexenv,
 	   		printf("time limit reached\n");
 	   	}
 
-		if (status == 103) {printf("CIAO!\n"); break; }
+		if (status == 103) {printf("ERROR!\n"); break; }
 		printf("SOLSTAT = %d\n", status);
 		//getchar();
 
