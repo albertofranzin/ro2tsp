@@ -179,8 +179,8 @@ int main(int argc, char **argv) {
 	t1 = clock();
 	compute_ub(&(env.main_graph), NN2OPT, &best_c, &best_ub, ones, zeros);
 	t2 = clock();
-	//plot_cycle(&best_c, &(env.vertices), NULL);
-	printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
+	plot_cycle(&best_c, &(env.vertices), NULL);
+	//printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);
 	free(ones);
 	free(zeros);
 
@@ -213,7 +213,7 @@ int main(int argc, char **argv) {
 	//cycle temp_c;
 	cycle_init(&temp_c);
 	t1 = clock();
-	//compute_ub(&(env.main_graph), RC, &best_c, &best_ub, ones, zeros);
+	compute_ub(&(env.main_graph), RC, &best_c, &best_ub, ones, zeros);
 	t2 = clock();
 	//plot_cycle(&best_c, &(env.vertices), NULL);
 	//printf("%.2f %.2f\n", best_ub, (double)(t2-t1)/CLOCKS_PER_SEC);

@@ -19,6 +19,24 @@ Un’idea molto naturale che nasce dall’osservazione del risultato dell’algo
 
 Questa procedura può essere estesa a più coppie di nodi. Ad esempio, lo scambio di archi tra 3 coppie di nodi è detta 3-opt, e, in generale, su $k$ coppie di nodi si definisce un’operazione $k$-opt. Queste operazioni sono applicabili a qualsiasi tour hamiltoniano, per migliorare la soluzione corrente, ottenuta con un algoritmo euristico. Nel nostro caso abbiamo applicato 2-opt e 3-opt a cicli ottenuti con NN, e a cicli generati in maniera casuale. Nel primo caso l’idea è quella di migliorare una soluzione che si suppone già sufficientemente buona. Nel secondo caso invece di ottiene un circuito in genere pessimo dal punto di vista del costo, e molto intricato se osservato, ma molto veloce da calcolare e che può essere migliorato di molto; questo permette di generare moltissimi cicli e testare il loro ``potenziale’’ applicando gli step di $k$-ottimalità in un tempo relativamente contenuto. Quest'ultimo procedimento è chiamato di seguito RC, per random cycle.
 
+Le figure \ref{fig:nn}--\ref{fig:nn23opt} mostrano le differenze tra NN, NN+2-opt, e NN+23opt.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{images/lin318nn}
+    \caption{Risultato di NN per \texttt{lin318}.}
+    \label{fig:nn}
+
+    \includegraphics[width=0.7\textwidth]{images/lin318nn2opt}
+    \caption{Risultato di NN+2opt per \texttt{lin318}.}
+    \label{fig:nn2opt}
+  
+    \includegraphics[width=0.7\textwidth]{images/lin318nn23opt}
+    \caption{Risultato di NN+23opt per \texttt{lin318}.}
+    \label{fig:nn23opt}
+  \end{center}
+\end{figure}
+
 Dal punto di vista teorico le operazioni $k$-opt costituiscono una ricerca locale in un intorno della soluzione corrente. Non sono quindi garantiti il raggiungimento della soluzione ottima, né la sua certificazione come tale. Al crescere di k la ricerca si estende a intorni di raggio sempre maggiore, a scapito tuttavia del tempo di calcolo e della complessità dell’algoritmo, che già per $k=3$ diventa molto oneroso. Queste procedure sono comunque alla base degli euristici Lin-Kernighan (\citet*{lin1973effective}) e Lin-Kernighan-Helsgaun (\citet*{helsgaun2000effective}), ad oggi i più efficaci euristici per il TSP in letteratura.
 
 \subsection{Branch-and-bound con prefissaggio}
