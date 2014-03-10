@@ -39,10 +39,13 @@ Le figure \ref{fig:nn}--\ref{fig:nn23opt} mostrano le differenze tra NN, NN+2-op
 
 Dal punto di vista teorico le operazioni $k$-opt costituiscono una ricerca locale in un intorno della soluzione corrente. Non sono quindi garantiti il raggiungimento della soluzione ottima, né la sua certificazione come tale. Al crescere di k la ricerca si estende a intorni di raggio sempre maggiore, a scapito tuttavia del tempo di calcolo e della complessità dell’algoritmo, che già per $k=3$ diventa molto oneroso. Queste procedure sono comunque alla base degli euristici Lin-Kernighan (\citet*{lin1973effective}) e Lin-Kernighan-Helsgaun (\citet*{helsgaun2000effective}), ad oggi i più efficaci euristici per il TSP in letteratura.
 
-\subsection{Branch-and-bound con prefissaggio}
+\subsection{Branch-and-bound con prefissaggio}\label{sec:bbprefiss}
 Abbiamo inoltre provato un approccio ispirato a RINS (si veda la sezione \ref{sec:rins}), basato sulle soluzioni calcolate dall’euristico di partenza. L’idea è valutare le soluzioni calcolate ad ogni iterazione dell’euristico (in particolare RC+2opt, che genera molti cicli potenzialmente diversi, mentre NN+2opt restituirà un numero limitato di cicli distinti) e confidare nel fatto che gli archi selezionati in tutte le iterazioni sono parte della soluzione ottima; allo stesso modo, gli archi sempre scartati da tutte le iterazioni dell’euristico sono considerati esclusi anche dalla soluzione ottima. Vengono così fissate a zero le variabili corrispondenti agli archi scartati, e a 1 le variabili relative agli archi sempre presenti nelle varie soluzioni. Viene quindi lanciato il branch-and-bound, che agirà sulle variabili non fissate.
 
 Ovviemente, non c’è nessuna garanzia che questo metodo porti alla soluzione ottima (basti pensare al caso limite in cui viene eseguita una sola iterazione dell’euristico: tutte le variabili verranno fissate al valore che assumono nella soluzione euristica, il branch-and-bound non ha gradi di libertà, e la soluzione ritornata sarà quella calcolata dall’euristico), ma possiamo sperare che se molte iterazioni concordano su alcune variabili, il loro valore sarà molto probabilmente lo stesso della soluzione ottima.
+
+\paragraph{B \& B con prefissaggio debole} 
+Nel tentativo di accelerare la ricerca di un migliore upper bound, abbiamo valutato l'idea di rilassare le condizioni necessarie per l'imposizione o la rimozione dei lati utilizzate nel B \& B con prefissaggio. In particolare, considerato l'insieme di $m$ cicli prodotto dall'euristico RC-2opt e scelto un fattore $0 < f \leq 1.00$, vengono fissate a $0$ le variabili associati ai lati che non appartengo alla soluzione in almeno $m \times f$ cicli, mentre vengono fissate a $1$ le variabili associate ai lati che appartengono alla soluzione in almeno $m \times f$ cicli. Si può osservare che, a differenza di prima, l'insieme di lati forzati e vietati così calcolato non è più, in generale, un'intersezione rispettivamente di lati forzati e vietati appartenenti ad una famiglia di cicli. Non è più quindi garantita la consistenza di tali vincoli. La probabilità di incorrere in inconsistenze o escludere buoni upper-bound aumenta al diminuire di $f$; per contro, aumenta la velocità di esecuzione del B \& B. L'idea è quindi quella di tentare la ricerca di un nuovo upper bound applicando il B \& B dopo aver fissato i vincoli ottenuti a partire da un fattore $f$ piuttosto basso, nel nostro caso $f = 0.80$; successivamente, si procede per tentativi aumentando di volta in volta $f$ di una certa quantità.
 
 \section{Euristici basati su modello MIP}
 L’altra tipologia di euristici che abbiamo analizzato e testato appartiene ad un filone di ricerca sviluppatosi negli ultimi anni, in seguito al diffondersi di software commerciali e non per la risoluzione di modelli MIP, e alla loro sempre maggiore potenza. Sono conosciuti come \textit{matheuristics}, crasi tra ``euristici’’ e ``programmazione matematica’’.
@@ -185,76 +188,75 @@ La tabella \ref{tab:koptres} va interpretata come segue: per ogni algoritmo test
 
 NN+2opt permette di trovare la soluzione ottima per cicli più piccoli, mentre RC+2opt riesce ad individuare il tour ottimo anche per istanze fino a circa 100 nodi, e ad ottenere buoni bound anche per istanze di dimensioni maggiori. La causa principale per cui le prestazioni di RC2opt peggiorano al crescere delle istanze è da cercarsi nel fatto che, cercando di bilanciare la qualità del risultato con i tempi necessari ad ottenerlo, al crescere delle dimensioni delle istanze si effettuano sempre meno iterazioni, con la conseguenza che le possibilità di trovare una buona soluzione si riducono sempre di più. Molto probabilmente, il mantenere un elevato numero di iterazioni a prescindere dalla dimensione dell’istanza contribuirebbe al raggiungimento di soluzioni migliori, a scapito tuttavia del tempo di esecuzione, che crescerebbe in maniera enorme.
 
-Chiaramente, 3-opt permette di migliorare anche di molto la soluzione ritornata. Date le prestazioni riportate nella tabella, come euristico di partenza per le altre prove è stato usato il RC+23opt. AD ECCEZIONE DEL B\&B?
+Chiaramente, 3-opt permette di migliorare anche di molto la soluzione ritornata. Date le prestazioni riportate nella tabella, come euristico di partenza per le prove basate su CPLEX è stato usato RC+23opt; per il branch-and-bound, invece, è stato usato anche il B\&B con prefissaggio, essendo le istanze provate con quel metodo solo quelle di taglia inferiore ai 300 nodi e potendo quindi sfruttare a pieno anche questo euristico.
 
 \subsection{B\&B con prefissaggio}
 \afterpage{%
     \clearpage% Flush earlier floats (otherwise order might not be correct)
     \thispagestyle{empty}% empty page style (?)
 \begin{scriptsize}
-\begin{center}
-    \begin{longtabu} to \linewidth {c|rS[table-format=6.2]r|S[table-format=2.4]S[table-format=2.4]S[table-format=4.2]S[table-format=4.4]}
+\begin{landscape}
+    \begin{longtabu} to \linewidth {c|rS[table-format=6.2]|rS[table-format=2.4]S[table-format=2.4]S[table-format=4.2]S[table-format=4.4]|rS[table-format=2.4]S[table-format=4.2]}
     \toprule
     %\multicolumn{1}{c}{} & \multicolumn{2}{c}{NN} & \multicolumn{2}{c}{NN+2-opt} & \multicolumn{2}{c}{NN+232opt} & \multicolumn{2}{c}{RC+2-opt} & \multicolumn{2}{c}{RC+232opt} \\
 %    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-9}
-    Istanza & UB & LB & $z^*$ & IG [\%] & FG [\%] & T [s] & AR [\%] \\
+    Istanza & UB & LB & $z^*$ & IG [\%] & FG [\%] & T [s] & AR [\%] & $z^*$  & FG [\%] & T [s] \\
     \midrule
     \endhead
 \label{tab:bbconstres}
-a280 & 2627 & 2566.00 & 2627 & 2.3773 & 2.3773 & 2000.0 &  \\
-att48 & 10628 & 10604.00 & 10628 & 0.2263 & 0.0 & 0.01 & 7.5354 \\
-bays29 & 9073 & 9015.00 & 9073 & 0.6433 & 0.0 & 0.00 & 13.7931 \\
-berlin52 & 7542 & 7542.00 & 7542 & 0.0 & 0.0 & 0.00 & 5.2790 \\
-bier127 & 119003 & 118068.00 & 118282 & 0.7919 & 0.0 & 0.68 & 4.1619 \\
-ch130 & 6178 & 6075.50 & 6110 & 1.6871 & 0.0 & 45.46 & 4.2098 \\
-ch150 & 6657 & 6490.75 & 6528 & 2.5613 & 0.0 & 104.30 & 3.4093 \\
-d198 & 15863 & 15717.00 & 15781 & 0.9289 & 0.0 & 343.39 & 2.8867 \\
-eil101 & 634 & 627.50 & 629 & 1.0363 & 0.0 & 2.33 & 5.8613 \\
-eil51 & 427 & 422.50 & 426 & 1.0654 & 0.0 & 0.17 & 9.1764 \\
-eil76 & 546 & 537.00 & 538 & 1.6760 & 0.0 & 0.02 & 7.7543 \\
-fri26 & 937 & 937.00 & 937 & 0.0001 & 0.0 & 0.00 & 11.0769 \\
-gil262 & 2419 & 2355.50 & 2415 & 2.6959 & 2.5261 & 2000.0 &  \\
-gr137 & 70317 & 69120.25 & 69853 & 1.7314 & 0.0 & 18.86 & 3.5530 \\
-gr17 & 2085 & 2085.00 & 2085 & 0.0 & 0.0 & 0.00 & 12.5 \\
-gr202 & 41069 & 40055.00 & 40160 & 2.5315 & 0.0 & 116.25 & 2.8028 \\
-gr21 & 2707 & 2707.00 & 2707 & 0.0 & 0.0 & 0.00 & 0.0 \\
-gr229 & 137445 & 133317.02 & 136329 & 3.0963 & 2.2592 & 2000.0 &  \\
-gr24 & 1272 & 1271.98 & 1272 & 0.0014 & 0.0 & 0.00 & 12.6811 \\
-gr48 & 5046 & 4959.00 & 5046 & 1.7544 & 0.0 & 0.10 & 10.1950 \\
-gr96 & 55260 & 54570.50 & 55210 & 1.2635 & 0.0 & 1.80 & 5.3728 \\
-hk48 & 11461 & 11441.07 & 11461 & 0.1742 & 0.0 & 0.00 & 6.8262 \\
-kroA100 & 21282 & 20936.50 & 21282 & 1.6502 & 0.0 & 1.19 & 4.3434 \\
-kroA150 & 26842 & 26299.00 & 26524 & 2.0647 & 0.0 & 23.24 & 3.4541 \\
-kroA200 & 29575 & 29065.00 & 29522 & 1.7547 & 1.5723 & 2000.0 &  \\
-kroB100 & 22278 & 21834.00 & 22141 & 2.0335 & 0.0 & 1.44 & 5.0707 \\
-kroB150 & 26338 & 25732.50 & 26130 & 2.3531 & 0.0 & 622.89 & 3.4899 \\
-kroB200 & 30002 & 29176.50 & 29635 & 2.8293 & 1.5715 & 2000.0 &  \\
-kroC100 & 20769 & 20472.50 & 20749 & 1.4483 & 0.0 & 0.54 & 4.5858 \\
-kroD100 & 21395 & 21141.50 & 21294 & 1.1991 & 0.0 & 1.42 & 5.2525 \\
-kroE100 & 22260 & 21799.50 & 22068 & 2.1124 & 0.0 & 6.14 & 5.3535 \\
-lin105 & 14379 & 14370.50 & 14379 & 0.0592 & 0.0 & 0.01 & 2.8754 \\
-pr124 & 59087 & 58286.67 & 59030 & 1.3731 & 0.0 & 0.18 & 2.7930 \\
-pr136 & 97644 & 95934.49 & 96772 & 1.7820 & 0.0 & 302.71 & 4.3790 \\
-pr144 & 58571 & 58216.25 & 58537 & 0.6094 & 0.0 & 0.10 & 2.1173 \\
-pr152 & 74021 & 73234.50 & 73682 & 1.0739 & 0.0 & 2.48 & 2.5880 \\
-pr226 & 80590 & 80204.00 & 80369 & 0.4813 & 0.0 & 2.45 & 1.5496 \\
-pr264 & 49395 & 49020.18 & 49135 & 0.7647 & 0.0 & 14.33 & 1.990 \\
-pr299 & 48816 & 47380.00 & 48816 & 3.0308 & 3.0308 & 2000.0 &  \\
-pr76 & 108395 & 105120.00 & 108159 & 3.1155 & 0.0 & 11.76 & 6.8070 \\
-rat195 & 2386 & 2299.25 & 2323 & 3.7730 & 1.0330 & 2000.0 &  \\
-rat99 & 1218 & 1206.00 & 1211 & 0.9951 & 0.0 & 0.40 & 5.1535 \\
-rd100 & 7913 & 7899.33 & 7910 & 0.1730 & 0.0 & 0.11 & 3.7777 \\
-st70 & 676 & 671.00 & 675 & 0.7452 & 0.0 & 0.33 & 6.4596 \\
-swiss42 & 1273 & 1272.00 & 1273 & 0.0786 & 0.0 & 0.00 & 7.3170 \\
-ts225 & 126809 & 115605.00 & 126809 & 9.6916 & 9.6916 & 2000.0 &  \\
-tsp225 & 4047 & 3878.25 & 4047 & 4.3512 & 4.3512 & 2000.0 &  \\
-u159 & 42543 & 41925.00 & 42168 & 1.4741 & 0.0 & 57.40 & 2.8898 \\
-ulysses16 & 6859 & 6859.00 & 6859 & 0.0 & 0.0 & 0.00 & 13.3333 \\
-ulysses22 & 7013 & 7012.87 & 7013 & 0.0019 & 0.0 & 0.00 & 14.7186 \\
+a280 & 2627 & 2566.00 & 2627 & 2.3773 & 2.3773 & 2000.0 & &  2579 &    0.00&  49.27  \\
+att48 & 10628 & 10604.00 & 10628 & 0.2263 & 0.0 & 0.01 & 7.5354 & 10628&    0.00 &  0.01 \\
+berlin52 & 7542 & 7542.00 & 7542 & 0.0 & 0.0 & 0.00 & 5.2790 &  7542&    0.00 &    0.00 \\
+bier127 & 119003 & 118068.00 & 118282 & 0.7919 & 0.0 & 0.68 & 4.1619 &118282&    0.00 &  2.17 \\
+ch130 & 6178 & 6075.50 & 6110 & 1.6871 & 0.0 & 45.46 & 4.2098 &  6110&    0.00 & 18.31  \\
+ch150 & 6657 & 6490.75 & 6528 & 2.5613 & 0.0 & 104.30 & 3.4093 &  6528&    0.00 &  32.61 \\
+d198 & 15863 & 15717.00 & 15781 & 0.9289 & 0.0 & 343.39 & 2.8867 & 15780 &    0.00& 1374.91  \\
+eil101 & 634 & 627.50 & 629 & 1.0363 & 0.0 & 2.33 & 5.8613 &   629 &    0.00& 24.1 \\
+eil51 & 427 & 422.50 & 426 & 1.0654 & 0.0 & 0.17 & 9.1764 &   426&    0.00 &  1.07 \\
+eil76 & 546 & 537.00 & 538 & 1.6760 & 0.0 & 0.02 & 7.7543 &   538&    0.00 &  0.03 \\
+fri26 & 937 & 937.00 & 937 & 0.0001 & 0.0 & 0.00 & 11.0769 &   937 &  0.00 & 0.00 \\
+gil262 & 2419 & 2355.50 & 2415 & 2.6959 & 2.5261 & 2000.0 & &  2410 &2.3355 & 2000.0 \\
+gr137 & 70317 & 69120.25 & 69853 & 1.7314 & 0.0 & 18.86 & 3.5530 & 69853 &  0.00  & 1.05 \\
+gr17 & 2085 & 2085.00 & 2085 & 0.0 & 0.0 & 0.00 & 12.5 &  2085 &  0.00  &   0.00 \\
+gr202 & 41069 & 40055.00 & 40160 & 2.5315 & 0.0 & 116.25 & 2.8028 & 40160  &  0.00 & 121.67  \\
+gr21 & 2707 & 2707.00 & 2707 & 0.0 & 0.0 & 0.00 & 0.0 &  2707  &  0.00 &  0.00 \\
+gr229 & 137445 & 133317.02 & 136329 & 3.0963 & 2.2592 & 2000.0 &  &134829 &1.1341 & 2000.0 \\
+gr24 & 1272 & 1271.98 & 1272 & 0.0014 & 0.0 & 0.00 & 12.6811 &  1272 &  0.00  & 0.00 \\
+gr48 & 5046 & 4959.00 & 5046 & 1.7544 & 0.0 & 0.10 & 10.1950 &  5046 &  0.00  &  0.00 \\
+gr96 & 55260 & 54570.50 & 55210 & 1.2635 & 0.0 & 1.80 & 5.3728 & 55210  &  0.00 & 2.18 \\
+hk48 & 11461 & 11441.07 & 11461 & 0.1742 & 0.0 & 0.00 & 6.8262 & 11461 &  0.00  & 0.00 \\
+kroA100 & 21282 & 20936.50 & 21282 & 1.6502 & 0.0 & 1.19 & 4.3434 & 21282 &  0.00  &  0.00\\
+kroA150 & 26842 & 26299.00 & 26524 & 2.0647 & 0.0 & 23.24 & 3.4541 & 26524 &  0.00  & 2.87 \\
+kroA200 & 29575 & 29065.00 & 29522 & 1.7547 & 1.5723 & 2000.0 &  &    29368  & 1.0425 & 2000.0 \\
+kroB100 & 22278 & 21834.00 & 22141 & 2.0335 & 0.0 & 1.44 & 5.0707 & 22141  &  0.00  & 2.15 \\
+kroB150 & 26338 & 25732.50 & 26130 & 2.3531 & 0.0 & 622.89 & 3.4899 & 26130 &  0.00  &  16.47 \\
+kroB200 & 30002 & 29176.50 & 29635 & 2.8293 & 1.5715 & 2000.0 & &   29437  &  0.00 & 1641.73 \\
+kroC100 & 20769 & 20472.50 & 20749 & 1.4483 & 0.0 & 0.54 & 4.5858 & 20749  &  0.00  & 0.00 \\
+kroD100 & 21395 & 21141.50 & 21294 & 1.1991 & 0.0 & 1.42 & 5.2525 & 21294 &  0.00  & 0.50  \\
+kroE100 & 22260 & 21799.50 & 22068 & 2.1124 & 0.0 & 6.14 & 5.3535 & 22068 &  0.00  & 12.34 \\
+lin105 & 14379 & 14370.50 & 14379 & 0.0592 & 0.0 & 0.01 & 2.8754 & 14379 &  0.00  &  2.31 \\
+pr124 & 59087 & 58286.67 & 59030 & 1.3731 & 0.0 & 0.18 & 2.7930 & 59030 &  0.00  &  0.00 \\
+pr136 & 97644 & 95934.49 & 96772 & 1.7820 & 0.0 & 302.71 & 4.3790 & 96772  &  0.00 & 134.01 \\
+pr144 & 58571 & 58216.25 & 58537 & 0.6094 & 0.0 & 0.10 & 2.1173 & 58537 &  0.00  &  1.91 \\
+pr152 & 74021 & 73234.50 & 73682 & 1.0739 & 0.0 & 2.48 & 2.5880 & 73682 &  0.00  & 1.83 \\
+pr226 & 80590 & 80204.00 & 80369 & 0.4813 & 0.0 & 2.45 & 1.5496 & 80369 &  0.00  &  14.13  \\
+pr264 & 49395 & 49020.18 & 49135 & 0.7647 & 0.0 & 14.33 & 1.990 & 49135 &  0.00  &  17.29 \\
+pr299 & 48816 & 47380.00 & 48816 & 3.0308 & 3.0308 & 2000.0 & & 48816 & 3.0308 & 2000.0 \\
+pr76 & 108395 & 105120.00 & 108159 & 3.1155 & 0.0 & 11.76 & 6.8070 &108159 &  0.00  &  4.04 \\
+rat195 & 2386 & 2299.25 & 2323 & 3.7730 & 1.0330 & 2000.0 &  &  2323 &  0.00  & 1202.47  \\
+rat99 & 1218 & 1206.00 & 1211 & 0.9951 & 0.0 & 0.40 & 5.1535 &  1211  &  0.00 & 2.18 \\
+rd100 & 7913 & 7899.33 & 7910 & 0.1730 & 0.0 & 0.11 & 3.7777 &  7910  &  0.00 & 1.02 \\
+st70 & 676 & 671.00 & 675 & 0.7452 & 0.0 & 0.33 & 6.4596 &   675 &  0.00  &  0.3 \\
+swiss42 & 1273 & 1272.00 & 1273 & 0.0786 & 0.0 & 0.00 & 7.3170 &  1273 &  0.00  & 0.00  \\
+ts225 & 126809 & 115605.00 & 126809 & 9.6916 & 9.6916 & 2000.0 &  & 126809 &9.6916 & 2000.0  \\
+tsp225 & 4047 & 3878.25 & 4047 & 4.3512 & 4.3512 & 2000.0 &  &  3999 & 3.1135 & 976.62 \\
+u159 & 42543 & 41925.00 & 42168 & 1.4741 & 0.0 & 57.40 & 2.8898 & 42080 &  0.00  & 18.08  \\
+ulysses16 & 6859 & 6859.00 & 6859 & 0.0 & 0.0 & 0.00 & 13.3333 &  6859  &  0.00  &    0.00 \\
+ulysses22 & 7013 & 7012.87 & 7013 & 0.0019 & 0.0 & 0.00 & 14.7186 &  7013  &  0.00 &  0.00 \\
 \bottomrule
     \end{longtabu}
-    \end{center}
     \captionof{table}{Risultati del branch-and-bound con prefissaggio di variabili.}
+    \end{landscape}
     \clearpage% Flush page
 \end{scriptsize}
 }
@@ -263,9 +265,11 @@ Riportiamo ora i risultati dei test del branch-and-bound con prefissaggio delle 
 
 Nella tabella \ref{tab:bbconstres} sono riportati, per ciascuna istanza, i due bound e il valore finale ottenuto, il gap iniziale percentuale tra i due bound, il gap percentuale finale ($0.0$ indica che l'istanza è stata risolta all'ottimo), il tempo impiegato e la percentuale di archi su cui il B\&B ha lavorato, cioè la percentuale di variabili non fissate dal preprocessing.
 
-Nele istanze più grandi il branch-and-bound, anche se limitato a poche centinaia di variabili, non è riuscito a trovare l’ottimo (locale) nel tempo dato. In alcune di esse, non è stato nemmeno rilevato alcun miglioramento del bound iniziale. Tuttavia, nelle rimanenti istanze testate, l’algoritmo ha sempre trovato l’ottimo globale (ad eccezione di \texttt{u159}, in cui è stata trovata una soluzione di costo di poco superiore all’ottimo), in un tempo considerevolmente ridotto rispetto al branch-and-bound presentato nel capitolo 2. Sono state inoltre affrontate e risolte istanze che altrimenti sarebbero state proibitive, come \texttt{pr264}. Nella maggior parte dei casi, le istanze che terminano entro il limite dato sono state completate rimanendo anche entro il tempo limite di 500 secondi assegnato agli euristici basati su CPLEX.
+Nelle istanze più grandi il branch-and-bound, anche se limitato a poche centinaia di variabili, non è riuscito a trovare l’ottimo (locale) nel tempo dato. In alcune di esse, non è stato nemmeno rilevato alcun miglioramento del bound iniziale. Tuttavia, nelle rimanenti istanze testate, l’algoritmo ha quasi sempre trovato l’ottimo globale, ad eccezione di poche istanze, in cui sono state trovate soluzioni di costo di poco superiore all’ottimo), in un tempo considerevolmente ridotto rispetto al branch-and-bound presentato nel capitolo 2. Sono state inoltre affrontate e risolte istanze che altrimenti sarebbero state proibitive, come \texttt{pr264}. Nella maggior parte dei casi, le istanze che terminano entro il limite dato sono state completate rimanendo anche entro il tempo limite di 500 secondi assegnato agli euristici basati su CPLEX.
 
 Chiaramente le prestazioni del RC+2opt a monte del B\&B influenzano fortemente l’esito di quest’ultimo: aumentare il numero di iterazioni aumenta di conseguenza le probabilità di ottenere un bound di partenza migliore e una soluzione di costo minore, ma aumenta allo stesso tempo anche la possibilità di trovare un circuito che non si ``allinea’’ a quelli precedentemente trovati, riducendo quindi il numero di variabili che si possono fissare. Al contrario, con meno iterazioni in genere ci saranno tendenzialmente più variabili fissate, ma la soluzione finale sarà cercata in uno spazio delle soluzioni più limitato, con minori garanzie sulla sua qualità. Oltre a ciò, è immediato notare come le istanze che non terminano sono anche quelle in cui il gap iniziale tra i bound è più ampio, e di conseguenza ci sono molte più variabili libere.
+
+Proprio per questo motivo, vale a dire la possibilità di eliminare più archi, la versione ``rilassata'' del B\& B con prefissaggio consente di risolvere istanze che la versione che richiede il 100\% di consenso sugli archi non riesce a sfruttare, come ad esempio \texttt{kroA200}, \texttt{kroB200} e \texttt{a280}, e in generale è più veloce.
 
 \subsection{Euristici basati su solver MIP}
 \afterpage{%
@@ -354,7 +358,7 @@ ulysses22 & 7013 & 7013 & 7013 & 0.01 & 7013 & 0.01 & 7013 & 0.03 & 7013 & 0.00 
 \end{scriptsize}
 }
 
-In tabella \ref{tab:matheurres} sono riportati i risultati dei test effettuati usando gli euristici basato su CPLEX. Valori mancanti indicano che l'esecuzione è stata abortita per aver ecceduto il time limit senza terminare.
+In tabella \ref{tab:matheurres} sono riportati i risultati dei test effettuati usando gli euristici basato su CPLEX. Valori mancanti indicano che l'esecuzione è stata abortita per aver ecceduto il time limit senza terminare, e non è stato possibile ottenere alcuna informazione sul suo stato al momento della terminazione.
 
 Abbiamo implementato e testato Hard Fixing sfruttando le informazioni sugli archi ricavate dall’euristico, scegliendo inizialmente come prime variabili da fissare quelle su cui tutte le iterazioni dell'euristico iniziale concordano; poi, tra le rimanenti variabili, in maniera casuale abbiamo selezionato le ultime variabili da imporre. A queste variabili è stato assegnato il valore identificato dalla miglior soluzione dell’euristico iniziale.
 
@@ -383,126 +387,3 @@ Il branch-and-bound con prefissaggio delle variabili si è rivelato molto effica
 Gli euristici basati su risolutori MIP sono quindi, tra le soluzioni analizzate, quelle a cui rivolgersi per attaccare istanze di dimensioni più elevate. Hard Fixing converge all’ottimo locale molto velocemente, anche se in maniera poco predicibile e poco dipendente dall’effettiva dimensione dell’istanza; per di più, la qualità della soluzione ritornata è legata alla scelta delle variabili imposte, scelta che richiede della conoscenza pregressa del dominio per poter essere effettuata con cognizione di causa. Proximity Search ha mostrato in molti casi un rapido aggiornamento iniziale, ma sulle istanze più grandi ha impiegato molto tempo ad aggiornare l'incumbent. La coppia di euristici interni a CPLEX RINS+Polishing, fornisce risultati molto buoni nei tempi dati, cosa tuttavia poco sorprendente data la qualità del solver. L’operazione di crossing over dell’algoritmo genetico su cui si basa Polishing permette di esplorare maggiormente lo spazio di ricerca, mentre le altre tecniche analizzate, così come il Branch-and-bound con prefissaggio, sono limitate ad un intorno della soluzione iniziale fornita (sia pure ``mobile’’, nel caso di Proximity Search). Inoltre, il fatto di essere implementazioni interne a CPLEX consente loro di sfruttare a pieno le potenzialità e il tuning del solver, cosa preclusa alle nostre implementazioni, sia per l’uso limitato del solver consentito alle implementazioni ``esterne’’ (come ad esempio la disabilitazione di dynamic search quando vengono usate le callback), sia per la nostra minore conoscenza del solver.
 
 La principale difficoltà nell’implementare euristici usando un MIP solver, perlomeno basandosi su CPLEX o altre soluzioni commerciali, sta nel fatto che i risolutori commerciali nascondono il più possibile all’utente il proprio funzionamento interno per proteggere i propri segreti industriali, e di conseguenza diventa più difficile capire se l’algoritmo implementato è corretto, totalmente errato, o migliorabile, o individuare la causa degli errori che si possono verificare.
-
-\afterpage{%
-    \clearpage% Flush earlier floats (otherwise order might not be correct)
-    \thispagestyle{empty}% empty page style (?)
-\begin{scriptsize}
-\begin{landscape}
-    \begin{longtabu} to \linewidth {c|rrS[table-format=6.2]S[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]}
-    \toprule
-    \multicolumn{1}{c}{} & \multicolumn{4}{c}{} & \multicolumn{3}{c}{BB-PR-1} & \multicolumn{3}{c}{BB} & \multicolumn{3}{c}{RC+2-opt} & \multicolumn{3}{c}{RC+23opt} \\
-%    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-9}
-    Istanza & $z^*$ & UB & LB & AR [\%] & \#L & \#N & T [s] & \#L & \#N & T [s] & \#L & \#N & T [s] & \#L & \#N & T [s]  \\
-    \midrule
-    \endhead
-\label{tab:bbres}
-att48	 &   10628 &   10628 &   10604 &   91.76  &    5 &   16 &   0.01  &     3 &    12 &    0.01 &     4 &     8 &    0.02  &     3 &     8 &    0.00 \\
-berlin52	 &    7542 &    7542 &    7542 &    96.08  &   1 &    1 &     0.00  &   1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
-bier127	 &  118282 &  118282 &  117431 &   87.59  &   34 &   583267 &    3600.01  &    36 &  3777582 & 3600.01 &    27 & 23466 &  470.43  &    25 & 33809 &   92.54 \\
-burma14	 &    3323 &    3323 &    3323 &      84.62  &    1 &   1 &  0.00  &  1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
-ch130	 &    6110 &    6110 &    6076 &      93.56  &  22 &  6771 &      43.14  &    29 & 56854 &   45.80 &    26 &  5361 &  101.07  &    31 & 43425 &   99.47 \\
-ch150	 &    6528 &    6528 &    6490 &      94.71  &    17 &   1605 &      16.74  &    23 & 10730 &   12.35 &    19 &   719 &   25.15  &    20 &  6582 &   21.09 \\
-dantzig42 	 &     699 &     699 &     697 &     90.48  &   3 &      5 &   0.00  &     4 &     7 &    0.00 &     3 &     5 &    0.01  &     3 &     6 &    0.00 \\
-eil101	 &     629 &     629 &     628 &     96  &     5 &       41 &       0.22  &    18 &  1034 &    0.54 &     5 &    28 &    0.43  &    15 &   258 &    0.33 \\
-eil51	 &     426 &     426 &     423 &    90.59  &    13 &      265 &       0.16  &    23 &  2560 &    0.36 &    13 &   263 &    0.34  &    14 &   216 &    0.09 \\
-eil76	 &     538 &     538 &     537 &   95.09  &    15 &       62 &       0.14  &    14 &   919 &    0.32 &    15 &    62 &    0.35  &     6 &    25 &    0.03 \\
-fri26	 &     937 &     937 &     937 &      92  &     1 &        1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
-gr137	 &   69853 &   69853 &   69104 &   89.54  &  18 &     3398 &      21.62  &    18 &  3367 &    3.15 &    15 &  1343 &   26.09  &    16 &  1882 &    4.92 \\
-gr17		 &    2085 &    2085 &    2085 &   87.50  &     1 &        1 &  0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
-gr21		 &    2707 &    2707 &    2707 &   90  &     1 &        1 &  0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
-gr24		 &    1272 &    1272 &    1270 &   85.87  &   2 &  4 &    0.00  &     3 &     6 &    0.00 &     2 &     4 &    0.01  &     3 &     6 &    0.00 \\
-gr48		 &    5046 &    5046 &    4959 &   82.18  &  12 &   495 &       0.23  &    16 &  1200 &    0.19 &    10 &   245 &    0.28  &    18 &  1059 &    0.34 \\
-gr96		 &   55209 &   55209 &   54571 &   88.18  &  16 &  752 &       1.97  &    14 &  1030 &    0.60 &    18 &   473 &    3.40  &    16 &   503 &    0.88 \\
-hk48		 &   11461 &   11461 &   11444 &   93.09  &  4 &       12 &       0.01  &     3 &     7 &    0.00 &     4 &     8 &    0.01  &     4 &     9 &    0.00 \\
-kroA100	 &   21282 &   21282 &   20937 &   87.09  &  21 &     4498 &      14.11  &    20 &  7276 &    4.33 &    20 &  4382 &   39.54  &    19 &  6429 &    9.72 \\
-kroA150	 &   26524 &   26524 &   26299 &   92.49  &  24 &    13369 &     133.40  &    27 & 31453 &   39.31 &    24 &  5858 &  184.97  &    28 & 20658 &   72.57 \\
-kroB100	 &   22141 &   22141 &   21834 &   86.22  &  20 &     2784 &       9.25  &    19 &  4113 &    2.50 &    19 &  2217 &   22.27  &    18 &  2089 &    3.51 \\
-kroB150	 &   26130 &   26130 &   25733 &   86.10  &  36 &   379961 &    3600.01  &    40 &969462 & 1158.50 &    34 &124041 & 3600.04  &    39 &792119 & 2499.05 \\
-kroC100	 &   20749 &   20749 &   20473 &   88.34  &  15 &      534 &       1.61  &    14 &  1154 &    0.68 &    16 &   735 &    6.28  &    16 &  1326 &    1.76 \\
-kroD100	 &   21294 &   21294 &   21142 &   91.92  &  11 &       73 &       0.27  &    11 &   121 &    0.08 &     6 &    19 &    0.24  &    12 &   149 &    0.24 \\
-kroE100	 &   22068 &   22068 &   21800 &   88.57  &  23 &     9148 &      29.42  &    27 & 18513 &   10.24 &    21 &  3043 &   29.07  &    21 &  4793 &    6.96 \\
-lin105	 &   14379 &   14379 &   14370 &   96.54  &  2 &        2 &       0.06  &     2 &     4 &    0.01 &     2 &     2 &    0.06  &     2 &     4 &    0.01 \\
-pr107	 &   44303 &   44303 &   43434 &   67.47  &   52 &   756475 &  3600.01  &    50 &  1706228 & 3600.01 &    15 &   401 &    5.60  &    11 &   400 &    2.62 \\ 
-pr124	 &   59030 &   59030 &   58068 &   84.21  &   19 &     1156 &     5.71  &    18 &  1426 &    1.38 &    16 &   667 &    9.47  &    17 &   898 &    2.42 \\
-pr136	 &   96772 &   96772 &   95935 &   90.94  &   39 &   262308 &    1800.89  &    37 &267236 &  284.37 &    32 & 72740 & 1556.00  &    36 & 94345 &  280.15 \\
-pr144	 &   58537 &   58537 &   58188 &   89.71  &   25 &     1520 &    12.35  &    14 &   235 &    0.35 &    14 &   281 &    7.31  &    13 &   108 &    0.51 \\
-pr226	 &   80369 &   80369 &   80092 &   94.06  &  44 &    29915 &     799.22  &    45 &138602 &  318.40 &    32 & 16284 & 1524.05  &    31 & 48247 &  311.15 \\
-pr264	 &   49135 &   49135 &   48991 &   94.85  &   42 &    68186 &    3600.01  &    47 &497384 & 3600.01 &    14 &   144 &   25.41  &    13 &   128 &    2.51 \\
-pr76		 &  108159 &  108159 &  105120 &   68.56  &  31 &   187548 &   246.89  &    30 &248822 &   90.01 &    31 &169070 &  586.97  &    29 &156224 &  132.36 \\
-rat99	 &    1211 &    1211 &    1206 &   95.32  &    9 &    37 &    0.15  &    25 &   966 &    0.46 &    12 &    46 &    0.42  &    10 &    57 &    0.08 \\
-rd100	 &    7910 &    7910 &    7900 &   95.98  &   13 &    51 &   0.19  &    10 &    45 &    0.03 &     4 &     8 &    0.13  &     5 &    23 &    0.04 \\
-st70		 &     675 &     675 &     671 &  91.84  &   14 &   490 &   0.68  &    32 &  5337 &    1.50 &     5 &    17 &    0.09  &    10 &    86 &    0.08 \\
-swiss42	 &    1273 &    1273 &    1272 &  91.99  &    3 &    8 &   0.00  &     3 &    10 &    0.00 &     3 &     8 &    0.01  &     3 &    10 &    0.00 \\
-u159		 &   42080 &   42080 &   41925 &  96.22  &    14 &  738 &   7.03  &    14 &   774 &    0.91 &    12 &   396 &   12.56  &    16 &   781 &    2.24 \\
-ulysses16 	 &    6859 &    6859 &    6859 &  86.67  &   1 &    1 &  0.00  &   1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
-ulysses22 	 &    7013 &    7013 &    7012 &  84.42  &   1 &    1 &  0.00  &   1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 \\
-\bottomrule
-    \end{longtabu}
-    \captionof{table}{BB.}
-    \end{landscape}
-\clearpage
-\end{scriptsize}
-}
-
-
-\afterpage{%
-    \clearpage% Flush earlier floats (otherwise order might not be correct)
-    \thispagestyle{empty}% empty page style (?)
-\begin{scriptsize}
-\begin{landscape}
-    \begin{longtabu} to \linewidth {c|rrS[table-format=6.2]S[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]|rrS[table-format=4.2]}
-    \toprule
-    \multicolumn{1}{c}{} & \multicolumn{4}{c}{} & \multicolumn{3}{c}{BB-PR-1} & \multicolumn{3}{c}{BB} & \multicolumn{3}{c}{RC+2-opt} & \multicolumn{3}{c}{RC+23opt} \\
-%    \cmidrule(r){4-5} \cmidrule(r){6-7} \cmidrule(r){8-9}
-    Istanza & $z^*$ & UB & LB & AR [\%] & \#L & \#N & T [s] & \#L & \#N & T [s] & \#L & \#N & T [s] & \#L & \#N & T [s]  \\
-    \midrule
-    \endhead
-\label{tab:bbres2}
-att48 &   10628 &  10628 &  10604 & 91.76  &     5 &    11 &    0.01  &     4 &    13 &    0.01 &     3 &     8 &    0.00 &     3 &     8 &    0.00 \\
-berlin52 &    7542 &   7542 &   7542 & 96.08  &     1 &     1 &    0.00 &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
-bier127 &  118282 & 118282 & 117431 & 87.59  &    31 & 55092 &  424.40  &    27 & 43340 &  305.07 &    25 & 33809 &   92.54 &    30 & 28846 &   82.18 \\
-burma14 &    3323 &   3323 &   3323 & 84.62  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
-ch130 &    6110 &   6110 &   6076 & 93.56  &    31 & 52543 &  211.23  &    29 & 56556 &  215.54 &    31 & 43425 &   99.47 &    31 & 24303 &   56.88 \\
-ch150 &    6528 &   6528 &   6490 & 94.71  &    24 &  8368 &   42.71  &    22 &  8430 &   41.69 &    20 &  6582 &   21.09 &    24 &  4881 &   16.13 \\
-dantzig42  &     699 &    699 &    697 & 90.48  &     3 &     7 &    0.00  &     3 &     6 &    0.00 &     3 &     6 &    0.00 &     3 &     6 &    0.00 \\
-eil101 &     629 &    629 &    628 & 96.00  &    19 &   228 &    0.36  &    19 &   413 &    0.48 &    15 &   258 &    0.33 &    11 &   173 &    0.25 \\
-eil51 &     426 &    426 &    423 & 90.59  &    17 &   408 &    0.17  &    15 &   263 &    0.11 &    14 &   216 &    0.09 &    17 &   183 &    0.07 \\
-eil76 &     538 &    538 &    537 & 95.09  &     4 &    16 &    0.02  &     5 &    19 &    0.03 &     6 &    25 &    0.03 &     7 &    28 &    0.03 \\
-fri26 &     937 &    937 &    937 & 92.00  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
-gr137 &   69853 &  69853 &  69104 & 89.54  &    18 &  2336 &   13.46  &    17 &  2743 &   14.67 &    16 &  1882 &    4.92 &    18 &  1958 &    5.10 \\
-gr17	 &    2085 &   2085 &   2085 & 87.50  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
-gr21	 &    2707 &   2707 &   2707 & 90.00  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
-gr24	 &    1272 &   1272 &   1270 & 85.87  &     3 &     7 &    0.00  &     3 &     7 &    0.00 &     3 &     6 &    0.00 &     3 &     6 &    0.01 \\
-gr48	 &    5046 &   5046 &   4959 & 82.18  &    17 &  1204 &    0.58  &    16 &  1264 &    0.55 &    18 &  1059 &    0.34 &    14 &   556 &    0.19 \\
-gr96	 &   55209 &  55209 &  54571 & 88.18  &    16 &   693 &    1.99  &    16 &   671 &    1.88 &    16 &   503 &    0.88 &    15 &   404 &    0.68 \\
-hk48	 &   11461 &  11461 &  11444 & 93.09  &     3 &     6 &    0.00  &     4 &    10 &    0.00 &     4 &     9 &    0.00 &     4 &     9 &    0.00 \\
-kroA100 &   21282 &  21282 &  20937 & 87.09  &    20 &  8542 &   25.20  &    20 &  8091 &   22.14 &    19 &  6429 &    9.72 &    18 &  3276 &    5.20 \\
-kroA150 &   26524 &  26524 &  26299 & 92.49  &    29 & 21177 &  150.10  &    29 & 28110 &  186.48 &    28 & 20658 &   72.57 &    25 & 15121 &   53.86 \\
-kroB100 &   22141 &  22141 &  21834 & 86.22  &    16 &  2361 &    8.19  &    18 &  2661 &    8.95 &    18 &  2089 &    3.51 &    18 &  1271 &    2.30 \\
-kroB150 &   26130 &  26130 &  25733 & 86.10  &    39 &419667 & 3600.01  &    38 &446871 & 3600.01 &    39 &792119 & 2499.05 &    41 &498885 & 1623.01 \\
-kroC100 &   20749 &  20749 &  20473 & 88.34  &    17 &  1553 &    3.64  &    15 &  1760 &    3.90 &    16 &  1326 &    1.76 &    16 &  1216 &    1.67 \\
-kroD100 &   21294 &  21294 &  21142 & 91.92  &    14 &   210 &    0.44  &    11 &   183 &    0.39 &    12 &   149 &    0.24 &    10 &    86 &    0.13 \\
-kroE100 &   22068 &  22068 &  21800 & 88.57  &    26 &  9154 &   23.69  &    21 &  7024 &   16.65 &    21 &  4793 &    6.96 &    21 &  4402 &    6.55 \\
-lin105 &   14379 &  14379 &  14370 & 96.54  &     2 &     4 &    0.01  &     2 &     4 &    0.00 &     2 &     4 &    0.01 &     2 &     4 &    0.01 \\
-pr107 &   44303 &  44303 &  43434 & 67.47  &    49 & 81729 & 1135.39  &    31 & 56785 &  620.00 &    11 &   400 &    2.62 &    12 &   312 &    2.22 \\
-pr124 &   59030 &  59030 &  58068 & 84.21  &    15 &   945 &    6.77  &    19 &  1176 &    7.87 &    17 &   898 &    2.42 &    18 &   890 &    2.39 \\
-pr136 &   96772 &  96772 &  95935 & 90.94  &    36 &152514 & 1166.97  &    32 &129881 &  933.14 &    36 & 94345 &  280.15 &    33 &103237 &  296.93 \\
-pr144 &   58537 &  58537 &  58188 & 89.71  &    13 &   224 &    2.17  &    11 &   232 &    2.20 &    13 &   108 &    0.51 &    16 &   112 &    0.52 \\
-pr226 &   80369 &  80369 &  80092 & 94.06  &    63 &175451 & 3600.02  &    54 &250515 & 3600.01 &    31 & 48247 &  311.15 &    31 & 53452 &  337.83 \\
-pr264 &   49135 &  49135 &  48991 & 94.85  &    40 &  6552 &  208.34  &    22 &  1469 &   40.03 &    13 &   128 &    2.51 &    12 &   120 &    2.41 \\
-pr76	 &  108159 & 108159 & 105120 & 68.56  &    32 &225972 &  634.88  &    29 &206724 &  518.44 &    29 &156224 &  132.36 &    31 &225842 &  183.53 \\
-rat99 &    1211 &   1211 &   1206 & 95.32  &    14 &    90 &    0.14  &    10 &    67 &    0.10 &    10 &    57 &    0.08 &    10 &    57 &    0.08 \\
-rd100 &    7910 &   7910 &   7900 & 95.98  &     5 &    29 &    0.05  &     7 &    29 &    0.05 &     5 &    23 &    0.04 &     5 &    24 &    0.04 \\
-st70	 &     675 &    675 &    671 & 91.84  &    14 &   113 &    0.12  &    11 &    94 &    0.09 &    10 &    86 &    0.08 &     9 &    47 &    0.05 \\
-swiss42 &    1273 &   1273 &   1272 & 91.99  &     3 &    10 &    0.01  &     3 &    10 &    0.00 &     3 &    10 &    0.00 &     3 &    10 &    0.00 \\
-u159	 &   42080 &  42080 &  41925 & 96.22  &    15 &   401 &    1.88  &    15 &   613 &    2.64 &    16 &   781 &    2.24 &    18 &   677 &    2.07 \\
-ulysses16  &    6859 &   6859 &   6859 & 86.67  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
-ulysses22  &    7013 &   7013 &   7012 & 84.42  &     1 &     1 &    0.00  &     1 &     1 &    0.00 &     1 &     1 &    0.00 &     1 &     1 &    0.00 \\
-\bottomrule
-    \end{longtabu}
-    \captionof{table}{BB.}
-    \end{landscape}
-\clearpage
-\end{scriptsize}
-}
