@@ -5,11 +5,7 @@ La seconda via studiata per risolvere in maniera esatta il TSP è la formulazion
 Il modello MIP del TSP è riportato nell'introduzione della presente relazione. Il modello proposto è computazionalmente intrattabile; la causa principale di questa situazione risiede nel numero dei vincoli di aciclicità. Possiamo quindi rilassare il problema eliminando i SECs, e risolvere il problema così modificato. In genere, una soluzione al problema rilassato conterrà dei sottocicli; in tal caso possiamo individuarli, vietarli mediante appositi vincoli aggiunti come cutting planes e risolvere il nuovo problema. L'idea alla base di tale procedimento è che solo una piccola parte dei SECs sono effettivamente necessari per la corretta risoluzione del modello, mentre la maggior parte di loro non verrà mai violata da soluzioni di sufficiente qualità, pertanto la loro inclusione risulterebbe solo in un appesantimento del modello MIP.
 
 \subsection{Preprocessing}
-VA SPOSTATO SOPRA?
-
-Il subgradiente lagrangiano fornisce un lower bound rispetto alla soluzione ottima, mentre varie tecniche euristiche (cap. \ref{sec:capheur}) permettono di calcolare una soluzione ammissibile, quindi un upper bound al valore dell'ottimo. Possiamo sfruttare queste informazioni per ``aiutare'' la risoluzione del modello, imponendo al risolutore di escludere dal calcolo le variabili corrispondenti agli archi che possiamo determinare a priori non saranno presenti nella soluzione ottima.
-
-Questo procedimento si può effettuare COME?
+Il subgradiente lagrangiano fornisce un lower bound rispetto alla soluzione ottima, mentre varie tecniche euristiche (cap. \ref{sec:capheur}) permettono di calcolare una soluzione ammissibile, quindi un upper bound al valore dell'ottimo. Possiamo sfruttare queste informazioni per ``aiutare'' la risoluzione del modello, imponendo al risolutore di escludere dal calcolo le variabili corrispondenti agli archi che possiamo determinare a priori non saranno presenti nella soluzione ottima. Questo procedimento si può effettuare nella maniera descritta in sezione \ref{sec:riduzionelati}.
 
 Un altro intervento preliminare che possiamo compiere è fornire al solver una soluzione intera ammissibile da cui partire per un ``raffinamento'' verso la soluzione ottima. Anche in questo caso, la soluzione iniziale si può calcolare con un algoritmo euristico.
 
