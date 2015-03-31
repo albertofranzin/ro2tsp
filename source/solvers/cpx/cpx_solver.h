@@ -1,39 +1,41 @@
 #ifndef CPX_SOLVER_H_
 #define CPX_SOLVER_H_
 
-#define _GNU_SOURCE
-#include <stdio.h>
+
 #include <stdlib.h>
-#include <assert.h>
+#include <stdio.h>
 #include <ilcplex/cplex.h>
-
-#include "../../base/constants.h"
+#include "../../base/global.h"
 #include "../../base/utils.h"
-#include "../../data/graph.h"
-#include "../../data/cycle.h"
-#include "../../data/onetree.h"
-#include "../../data/egraph.h"
-#include "../../data/tsp_env.h"
-#include "../../data/tsp_stats.h"
 
-#include "../../algos/compute_min_ot.h"
-#include "../../algos/compute_lagrange.h"
-#include "../../algos/compute_upper_bound.h"
-#include "../../algos/compute_deltas.h"
+#include "../../data/environment.h"
+#include "../../data/statistics.h"
+#include "../../data/parameters.h"
+#include "../../data/set.h"
 
-#include "cpx_callbacks.h"
-#include "cpx_table.h"
-#include "cpx_create_problem.h"
-#include "cpx_setup_problem.h"
-#include "cpx_add_secs.h"
-#include "cpx_add_kruskal_secs.h"
+#include "../../solvers/cpx/cpx_cstr.h"
+#include "../../solvers/cpx/cpx_create_problem.h"
+#include "../../solvers/cpx/cpx_setup_problem.h"
+#include "../../solvers/cpx/cpx_set_parameters.h"
+#include "../../solvers/cpx/cpx_preprocessing.h"
+
+#include "../../solvers/cpx/cpx_solve_iterative.h"
+#include "../../solvers/cpx/cpx_solve_miliotis.h"
+#include "../../solvers/cpx/cpx_solve_rins.h"
+#include "../../solvers/cpx/cpx_solve_hardfixing.h"
+#include "../../solvers/cpx/cpx_solve_proximity.h"
+#include "../../solvers/cpx/cpx_solve_local_branching.h"
+
 
 /**
- * [cpx_solver description]
- * @param te    problem environment
- * @param ts    problem stats
- * @param pars  user parameters
+ * cpx_solver
+ * cplex-based tsp solver: just a "proxy" method
+ *
+ * @param ce	cpx environment
+ * @param cs	cpx environment
+ * @param pars	user parameters
  */
-int cpx_solver(tsp_env *te, tsp_stats *ts, parameters *pars);
+int cpx_solver(environment *env, statistics *stats, parameters *pars);
 
-#endif
+
+#endif /* CPX_SOLVER_H_ */

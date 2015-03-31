@@ -1,83 +1,69 @@
-#ifndef __CYCLE_H
-#define __CYCLE_H
-
-
-#include "../base/constants.h"
-#include <stdio.h>
+#ifndef CYCLE_H_
+#define CYCLE_H_
 #include <stdlib.h>
-#include <string.h>
-#include <malloc.h>
-
-
+#include <stdio.h>
+#include "../base/global.h"
 
 typedef struct _cycle {
-
-  // number of distinct nodes in the cycle,
-  // i.e. cycle closes on first node, without need to store it twice
-  int n;
-  // sequence of nodes
-  int *nodes;
-  // list of edge costs
-  // costs[i] = cost of edge (node[i], node[i%n])
-  double *costs; 
+	int 	vrtx_num;	/* number of distinct vertices in the cycle; */
+						/* cycle closes on first node, without need */
+						/* to store it twice */
+	int		*vrtx_idx;	/* list of vertex indexes */
 
 } cycle;
 
 
-
-/*
- * cycle_init
- * - C : cycle
- * - n : number of nodes in the cycle
- *
- * initializes a cycle, with n nodes
- */
-void cycle_init(cycle *C, const int n);
-
-
-
-/*
- * cycle_delete
- * - C : cycle
- *
- * delete a cycle
- */
-void cycle_delete(cycle *C);
+/**
+* @brief		Initialize a cycle structure.
+* @param[in] c	cycle
+* @return   	= 0 if no error
+* 				< 0 if error
+* @pre			-
+* @post			-
+* @note			-
+*/
+int cycle_init(cycle *c);
 
 
-
-/*
- * cycle_get_cost
- * - C : cycle
- *
- * compute the cost of a given cycle
- *
- * return : cost of the cycle
- */
-double cycle_get_cost(cycle *C);
-
-
-
-/*
- * cycle_copy
- * - FROM : source cycle
- * - TO : target cycle
- *
- * copy cycle FROM into cycle TO
- */
-void cycle_copy(cycle *FROM, cycle *TO);
+/**
+* @brief		Delete a cycle.
+* @param[in] c	cycle
+* @return   	= 0 if no error
+* 				< 0 if error
+* @pre			c is supposed to be initialized
+* @post			-
+* @note			-
+*/
+int cycle_delete(cycle *c);
 
 
+/**
+* @brief		Setup a cycle, allocate memory
+*           	space for it.
+* @param[in] c	cycle
+* @param[in] n  number of vertices
+* @return   	= 0 if no error
+* 				< 0 if error
+* @pre      	c is supposed to be initialized
+* @pre      	n >= 1
+* @post			-
+* @note			-
+*/
+int cycle_setup(cycle *c, int n);
 
-/*
- * cycle_print
- * - C : cycle
- *
- * print the list of nodes composing the cycle
- */
-void cycle_print(cycle *C);
+
+/**
+* @brief        	Copy a cycle.
+* @param[in]  from	cycle to be copied
+* @param[out] to	copied cycle
+* @return   		= 0 if no error
+* 					< 0 if error
+* @pre		  		from is supposed to be initialized
+* @pre		  		to is supposed to be initialized
+* @post				-
+* @note				-
+*/
+int cycle_copy(cycle *from, cycle *to);
 
 
-
-#endif
-
+#endif /* CYCLE_H_ */

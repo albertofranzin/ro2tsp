@@ -1,93 +1,131 @@
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
-
 #include <stdlib.h>
 #include <stdio.h>
-#include "../base/constants.h"
-
-
-typedef struct _graph_node {
-
-  int deg;
-  int deg_frc;
-  int deg_frb;
-
-} graph_node;
-
-
-
-typedef struct _graph_edge {
-
-  int flag; 
-  double cost;
-  int constr;
-  double delta;
-
-} graph_edge;
+#include "../base/global.h"
+#include "../base/utils.h"
 
 
 
 typedef struct _graph {
 
-  int n;
-  graph_node* V;
-  graph_edge* E;
+	int		vrtx_num;	/* number of vertices */
+	int		*vrtx_deg;	/* list containing the number of all */
+						/* edges incident to each vertex */
+	int		*vrtx_frc;	/* list containing the number of forced */
+						/* edges incident to each vertex */
+	int		*vrtx_frb;	/* list containing the number of forbidden */
+						/* edges incident to each vertex */
+	double	*edge_cost;	/* list of costs, one for each edge */
+	int		*edge_cstr;	/* list of constraints, one for each edge */
+	int		*edge_flag;	/* list of flags, one for each edge; */
+						/* if the edge is present, then its flag */
+						/* should be setted equal to 1 */
+	double  *edge_delta;
 
 } graph;
 
+/**
+* @brief    	Initialize a graph structure.
+* @param[in] g	graph
+* @return   	= 0 if no error
+* 				< 0 if error
+* @pre			-
+* @post			-
+* @note			-
+*/
+int graph_init(graph *g);
 
 
-void graph_init(graph* G, int n);
+/**
+* @brief    	Delete a graph.
+* @param[in] g  graph
+* @return   	= 0 if no error
+* 				< 0 if error
+* @pre      	g is supposed to be initialized
+* @post			-
+* @note			-
+*/
+int graph_delete(graph *g);
 
 
-
-void graph_delete(graph* G);
-
-
-
-void graph_copy(graph* FROM, graph* TO);
-
-
-
-void graph_insert_edge(graph* G, int u, int v, double cost, int constr);
-
-
-
-void graph_remove_edge(graph* G, int u, int v);
-
+/**
+* @brief    	Setup a graph, allocate memory
+*           	space for it.
+* @param[in] g  graph
+* @param[in] n  number of vertices
+* @return   	= 0 if no error
+* 				< 0 if error
+* @pre      	g is supposed to be initialized
+* @pre      	n >= 1
+* @post			-
+* @note			-
+*/
+int graph_setup(graph *g, int n);
 
 
-void graph_set_edge_cost(graph* G, int u, int v, double cost);
+/**
+* @brief       		Copy a graph.
+* @param[in]  from	graph to be copied
+* @param[out] to 	copied graph
+* @return   		= 0 if no error
+* 					< 0 if error
+* @pre        		from is supposed to be initialized
+* @pre        		to is supposed to be initialized
+* @pre				-
+* @post				-
+* @note				-
+*/
+int graph_copy(graph *from, graph *to);
 
 
-
-double graph_get_edge_cost(graph* G, int u, int v);
-
-
-
-void graph_set_edge_constr(graph* G, int u, int v, int constr);
-
-
-
-int graph_get_edge_constr(graph* G, int u, int v);
-
-
-
-void graph_set_edge_delta(graph* G, int u, int v, double delta);
-
-
-
-double graph_get_edge_delta(graph* G, int u, int v);
+/**
+* @brief		Add an edge to the graph.
+* @param[in] g  graph
+* @param[in] ie edge index
+* @param[in] w	weight or cost
+* @param[in] c	constraint
+* @return   	= 0 if no error
+* 				< 0 if error
+* @pre       	g is supposed to be initialized
+* @pre      	ie is a valid edge index
+* @pre			the edge is not in the graph
+* @post			-
+* @note			-
+*/
+int graph_insert_edge(graph *g, int ie, double w, int c);
 
 
+/**
+* @brief    	Remove an edge.
+* @param[in] g  graph
+* @param[in] ie edge index
+* @return   	= 0 if no error
+* 				< 0 if error
+* @pre       	g is supposed to be initialized
+* @pre      	ie is a valid edge index
+* @pre			the edge is in the graph
+* @post			-
+* @note			-
+*/
+int graph_remove_edge(graph *g, int ie);
 
-int graph_adjacent_nodes(graph* G, int u, int v);
+
+/**
+* @brief		Set the constraint of an edge.
+* @param[in] g  graph
+* @param[in] ie edge index
+* @param[in] c  constraint
+* @return   	= 0 if no error
+* 				< 0 if error
+* @pre          g is supposed to be initialized
+* @pre      	ie is a valid edge index
+* @pre			the edge is in the graph
+* @post			-
+* @note			-
+*/
+int graph_set_edge_cstr(graph *g, int ie, int c);
 
 
-
-double graph_get_cost(graph* G);
-
-
-
-#endif
+#endif /* GRAPH_H_ */

@@ -1,11 +1,24 @@
 #ifndef CPX_CREATE_PROBLEM_H_
 #define CPX_CREATE_PROBLEM_H_
 
-#include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <ilcplex/cplex.h>
+#include "../../base/global.h"
+#include "../../base/utils.h"
 
-int cpx_create_problem(CPXENVptr   *env,
-                       CPXLPptr    *lp,
-                       char        *probname);
+/**
+ * cpx_create_proble
+ * create cplex problem
+ *
+ * @param env       CPLEX environment, to be created here
+ * @param lp        CPLEX problem, to be created here
+ * @param probname  problem name
+ * @return          status of the function
+ */
+int cpx_create_problem(CPXENVptr  *cplexenv,
+                       CPXLPptr   *lp,
+                       char       *probname);
 
-#endif
+
+#endif /* CPX_CREATE_PROBLEM_H_ */

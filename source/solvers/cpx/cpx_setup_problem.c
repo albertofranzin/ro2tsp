@@ -1,153 +1,118 @@
-#include "cpx_setup_problem.h"
+#include "../../solvers/cpx/cpx_setup_problem.h"
 
-int cpx_setup_problem(CPXENVptr   env,
-                      CPXLPptr    lp,
-                      graph      *G,
-                      cpx_table  *hash_table,
-                      parameters *pars)
-{
-  int i, j, k,
-      ind, status;
+int cpx_setup_problem(CPXENVptr   	 cplexenv,
+                      CPXLPptr    	 lp,
+                      environment	*env,
+                      parameters	*pars) {
 
-  int    n    = G->n,
-         ccnt = n * (n - 1) / 2;
+	int status  	= 0;
+	int n       	= env->main_graph.vrtx_num;
+	int numedges	= n * (n - 1) / 2;
+	int numcols 	= numedges;
+	int my_edge, i, j, k;
 
-  double obj[ccnt];
-  double lb[ccnt];
-  double ub[ccnt];
-  char   xtype[ccnt];
-  int forbidden[ccnt];
-  memset(forbidden, 0, sizeof(forbidden));
-
-  //printf("CPXchgprobtype\n");
-  CPXchgprobtype(env, lp, CPXPROB_MILP); // forse non serve
-
-  // Objective function.
-  //printf("obj func\n");
-  for (i = 0; i < n; i++) {
-    for (j = i+1; j < n; j++) {
-      indx_from_vertices(hash_table, i, j, &ind);
-      obj[ind] = graph_get_edge_cost(G, i, j);
-      if (obj[ind] >= BIG) {
-        forbidden[ind] = 1;
-      }
-    }
-  }
-
-  //printf("type of variables\n");
-  // Type of variables.
-  for (i = 0; i < ccnt; i++) {
-    lb[i]    = 0.0;
-    ub[i]    = 1.0;
-    xtype[i] = 'B';
-  }
-
-  //printf("newcols\n");
-  status = CPXnewcols(env, lp, ccnt, obj, lb, ub, xtype, NULL);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c ::");
-    fprintf(stderr, " CPXnewcols.\n");
-    fprintf(stderr, "Error while inserting a constraint: %d.\n", status);
-    exit(1);
-  }
-
-  //printf("CPXchgobjsen\n");
-  status = CPXchgobjsen(env, lp, CPX_MIN);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c ::");
-    fprintf(stderr, " CPXchgobjsen.\n");
-    fprintf(stderr, "Error while setting problem type: %d.\n", status);
-    exit(1);
-  }
-
-  // Add constraints.
-  //printf("1\n");
-  int     rcnt = n;
-  //("2\n");
-  int     nzcnt = n * (n - 1);
-  //printf("3\n");
-  double  rhs[rcnt];
-  //printf("4\n");
-  char    sense[rcnt];
-  //printf("5\n");
-  int     rmatbeg[rcnt];
-  //printf("6\n");
-  int     rmatind[nzcnt];
-  //printf("7\n");
-  double  rmatval[nzcnt];
-  //printf("8\n");
-
-  //printf("ahnhanahna\n");
-  for (i = 0; i < rcnt; i++) {
-    //printf(",, %d\n", i);
-    rhs[i]     = 2.0;
-    sense[i]   = 'E';
-    rmatbeg[i] = i * (n-1);
-  }
-
-  //printf("mah\n");
-  for (i = 0; i < n; i++) {
-    k = 0;
-    for (j = 0; j < n; j++) {
-      if (j != i) {
-        indx_from_vertices(hash_table, i, j, &ind);
-        rmatind[i * (n-1) + k] = ind;
-        // attenzione: gli indici delle variabili passati con questo metodo
-        // si assumono numerati a partire da 0
-        k++;
-      }
-    }
-  }
-
-  //printf("boh\n");
-  for (i = 0; i < nzcnt; i++) {
-    rmatval[i] = 1.0;
-  }
-
-  //printf("addrows\n");
-  // nomi variabili e vincoli? le var si potrebbero chiamare x_i_j
-  // per capire che si riferiscono al lato (i, j)
-  status = CPXaddrows(env, lp, 0, rcnt, nzcnt, rhs, sense,
-                      rmatbeg, rmatind, rmatval, NULL, NULL);
-  if (status) {
-    fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c :: ");
-    fprintf(stderr, "CPXaddrows\n");
-    fprintf(stderr, "Error while inserting a new constraint: %d.\n", status);
-    exit(1);
-  }
-
-  int rrmatind[1];
-
-  char lbs[1] = {'B'};
-
-  double ubs[1] = {0.};
-
-  for (i = 0; i < ccnt; ++i) {
-    if (forbidden[i] == 1) {
-      rrmatind[0] = i;
-      status = CPXchgbds(env, lp, 1, rrmatind, lbs, ubs);
-      if (status) {
-        fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c :: ");
-        fprintf(stderr, "CPXaddrows\n");
-        fprintf(stderr, "Error while inserting a new constraint: %d.\n", status);
-        exit(1);
-      }
-
-      // printf("%d set to 0\n", i);
-    }
-  }
 
 #ifdef DEBUG
-  if (pars->verbosity >= VERBOSE) {
-    printf("saving model file\n");
-    status = CPXwriteprob(env, lp, "checkproblem.lp", NULL);
-    if (status) {
-      fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem :: ");
-      fprintf(stderr, "cannot save file checkproblem.lp, error %d\n", status);
-      exit(1);
-    }
-  }
+	if (pars->verbosity >= USEFUL) {
+		printf("solvers/cpx/cpx_setup_problem.c :: "
+			   "cpx_setup_problem: n = %d, numcols = %d\n", n, numcols);
+	}
 #endif
 
-  return status;
+	/* set problem as Mixed-Integer LP */
+	CPXchgprobtype(cplexenv, lp, CPXPROB_MILP);
+	if (status) {
+		fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
+						"function: cpx_setup_problem:\n"
+						"CPXchgprobtype : %d\n", status);
+		return status;
+	}
+
+	/* set objective function */
+	double *lb;      // lower bound on variables
+	double *ub;      // upper bound on variables
+	char   *xtype;   // type of variables
+	double *obj;     // objected value computed for the variables
+	char  **colname; // name of columns (really need this?)
+
+	lb      = (double *)calloc(numcols, sizeof(double));
+	ub      = (double *)calloc(numcols, sizeof(double));
+	xtype   = (char *)  calloc(numcols, sizeof(char));
+	obj     = (double *)calloc(numcols, sizeof(double));
+	colname = (char **) calloc(numcols, sizeof(char *));
+
+	for (i = 0; i < numcols; i++) {
+		colname[i] = (char *)calloc(100, sizeof(char));
+	}
+
+	// set variables: binary -> {0,1} -> [0,1] in the relaxated problem
+	// set bounds and retrieve variable corresponding to the vertex, according to
+	// its position in the table
+	for (my_edge = 0; my_edge < numedges; my_edge++) {
+		lb[my_edge]    	= 0.0;
+		ub[my_edge]    	= 1.0;
+		xtype[my_edge] 	= 'B';
+		obj[my_edge] 	= env->main_graph.edge_cost[my_edge];
+		sprintf(colname[my_edge], "x_%d_%d",
+		  get_v1(my_edge), get_v2(my_edge));
+	}
+
+	status = CPXnewcols(cplexenv, lp, numcols, obj, lb, ub, xtype, colname);
+	if (status) {
+		fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
+						"function: cpx_setup_problem:\n"
+                    	"PXnewcols : %d\n", status);
+		return status;
+	}
+
+	/* set problem as a minimum problem */
+	status = CPXchgobjsen(cplexenv, lp, CPX_MIN);
+	if (status) {
+		fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
+						"function: cpx_setup_problem:\n"
+                    	"CPXchgobjsen : %d\n", status);
+		return status;
+	}
+
+	/* set degree constraints */
+	cpx_cstr c;
+	cpx_cstr_init(&c);
+	cpx_cstr_setup(&c, n-1);
+
+	c.nzcnt   = n-1;
+	c.rmatbeg = 0;
+	c.rhs     = 2.0;
+	c.sense   = 'E';
+
+	for (i = 0; i < n; i++) {
+
+		sprintf(c.rowname, "deg_cstr_%d", i);
+
+		k = 0;
+		for (j = 0; j < n; j++) {
+			if (j != i) {
+				c.rmatind[k] = get_idx(i, j);
+				c.rmatval[k] = 1.0;
+				k++;
+			}
+		}
+
+	    status = cpx_cstr_add(cplexenv, lp, &c);
+	    if (status) {
+	    	fprintf(stderr, "Fatal error in solvers/cpx/cpx_setup_problem.c:\n"
+	                    	"function: cpx_setup_problem:\n"
+	                      	"cpx_cstr_add : %d\n", status);
+	    	return status;
+	    }
+
+	}
+
+
+	free(ub);
+	free(lb);
+	free(xtype);
+	free(obj);
+	free(colname);
+
+	return 0;
 }
